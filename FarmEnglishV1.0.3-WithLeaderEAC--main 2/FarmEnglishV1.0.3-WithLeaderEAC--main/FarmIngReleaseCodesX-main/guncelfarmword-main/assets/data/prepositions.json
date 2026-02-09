@@ -1,0 +1,383 @@
+{
+  "prepositions": [
+    {
+      "id": "prep_at_001",
+      "preposition": "at",
+      "category": "time",
+      "usage": "Saatler ve belirli zamanlar için",
+      "examples": [
+        { "sentence": "I wake up ___ 7 AM.", "correct": "at", "options": ["at", "in", "on"], "tr": "Sabah 7'de uyanırım." },
+        { "sentence": "The meeting starts ___ noon.", "correct": "at", "options": ["at", "in", "on"], "tr": "Toplantı öğlen başlıyor." },
+        { "sentence": "She arrives ___ midnight.", "correct": "at", "options": ["at", "in", "on"], "tr": "Gece yarısı geliyor." },
+        { "sentence": "Let's meet ___ 3 o'clock.", "correct": "at", "options": ["at", "in", "on"], "tr": "Saat 3'te buluşalım." }
+      ]
+    },
+    {
+      "id": "prep_at_002",
+      "preposition": "at",
+      "category": "place",
+      "usage": "Belirli noktalar ve mekanlar için",
+      "examples": [
+        { "sentence": "I'm ___ home now.", "correct": "at", "options": ["at", "in", "on"], "tr": "Şu an evdeyim." },
+        { "sentence": "She works ___ the office.", "correct": "at", "options": ["at", "in", "on"], "tr": "Ofiste çalışıyor." },
+        { "sentence": "We met ___ the bus stop.", "correct": "at", "options": ["at", "in", "on"], "tr": "Otobüs durağında buluştuk." },
+        { "sentence": "He's waiting ___ the door.", "correct": "at", "options": ["at", "in", "on"], "tr": "Kapıda bekliyor." }
+      ]
+    },
+    {
+      "id": "prep_in_001",
+      "preposition": "in",
+      "category": "time",
+      "usage": "Aylar, yıllar, mevsimler ve uzun dönemler için",
+      "examples": [
+        { "sentence": "I was born ___ 1995.", "correct": "in", "options": ["at", "in", "on"], "tr": "1995'te doğdum." },
+        { "sentence": "It's cold ___ winter.", "correct": "in", "options": ["at", "in", "on"], "tr": "Kışın soğuk olur." },
+        { "sentence": "We'll travel ___ July.", "correct": "in", "options": ["at", "in", "on"], "tr": "Temmuz'da seyahat edeceğiz." },
+        { "sentence": "I'll be back ___ an hour.", "correct": "in", "options": ["at", "in", "on"], "tr": "Bir saat içinde dönerim." },
+        { "sentence": "She finished ___ the morning.", "correct": "in", "options": ["at", "in", "on"], "tr": "Sabahleyin bitirdi." }
+      ]
+    },
+    {
+      "id": "prep_in_002",
+      "preposition": "in",
+      "category": "place",
+      "usage": "Kapalı mekanlar, şehirler ve ülkeler için",
+      "examples": [
+        { "sentence": "I live ___ Istanbul.", "correct": "in", "options": ["at", "in", "on"], "tr": "İstanbul'da yaşıyorum." },
+        { "sentence": "She's ___ the kitchen.", "correct": "in", "options": ["at", "in", "on"], "tr": "Mutfakta." },
+        { "sentence": "They work ___ Turkey.", "correct": "in", "options": ["at", "in", "on"], "tr": "Türkiye'de çalışıyorlar." },
+        { "sentence": "The keys are ___ my bag.", "correct": "in", "options": ["at", "in", "on"], "tr": "Anahtarlar çantamda." },
+        { "sentence": "There's water ___ the glass.", "correct": "in", "options": ["at", "in", "on"], "tr": "Bardakta su var." }
+      ]
+    },
+    {
+      "id": "prep_on_001",
+      "preposition": "on",
+      "category": "time",
+      "usage": "Günler ve tarihler için",
+      "examples": [
+        { "sentence": "I'll see you ___ Monday.", "correct": "on", "options": ["at", "in", "on"], "tr": "Pazartesi görüşürüz." },
+        { "sentence": "My birthday is ___ June 15th.", "correct": "on", "options": ["at", "in", "on"], "tr": "Doğum günüm 15 Haziran'da." },
+        { "sentence": "We're leaving ___ Friday.", "correct": "on", "options": ["at", "in", "on"], "tr": "Cuma günü ayrılıyoruz." },
+        { "sentence": "The party is ___ New Year's Eve.", "correct": "on", "options": ["at", "in", "on"], "tr": "Parti Yılbaşı Gecesi." }
+      ]
+    },
+    {
+      "id": "prep_on_002",
+      "preposition": "on",
+      "category": "place",
+      "usage": "Yüzeyler ve platformlar için",
+      "examples": [
+        { "sentence": "The book is ___ the table.", "correct": "on", "options": ["at", "in", "on"], "tr": "Kitap masanın üstünde." },
+        { "sentence": "She's sitting ___ the floor.", "correct": "on", "options": ["at", "in", "on"], "tr": "Yerde oturuyor." },
+        { "sentence": "There's a picture ___ the wall.", "correct": "on", "options": ["at", "in", "on"], "tr": "Duvarda bir resim var." },
+        { "sentence": "I live ___ the second floor.", "correct": "on", "options": ["at", "in", "on"], "tr": "İkinci katta yaşıyorum." }
+      ]
+    },
+    {
+      "id": "prep_to_001",
+      "preposition": "to",
+      "category": "direction",
+      "usage": "Yön ve varış noktası için",
+      "examples": [
+        { "sentence": "I'm going ___ school.", "correct": "to", "options": ["to", "at", "for"], "tr": "Okula gidiyorum." },
+        { "sentence": "She walked ___ the park.", "correct": "to", "options": ["to", "at", "for"], "tr": "Parka yürüdü." },
+        { "sentence": "We flew ___ London.", "correct": "to", "options": ["to", "at", "in"], "tr": "Londra'ya uçtuk." },
+        { "sentence": "Give this ___ your mother.", "correct": "to", "options": ["to", "for", "at"], "tr": "Bunu annene ver." }
+      ]
+    },
+    {
+      "id": "prep_for_001",
+      "preposition": "for",
+      "category": "purpose",
+      "usage": "Amaç ve süre için",
+      "examples": [
+        { "sentence": "This gift is ___ you.", "correct": "for", "options": ["to", "for", "at"], "tr": "Bu hediye senin için." },
+        { "sentence": "I waited ___ two hours.", "correct": "for", "options": ["to", "for", "in"], "tr": "İki saat bekledim." },
+        { "sentence": "What's this ___?", "correct": "for", "options": ["to", "for", "at"], "tr": "Bu ne için?" },
+        { "sentence": "He left ___ work early.", "correct": "for", "options": ["to", "for", "at"], "tr": "İşe erken gitti." }
+      ]
+    },
+    {
+      "id": "prep_from_001",
+      "preposition": "from",
+      "category": "origin",
+      "usage": "Kaynak ve başlangıç noktası için",
+      "examples": [
+        { "sentence": "I'm ___ Turkey.", "correct": "from", "options": ["from", "of", "at"], "tr": "Türkiye'denim." },
+        { "sentence": "The train arrives ___ Ankara.", "correct": "from", "options": ["from", "to", "at"], "tr": "Tren Ankara'dan geliyor." },
+        { "sentence": "I got a letter ___ my friend.", "correct": "from", "options": ["from", "by", "of"], "tr": "Arkadaşımdan mektup aldım." },
+        { "sentence": "We work ___ 9 to 5.", "correct": "from", "options": ["from", "at", "in"], "tr": "9'dan 5'e çalışıyoruz." }
+      ]
+    },
+    {
+      "id": "prep_with_001",
+      "preposition": "with",
+      "category": "accompaniment",
+      "usage": "Birliktelik ve araç için",
+      "examples": [
+        { "sentence": "I went ___ my friends.", "correct": "with", "options": ["with", "by", "to"], "tr": "Arkadaşlarımla gittim." },
+        { "sentence": "Cut it ___ a knife.", "correct": "with", "options": ["with", "by", "in"], "tr": "Bıçakla kes." },
+        { "sentence": "She came ___ her sister.", "correct": "with", "options": ["with", "by", "and"], "tr": "Ablasıyla geldi." },
+        { "sentence": "Fill the glass ___ water.", "correct": "with", "options": ["with", "by", "of"], "tr": "Bardağı suyla doldur." }
+      ]
+    },
+    {
+      "id": "prep_by_001",
+      "preposition": "by",
+      "category": "means",
+      "usage": "Ulaşım ve yapan kişi için",
+      "examples": [
+        { "sentence": "I go to work ___ bus.", "correct": "by", "options": ["by", "with", "in"], "tr": "İşe otobüsle gidiyorum." },
+        { "sentence": "This book was written ___ Orhan Pamuk.", "correct": "by", "options": ["by", "from", "with"], "tr": "Bu kitap Orhan Pamuk tarafından yazıldı." },
+        { "sentence": "She sent it ___ email.", "correct": "by", "options": ["by", "with", "in"], "tr": "E-posta ile gönderdi." },
+        { "sentence": "We traveled ___ train.", "correct": "by", "options": ["by", "with", "on"], "tr": "Trenle seyahat ettik." }
+      ]
+    },
+    {
+      "id": "prep_about_001",
+      "preposition": "about",
+      "category": "topic",
+      "usage": "Konu ve yaklaşık için",
+      "examples": [
+        { "sentence": "We talked ___ the movie.", "correct": "about", "options": ["about", "of", "for"], "tr": "Film hakkında konuştuk." },
+        { "sentence": "I know nothing ___ it.", "correct": "about", "options": ["about", "of", "for"], "tr": "Onun hakkında hiçbir şey bilmiyorum." },
+        { "sentence": "There are ___ 50 people here.", "correct": "about", "options": ["about", "around", "nearly"], "tr": "Burada yaklaşık 50 kişi var." },
+        { "sentence": "What's the book ___?", "correct": "about", "options": ["about", "of", "for"], "tr": "Kitap ne hakkında?" }
+      ]
+    },
+    {
+      "id": "prep_after_001",
+      "preposition": "after",
+      "category": "time",
+      "usage": "Sonra için",
+      "examples": [
+        { "sentence": "I'll call you ___ lunch.", "correct": "after", "options": ["after", "before", "during"], "tr": "Öğle yemeğinden sonra seni arayacağım." },
+        { "sentence": "She arrived ___ me.", "correct": "after", "options": ["after", "before", "behind"], "tr": "Benden sonra geldi." },
+        { "sentence": "We'll meet ___ the meeting.", "correct": "after", "options": ["after", "before", "during"], "tr": "Toplantıdan sonra buluşacağız." },
+        { "sentence": "Day ___ day, it gets better.", "correct": "after", "options": ["after", "by", "to"], "tr": "Günden güne daha iyi oluyor." }
+      ]
+    },
+    {
+      "id": "prep_before_001",
+      "preposition": "before",
+      "category": "time",
+      "usage": "Önce için",
+      "examples": [
+        { "sentence": "Finish this ___ dinner.", "correct": "before", "options": ["before", "after", "during"], "tr": "Bunu yemekten önce bitir." },
+        { "sentence": "I arrived ___ him.", "correct": "before", "options": ["before", "after", "behind"], "tr": "Ondan önce geldim." },
+        { "sentence": "Think ___ you speak.", "correct": "before", "options": ["before", "after", "while"], "tr": "Konuşmadan önce düşün." },
+        { "sentence": "It happened ___ the war.", "correct": "before", "options": ["before", "after", "during"], "tr": "Savaştan önce oldu." }
+      ]
+    },
+    {
+      "id": "prep_between_001",
+      "preposition": "between",
+      "category": "position",
+      "usage": "İki şey arasında için",
+      "examples": [
+        { "sentence": "Sit ___ me and your sister.", "correct": "between", "options": ["between", "among", "beside"], "tr": "Benimle kız kardeşinin arasına otur." },
+        { "sentence": "The meeting is ___ 2 and 4 PM.", "correct": "between", "options": ["between", "from", "at"], "tr": "Toplantı 2 ile 4 arası." },
+        { "sentence": "Choose ___ these two.", "correct": "between", "options": ["between", "among", "from"], "tr": "Bu ikisi arasından seç." },
+        { "sentence": "There's a park ___ the buildings.", "correct": "between", "options": ["between", "among", "beside"], "tr": "Binalar arasında bir park var." }
+      ]
+    },
+    {
+      "id": "prep_during_001",
+      "preposition": "during",
+      "category": "time",
+      "usage": "Süre boyunca için",
+      "examples": [
+        { "sentence": "Don't talk ___ the movie.", "correct": "during", "options": ["during", "while", "for"], "tr": "Film sırasında konuşma." },
+        { "sentence": "I fell asleep ___ the lesson.", "correct": "during", "options": ["during", "while", "in"], "tr": "Ders sırasında uyudum." },
+        { "sentence": "We met ___ the conference.", "correct": "during", "options": ["during", "while", "at"], "tr": "Konferans sırasında tanıştık." },
+        { "sentence": "It rained ___ the night.", "correct": "during", "options": ["during", "while", "in"], "tr": "Gece boyunca yağmur yağdı." }
+      ]
+    },
+    {
+      "id": "prep_into_001",
+      "preposition": "into",
+      "category": "direction",
+      "usage": "İçine doğru hareket için",
+      "examples": [
+        { "sentence": "She walked ___ the room.", "correct": "into", "options": ["into", "in", "to"], "tr": "Odaya girdi." },
+        { "sentence": "He jumped ___ the pool.", "correct": "into", "options": ["into", "in", "to"], "tr": "Havuza atladı." },
+        { "sentence": "Put the money ___ your pocket.", "correct": "into", "options": ["into", "in", "to"], "tr": "Parayı cebine koy." },
+        { "sentence": "The car crashed ___ the wall.", "correct": "into", "options": ["into", "in", "to"], "tr": "Araba duvara çarptı." }
+      ]
+    },
+    {
+      "id": "prep_without_001",
+      "preposition": "without",
+      "category": "absence",
+      "usage": "Olmadan için",
+      "examples": [
+        { "sentence": "I can't live ___ you.", "correct": "without", "options": ["without", "with", "by"], "tr": "Sensiz yaşayamam." },
+        { "sentence": "He left ___ saying goodbye.", "correct": "without", "options": ["without", "with", "by"], "tr": "Veda etmeden gitti." },
+        { "sentence": "She drinks coffee ___ sugar.", "correct": "without", "options": ["without", "with", "by"], "tr": "Şekersiz kahve içer." },
+        { "sentence": "Don't go out ___ your coat.", "correct": "without", "options": ["without", "with", "in"], "tr": "Montun olmadan dışarı çıkma." }
+      ]
+    },
+    {
+      "id": "prep_through_001",
+      "preposition": "through",
+      "category": "direction",
+      "usage": "İçinden geçerek için",
+      "examples": [
+        { "sentence": "Walk ___ the park.", "correct": "through", "options": ["through", "across", "over"], "tr": "Parkın içinden yürü." },
+        { "sentence": "The train goes ___ the tunnel.", "correct": "through", "options": ["through", "across", "over"], "tr": "Tren tünelden geçiyor." },
+        { "sentence": "I read ___ the book.", "correct": "through", "options": ["through", "across", "over"], "tr": "Kitabı baştan sona okudum." },
+        { "sentence": "Light shines ___ the window.", "correct": "through", "options": ["through", "across", "in"], "tr": "Işık pencereden geliyor." }
+      ]
+    },
+    {
+      "id": "prep_over_001",
+      "preposition": "over",
+      "category": "position",
+      "usage": "Üzerinden ve fazla için",
+      "examples": [
+        { "sentence": "The plane flew ___ the city.", "correct": "over", "options": ["over", "above", "on"], "tr": "Uçak şehrin üzerinden uçtu." },
+        { "sentence": "Jump ___ the fence.", "correct": "over", "options": ["over", "above", "on"], "tr": "Çitin üzerinden atla." },
+        { "sentence": "There are ___ 100 students.", "correct": "over", "options": ["over", "above", "more"], "tr": "100'den fazla öğrenci var." },
+        { "sentence": "We talked ___ the phone.", "correct": "over", "options": ["over", "on", "by"], "tr": "Telefonla konuştuk." }
+      ]
+    },
+    {
+      "id": "prep_under_001",
+      "preposition": "under",
+      "category": "position",
+      "usage": "Altında için",
+      "examples": [
+        { "sentence": "The cat is ___ the table.", "correct": "under", "options": ["under", "below", "beneath"], "tr": "Kedi masanın altında." },
+        { "sentence": "Children ___ 12 enter free.", "correct": "under", "options": ["under", "below", "less"], "tr": "12 yaş altı ücretsiz girer." },
+        { "sentence": "She hid ___ the blanket.", "correct": "under", "options": ["under", "below", "beneath"], "tr": "Battaniyenin altına saklandı." },
+        { "sentence": "We walked ___ the bridge.", "correct": "under", "options": ["under", "below", "beneath"], "tr": "Köprünün altından yürüdük." }
+      ]
+    },
+    {
+      "id": "prep_at_003",
+      "preposition": "at",
+      "category": "events",
+      "usage": "Etkinlikler ve durumlar için",
+      "examples": [
+        { "sentence": "I met her ___ the party.", "correct": "at", "options": ["at", "in", "on"], "tr": "Onu partide tanıdım." },
+        { "sentence": "He's good ___ math.", "correct": "at", "options": ["at", "in", "on"], "tr": "Matematikte iyi." },
+        { "sentence": "Look ___ this picture!", "correct": "at", "options": ["at", "on", "to"], "tr": "Bu resme bak!" },
+        { "sentence": "She arrived ___ last.", "correct": "at", "options": ["at", "in", "on"], "tr": "En sonunda geldi." },
+        { "sentence": "They laughed ___ my joke.", "correct": "at", "options": ["at", "on", "to"], "tr": "Şakama güldüler." }
+      ]
+    },
+    {
+      "id": "prep_in_003",
+      "preposition": "in",
+      "category": "expression",
+      "usage": "Durumlar ve ifadeler için",
+      "examples": [
+        { "sentence": "I'm ___ trouble.", "correct": "in", "options": ["in", "at", "on"], "tr": "Başım dertte." },
+        { "sentence": "She's ___ love with him.", "correct": "in", "options": ["in", "at", "on"], "tr": "Ona aşık." },
+        { "sentence": "He paid ___ cash.", "correct": "in", "options": ["in", "with", "by"], "tr": "Nakit ödedi." },
+        { "sentence": "Say it ___ English.", "correct": "in", "options": ["in", "at", "on"], "tr": "İngilizce söyle." },
+        { "sentence": "Write ___ ink, please.", "correct": "in", "options": ["in", "with", "by"], "tr": "Lütfen mürekkeple yaz." }
+      ]
+    },
+    {
+      "id": "prep_on_003",
+      "preposition": "on",
+      "category": "transport",
+      "usage": "Ulaşım araçları ve medya için",
+      "examples": [
+        { "sentence": "I saw it ___ TV.", "correct": "on", "options": ["on", "in", "at"], "tr": "Televizyonda gördüm." },
+        { "sentence": "She's ___ the phone.", "correct": "on", "options": ["on", "in", "at"], "tr": "Telefonda konuşuyor." },
+        { "sentence": "He's ___ the bus.", "correct": "on", "options": ["on", "in", "at"], "tr": "Otobüste." },
+        { "sentence": "I read it ___ the internet.", "correct": "on", "options": ["on", "in", "at"], "tr": "İnternette okudum." },
+        { "sentence": "She's ___ a diet.", "correct": "on", "options": ["on", "in", "at"], "tr": "Diyette." }
+      ]
+    },
+    {
+      "id": "prep_to_002",
+      "preposition": "to",
+      "category": "comparison",
+      "usage": "Karşılaştırma ve tepki için",
+      "examples": [
+        { "sentence": "Compared ___ last year, it's better.", "correct": "to", "options": ["to", "with", "by"], "tr": "Geçen yıla kıyasla daha iyi." },
+        { "sentence": "The answer ___ your question is yes.", "correct": "to", "options": ["to", "of", "for"], "tr": "Sorunun cevabı evet." },
+        { "sentence": "He's married ___ my sister.", "correct": "to", "options": ["to", "with", "by"], "tr": "Kız kardeşimle evli." },
+        { "sentence": "Listen ___ the music.", "correct": "to", "options": ["to", "at", "for"], "tr": "Müziği dinle." },
+        { "sentence": "Add salt ___ taste.", "correct": "to", "options": ["to", "for", "by"], "tr": "Tadına göre tuz ekle." }
+      ]
+    },
+    {
+      "id": "prep_for_002",
+      "preposition": "for",
+      "category": "reason",
+      "usage": "Neden ve ödeme için",
+      "examples": [
+        { "sentence": "Thank you ___ your help.", "correct": "for", "options": ["for", "to", "of"], "tr": "Yardımın için teşekkürler." },
+        { "sentence": "I paid $100 ___ this.", "correct": "for", "options": ["for", "to", "at"], "tr": "Bunun için 100 dolar ödedim." },
+        { "sentence": "I'm sorry ___ being late.", "correct": "for", "options": ["for", "about", "of"], "tr": "Geç kaldığım için özür dilerim." },
+        { "sentence": "What did you have ___ breakfast?", "correct": "for", "options": ["for", "at", "in"], "tr": "Kahvaltıda ne yedin?" },
+        { "sentence": "I'm looking ___ a job.", "correct": "for", "options": ["for", "at", "to"], "tr": "İş arıyorum." }
+      ]
+    },
+    {
+      "id": "prep_between_001",
+      "preposition": "between",
+      "category": "position",
+      "usage": "İki şey arasında için",
+      "examples": [
+        { "sentence": "Sit ___ Tom and Mary.", "correct": "between", "options": ["between", "among", "in"], "tr": "Tom ve Mary arasına otur." },
+        { "sentence": "Choose ___ these two.", "correct": "between", "options": ["between", "among", "from"], "tr": "Bu ikisi arasından seç." },
+        { "sentence": "It happened ___ 8 and 9 AM.", "correct": "between", "options": ["between", "from", "at"], "tr": "Sabah 8 ile 9 arasında oldu." },
+        { "sentence": "Keep this ___ us.", "correct": "among", "options": ["between", "among", "in"], "tr": "Bunu aramızda tut." }
+      ]
+    },
+    {
+      "id": "prep_off_001",
+      "preposition": "off",
+      "category": "separation",
+      "usage": "Ayrılma ve kapatma için",
+      "examples": [
+        { "sentence": "Get ___ the bus here.", "correct": "off", "options": ["off", "out", "from"], "tr": "Burada otobüsten in." },
+        { "sentence": "Turn ___ the lights.", "correct": "off", "options": ["off", "out", "down"], "tr": "Işıkları kapat." },
+        { "sentence": "Keep ___ the grass!", "correct": "off", "options": ["off", "out", "from"], "tr": "Çimenlere basmayın!" },
+        { "sentence": "He fell ___ the ladder.", "correct": "off", "options": ["off", "from", "down"], "tr": "Merdivenden düştü." }
+      ]
+    },
+    {
+      "id": "prep_out_001",
+      "preposition": "out",
+      "category": "direction",
+      "usage": "Dışarı ve tükenme için",
+      "examples": [
+        { "sentence": "Get ___ of the car.", "correct": "out", "options": ["out", "off", "from"], "tr": "Arabadan çık." },
+        { "sentence": "We ran ___ of milk.", "correct": "out", "options": ["out", "off", "from"], "tr": "Sütümüz bitti." },
+        { "sentence": "Look ___ of the window.", "correct": "out", "options": ["out", "off", "from"], "tr": "Pencereden bak." },
+        { "sentence": "Stay ___ of trouble!", "correct": "out", "options": ["out", "off", "away"], "tr": "Başını belaya sokma!" }
+      ]
+    },
+    {
+      "id": "prep_up_001",
+      "preposition": "up",
+      "category": "direction",
+      "usage": "Yukarı ve artış için",
+      "examples": [
+        { "sentence": "Wake ___ early tomorrow.", "correct": "up", "options": ["up", "on", "at"], "tr": "Yarın erken uyan." },
+        { "sentence": "Stand ___ please.", "correct": "up", "options": ["up", "on", "at"], "tr": "Lütfen ayağa kalk." },
+        { "sentence": "Pick ___ your toys.", "correct": "up", "options": ["up", "on", "off"], "tr": "Oyuncaklarını topla." },
+        { "sentence": "Prices went ___.", "correct": "up", "options": ["up", "on", "over"], "tr": "Fiyatlar arttı." }
+      ]
+    },
+    {
+      "id": "prep_down_001",
+      "preposition": "down",
+      "category": "direction",
+      "usage": "Aşağı ve azalış için",
+      "examples": [
+        { "sentence": "Sit ___ please.", "correct": "down", "options": ["down", "on", "in"], "tr": "Lütfen otur." },
+        { "sentence": "Walk ___ the street.", "correct": "down", "options": ["down", "on", "through"], "tr": "Cadde boyunca yürü." },
+        { "sentence": "Turn ___ the volume.", "correct": "down", "options": ["down", "off", "out"], "tr": "Sesi kıs." },
+        { "sentence": "Calm ___!", "correct": "down", "options": ["down", "off", "out"], "tr": "Sakinleş!" }
+      ]
+    }
+  ]
+}

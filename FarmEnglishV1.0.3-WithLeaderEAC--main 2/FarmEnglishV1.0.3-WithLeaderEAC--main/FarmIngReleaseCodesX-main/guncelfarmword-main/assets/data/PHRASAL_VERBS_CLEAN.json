@@ -1,0 +1,1826 @@
+[
+  {
+    "id": "pv_001",
+    "verb": "give up",
+    "meaning": "vazgeçmek, bırakmak (alışkanlık)",
+    "example": "Don't give up! Keep trying.",
+    "difficulty": "A1",
+    "category": "common"
+  },
+  {
+    "id": "pv_002",
+    "verb": "look after",
+    "meaning": "göz kulak olmak, ilgilenmek",
+    "example": "Can you look after my dog?",
+    "difficulty": "A1",
+    "category": "common"
+  },
+  {
+    "id": "pv_003",
+    "verb": "wake up",
+    "meaning": "uyanmak, uyandırmak",
+    "example": "I wake up at 7 AM every day.",
+    "difficulty": "A1",
+    "category": "daily"
+  },
+  {
+    "id": "pv_004",
+    "verb": "get up",
+    "meaning": "yataktan kalkmak, ayağa kalkmak",
+    "example": "What time do you get up?",
+    "difficulty": "A1",
+    "category": "daily"
+  },
+  {
+    "id": "pv_005",
+    "verb": "come back",
+    "meaning": "geri dönmek",
+    "example": "When will you come back?",
+    "difficulty": "A1",
+    "category": "common"
+  },
+  {
+    "id": "pv_006",
+    "verb": "sit down",
+    "meaning": "oturmak",
+    "example": "Please sit down here.",
+    "difficulty": "A1",
+    "category": "daily"
+  },
+  {
+    "id": "pv_007",
+    "verb": "stand up",
+    "meaning": "ayağa kalkmak",
+    "example": "Everyone stand up, please.",
+    "difficulty": "A1",
+    "category": "daily"
+  },
+  {
+    "id": "pv_008",
+    "verb": "turn on",
+    "meaning": "açmak (cihaz/ışık)",
+    "example": "Can you turn on the TV?",
+    "difficulty": "A1",
+    "category": "daily"
+  },
+  {
+    "id": "pv_009",
+    "verb": "turn off",
+    "meaning": "kapatmak (cihaz/ışık)",
+    "example": "Please turn off the lights.",
+    "difficulty": "A1",
+    "category": "daily"
+  },
+  {
+    "id": "pv_010",
+    "verb": "put on",
+    "meaning": "giymek, takmak (aksesuar), kilo almak",
+    "example": "Put on your jacket.",
+    "difficulty": "A1",
+    "category": "daily"
+  },
+  {
+    "id": "pv_011",
+    "verb": "take off",
+    "meaning": "çıkarmak (kıyafet), havalanmak (uçak)",
+    "example": "The plane took off on time.",
+    "difficulty": "A1",
+    "category": "daily"
+  },
+  {
+    "id": "pv_012",
+    "verb": "go out",
+    "meaning": "dışarı çıkmak, sönmek (ışık)",
+    "example": "Let's go out tonight.",
+    "difficulty": "A1",
+    "category": "social"
+  },
+  {
+    "id": "pv_013",
+    "verb": "come in",
+    "meaning": "içeri girmek",
+    "example": "Come in, please!",
+    "difficulty": "A1",
+    "category": "common"
+  },
+  {
+    "id": "pv_014",
+    "verb": "look for",
+    "meaning": "aramak (bir şeyi/birini)",
+    "example": "I'm looking for my keys.",
+    "difficulty": "A1",
+    "category": "common"
+  },
+  {
+    "id": "pv_015",
+    "verb": "pick up",
+    "meaning": "toplamak (yerden), arabayla almak",
+    "example": "I will pick you up at 8.",
+    "difficulty": "A2",
+    "category": "common"
+  },
+  {
+    "id": "pv_016",
+    "verb": "throw away",
+    "meaning": "çöpe atmak, elden çıkarmak",
+    "example": "Don't throw away old batteries.",
+    "difficulty": "A2",
+    "category": "daily"
+  },
+  {
+    "id": "pv_017",
+    "verb": "fill in",
+    "meaning": "doldurmak (boşluk/form)",
+    "example": "Please fill in the blanks.",
+    "difficulty": "A2",
+    "category": "formal"
+  },
+  {
+    "id": "pv_018",
+    "verb": "fill out",
+    "meaning": "formu tamamen doldurmak",
+    "example": "Fill out the application form.",
+    "difficulty": "A2",
+    "category": "formal"
+  },
+  {
+    "id": "pv_019",
+    "verb": "hang up",
+    "meaning": "telefonu kapatmak, asmak",
+    "example": "Don't hang up on me!",
+    "difficulty": "A2",
+    "category": "communication"
+  },
+  {
+    "id": "pv_020",
+    "verb": "call back",
+    "meaning": "geri aramak",
+    "example": "I'll call you back later.",
+    "difficulty": "A2",
+    "category": "communication"
+  },
+  {
+    "id": "pv_021",
+    "verb": "break down",
+    "meaning": "bozulmak (araç), ruhen çöküntü yaşamak",
+    "example": "My car broke down on the highway.",
+    "difficulty": "A2",
+    "category": "problems"
+  },
+  {
+    "id": "pv_022",
+    "verb": "run out",
+    "meaning": "bitmek, tükenmek",
+    "example": "We ran out of coffee.",
+    "difficulty": "A2",
+    "category": "common"
+  },
+  {
+    "id": "pv_023",
+    "verb": "find out",
+    "meaning": "öğrenmek (gerçeği/bilgiyi), keşfetmek",
+    "example": "I found out the truth eventually.",
+    "difficulty": "A2",
+    "category": "common"
+  },
+  {
+    "id": "pv_024",
+    "verb": "work out",
+    "meaning": "spor yapmak, çözüm bulmak",
+    "example": "I work out at the gym daily.",
+    "difficulty": "A2",
+    "category": "health"
+  },
+  {
+    "id": "pv_025",
+    "verb": "carry on",
+    "meaning": "devam etmek (bir işe)",
+    "example": "Carry on with your work.",
+    "difficulty": "A2",
+    "category": "common"
+  },
+  {
+    "id": "pv_026",
+    "verb": "calm down",
+    "meaning": "sakinleşmek",
+    "example": "Please calm down and breathe.",
+    "difficulty": "A2",
+    "category": "emotion"
+  },
+  {
+    "id": "pv_027",
+    "verb": "cheer up",
+    "meaning": "neşelenmek, neşelendirmek",
+    "example": "Cheer up! Things will get better.",
+    "difficulty": "A2",
+    "category": "emotion"
+  },
+  {
+    "id": "pv_028",
+    "verb": "show up",
+    "meaning": "çıkagelmek, varmak",
+    "example": "He didn't show up for the meeting.",
+    "difficulty": "A2",
+    "category": "social"
+  },
+  {
+    "id": "pv_029",
+    "verb": "grow up",
+    "meaning": "büyümek (çocuk/insan)",
+    "example": "I grew up in a small town.",
+    "difficulty": "A2",
+    "category": "life"
+  },
+  {
+    "id": "pv_030",
+    "verb": "bring up",
+    "meaning": "çocuk yetiştirmek, gündeme getirmek",
+    "example": "Don't bring up that topic again.",
+    "difficulty": "A2",
+    "category": "life"
+  },
+  {
+    "id": "pv_031",
+    "verb": "give back",
+    "meaning": "geri vermek, iade etmek",
+    "example": "Give back my book!",
+    "difficulty": "A2",
+    "category": "common"
+  },
+  {
+    "id": "pv_032",
+    "verb": "take back",
+    "meaning": "geri almak, sözünü geri almak",
+    "example": "I take back what I said, I'm sorry.",
+    "difficulty": "A2",
+    "category": "communication"
+  },
+  {
+    "id": "pv_033",
+    "verb": "look up",
+    "meaning": "sözlükte aramak, hayranlık duymak (to)",
+    "example": "Look up the unknown words.",
+    "difficulty": "B1",
+    "category": "learning"
+  },
+  {
+    "id": "pv_034",
+    "verb": "look down on",
+    "meaning": "tepeden bakmak, küçümsemek",
+    "example": "Never look down on anyone.",
+    "difficulty": "B1",
+    "category": "social"
+  },
+  {
+    "id": "pv_035",
+    "verb": "look forward to",
+    "meaning": "dört gözle beklemek",
+    "example": "I look forward to hearing from you.",
+    "difficulty": "B1",
+    "category": "emotion"
+  },
+  {
+    "id": "pv_036",
+    "verb": "get along",
+    "meaning": "iyi geçinmek",
+    "example": "Do you get along with your boss?",
+    "difficulty": "B1",
+    "category": "social"
+  },
+  {
+    "id": "pv_037",
+    "verb": "get over",
+    "meaning": "atlatmak (hastalık/üzüntü), iyileşmek",
+    "example": "It took time to get over the breakup.",
+    "difficulty": "B1",
+    "category": "emotion"
+  },
+  {
+    "id": "pv_038",
+    "verb": "get through",
+    "meaning": "telefonla ulaşmak, zor bir süreci bitirmek",
+    "example": "I finally got through to customer service.",
+    "difficulty": "B1",
+    "category": "communication"
+  },
+  {
+    "id": "pv_039",
+    "verb": "put off",
+    "meaning": "ertelemek",
+    "example": "Don't put off your homework.",
+    "difficulty": "B1",
+    "category": "time"
+  },
+  {
+    "id": "pv_040",
+    "verb": "put up with",
+    "meaning": "katlanmak, tahammül etmek",
+    "example": "I can't put up with his rudeness.",
+    "difficulty": "B1",
+    "category": "emotion"
+  },
+  {
+    "id": "pv_041",
+    "verb": "make up",
+    "meaning": "uydurmak (hikaye), barışmak, makyaj yapmak",
+    "example": "They kissed and made up.",
+    "difficulty": "B1",
+    "category": "social"
+  },
+  {
+    "id": "pv_042",
+    "verb": "set up",
+    "meaning": "kurmak (iş/düzen), ayarlamak",
+    "example": "He set up his own company.",
+    "difficulty": "B1",
+    "category": "business"
+  },
+  {
+    "id": "pv_043",
+    "verb": "take over",
+    "meaning": "devralmak, yönetimi ele geçirmek",
+    "example": "The new manager took over yesterday.",
+    "difficulty": "B1",
+    "category": "business"
+  },
+  {
+    "id": "pv_044",
+    "verb": "carry out",
+    "meaning": "uygulamak, yerine getirmek (emir)",
+    "example": "Soldiers carry out orders.",
+    "difficulty": "B1",
+    "category": "work"
+  },
+  {
+    "id": "pv_045",
+    "verb": "figure out",
+    "meaning": "çözmek, anlamak, halletmek",
+    "example": "We need to figure out a solution.",
+    "difficulty": "B1",
+    "category": "thinking"
+  },
+  {
+    "id": "pv_046",
+    "verb": "point out",
+    "meaning": "işaret etmek, dikkat çekmek",
+    "example": "She pointed out the mistakes in my essay.",
+    "difficulty": "B1",
+    "category": "communication"
+  },
+  {
+    "id": "pv_047",
+    "verb": "turn down",
+    "meaning": "reddetmek, sesini kısmak",
+    "example": "He turned down the job offer.",
+    "difficulty": "B1",
+    "category": "decision"
+  },
+  {
+    "id": "pv_048",
+    "verb": "turn up",
+    "meaning": "çıkagelmek, sesini açmak",
+    "example": "Guess who turned up at the party?",
+    "difficulty": "B1",
+    "category": "common"
+  },
+  {
+    "id": "pv_049",
+    "verb": "come across",
+    "meaning": "rastlamak, karşılaşmak",
+    "example": "I came across this book in the library.",
+    "difficulty": "B1",
+    "category": "social"
+  },
+  {
+    "id": "pv_050",
+    "verb": "come up with",
+    "meaning": "bulmak (fikir/çözüm), üretmek",
+    "example": "She came up with a brilliant plan.",
+    "difficulty": "B1",
+    "category": "thinking"
+  },
+  {
+    "id": "pv_051",
+    "verb": "break out",
+    "meaning": "patlak vermek (savaş/yangın), kaçmak (hapisten)",
+    "example": "Fire broke out in the kitchen.",
+    "difficulty": "B2",
+    "category": "events"
+  },
+  {
+    "id": "pv_052",
+    "verb": "break up",
+    "meaning": "ayrılmak (ilişki), parçalanmak",
+    "example": "They broke up after 5 years.",
+    "difficulty": "B2",
+    "category": "relationships"
+  },
+  {
+    "id": "pv_053",
+    "verb": "break into",
+    "meaning": "zorla girmek (hırsızlık)",
+    "example": "Thieves broke into the shop.",
+    "difficulty": "B2",
+    "category": "crime"
+  },
+  {
+    "id": "pv_054",
+    "verb": "fall apart",
+    "meaning": "dağılmak, parçalara ayrılmak (mekanik/duygusal)",
+    "example": "After the news, she fell apart.",
+    "difficulty": "B2",
+    "category": "problems"
+  },
+  {
+    "id": "pv_055",
+    "verb": "fall for",
+    "meaning": "kanmak, vurulmak (aşk)",
+    "example": "Don't fall for his tricks.",
+    "difficulty": "B2",
+    "category": "emotion"
+  },
+  {
+    "id": "pv_056",
+    "verb": "fall through",
+    "meaning": "suya düşmek, gerçekleşmemek (plan)",
+    "example": "Our holiday plans fell through.",
+    "difficulty": "B2",
+    "category": "business"
+  },
+  {
+    "id": "pv_057",
+    "verb": "get away with",
+    "meaning": "yanına kâr kalmak, paçayı kurtarmak",
+    "example": "He cheated but got away with it.",
+    "difficulty": "B2",
+    "category": "crime"
+  },
+  {
+    "id": "pv_058",
+    "verb": "get by",
+    "meaning": "kıt kanaat geçinmek, idare etmek",
+    "example": "It's hard to get by on this salary.",
+    "difficulty": "B2",
+    "category": "life"
+  },
+  {
+    "id": "pv_059",
+    "verb": "give in",
+    "meaning": "pes etmek, boyun eğmek",
+    "example": "Eventually, the protesters gave in.",
+    "difficulty": "B2",
+    "category": "decision"
+  },
+  {
+    "id": "pv_060",
+    "verb": "go ahead",
+    "meaning": "başlamak, devam etmek, önden gitmek",
+    "example": "Go ahead, eat before it gets cold.",
+    "difficulty": "B2",
+    "category": "communication"
+  },
+  {
+    "id": "pv_061",
+    "verb": "go through",
+    "meaning": "yaşamak (zorluk), incelemek",
+    "example": "She went through a lot last year.",
+    "difficulty": "B2",
+    "category": "life"
+  },
+  {
+    "id": "pv_062",
+    "verb": "hold on",
+    "meaning": "hatta beklemek, tutunmak",
+    "example": "Hold on a second, I'll check.",
+    "difficulty": "B2",
+    "category": "communication"
+  },
+  {
+    "id": "pv_063",
+    "verb": "keep up with",
+    "meaning": "ayak uydurmak, hızına yetişmek",
+    "example": "I can't keep up with the latest trends.",
+    "difficulty": "B2",
+    "category": "life"
+  },
+  {
+    "id": "pv_064",
+    "verb": "let down",
+    "meaning": "hayal kırıklığına uğratmak, yüzüstü bırakmak",
+    "example": "I trusted you, don't let me down.",
+    "difficulty": "B2",
+    "category": "emotion"
+  },
+  {
+    "id": "pv_065",
+    "verb": "live up to",
+    "meaning": "beklentileri karşılamak",
+    "example": "The movie didn't live up to the hype.",
+    "difficulty": "B2",
+    "category": "achievement"
+  },
+  {
+    "id": "pv_066",
+    "verb": "move on",
+    "meaning": "hayatına devam etmek, konuyu değiştirmek",
+    "example": "It's time to forget the past and move on.",
+    "difficulty": "B2",
+    "category": "life"
+  },
+  {
+    "id": "pv_067",
+    "verb": "pull through",
+    "meaning": "iyileşmek (ağır hastalık), atlatmak",
+    "example": "It was a serious accident, but he pulled through.",
+    "difficulty": "B2",
+    "category": "health"
+  },
+  {
+    "id": "pv_068",
+    "verb": "run into",
+    "meaning": "tesadüfen karşılaşmak, çarpmak",
+    "example": "I ran into my teacher at the mall.",
+    "difficulty": "B2",
+    "category": "social"
+  },
+  {
+    "id": "pv_069",
+    "verb": "settle down",
+    "meaning": "düzenli hayata geçmek, sakinleşmek",
+    "example": "He wants to get married and settle down.",
+    "difficulty": "B2",
+    "category": "life"
+  },
+  {
+    "id": "pv_070",
+    "verb": "show off",
+    "meaning": "hava atmak, gösteriş yapmak",
+    "example": "He loves showing off his new car.",
+    "difficulty": "B2",
+    "category": "behavior"
+  },
+  {
+    "id": "pv_071",
+    "verb": "take after",
+    "meaning": "çekmek (ailede birine benzemek)",
+    "example": "She takes after her grandmother.",
+    "difficulty": "B2",
+    "category": "family"
+  },
+  {
+    "id": "pv_072",
+    "verb": "take up",
+    "meaning": "hobiye başlamak, yer/zaman kaplamak",
+    "example": "I took up painting recently.",
+    "difficulty": "B2",
+    "category": "hobbies"
+  },
+  {
+    "id": "pv_073",
+    "verb": "tell off",
+    "meaning": "azarlamak, fırça atmak",
+    "example": "My mom told me off for being late.",
+    "difficulty": "B2",
+    "category": "discipline"
+  },
+  {
+    "id": "pv_074",
+    "verb": "wear out",
+    "meaning": "eskimek, yıpratmak, çok yormak",
+    "example": "Walking all day wore me out.",
+    "difficulty": "B2",
+    "category": "objects"
+  },
+  {
+    "id": "pv_075",
+    "verb": "back down",
+    "meaning": "geri adım atmak, caymak",
+    "example": "Once he decides, he never backs down.",
+    "difficulty": "C1",
+    "category": "decision"
+  },
+  {
+    "id": "pv_076",
+    "verb": "bail out",
+    "meaning": "kefaletle kurtarmak, finansal destek sağlamak",
+    "example": "The state had to bail out the bankrupt bank.",
+    "difficulty": "C1",
+    "category": "finance"
+  },
+  {
+    "id": "pv_077",
+    "verb": "bear with",
+    "meaning": "sabretmek, katlanmak",
+    "example": "Please bear with me while I find the file.",
+    "difficulty": "C1",
+    "category": "patience"
+  },
+  {
+    "id": "pv_078",
+    "verb": "boil down to",
+    "meaning": "tek bir sebebe dayanmak, özetle ... olmak",
+    "example": "It all boils down to lack of money.",
+    "difficulty": "C1",
+    "category": "thinking"
+  },
+  {
+    "id": "pv_079",
+    "verb": "brush up on",
+    "meaning": "bilgileri tazelemek, pasını atmak",
+    "example": "I must brush up on my French before the trip.",
+    "difficulty": "C1",
+    "category": "learning"
+  },
+  {
+    "id": "pv_080",
+    "verb": "clamp down on",
+    "meaning": "aman vermemek, sıkı tedbir almak",
+    "example": "Schools are clamping down on lateness.",
+    "difficulty": "C1",
+    "category": "authority"
+  },
+  {
+    "id": "pv_081",
+    "verb": "crack down on",
+    "meaning": "sert önlemler almak, göz açtırmamak",
+    "example": "Police are cracking down on drug dealers.",
+    "difficulty": "C1",
+    "category": "authority"
+  },
+  {
+    "id": "pv_082",
+    "verb": "cut back on",
+    "meaning": "kısmak (harcama/tüketim), azaltmak",
+    "example": "You should cut back on salty foods.",
+    "difficulty": "C1",
+    "category": "finance"
+  },
+  {
+    "id": "pv_083",
+    "verb": "dawn on",
+    "meaning": "dank etmek, jetonu düşmek",
+    "example": "It finally dawned on him that she was lying.",
+    "difficulty": "C1",
+    "category": "realization"
+  },
+  {
+    "id": "pv_084",
+    "verb": "do away with",
+    "meaning": "yürürlükten kaldırmak, yok etmek",
+    "example": "We should do away with these old rules.",
+    "difficulty": "C1",
+    "category": "change"
+  },
+  {
+    "id": "pv_085",
+    "verb": "draw up",
+    "meaning": "düzenlemek (belge/sözleşme), kaleme almak",
+    "example": "Lawyers drew up the contract.",
+    "difficulty": "C1",
+    "category": "formal"
+  },
+  {
+    "id": "pv_086",
+    "verb": "dwell on",
+    "meaning": "üzerinde çok durmak, kafaya takmak",
+    "example": "It's not healthy to dwell on the past.",
+    "difficulty": "C1",
+    "category": "thinking"
+  },
+  {
+    "id": "pv_087",
+    "verb": "embark on",
+    "meaning": "girişmek (yeni bir işe/maceraya)",
+    "example": "She embarked on a new career at 40.",
+    "difficulty": "C1",
+    "category": "beginning"
+  },
+  {
+    "id": "pv_088",
+    "verb": "fend off",
+    "meaning": "savuşturmak (soru/saldırı), defetmek",
+    "example": "The politician fended off difficult questions.",
+    "difficulty": "C1",
+    "category": "defense"
+  },
+  {
+    "id": "pv_089",
+    "verb": "gloss over",
+    "meaning": "örtbas etmek, geçiştirmek",
+    "example": "He glossed over the financial losses.",
+    "difficulty": "C1",
+    "category": "communication"
+  },
+  {
+    "id": "pv_090",
+    "verb": "hash out",
+    "meaning": "enine boyuna tartışıp çözmek",
+    "example": "We spent hours hashing out the details.",
+    "difficulty": "C1",
+    "category": "negotiation"
+  },
+  {
+    "id": "pv_091",
+    "verb": "iron out",
+    "meaning": "pürüzleri gidermek, çözüme kavuşturmak",
+    "example": "We need to iron out a few problems first.",
+    "difficulty": "C1",
+    "category": "problem-solving"
+  },
+  {
+    "id": "pv_092",
+    "verb": "lash out",
+    "meaning": "sözlü veya fiziksel saldırmak, parlamak",
+    "example": "He lashed out at his colleagues in anger.",
+    "difficulty": "C1",
+    "category": "anger"
+  },
+  {
+    "id": "pv_093",
+    "verb": "lay off",
+    "meaning": "işten çıkarmak (küçülme vb. nedeniyle)",
+    "example": "The factory laid off 50 workers.",
+    "difficulty": "C1",
+    "category": "work"
+  },
+  {
+    "id": "pv_094",
+    "verb": "mull over",
+    "meaning": "iyice düşünüp taşınmak",
+    "example": "I need a few days to mull over your offer.",
+    "difficulty": "C1",
+    "category": "thinking"
+  },
+  {
+    "id": "pv_095",
+    "verb": "pan out",
+    "meaning": "sonuç vermek, işleri yolunda gitmek",
+    "example": "His plan didn't pan out as expected.",
+    "difficulty": "C1",
+    "category": "outcome"
+  },
+  {
+    "id": "pv_096",
+    "verb": "phase out",
+    "meaning": "aşamalı olarak kullanımdan kaldırmak",
+    "example": "Diesel cars are being phased out.",
+    "difficulty": "C1",
+    "category": "change"
+  },
+  {
+    "id": "pv_097",
+    "verb": "pine for",
+    "meaning": "burnunda tütmek, hasretini çekmek",
+    "example": "She was pining for her lost love.",
+    "difficulty": "C1",
+    "category": "emotion"
+  },
+  {
+    "id": "pv_098",
+    "verb": "play down",
+    "meaning": "hafifsemek, önemsiz gibi göstermek",
+    "example": "The government played down the crisis.",
+    "difficulty": "C1",
+    "category": "communication"
+  },
+  {
+    "id": "pv_099",
+    "verb": "scale back",
+    "meaning": "küçültmek, azaltmak (operasyon/plan)",
+    "example": "They scaled back the project due to budget.",
+    "difficulty": "C1",
+    "category": "business"
+  },
+  {
+    "id": "pv_100",
+    "verb": "spell out",
+    "meaning": "hecelemek, tane tane açıklamak",
+    "example": "Do I have to spell it out for you?",
+    "difficulty": "C1",
+    "category": "communication"
+  },
+  {
+    "id": "pv_101",
+    "verb": "stem from",
+    "meaning": "-den kaynaklanmak, köken almak",
+    "example": "His fear stems from a childhood accident.",
+    "difficulty": "C2",
+    "category": "causation"
+  },
+  {
+    "id": "pv_102",
+    "verb": "ward off",
+    "meaning": "savuşturmak, defetmek (kötülük/hastalık)",
+    "example": "Garlic is said to ward off vampires.",
+    "difficulty": "C2",
+    "category": "prevention"
+  },
+  {
+    "id": "pv_103",
+    "verb": "whittle down",
+    "meaning": "eleye eleye azaltmak",
+    "example": "We whittled down the candidates to three.",
+    "difficulty": "C2",
+    "category": "reduction"
+  },
+  {
+    "id": "pv_104",
+    "verb": "zero in on",
+    "meaning": "bir noktaya odaklanmak, kilitlenmek",
+    "example": "Scientists are zeroing in on a cure.",
+    "difficulty": "C2",
+    "category": "focus"
+  },
+  {
+    "id": "pv_105",
+    "verb": "buckle down",
+    "meaning": "ciddi bir şekilde işe koyulmak, asılmak",
+    "example": "It's time to buckle down and study.",
+    "difficulty": "C2",
+    "category": "work"
+  },
+  {
+    "id": "pv_106",
+    "verb": "get in",
+    "meaning": "binmek (araba/taksi), içeri girmek",
+    "example": "Get in the car quickly!",
+    "difficulty": "A1",
+    "category": "movement"
+  },
+  {
+    "id": "pv_107",
+    "verb": "get out",
+    "meaning": "inmek (araba), dışarı çıkmak",
+    "example": "Get out and walk.",
+    "difficulty": "A1",
+    "category": "movement"
+  },
+  {
+    "id": "pv_118",
+    "verb": "put down",
+    "meaning": "yere koymak, not etmek, aşağılamak",
+    "example": "Put down that knife!",
+    "difficulty": "A1",
+    "category": "common"
+  },
+  {
+    "id": "pv_120",
+    "verb": "go back",
+    "meaning": "geri dönmek (bir yere)",
+    "example": "I forgot my wallet, I must go back.",
+    "difficulty": "A1",
+    "category": "movement"
+  },
+  {
+    "id": "pv_123",
+    "verb": "catch up",
+    "meaning": "yetişmek, arayı kapatmak",
+    "example": "Go ahead, I'll catch up with you.",
+    "difficulty": "A2",
+    "category": "progress"
+  },
+  {
+    "id": "pv_124",
+    "verb": "check in",
+    "meaning": "giriş yapmak (otel/havaalanı)",
+    "example": "We need to check in two hours before flight.",
+    "difficulty": "A2",
+    "category": "travel"
+  },
+  {
+    "id": "pv_125",
+    "verb": "check out",
+    "meaning": "çıkış yapmak (otel), incelemek",
+    "example": "Check out this amazing view!",
+    "difficulty": "A2",
+    "category": "travel"
+  },
+  {
+    "id": "pv_127",
+    "verb": "clean up",
+    "meaning": "temizlemek, derleyip toplamak",
+    "example": "Who will clean up this mess?",
+    "difficulty": "A2",
+    "category": "daily"
+  },
+  {
+    "id": "pv_129",
+    "verb": "count on",
+    "meaning": "güvenmek, bel bağlamak",
+    "example": "You can always count on me.",
+    "difficulty": "A2",
+    "category": "trust"
+  },
+  {
+    "id": "pv_130",
+    "verb": "dress up",
+    "meaning": "şık giyinmek, kostüm giymek",
+    "example": "It's a fancy party, dress up nicely.",
+    "difficulty": "A2",
+    "category": "appearance"
+  },
+  {
+    "id": "pv_131",
+    "verb": "drop off",
+    "meaning": "birini bir yere bırakmak, uyuyakalmak",
+    "example": "Can you drop me off at the station?",
+    "difficulty": "A2",
+    "category": "transport"
+  },
+  {
+    "id": "pv_132",
+    "verb": "eat out",
+    "meaning": "dışarıda yemeğe gitmek",
+    "example": "We eat out once a week.",
+    "difficulty": "A2",
+    "category": "food"
+  },
+  {
+    "id": "pv_133",
+    "verb": "fall down",
+    "meaning": "yere düşmek, devrilmek",
+    "example": "The old tree fell down in the storm.",
+    "difficulty": "A2",
+    "category": "accident"
+  },
+  {
+    "id": "pv_137",
+    "verb": "get back",
+    "meaning": "geri dönmek, geri kazanmak",
+    "example": "When do you get back from holiday?",
+    "difficulty": "A2",
+    "category": "return"
+  },
+  {
+    "id": "pv_141",
+    "verb": "hang out",
+    "meaning": "takılmak, zaman geçirmek",
+    "example": "Teens love to hang out at the mall.",
+    "difficulty": "A2",
+    "category": "social"
+  },
+  {
+    "id": "pv_143",
+    "verb": "bring about",
+    "meaning": "sebep olmak, yol açmak",
+    "example": "The crisis brought about major changes.",
+    "difficulty": "B1",
+    "category": "causation"
+  },
+  {
+    "id": "pv_144",
+    "verb": "call for",
+    "meaning": "talep etmek, gerektirmek",
+    "example": "The situation calls for immediate action.",
+    "difficulty": "B1",
+    "category": "requirement"
+  },
+  {
+    "id": "pv_146",
+    "verb": "cut down on",
+    "meaning": "azaltmak (tüketimi)",
+    "example": "I'm trying to cut down on coffee.",
+    "difficulty": "B1",
+    "category": "reduction"
+  },
+  {
+    "id": "pv_147",
+    "verb": "deal with",
+    "meaning": "başa çıkmak, ilgilenmek, ele almak",
+    "example": "I have to deal with a difficult customer.",
+    "difficulty": "B1",
+    "category": "coping"
+  },
+  {
+    "id": "pv_148",
+    "verb": "drop by",
+    "meaning": "geçerken uğramak",
+    "example": "Drop by if you are in the neighborhood.",
+    "difficulty": "B1",
+    "category": "visit"
+  },
+  {
+    "id": "pv_156",
+    "verb": "keep up",
+    "meaning": "sürdürmek, hıza yetişmek",
+    "example": "Keep up the good work!",
+    "difficulty": "B1",
+    "category": "adaptation"
+  },
+  {
+    "id": "pv_160",
+    "verb": "pass away",
+    "meaning": "vefat etmek (ölmek)",
+    "example": "My grandfather passed away peacefully.",
+    "difficulty": "B1",
+    "category": "death"
+  },
+  {
+    "id": "pv_163",
+    "verb": "run out of",
+    "meaning": "bir şeyi tüketmek/bitirmek",
+    "example": "We ran out of petrol on the highway.",
+    "difficulty": "B1",
+    "category": "depletion"
+  },
+  {
+    "id": "pv_166",
+    "verb": "take care of",
+    "meaning": "ilgilenmek, icabına bakmak",
+    "example": "Don't worry, I'll take care of the bill.",
+    "difficulty": "B1",
+    "category": "responsibility"
+  },
+  {
+    "id": "pv_167",
+    "verb": "think over",
+    "meaning": "enine boyuna düşünmek",
+    "example": "I need time to think it over.",
+    "difficulty": "B1",
+    "category": "consideration"
+  },
+  {
+    "id": "pv_173",
+    "verb": "bump into",
+    "meaning": "tesadüfen karşılaşmak, toslamak",
+    "example": "I bumped into an old friend today.",
+    "difficulty": "B2",
+    "category": "encounter"
+  },
+  {
+    "id": "pv_175",
+    "verb": "come down with",
+    "meaning": "hastalanmak, yatağa düşmek",
+    "example": "I think I'm coming down with the flu.",
+    "difficulty": "B2",
+    "category": "health"
+  },
+  {
+    "id": "pv_178",
+    "verb": "do without",
+    "meaning": "...sız idare etmek, yokluğuna katlanmak",
+    "example": "We'll have to do without a car for a while.",
+    "difficulty": "B2",
+    "category": "necessity"
+  },
+  {
+    "id": "pv_180",
+    "verb": "face up to",
+    "meaning": "gerçekle yüzleşmek, kabullenmek",
+    "example": "He has to face up to his responsibilities.",
+    "difficulty": "B2",
+    "category": "confrontation"
+  },
+  {
+    "id": "pv_184",
+    "verb": "give away",
+    "meaning": "bedava vermek, ele vermek (sırrı)",
+    "example": "Don't give away the secret!",
+    "difficulty": "B2",
+    "category": "revelation"
+  },
+  {
+    "id": "pv_185",
+    "verb": "go along with",
+    "meaning": "razı gelmek, uyum sağlamak",
+    "example": "I will go along with whatever you say.",
+    "difficulty": "B2",
+    "category": "agreement"
+  },
+  {
+    "id": "pv_186",
+    "verb": "hang on",
+    "meaning": "beklemek (telefonda), sıkı tutunmak",
+    "example": "Hang on a minute, I'm checking.",
+    "difficulty": "B2",
+    "category": "waiting"
+  },
+  {
+    "id": "pv_189",
+    "verb": "look into",
+    "meaning": "soruşturmak, incelemek",
+    "example": "Police are looking into the allegations.",
+    "difficulty": "B2",
+    "category": "investigation"
+  },
+  {
+    "id": "pv_190",
+    "verb": "make for",
+    "meaning": "bir yere doğru gitmek, katkıda bulunmak",
+    "example": "We made for the nearest shelter.",
+    "difficulty": "B2",
+    "category": "contribution"
+  },
+  {
+    "id": "pv_191",
+    "verb": "own up to",
+    "meaning": "itiraf etmek, üstlenmek",
+    "example": "He owned up to breaking the window.",
+    "difficulty": "B2",
+    "category": "confession"
+  },
+  {
+    "id": "pv_193",
+    "verb": "pull off",
+    "meaning": "zoru başarmak, halletmek",
+    "example": "I don't know how he pulled it off.",
+    "difficulty": "B2",
+    "category": "achievement"
+  },
+  {
+    "id": "pv_194",
+    "verb": "put forward",
+    "meaning": "ileri sürmek (fikir/öneri)",
+    "example": "She put forward a new theory.",
+    "difficulty": "B2",
+    "category": "suggestion"
+  },
+  {
+    "id": "pv_196",
+    "verb": "stand for",
+    "meaning": "temsil etmek, anlamına gelmek",
+    "example": "USA stands for United States of America.",
+    "difficulty": "B2",
+    "category": "representation"
+  },
+  {
+    "id": "pv_197",
+    "verb": "stick to",
+    "meaning": "sadık kalmak (söz/plan), yapışmak",
+    "example": "We must stick to the original plan.",
+    "difficulty": "B2",
+    "category": "commitment"
+  },
+  {
+    "id": "pv_198",
+    "verb": "talk into",
+    "meaning": "dil döküp ikna etmek",
+    "example": "She talked me into buying this dress.",
+    "difficulty": "B2",
+    "category": "persuasion"
+  },
+  {
+    "id": "pv_200",
+    "verb": "wear off",
+    "meaning": "etkisi geçmek (ilaç/şok)",
+    "example": "The anesthesia will wear off in an hour.",
+    "difficulty": "B2",
+    "category": "diminishing"
+  },
+  {
+    "id": "pv_201",
+    "verb": "abide by",
+    "meaning": "kurallara uymak, riayet etmek",
+    "example": "Players must abide by the referee's decision.",
+    "difficulty": "C1",
+    "category": "compliance"
+  },
+  {
+    "id": "pv_202",
+    "verb": "account for",
+    "meaning": "açıklamasını yapmak, oluşturmak (oran)",
+    "example": "How do you account for the missing money?",
+    "difficulty": "C1",
+    "category": "explanation"
+  },
+  {
+    "id": "pv_203",
+    "verb": "bear out",
+    "meaning": "doğrulamak, teyit etmek",
+    "example": "The facts didn't bear out his story.",
+    "difficulty": "C1",
+    "category": "verification"
+  },
+  {
+    "id": "pv_206",
+    "verb": "come by",
+    "meaning": "güçlükle elde etmek, uğramak",
+    "example": "Jobs are hard to come by these days.",
+    "difficulty": "C1",
+    "category": "acquisition"
+  },
+  {
+    "id": "pv_207",
+    "verb": "conjure up",
+    "meaning": "zihinde canlandırmak, büyüyle çağırmak",
+    "example": "The music conjured up memories of her youth.",
+    "difficulty": "C1",
+    "category": "evocation"
+  },
+  {
+    "id": "pv_211",
+    "verb": "frown upon",
+    "meaning": "hoş karşılamamak, tasvip etmemek",
+    "example": "Smoking is frowned upon in this office.",
+    "difficulty": "C1",
+    "category": "disapproval"
+  },
+  {
+    "id": "pv_212",
+    "verb": "harp on",
+    "meaning": "aynı konuyu temcit pilavı gibi tekrarlamak",
+    "example": "Stop harping on about my mistakes!",
+    "difficulty": "C1",
+    "category": "repetition"
+  },
+  {
+    "id": "pv_213",
+    "verb": "hold forth",
+    "meaning": "uzun uzun konuşmak, nutuk çekmek",
+    "example": "He held forth on the economy for hours.",
+    "difficulty": "C1",
+    "category": "discourse"
+  },
+  {
+    "id": "pv_218",
+    "verb": "reel off",
+    "meaning": "ezbere/hızlıca sayıp dökmek",
+    "example": "He reeled off a list of names.",
+    "difficulty": "C1",
+    "category": "recitation"
+  },
+  {
+    "id": "pv_219",
+    "verb": "rope into",
+    "meaning": "bir işe kandırıp dahil etmek",
+    "example": "I got roped into organizing the party.",
+    "difficulty": "C1",
+    "category": "involvement"
+  },
+  {
+    "id": "pv_220",
+    "verb": "see through",
+    "meaning": "içyüzünü görmek, sonunu getirmek",
+    "example": "I saw through his lies immediately.",
+    "difficulty": "C1",
+    "category": "perception"
+  },
+  {
+    "id": "pv_221",
+    "verb": "size up",
+    "meaning": "boyunun ölçüsünü almak, tartmak (kişiyi)",
+    "example": "He sized up his opponent before the fight.",
+    "difficulty": "C1",
+    "category": "assessment"
+  },
+  {
+    "id": "pv_222",
+    "verb": "tide over",
+    "meaning": "zor zamanda idare etmek (para vb.)",
+    "example": "Can you lend me $50 to tide me over until payday?",
+    "difficulty": "C1",
+    "category": "survival"
+  },
+  {
+    "id": "pv_223",
+    "verb": "vie for",
+    "meaning": "için yarışmak, rekabet etmek",
+    "example": "Several candidates are vying for the position.",
+    "difficulty": "C1",
+    "category": "competition"
+  },
+  {
+    "id": "pv_224",
+    "verb": "weigh in",
+    "meaning": "tartışmaya ağırlığını koymak/fikir belirtmek",
+    "example": "Experts weighed in on the subject.",
+    "difficulty": "C1",
+    "category": "contribution"
+  },
+  {
+    "id": "pv_225",
+    "verb": "wriggle out of",
+    "meaning": "kaytarmak, sıyrılmak",
+    "example": "He tried to wriggle out of paying the bill.",
+    "difficulty": "C1",
+    "category": "evasion"
+  },
+  {
+    "id": "pv_226",
+    "verb": "bandy about",
+    "meaning": "dedikodusunu yapmak, ağızlarda dolaştırmak",
+    "example": "His name was being bandied about as a candidate.",
+    "difficulty": "C2",
+    "category": "rumor"
+  },
+  {
+    "id": "pv_227",
+    "verb": "chalk up",
+    "meaning": "hanesine yazdırmak (başarı/deneyim)",
+    "example": "Let's chalk it up to experience.",
+    "difficulty": "C2",
+    "category": "achievement"
+  },
+  {
+    "id": "pv_228",
+    "verb": "chime in",
+    "meaning": "söze karışmak, lafa girmek",
+    "example": "Feel free to chime in if you have ideas.",
+    "difficulty": "C2",
+    "category": "participation"
+  },
+  {
+    "id": "pv_229",
+    "verb": "clam up",
+    "meaning": "ağzını bıçak açmamak, sus pus olmak",
+    "example": "He clammed up when the police arrived.",
+    "difficulty": "C2",
+    "category": "silence"
+  },
+  {
+    "id": "pv_230",
+    "verb": "cobble together",
+    "meaning": "çabucak/derme çatma hazırlamak",
+    "example": "They cobbled together a rough plan.",
+    "difficulty": "C2",
+    "category": "improvisation"
+  },
+  {
+    "id": "pv_231",
+    "verb": "cozy up to",
+    "meaning": "gözüne girmeye çalışmak, yaltaklanmak",
+    "example": "He is trying to cozy up to the boss.",
+    "difficulty": "C2",
+    "category": "ingratiation"
+  },
+  {
+    "id": "pv_232",
+    "verb": "drum up",
+    "meaning": "destek/ilgi toplamak",
+    "example": "They are trying to drum up support for the campaign.",
+    "difficulty": "C2",
+    "category": "generation"
+  },
+  {
+    "id": "pv_233",
+    "verb": "eke out",
+    "meaning": "kıt kanaat geçinmek, ucu ucuna yetirmek",
+    "example": "They eke out a living by farming.",
+    "difficulty": "C2",
+    "category": "subsistence"
+  },
+  {
+    "id": "pv_234",
+    "verb": "foist on",
+    "meaning": "istemediği halde birine yüklemek/dayatmak",
+    "example": "She foisted her work on me.",
+    "difficulty": "C2",
+    "category": "imposition"
+  },
+  {
+    "id": "pv_237",
+    "verb": "hem in",
+    "meaning": "etrafını çevirmek, kıstırmak",
+    "example": "The army was hemmed in by enemies.",
+    "difficulty": "C2",
+    "category": "restriction"
+  },
+  {
+    "id": "pv_238",
+    "verb": "jockey for",
+    "meaning": "pozisyon kapmaya çalışmak, yarışmak",
+    "example": "Photographers jockeyed for the best angle.",
+    "difficulty": "C2",
+    "category": "maneuvering"
+  },
+  {
+    "id": "pv_239",
+    "verb": "level with",
+    "meaning": "açık konuşmak, doğruyu söylemek",
+    "example": "I'll level with you; the situation is bad.",
+    "difficulty": "C2",
+    "category": "honesty"
+  },
+  {
+    "id": "pv_240",
+    "verb": "lord over",
+    "meaning": "taslamak, üstünlük taslamak",
+    "example": "He likes to lord it over his employees.",
+    "difficulty": "C2",
+    "category": "domination"
+  },
+  {
+    "id": "pv_241",
+    "verb": "mete out",
+    "meaning": "ceza/adalet dağıtmak",
+    "example": "Harsh punishment was meted out.",
+    "difficulty": "C2",
+    "category": "distribution"
+  },
+  {
+    "id": "pv_242",
+    "verb": "parcel out",
+    "meaning": "paylaştırmak, bölüştürmek",
+    "example": "The land was parceled out among the sons.",
+    "difficulty": "C2",
+    "category": "division"
+  },
+  {
+    "id": "pv_243",
+    "verb": "pore over",
+    "meaning": "dikkatle incelemek (kitap/belge)",
+    "example": "She pored over the manuscripts.",
+    "difficulty": "C2",
+    "category": "examination"
+  },
+  {
+    "id": "pv_244",
+    "verb": "preside over",
+    "meaning": "başkanlık etmek, yönetmek",
+    "example": "The judge presided over the trial.",
+    "difficulty": "C2",
+    "category": "leadership"
+  },
+  {
+    "id": "pv_245",
+    "verb": "rake in",
+    "meaning": "paraya para dememek, çok kazanmak",
+    "example": "The movie is raking in millions.",
+    "difficulty": "C2",
+    "category": "profit"
+  },
+  {
+    "id": "pv_246",
+    "verb": "round on",
+    "meaning": "aniden dönüp saldırmak/azarlamak",
+    "example": "He suddenly rounded on me and shouted.",
+    "difficulty": "C2",
+    "category": "retaliation"
+  },
+  {
+    "id": "pv_247",
+    "verb": "scoff at",
+    "meaning": "alay etmek, küçümsemek",
+    "example": "They scoffed at my idea.",
+    "difficulty": "C2",
+    "category": "mockery"
+  },
+  {
+    "id": "pv_248",
+    "verb": "shrug off",
+    "meaning": "omuz silkmek, önemsememek",
+    "example": "He shrugged off the criticism.",
+    "difficulty": "C2",
+    "category": "dismissal"
+  },
+  {
+    "id": "pv_249",
+    "verb": "sift through",
+    "meaning": "elekten geçirmek, didik didik aramak",
+    "example": "We sifted through the rubbish for clues.",
+    "difficulty": "C2",
+    "category": "sorting"
+  },
+  {
+    "id": "pv_250",
+    "verb": "snuff out",
+    "meaning": "söndürmek (mum/hayat), yok etmek",
+    "example": "The hope was snuffed out.",
+    "difficulty": "C2",
+    "category": "elimination"
+  },
+  {
+    "id": "pv_252",
+    "verb": "square off",
+    "meaning": "kavgaya/yarışa hazırlanmak",
+    "example": "The two boxers squared off.",
+    "difficulty": "C2",
+    "category": "confrontation"
+  },
+  {
+    "id": "pv_253",
+    "verb": "stake out",
+    "meaning": "gözetlemek, pusuya yatmak",
+    "example": "Detectives staked out the apartment.",
+    "difficulty": "C2",
+    "category": "surveillance"
+  },
+  {
+    "id": "pv_254",
+    "verb": "stave off",
+    "meaning": "savuşturmak, geçiştirmek (açlık/kriz)",
+    "example": "He ate an apple to stave off hunger.",
+    "difficulty": "C2",
+    "category": "prevention"
+  },
+  {
+    "id": "pv_255",
+    "verb": "suss out",
+    "meaning": "kokusunu almak, çözmek, anlamak",
+    "example": "I'm trying to suss out what he wants.",
+    "difficulty": "C2",
+    "category": "understanding"
+  },
+  {
+    "id": "pv_256",
+    "verb": "tamper with",
+    "meaning": "kurcalamak, üzerinde oynamak (bozmak için)",
+    "example": "Don't tamper with the evidence.",
+    "difficulty": "C2",
+    "category": "interference"
+  },
+  {
+    "id": "pv_257",
+    "verb": "tease out",
+    "meaning": "zorla/uğraşarak ortaya çıkarmak",
+    "example": "We managed to tease out the truth.",
+    "difficulty": "C2",
+    "category": "extraction"
+  },
+  {
+    "id": "pv_258",
+    "verb": "trot out",
+    "meaning": "ısıtıp ısıtıp önüne koymak (bahane)",
+    "example": "He trotted out the same old excuses.",
+    "difficulty": "C2",
+    "category": "presentation"
+  },
+  {
+    "id": "pv_259",
+    "verb": "weed out",
+    "meaning": "ayıklamak, elemek",
+    "example": "We need to weed out the bad applicants.",
+    "difficulty": "C2",
+    "category": "elimination"
+  },
+  {
+    "id": "pv_260",
+    "verb": "whip up",
+    "meaning": "şipşak hazırlamak (yemek), kışkırtmak",
+    "example": "I'll whip up some dinner.",
+    "difficulty": "C2",
+    "category": "incitement"
+  },
+  {
+    "id": "pv_261",
+    "verb": "winkle out",
+    "meaning": "kerpetenle laf almak",
+    "example": "I winkled the secret out of him.",
+    "difficulty": "C2",
+    "category": "extraction"
+  },
+  {
+    "id": "pv_262",
+    "verb": "write off",
+    "meaning": "gözden çıkarmak, silmek (borç/araç)",
+    "example": "The car was completely written off.",
+    "difficulty": "C2",
+    "category": "cancellation"
+  },
+  {
+    "id": "pv_263",
+    "verb": "butter up",
+    "meaning": "yağ çekmek, pohpohlamak",
+    "example": "He buttered up the boss for a raise.",
+    "difficulty": "A2",
+    "category": "flattery"
+  },
+  {
+    "id": "pv_264",
+    "verb": "chip in",
+    "meaning": "para toplamak/katkıda bulunmak (imece)",
+    "example": "We all chipped in for the gift.",
+    "difficulty": "A2",
+    "category": "contribution"
+  },
+  {
+    "id": "pv_265",
+    "verb": "doze off",
+    "meaning": "uyuklamak, içi geçmek",
+    "example": "I dozed off in front of the TV.",
+    "difficulty": "A2",
+    "category": "sleep"
+  },
+  {
+    "id": "pv_266",
+    "verb": "hear from",
+    "meaning": "haber almak",
+    "example": "Have you heard from John lately?",
+    "difficulty": "A2",
+    "category": "communication"
+  },
+  {
+    "id": "pv_267",
+    "verb": "pop up",
+    "meaning": "aniden bitivermek/belirmek",
+    "example": "New windows kept popping up.",
+    "difficulty": "A2",
+    "category": "appearance"
+  },
+  {
+    "id": "pv_268",
+    "verb": "set off",
+    "meaning": "yola koyulmak, tetiklemek",
+    "example": "We set off at dawn.",
+    "difficulty": "A2",
+    "category": "departure"
+  },
+  {
+    "id": "pv_269",
+    "verb": "speak up",
+    "meaning": "sesli konuşmak, fikrini açıkça söylemek",
+    "example": "Please speak up, I can't hear you.",
+    "difficulty": "A2",
+    "category": "communication"
+  },
+  {
+    "id": "pv_271",
+    "verb": "warm up",
+    "meaning": "ısınmak (spor/hava)",
+    "example": "Let's warm up before the match.",
+    "difficulty": "A2",
+    "category": "preparation"
+  },
+  {
+    "id": "pv_272",
+    "verb": "back up",
+    "meaning": "desteklemek, yedeklemek, geri geri gitmek",
+    "example": "Back up your files regularly.",
+    "difficulty": "B1",
+    "category": "support"
+  },
+  {
+    "id": "pv_273",
+    "verb": "blow up",
+    "meaning": "patlamak, havaya uçurmak, şişirmek",
+    "example": "The terrorists blew up the bridge.",
+    "difficulty": "B1",
+    "category": "explosion"
+  },
+  {
+    "id": "pv_274",
+    "verb": "cool down",
+    "meaning": "serinlemek, sakinleşmek",
+    "example": "Let the soup cool down.",
+    "difficulty": "B1",
+    "category": "calming"
+  },
+  {
+    "id": "pv_275",
+    "verb": "fade away",
+    "meaning": "silinip gitmek, yavaşça kaybolmak",
+    "example": "The music faded away.",
+    "difficulty": "B1",
+    "category": "disappearance"
+  },
+  {
+    "id": "pv_278",
+    "verb": "narrow down",
+    "meaning": "seçenekleri daraltmak, indirgemek",
+    "example": "We narrowed down the list to two.",
+    "difficulty": "B1",
+    "category": "selection"
+  },
+  {
+    "id": "pv_280",
+    "verb": "shoot up",
+    "meaning": "fırlamak (fiyat vb.), hızla büyümek",
+    "example": "Fuel prices shot up last week.",
+    "difficulty": "B1",
+    "category": "increase"
+  },
+  {
+    "id": "pv_281",
+    "verb": "tear down",
+    "meaning": "yıkmak (bina), sökmek",
+    "example": "They are tearing down the old school.",
+    "difficulty": "B1",
+    "category": "destruction"
+  },
+  {
+    "id": "pv_282",
+    "verb": "bottle up",
+    "meaning": "içine atmak (duygularını)",
+    "example": "Don't bottle up your anger.",
+    "difficulty": "B2",
+    "category": "suppression"
+  },
+  {
+    "id": "pv_283",
+    "verb": "cave in",
+    "meaning": "göçmek (tavan), boyun eğmek (baskıya)",
+    "example": "The roof caved in under the snow.",
+    "difficulty": "B2",
+    "category": "collapse"
+  },
+  {
+    "id": "pv_284",
+    "verb": "fizzle out",
+    "meaning": "sönüp gitmek, fos çıkmak",
+    "example": "Their enthusiasm soon fizzled out.",
+    "difficulty": "B2",
+    "category": "decline"
+  },
+  {
+    "id": "pv_285",
+    "verb": "freak out",
+    "meaning": "balatayı sıyırmak, çıldırmak (korkudan/sevinçten)",
+    "example": "She freaked out when she saw the spider.",
+    "difficulty": "B2",
+    "category": "panic"
+  },
+  {
+    "id": "pv_286",
+    "verb": "liven up",
+    "meaning": "canlandırmak, şenlendirmek",
+    "example": "Let's liven up this party with music.",
+    "difficulty": "B2",
+    "category": "animation"
+  },
+  {
+    "id": "pv_287",
+    "verb": "mess up",
+    "meaning": "yüzüne gözüne bulaştırmak, berbat etmek",
+    "example": "I really messed up the interview.",
+    "difficulty": "B2",
+    "category": "mistake"
+  },
+  {
+    "id": "pv_288",
+    "verb": "slip up",
+    "meaning": "hata yapmak, sürçmek",
+    "example": "Someone slipped up and leaked the news.",
+    "difficulty": "B2",
+    "category": "error"
+  },
+  {
+    "id": "pv_289",
+    "verb": "snap out of",
+    "meaning": "kendine gelmek, silkinmek (ruh halinden)",
+    "example": "You need to snap out of this depression.",
+    "difficulty": "B2",
+    "category": "recovery"
+  },
+  {
+    "id": "pv_291",
+    "verb": "breeze through",
+    "meaning": "terlemeden yapmak, kolayca geçmek",
+    "example": "He breezed through the test.",
+    "difficulty": "C1",
+    "category": "ease"
+  },
+  {
+    "id": "pv_292",
+    "verb": "crop up",
+    "meaning": "baş göstermek, aniden çıkmak",
+    "example": "Some problems have cropped up.",
+    "difficulty": "C1",
+    "category": "emergence"
+  },
+  {
+    "id": "pv_293",
+    "verb": "delve into",
+    "meaning": "derinlemesine araştırmak/dalmak",
+    "example": "She delved into the history of the town.",
+    "difficulty": "C1",
+    "category": "investigation"
+  },
+  {
+    "id": "pv_295",
+    "verb": "ferret out",
+    "meaning": "arayıp bulmak, ortaya çıkarmak (gizliyi)",
+    "example": "He managed to ferret out the secret.",
+    "difficulty": "C1",
+    "category": "discovery"
+  },
+  {
+    "id": "pv_296",
+    "verb": "hammer out",
+    "meaning": "uzun uğraşla çözmek/anlaşmak",
+    "example": "They finally hammered out a deal.",
+    "difficulty": "C1",
+    "category": "negotiation"
+  },
+  {
+    "id": "pv_297",
+    "verb": "pander to",
+    "meaning": "çanak tutmak, prim vermek (kötü bir şeye)",
+    "example": "Newspapers shouldn't pander to people's prejudices.",
+    "difficulty": "C1",
+    "category": "appeasement"
+  },
+  {
+    "id": "pv_298",
+    "verb": "phase in",
+    "meaning": "peyderpey uygulamaya koymak",
+    "example": "The new tax will be phased in over two years.",
+    "difficulty": "C1",
+    "category": "implementation"
+  },
+  {
+    "id": "pv_299",
+    "verb": "single out",
+    "meaning": "ayırmak, (suçlamak/övmek için) seçmek",
+    "example": "The teacher singled him out for praise.",
+    "difficulty": "C1",
+    "category": "selection"
+  },
+  {
+    "id": "pv_300",
+    "verb": "thrash out",
+    "meaning": "tartışarak karara bağlamak",
+    "example": "Let's meet to thrash out the details.",
+    "difficulty": "C1",
+    "category": "resolution"
+  }
+]

@@ -1,0 +1,212 @@
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  FadeInUp,
+  FadeOutUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import { create } from 'zustand';
+
+const { width, height } = Dimensions.get('window');
+const isSmallScreen = height < 700;
+
+// 🎯 Reward Toast Store
+interface RewardToast {
+  id: string;
+  type: 'xp' | 'coin' | 'level' | 'combo' | 'harvest' | 'quest';
+  value: number;
+  message?: string;
+}
+
+interface RewardToastStore {
+  toasts: RewardToast[];
+  addToast: (toast: Omit<RewardToast, 'id'>) => void;
+  removeToast: (id: string) => void;
+}
+
+export const useRewardToastStore = create<RewardToastStore>((set) => ({
+  toasts: [],
+  addToast: (toast) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    set((state) => ({
+      toasts: [...state.toasts, { ...toast, id }],
+    }));
+    // SE: Daha hızlı kaybol
+    const timeout = isSmallScreen ? 1500 : 2000;
+    setTimeout(() => {
+      set((state) => ({
+        toasts: state.toasts.filter((t) => t.id !== id),
+      }));
+    }, timeout);
+  },
+  removeToast: (id) => {
+    set((state) => ({
+      toasts: state.toasts.filter((t) => t.id !== id),
+    }));
+  },
+}));
+
+// Helper function to show rewards
+export const showRewardToast = (type: RewardToast['type'], value: number, message?: string) => {
+  useRewardToastStore.getState().addToast({ type, value, message });
+};
+
+// 🎨 Toast themes
+const TOAST_THEMES = {
+  xp: {
+    gradient: ['#8b5cf6', '#a855f7'] as const,
+    icon: '⚡',
+    label: 'XP',
+    glow: '#a855f7',
+  },
+  coin: {
+    gradient: ['#eab308', '#f59e0b'] as const,
+    icon: '💰',
+    label: 'Coin',
+    glow: '#eab308',
+  },
+  level: {
+    gradient: ['#22c55e', '#10b981'] as const,
+    icon: '🎉',
+    label: 'LEVEL UP!',
+    glow: '#22c55e',
+  },
+  combo: {
+    gradient: ['#f97316', '#ef4444'] as const,
+    icon: '🔥',
+    label: 'COMBO',
+    glow: '#f97316',
+  },
+  harvest: {
+    gradient: ['#06b6d4', '#0ea5e9'] as const,
+    icon: '🌾',
+    label: 'HASAT',
+    glow: '#06b6d4',
+  },
+  quest: {
+    gradient: ['#ec4899', '#f472b6'] as const,
+    icon: '✨',
+    label: 'GÖREV TAMAM!',
+    glow: '#ec4899',
+  },
+};
+
+// 🎴 Single Toast Component
+const RewardToastItem = React.memo(({ toast, index, topInset }: { toast: RewardToast; index: number; topInset: number }) => {
+  // 🔒 Fallback theme to prevent crash when unknown type is passed
+  const DEFAULT_THEME = {
+    gradient: ['#6b7280', '#4b5563'] as const,
+    icon: '✨',
+    label: 'REWARD',
+    glow: '#6b7280',
+  };
+
+  const theme = TOAST_THEMES[toast.type] || DEFAULT_THEME;
+
+  const scale = useSharedValue(0.5);
+
+  useEffect(() => {
+    // SE: Daha hızlı ve daha az bounce
+    scale.value = withSequence(
+      withSpring(isSmallScreen ? 1.1 : 1.2, { damping: isSmallScreen ? 12 : 8 }),
+      withSpring(1, { damping: isSmallScreen ? 14 : 10 })
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  // Toast'lar en üstte, timer'ın üstünde - küçük ve kompakt
+  const topPosition = topInset + (isSmallScreen ? 2 : 8) + index * (isSmallScreen ? 36 : 44);
+
+  return (
+    <Animated.View
+      entering={FadeInUp.delay(index * 100).springify()}
+      exiting={FadeOutUp.duration(300)}
+      style={[
+        styles.toastContainer,
+        { top: topPosition },
+      ]}
+    >
+      <Animated.View style={animatedStyle}>
+        <LinearGradient
+          colors={theme.gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[styles.toast, { shadowColor: theme.glow }]}
+        >
+          <Text style={styles.toastIcon}>{theme.icon}</Text>
+          <View>
+            <Text style={styles.toastValue}>+{toast.value}</Text>
+            {toast.message ? <Text style={styles.toastMessage}>{toast.message}</Text> : null}
+          </View>
+        </LinearGradient>
+      </Animated.View>
+    </Animated.View>
+  );
+});
+
+// 🏠 Toast Container Component
+export const RewardToastContainer = () => {
+  const toasts = useRewardToastStore((s) => s.toasts);
+  const insets = useSafeAreaInsets();
+
+  if (toasts.length === 0) return null;
+
+  return (
+    <View style={styles.container} pointerEvents="none">
+      {toasts.map((toast, index) => (
+        <RewardToastItem key={toast.id} toast={toast} index={index} topInset={insets.top} />
+      ))}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 9999,
+    alignItems: 'center',
+  },
+  toastContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+  },
+  toast: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: isSmallScreen ? 12 : 16,
+    paddingVertical: isSmallScreen ? 6 : 8,
+    borderRadius: 20,
+    gap: isSmallScreen ? 6 : 8,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  toastIcon: {
+    fontSize: isSmallScreen ? 14 : 18,
+  },
+  toastValue: {
+    fontSize: isSmallScreen ? 13 : 16,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  toastMessage: {
+    fontSize: isSmallScreen ? 10 : 12,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: 1,
+  },
+});
+
+export default RewardToastContainer;

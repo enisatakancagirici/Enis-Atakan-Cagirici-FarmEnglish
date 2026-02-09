@@ -1,0 +1,1624 @@
+{
+  "meta": {
+    "exam": "YDS",
+    "language": "English",
+    "license": "royalty-free / original content",
+    "question_type": "word_forms",
+    "total_questions": 160,
+    "categories": [
+      "noun_to_adjective",
+      "adjective_to_noun",
+      "verb_to_noun",
+      "verb_to_adjective",
+      "adjective_to_adverb",
+      "complex_transformation"
+    ],
+    "levels": {
+      "B2": 96,
+      "C1": 64
+    },
+    "description": "Kelime formları (Word Forms) - YDS sınavlarında sıkça sorulan morpholojik dönüşüm soruları"
+  },
+  "questions": [
+    {
+      "id": 1,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "concern",
+      "question": "The ________ tone of the meeting indicated that serious issues were being discussed.",
+      "options": ["concern", "concerned", "concerning", "concernful", "concerns"],
+      "answer": "concerning",
+      "explanation": "Burada dış dünyadan gelen, endişe uyandıran bir duruma ihtiyaç var. '-ing' formu harici neden/durum için kullanılır. 'Concerned' kişisel hissiyat için, 'concern' isim formudur."
+    },
+    {
+      "id": 2,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "success",
+      "question": "After years of effort, she finally achieved a ________ career in medicine.",
+      "options": ["success", "successful", "successfully", "succeed", "succession"],
+      "answer": "successful",
+      "explanation": "'Career' (isim) tanımlamak için sıfat gereklidir. 'Successful' (-ful suffix) 'başarılı' anlamında tek doğru seçenektir. 'Successfully' zarf, 'succeed' fiil, 'succession' ise 'ardıllık' anlamında farklı bir isimdir."
+    },
+    {
+      "id": 3,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "care",
+      "question": "Be ________ when handling fragile items to avoid any damage.",
+      "options": ["care", "careful", "carefully", "careless", "caring"],
+      "answer": "careful",
+      "explanation": "'Be' fiilinden sonra sıfat gelir. 'Careful' (-ful) dikkatli anlamındadır. 'Carefully' zarf olduğu için yanlış, 'careless' zıt anlam, 'caring' ise 'şefkatli' anlamında farklı bir sıfattır."
+    },
+    {
+      "id": 4,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "doubt",
+      "question": "Her ________ expression suggested she didn't believe the explanation.",
+      "options": ["doubt", "doubtful", "doubting", "doubtless", "doubted"],
+      "answer": "doubtful",
+      "explanation": "'Expression' (isim) tanımlamak için sıfat gereklidir. 'Doubtful' (-ful) şüphe dolu anlamındadır. 'Doubtless' (hiç şüphesiz) zıt anlam, 'doubting' participle formudur."
+    },
+    {
+      "id": 5,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "beauty",
+      "question": "The garden was filled with ________ flowers of every color.",
+      "options": ["beauty", "beautiful", "beautifully", "beautify", "beauteous"],
+      "answer": "beautiful",
+      "explanation": "'Flowers' (isim) tanımlamak için sıfat gereklidir. 'Beautiful' (-ful) güzel anlamındadır. 'Beautifully' zarf, 'beautify' fiil, 'beauteous' ise arkaik/nadir kullanılan bir formdur."
+    },
+    {
+      "id": 6,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "power",
+      "question": "The new engine is remarkably ________ despite its small size.",
+      "options": ["power", "powerful", "powerfully", "powerless", "powered"],
+      "answer": "powerful",
+      "explanation": "'Is' fiilinden sonra sıfat gelir. 'Powerful' (-ful) güçlü anlamındadır. 'Powerfully' zarf, 'powerless' güçsüz (zıt), 'powered' ise 'güç verilen' anlamında farklı bir sıfattır."
+    },
+    {
+      "id": 7,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "danger",
+      "question": "Swimming in this area is extremely ________ due to strong currents.",
+      "options": ["danger", "dangerous", "dangerously", "endanger", "endangered"],
+      "answer": "dangerous",
+      "explanation": "'Is' fiilinden sonra sıfat gelir. 'Dangerous' (-ous) tehlikeli anlamındadır. 'Dangerously' zarf, 'endanger' fiil, 'endangered' ise 'nesli tehlikede' anlamında farklı bir kavramdır."
+    },
+    {
+      "id": 8,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "fame",
+      "question": "The ________ actor was recognized wherever he went.",
+      "options": ["fame", "famous", "famously", "famed", "infamous"],
+      "answer": "famous",
+      "explanation": "'Actor' (isim) tanımlamak için sıfat gereklidir. 'Famous' (-ous) ünlü anlamındadır. 'Famously' zarf, 'famed' daha resmi/nadir, 'infamous' ise 'kötü şöhretli' anlamında zıt kavramdır."
+    },
+    {
+      "id": 9,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "adventure",
+      "question": "The ________ spirit of early explorers led them to discover new lands.",
+      "options": ["adventure", "adventurous", "adventuring", "adventures", "adventured"],
+      "answer": "adventurous",
+      "explanation": "'Spirit' (ruh/karakter) tanımlamak için sıfat gereklidir. 'Adventurous' (-ous suffix) maceraperest karakteri ifade eder. 'Adventuring' gerund/participle, diğerleri isim veya fiil formlarıdır."
+    },
+    {
+      "id": 10,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "marvel",
+      "question": "The scientist presented a ________ discovery that revolutionized the field.",
+      "options": ["marvel", "marvelous", "marveling", "marveled", "marvelously"],
+      "answer": "marvelous",
+      "explanation": "'Discovery' (isim) tanımlamak için sıfat gereklidir. 'Marvelous' (-ous suffix) harika anlamındadır. 'Marvelously' zarf, 'marveling' participle, 'marvel' isim/fiildir."
+    },
+    {
+      "id": 11,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "courage",
+      "question": "The firefighter's ________ actions saved several lives during the blaze.",
+      "options": ["courage", "courageous", "courageously", "encouraged", "encouraging"],
+      "answer": "courageous",
+      "explanation": "'Actions' (isim) tanımlamak için sıfat gereklidir. 'Courageous' (-ous) cesur anlamındadır. 'Courageously' zarf, 'encouraged/encouraging' ise 'encourage' fiilinden türetilmiş farklı kelimelerdir."
+    },
+    {
+      "id": 12,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "ambition",
+      "question": "The company's ________ expansion plans have drawn significant investor interest.",
+      "options": ["ambition", "ambitious", "ambitiously", "ambitioned", "ambitions"],
+      "answer": "ambitious",
+      "explanation": "'Plans' (isim) tanımlamak için sıfat gereklidir. 'Ambitious' (-ous) hırslı/büyük hedefli anlamındadır. 'Ambitiously' zarf, 'ambitioned' standart değil, 'ambitions' çoğul isimdir."
+    },
+    {
+      "id": 13,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "harm",
+      "question": "The substance was proven to be completely ________ to humans.",
+      "options": ["harm", "harmful", "harmless", "harmfully", "harmed"],
+      "answer": "harmless",
+      "explanation": "Bağlam zararsızlığı ifade ediyor. 'Harmless' (-less) zararsız anlamındadır. 'Harmful' zararlı (zıt anlam), 'harmfully' zarf, 'harmed' past participle/fiildir."
+    },
+    {
+      "id": 14,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "hope",
+      "question": "Despite the setbacks, she remained ________ about the future.",
+      "options": ["hope", "hopeful", "hopefully", "hopeless", "hoping"],
+      "answer": "hopeful",
+      "explanation": "'Remained' fiilinden sonra sıfat gelir. 'Hopeful' (-ful) umutlu anlamındadır. 'Hopefully' zarf, 'hopeless' umutsuz (zıt), 'hoping' gerund/participle formudur."
+    },
+    {
+      "id": 15,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "peace",
+      "question": "The village offered a ________ retreat from the busy city life.",
+      "options": ["peace", "peaceful", "peacefully", "peacemaker", "peaceable"],
+      "answer": "peaceful",
+      "explanation": "'Retreat' (isim) tanımlamak için sıfat gereklidir. 'Peaceful' (-ful) huzurlu anlamındadır. 'Peacefully' zarf, 'peacemaker' isim, 'peaceable' ise 'barışçıl (kişi)' anlamında farklı nüanslıdır."
+    },
+    {
+      "id": 16,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "resource",
+      "question": "The ________ entrepreneur found innovative solutions to every problem.",
+      "options": ["resource", "resourceful", "resourcefully", "resources", "resourced"],
+      "answer": "resourceful",
+      "explanation": "'Entrepreneur' (isim) tanımlamak için sıfat gereklidir. 'Resourceful' (-ful) becerikli/yaratıcı anlamındadır. 'Resourcefully' zarf, 'resources' çoğul isim, 'resourced' standart sıfat değildir."
+    },
+    {
+      "id": 17,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "space",
+      "question": "The apartment felt surprisingly ________ despite its modest square footage.",
+      "options": ["space", "spacious", "spaciously", "spaced", "spacing"],
+      "answer": "spacious",
+      "explanation": "'Felt' algı fiilinden sonra sıfat gelir. 'Spacious' (-ous) geniş/ferah anlamındadır. 'Spaciously' zarf, 'spaced' ve 'spacing' ise 'aralıklı' anlamında farklı kavramlardır."
+    },
+    {
+      "id": 18,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "use",
+      "question": "This guide provides ________ tips for first-time travelers.",
+      "options": ["use", "useful", "usefully", "useless", "using"],
+      "answer": "useful",
+      "explanation": "'Tips' (isim) tanımlamak için sıfat gereklidir. 'Useful' (-ful) kullanışlı/faydalı anlamındadır. 'Usefully' zarf, 'useless' yararsız (zıt), 'using' gerund/participle formudur."
+    },
+    {
+      "id": 19,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "contempt",
+      "question": "His ________ attitude toward the rules eventually led to his dismissal.",
+      "options": ["contempt", "contemptuous", "contemptuously", "contemptible", "contempting"],
+      "answer": "contemptuous",
+      "explanation": "'Attitude' tanımlamak için sıfat gereklidir. 'Contemptuous' (-ous) küçümseyen anlamındadır. 'Contemptible' ise 'küçümsenmeye layık' (farklı anlam), 'contemptuously' zarftır."
+    },
+    {
+      "id": 20,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "mystery",
+      "question": "The ________ disappearance of the artifact baffled investigators.",
+      "options": ["mystery", "mysterious", "mysteriously", "mysteries", "mystified"],
+      "answer": "mysterious",
+      "explanation": "'Disappearance' tanımlamak için sıfat gereklidir. 'Mysterious' (-ous) gizemli anlamındadır. 'Mysteriously' zarf, 'mystified' 'şaşkın' anlamında farklı bir sıfattır."
+    },
+    {
+      "id": 21,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "truth",
+      "question": "The witness gave a ________ account of the events.",
+      "options": ["truth", "truthful", "truthfully", "truths", "untruthful"],
+      "answer": "truthful",
+      "explanation": "'Account' tanımlamak için sıfat gereklidir. 'Truthful' (-ful) dürüst/gerçeğe uygun anlamındadır. 'Truthfully' zarf, 'untruthful' yalancı (zıt), 'truths' çoğul isimdir."
+    },
+    {
+      "id": 22,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "thought",
+      "question": "The host's ________ gesture made all the guests feel welcome.",
+      "options": ["thought", "thoughtful", "thoughtfully", "thoughtless", "thinking"],
+      "answer": "thoughtful",
+      "explanation": "'Gesture' tanımlamak için sıfat gereklidir. 'Thoughtful' (-ful) düşünceli/özenli anlamındadır. 'Thoughtfully' zarf, 'thoughtless' düşüncesiz (zıt), 'thinking' gerund/participledir."
+    },
+    {
+      "id": 23,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "rest",
+      "question": "After a long day, all she wanted was a ________ night's sleep.",
+      "options": ["rest", "restful", "restfully", "restless", "resting"],
+      "answer": "restful",
+      "explanation": "'Sleep' tanımlamak için sıfat gereklidir. 'Restful' (-ful) dinlendirici/huzurlu anlamındadır. 'Restfully' zarf, 'restless' huzursuz (zıt), 'resting' gerund/participledir."
+    },
+    {
+      "id": 24,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "grace",
+      "question": "The dancer moved across the stage in a ________ manner.",
+      "options": ["grace", "graceful", "gracefully", "gracious", "gracing"],
+      "answer": "graceful",
+      "explanation": "'Manner' tanımlamak için sıfat gereklidir. 'Graceful' (-ful) zarif anlamındadır. 'Gracefully' zarf, 'gracious' nazik/kibar (farklı anlam), 'gracing' gerund/participledir."
+    },
+    {
+      "id": 25,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "disgrace",
+      "question": "The politician's ________ behavior shocked the entire nation.",
+      "options": ["disgrace", "disgraceful", "disgracefully", "disgraced", "disgracing"],
+      "answer": "disgraceful",
+      "explanation": "'Behavior' tanımlamak için sıfat gereklidir. 'Disgraceful' (-ful) utanç verici anlamındadır. 'Disgracefully' zarf, 'disgraced' past participle (utanca düşmüş), 'disgracing' gerund/participledir."
+    },
+    {
+      "id": 26,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "taste",
+      "question": "The chef prepared a ________ meal using fresh local ingredients.",
+      "options": ["taste", "tasty", "tasteful", "tasteless", "tasting"],
+      "answer": "tasty",
+      "explanation": "'Meal' tanımlamak için sıfat gereklidir. 'Tasty' lezzetli anlamındadır. 'Tasteful' estetik/zevkli (farklı anlam), 'tasteless' tatsız (zıt), 'tasting' gerund/participledir."
+    },
+    {
+      "id": 27,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "happy",
+      "question": "The ________ in her voice was evident when she announced the engagement.",
+      "options": ["happy", "happily", "happiness", "happier", "happiest"],
+      "answer": "happiness",
+      "explanation": "'In her voice' yapısı isim gerektirir. 'Happiness' (-ness suffix) mutluluk anlamında soyut isimdir. 'Happily' zarf, 'happier/happiest' karşılaştırma sıfatlarıdır."
+    },
+    {
+      "id": 28,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "sad",
+      "question": "A deep ________ filled the room after the announcement.",
+      "options": ["sad", "sadly", "sadness", "saddened", "sadden"],
+      "answer": "sadness",
+      "explanation": "'A deep' + _ yapısı isim gerektirir. 'Sadness' (-ness) üzüntü anlamında soyut isimdir. 'Sadly' zarf, 'saddened' past participle, 'sadden' fiildir."
+    },
+    {
+      "id": 29,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "kind",
+      "question": "Her ________ toward strangers was known throughout the community.",
+      "options": ["kind", "kindly", "kindness", "kinder", "kindest"],
+      "answer": "kindness",
+      "explanation": "'Her' + _ yapısı isim gerektirir. 'Kindness' (-ness) iyilik/naziklik anlamında soyut isimdir. 'Kindly' zarf/sıfat, 'kinder/kindest' karşılaştırma formlarıdır."
+    },
+    {
+      "id": 30,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "weak",
+      "question": "The ________ of the argument became apparent during cross-examination.",
+      "options": ["weak", "weakly", "weakness", "weaken", "weakened"],
+      "answer": "weakness",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Weakness' (-ness) zayıflık anlamında soyut isimdir. 'Weakly' zarf, 'weaken' fiil, 'weakened' past participledir."
+    },
+    {
+      "id": 31,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "dark",
+      "question": "The ________ of the tunnel made navigation extremely difficult.",
+      "options": ["dark", "darkly", "darkness", "darken", "darkened"],
+      "answer": "darkness",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Darkness' (-ness) karanlık anlamında soyut isimdir. 'Darkly' zarf, 'darken' fiil, 'darkened' past participledir."
+    },
+    {
+      "id": 32,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "responsible",
+      "question": "The manager's ________ for the project's failure cannot be overlooked.",
+      "options": ["responsible", "responsibility", "responsibly", "responsive", "responsiveness"],
+      "answer": "responsibility",
+      "explanation": "'For the project's failure' yapısı isim gerektirir. 'Responsibility' (-ity suffix) sorumluluk anlamındadır. 'Responsibly' zarf, 'responsive' ve 'responsiveness' farklı kök kelimelerdendir."
+    },
+    {
+      "id": 33,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "active",
+      "question": "Regular physical ________ is essential for maintaining good health.",
+      "options": ["active", "actively", "activity", "activate", "activation"],
+      "answer": "activity",
+      "explanation": "'Physical' + _ yapısı isim gerektirir. 'Activity' (-ity suffix) faaliyet/aktivite anlamındadır. 'Actively' zarf, 'activate' fiil, 'activation' farklı bir isimdir."
+    },
+    {
+      "id": 34,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "creative",
+      "question": "The artist's ________ was evident in every piece she produced.",
+      "options": ["creative", "creatively", "creativity", "create", "creation"],
+      "answer": "creativity",
+      "explanation": "'The artist's' + _ yapısı isim gerektirir. 'Creativity' (-ity) yaratıcılık anlamında soyut isimdir. 'Creatively' zarf, 'create' fiil, 'creation' farklı bir isim (yaratılmış şey)."
+    },
+    {
+      "id": 35,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "curious",
+      "question": "Her ________ about the world led her to become a renowned scientist.",
+      "options": ["curious", "curiously", "curiosity", "cure", "curator"],
+      "answer": "curiosity",
+      "explanation": "'Her' + _ yapısı isim gerektirir. 'Curiosity' (-ity, -ious→-iosity dönüşümü) merak anlamındadır. 'Curiously' zarf, 'cure/curator' tamamen farklı kelimelerdir."
+    },
+    {
+      "id": 36,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "anxious",
+      "question": "Her constant ________ about future events was affecting her health.",
+      "options": ["anxious", "anxiously", "anxiety", "anxiousness", "anxietude"],
+      "answer": "anxiety",
+      "explanation": "'Constant' sıfatı isim gerektirir. 'Anxiety' (-iety) kaygı/endişe anlamındadır. 'Anxiously' zarf, 'anxiousness' ağır/nadir kullanım, 'anxietude' standart değildir."
+    },
+    {
+      "id": 37,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "skeptical",
+      "question": "The ________ among scientists regarding the new theory was widely reported.",
+      "options": ["skeptical", "skepticism", "skeptically", "skeptic", "skepticize"],
+      "answer": "skepticism",
+      "explanation": "'The' + _ + 'among' yapısı isim gerektirir. 'Skepticism' (-ism) şüphecilik doktrini/tutumudur. 'Skeptically' zarf, 'skeptic' şüpheci (kişi), 'skepticize' standart değildir."
+    },
+    {
+      "id": 38,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "ambiguous",
+      "question": "The ________ of the government's statement led to widespread speculation.",
+      "options": ["ambiguous", "ambiguity", "ambiguously", "ambiguousness", "ambiguitous"],
+      "answer": "ambiguity",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Ambiguity' (-ity) belirsizlik/muğlaklık anlamındadır. 'Ambiguously' zarf, 'ambiguousness' nadir/ağır, 'ambiguitous' standart değildir."
+    },
+    {
+      "id": 39,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "lonely",
+      "question": "The ________ of living in a foreign country was harder than she expected.",
+      "options": ["lonely", "lonelily", "loneliness", "alone", "lonesome"],
+      "answer": "loneliness",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Loneliness' (-ness) yalnızlık anlamındadır. 'Lonelily' standart değil, 'alone' sıfat/zarf, 'lonesome' sıfattır."
+    },
+    {
+      "id": 40,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "aware",
+      "question": "Public ________ of environmental issues has increased significantly.",
+      "options": ["aware", "awareness", "awaring", "awared", "awarely"],
+      "answer": "awareness",
+      "explanation": "'Public' + _ yapısı isim gerektirir. 'Awareness' (-ness) farkındalık anlamındadır. Diğer seçenekler ('awaring', 'awared', 'awarely') standart İngilizce'de yoktur."
+    },
+    {
+      "id": 41,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "complex",
+      "question": "The ________ of the legal system makes it difficult for ordinary citizens to navigate.",
+      "options": ["complex", "complexity", "complexly", "complexion", "complexify"],
+      "answer": "complexity",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Complexity' (-ity) karmaşıklık anlamındadır. 'Complexly' zarf, 'complexion' cilt/ten (farklı kelime), 'complexify' standart değildir."
+    },
+    {
+      "id": 42,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "secure",
+      "question": "Job ________ is a major concern for workers in the gig economy.",
+      "options": ["secure", "security", "securely", "secured", "securing"],
+      "answer": "security",
+      "explanation": "'Job' + _ yapısı bileşik isim oluşturur. 'Security' (-ity) güvenlik anlamındadır. 'Securely' zarf, 'secured' past participle, 'securing' gerund/participledir."
+    },
+    {
+      "id": 43,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "honest",
+      "question": "________ is the best policy when dealing with difficult situations.",
+      "options": ["honest", "honestly", "honesty", "dishonest", "dishonesty"],
+      "answer": "honesty",
+      "explanation": "Özne konumunda isim gereklidir. 'Honesty' (-y) dürüstlük anlamındadır. 'Honestly' zarf, 'dishonest/dishonesty' zıt anlamlardır."
+    },
+    {
+      "id": 44,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "hostile",
+      "question": "The ________ between the two nations has lasted for decades.",
+      "options": ["hostile", "hostility", "hostilely", "hostilities", "hostilize"],
+      "answer": "hostility",
+      "explanation": "'The' + _ + 'between' yapısı isim gerektirir. 'Hostility' (-ity) düşmanlık anlamındadır. 'Hostilely' zarf, 'hostilities' çoğul (savaş eylemleri), 'hostilize' standart değildir."
+    },
+    {
+      "id": 45,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "free",
+      "question": "The ________ to express one's opinions is a fundamental human right.",
+      "options": ["free", "freedom", "freely", "freed", "freeing"],
+      "answer": "freedom",
+      "explanation": "'The' + _ + 'to' yapısı isim gerektirir. 'Freedom' (-dom) özgürlük anlamındadır. 'Freely' zarf, 'freed' past participle, 'freeing' gerund/participledir."
+    },
+    {
+      "id": 46,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "wise",
+      "question": "The ancient philosopher was renowned for his ________ and insight.",
+      "options": ["wise", "wisdom", "wisely", "wiser", "wisest"],
+      "answer": "wisdom",
+      "explanation": "'His' + _ yapısı isim gerektirir. 'Wisdom' (-dom) bilgelik anlamındadır. 'Wisely' zarf, 'wiser/wisest' karşılaştırma sıfatlarıdır."
+    },
+    {
+      "id": 47,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "brave",
+      "question": "The soldier was awarded a medal for his ________ in battle.",
+      "options": ["brave", "bravery", "bravely", "braver", "bravest"],
+      "answer": "bravery",
+      "explanation": "'His' + _ yapısı isim gerektirir. 'Bravery' (-ry/-ery) cesaret anlamındadır. 'Bravely' zarf, 'braver/bravest' karşılaştırma sıfatlarıdır."
+    },
+    {
+      "id": 48,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "develop",
+      "question": "The ________ of new technology requires significant investment in research.",
+      "options": ["develop", "developing", "development", "developer", "developed"],
+      "answer": "development",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Development' (-ment suffix) gelişim/gelişme sürecini ifade eder. 'Developing' gerund, 'developer' kişi, 'developed' sıfattır."
+    },
+    {
+      "id": 49,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "create",
+      "question": "The artist's latest ________ has attracted international acclaim.",
+      "options": ["create", "creating", "creation", "creative", "creatively"],
+      "answer": "creation",
+      "explanation": "'The artist's latest' + _ yapısı isim gerektirir. 'Creation' (-tion) yaratılmış eser anlamındadır. 'Creating' gerund, 'creative' sıfat, 'creatively' zarftır."
+    },
+    {
+      "id": 50,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "educate",
+      "question": "Good ________ is the foundation of a successful society.",
+      "options": ["educate", "educating", "education", "educator", "educational"],
+      "answer": "education",
+      "explanation": "'Good' + _ yapısı isim gerektirir. 'Education' (-tion) eğitim sistemi/süreci anlamındadır. 'Educating' gerund, 'educator' öğretmen, 'educational' sıfattır."
+    },
+    {
+      "id": 51,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "improve",
+      "question": "There has been a significant ________ in the patient's condition.",
+      "options": ["improve", "improving", "improvement", "improved", "improvable"],
+      "answer": "improvement",
+      "explanation": "'A significant' + _ yapısı isim gerektirir. 'Improvement' (-ment) gelişme/iyileşme anlamındadır. 'Improving' gerund, 'improved' sıfat, 'improvable' standart değildir."
+    },
+    {
+      "id": 52,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "achieve",
+      "question": "Winning the championship was her greatest ________.",
+      "options": ["achieve", "achieving", "achievement", "achiever", "achieved"],
+      "answer": "achievement",
+      "explanation": "'Her greatest' + _ yapısı isim gerektirir. 'Achievement' (-ment) başarı anlamındadır. 'Achieving' gerund, 'achiever' kişi, 'achieved' past participledir."
+    },
+    {
+      "id": 53,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "exist",
+      "question": "The ________ of intelligent life beyond Earth remains one of science's greatest mysteries.",
+      "options": ["exist", "existing", "existence", "existent", "existance"],
+      "answer": "existence",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Existence' (-ence) var oluş anlamındadır. 'Existing' sıfat, 'existent' nadir sıfat, 'existance' yanlış yazımdır (doğrusu existence)."
+    },
+    {
+      "id": 54,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "persist",
+      "question": "Her ________ in the face of adversity finally led to success.",
+      "options": ["persist", "persisting", "persistence", "persistent", "persistently"],
+      "answer": "persistence",
+      "explanation": "'Her' + _ yapısı isim gerektirir. 'Persistence' (-ence) sebat/ısrar anlamındadır. 'Persisting' gerund, 'persistent' sıfat, 'persistently' zarftır."
+    },
+    {
+      "id": 55,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "decide",
+      "question": "The final ________ will be made by the committee next week.",
+      "options": ["decide", "deciding", "decision", "decisive", "decisively"],
+      "answer": "decision",
+      "explanation": "'The final' + _ yapısı isim gerektirir. 'Decision' (-sion) karar anlamındadır. 'Deciding' gerund, 'decisive' sıfat (kararlı), 'decisively' zarftır."
+    },
+    {
+      "id": 56,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "discuss",
+      "question": "A lengthy ________ about the project's future took place at the meeting.",
+      "options": ["discuss", "discussing", "discussion", "discussed", "discussive"],
+      "answer": "discussion",
+      "explanation": "'A lengthy' + _ yapısı isim gerektirir. 'Discussion' (-sion) tartışma anlamındadır. 'Discussing' gerund, 'discussed' past participle, 'discussive' standart değildir."
+    },
+    {
+      "id": 57,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "admit",
+      "question": "His ________ of guilt surprised everyone in the courtroom.",
+      "options": ["admit", "admitting", "admission", "admissible", "admittedly"],
+      "answer": "admission",
+      "explanation": "'His' + _ + 'of' yapısı isim gerektirir. 'Admission' (-ssion) kabul/itiraf anlamındadır. 'Admissible' sıfat (kabul edilebilir), 'admittedly' zarf (kuşkusuz)."
+    },
+    {
+      "id": 58,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "explain",
+      "question": "The scientist gave a clear ________ of the complex phenomenon.",
+      "options": ["explain", "explaining", "explanation", "explanatory", "explained"],
+      "answer": "explanation",
+      "explanation": "'A clear' + _ yapısı isim gerektirir. 'Explanation' (-tion) açıklama anlamındadır. 'Explaining' gerund, 'explanatory' sıfat, 'explained' past participledir."
+    },
+    {
+      "id": 59,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "apply",
+      "question": "Please submit your ________ by the end of this month.",
+      "options": ["apply", "applying", "application", "applicant", "applicable"],
+      "answer": "application",
+      "explanation": "'Your' + _ yapısı isim gerektirir. 'Application' (-tion) başvuru anlamındadır. 'Applying' gerund, 'applicant' başvuran (kişi), 'applicable' sıfat (uygulanabilir)."
+    },
+    {
+      "id": 60,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "assume",
+      "question": "The ________ that all students learn at the same pace is fundamentally flawed.",
+      "options": ["assume", "assuming", "assumption", "assumed", "assumptive"],
+      "answer": "assumption",
+      "explanation": "'The' + _ + 'that' yapısı isim gerektirir. 'Assumption' (-tion) varsayım anlamındadır. 'Assuming' gerund/bağlaç, 'assumed' sıfat, 'assumptive' nadir sıfattır."
+    },
+    {
+      "id": 61,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "recommend",
+      "question": "The doctor's ________ was to rest for at least a week.",
+      "options": ["recommend", "recommending", "recommendation", "recommended", "recommendable"],
+      "answer": "recommendation",
+      "explanation": "'The doctor's' + _ yapısı isim gerektirir. 'Recommendation' (-tion) tavsiye anlamındadır. 'Recommending' gerund, 'recommended' sıfat, 'recommendable' nadir formdur."
+    },
+    {
+      "id": 62,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "observe",
+      "question": "Careful ________ of the patient's symptoms helped doctors make an accurate diagnosis.",
+      "options": ["observe", "observing", "observation", "observer", "observable"],
+      "answer": "observation",
+      "explanation": "'Careful' + _ yapısı isim gerektirir. 'Observation' (-tion) gözlem anlamındadır. 'Observing' gerund, 'observer' gözlemci, 'observable' sıfat (gözlemlenebilir)."
+    },
+    {
+      "id": 63,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "contribute",
+      "question": "Her ________ to the research project was invaluable.",
+      "options": ["contribute", "contributing", "contribution", "contributor", "contributory"],
+      "answer": "contribution",
+      "explanation": "'Her' + _ yapısı isim gerektirir. 'Contribution' (-tion) katkı anlamındadır. 'Contributing' gerund, 'contributor' katkıda bulunan, 'contributory' sıfat (katkıda bulunan)."
+    },
+    {
+      "id": 64,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "investigate",
+      "question": "The ________ into the accident revealed multiple safety violations.",
+      "options": ["investigate", "investigating", "investigation", "investigator", "investigative"],
+      "answer": "investigation",
+      "explanation": "'The' + _ + 'into' yapısı isim gerektirir. 'Investigation' (-tion) soruşturma anlamındadır. 'Investigating' gerund, 'investigator' soruşturmacı, 'investigative' sıfat."
+    },
+    {
+      "id": 65,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "communicate",
+      "question": "Effective ________ is essential for a successful team.",
+      "options": ["communicate", "communicating", "communication", "communicative", "communicator"],
+      "answer": "communication",
+      "explanation": "'Effective' + _ yapısı isim gerektirir. 'Communication' (-tion) iletişim anlamındadır. 'Communicating' gerund, 'communicative' sıfat, 'communicator' iletişimci."
+    },
+    {
+      "id": 66,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "interpret",
+      "question": "The ________ of the ancient text has been debated for centuries.",
+      "options": ["interpret", "interpreting", "interpretation", "interpreter", "interpretive"],
+      "answer": "interpretation",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Interpretation' (-tion) yorum anlamındadır. 'Interpreting' gerund, 'interpreter' tercüman, 'interpretive' sıfat."
+    },
+    {
+      "id": 67,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "arrange",
+      "question": "The ________ of flowers in the vase was truly beautiful.",
+      "options": ["arrange", "arranging", "arrangement", "arranger", "arranged"],
+      "answer": "arrangement",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Arrangement' (-ment) düzenleme anlamındadır. 'Arranging' gerund, 'arranger' düzenleyen, 'arranged' past participle."
+    },
+    {
+      "id": 68,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "manage",
+      "question": "Good ________ is the key to running a successful business.",
+      "options": ["manage", "managing", "management", "manager", "manageable"],
+      "answer": "management",
+      "explanation": "'Good' + _ yapısı isim gerektirir. 'Management' (-ment) yönetim anlamındadır. 'Managing' gerund, 'manager' yönetici, 'manageable' sıfat (yönetilebilir)."
+    },
+    {
+      "id": 69,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "resent",
+      "question": "There was growing ________ among workers over the new policies.",
+      "options": ["resent", "resenting", "resentment", "resentful", "resentfully"],
+      "answer": "resentment",
+      "explanation": "'Growing' + _ yapısı isim gerektirir. 'Resentment' (-ment) kırgınlık/gücenme anlamındadır. 'Resenting' gerund, 'resentful' sıfat, 'resentfully' zarftır."
+    },
+    {
+      "id": 70,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "treat",
+      "question": "Early ________ of the disease can significantly improve outcomes.",
+      "options": ["treat", "treating", "treatment", "treatable", "treated"],
+      "answer": "treatment",
+      "explanation": "'Early' + _ yapısı isim gerektirir. 'Treatment' (-ment) tedavi anlamındadır. 'Treating' gerund, 'treatable' sıfat (tedavi edilebilir), 'treated' past participle."
+    },
+    {
+      "id": 71,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "engage",
+      "question": "The company seeks to increase customer ________ through interactive experiences.",
+      "options": ["engage", "engaging", "engagement", "engaged", "engager"],
+      "answer": "engagement",
+      "explanation": "'Customer' + _ yapısı bileşik isim oluşturur. 'Engagement' (-ment) katılım/bağlılık anlamındadır. 'Engaging' sıfat (çekici), 'engaged' sıfat (meşgul/nişanlı)."
+    },
+    {
+      "id": 72,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "grow",
+      "question": "The ________ of the company has exceeded all expectations.",
+      "options": ["grow", "growing", "growth", "grown", "grower"],
+      "answer": "growth",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Growth' (-th) büyüme anlamındadır. 'Growing' gerund/sıfat, 'grown' past participle, 'grower' yetiştirici."
+    },
+    {
+      "id": 73,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "interest",
+      "question": "The lecture was so ________ that everyone stayed until the end.",
+      "options": ["interest", "interested", "interesting", "interestingly", "interests"],
+      "answer": "interesting",
+      "explanation": "'Was so' + sıfat yapısı gerektirir. Dış nesne (lecture) için '-ing' kullanılır. 'Interesting' dış dünyaya ait/neden olan, 'interested' kişisel hissiyat içindir."
+    },
+    {
+      "id": 74,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "bore",
+      "question": "The ________ presentation failed to capture the audience's attention.",
+      "options": ["bore", "bored", "boring", "boringly", "bores"],
+      "answer": "boring",
+      "explanation": "'Presentation' (dış nesne) tanımlamak için '-ing' kullanılır. 'Boring' sıkıcı (neden olan), 'bored' sıkılmış (hisseden), 'boringly' zarftır."
+    },
+    {
+      "id": 75,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "excite",
+      "question": "The children were very ________ about their upcoming trip to the zoo.",
+      "options": ["excite", "excited", "exciting", "excitedly", "excitement"],
+      "answer": "excited",
+      "explanation": "'Children' (kişi) kendi hislerini tanımlar, '-ed' kullanılır. 'Excited' heyecanlı (hisseden), 'exciting' heyecan verici (neden olan)."
+    },
+    {
+      "id": 76,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "tire",
+      "question": "After the long journey, everyone felt completely ________.",
+      "options": ["tire", "tired", "tiring", "tiredly", "tiredness"],
+      "answer": "tired",
+      "explanation": "'Everyone felt' yapısı kişisel his için '-ed' gerektirir. 'Tired' yorgun (hisseden), 'tiring' yorucu (neden olan), 'tiredness' isimdir."
+    },
+    {
+      "id": 77,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "confuse",
+      "question": "The ________ instructions led to numerous errors in the project.",
+      "options": ["confuse", "confused", "confusing", "confusingly", "confusion"],
+      "answer": "confusing",
+      "explanation": "'Instructions' (dış nesne) için '-ing' kullanılır. 'Confusing' kafa karıştırıcı (neden olan), 'confused' şaşkın (hisseden)."
+    },
+    {
+      "id": 78,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "satisfy",
+      "question": "The customer seemed ________ with the quality of the service.",
+      "options": ["satisfy", "satisfied", "satisfying", "satisfactorily", "satisfaction"],
+      "answer": "satisfied",
+      "explanation": "'Customer' (kişi) kendi hislerini tanımlar, '-ed' kullanılır. 'Satisfied' memnun (hisseden), 'satisfying' tatmin edici (neden olan)."
+    },
+    {
+      "id": 79,
+      "level": "C1",
+      "category": "verb_to_adjective",
+      "root_word": "frustrate",
+      "question": "Dealing with bureaucracy can be incredibly ________.",
+      "options": ["frustrate", "frustrated", "frustrating", "frustratingly", "frustration"],
+      "answer": "frustrating",
+      "explanation": "'Bureaucracy' (dış kavram) için '-ing' kullanılır. 'Frustrating' sinir bozucu (neden olan), 'frustrated' hayal kırıklığına uğramış (hisseden)."
+    },
+    {
+      "id": 80,
+      "level": "C1",
+      "category": "verb_to_adjective",
+      "root_word": "overwhelm",
+      "question": "The ________ response from donors helped the charity exceed its goals.",
+      "options": ["overwhelm", "overwhelmed", "overwhelming", "overwhelmingly", "overwhelms"],
+      "answer": "overwhelming",
+      "explanation": "'Response' (dış nesne) için '-ing' kullanılır. 'Overwhelming' ezici/çok büyük (neden olan), 'overwhelmed' bunalmış (hisseden)."
+    },
+    {
+      "id": 81,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "surprise",
+      "question": "We were completely ________ by the sudden announcement.",
+      "options": ["surprise", "surprised", "surprising", "surprisingly", "surprises"],
+      "answer": "surprised",
+      "explanation": "'We' (kişi) kendi hislerini tanımlar, '-ed' kullanılır. 'Surprised' şaşkın (hisseden), 'surprising' şaşırtıcı (neden olan)."
+    },
+    {
+      "id": 82,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "disappoint",
+      "question": "The ________ results prompted the team to reassess their strategy.",
+      "options": ["disappoint", "disappointed", "disappointing", "disappointingly", "disappointment"],
+      "answer": "disappointing",
+      "explanation": "'Results' (dış nesne) için '-ing' kullanılır. 'Disappointing' hayal kırıklığı yaratan (neden olan), 'disappointed' hayal kırıklığına uğramış (hisseden)."
+    },
+    {
+      "id": 83,
+      "level": "C1",
+      "category": "verb_to_adjective",
+      "root_word": "exhaust",
+      "question": "The marathon was physically and mentally ________.",
+      "options": ["exhaust", "exhausted", "exhausting", "exhaustingly", "exhaustion"],
+      "answer": "exhausting",
+      "explanation": "'Marathon' (dış etkinlik) için '-ing' kullanılır. 'Exhausting' tüketici/yorucu (neden olan), 'exhausted' tükenmiş (hisseden)."
+    },
+    {
+      "id": 84,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "amaze",
+      "question": "The magician's ________ tricks left the audience speechless.",
+      "options": ["amaze", "amazed", "amazing", "amazingly", "amazement"],
+      "answer": "amazing",
+      "explanation": "'Tricks' (dış nesne) için '-ing' kullanılır. 'Amazing' hayret verici (neden olan), 'amazed' hayrete düşmüş (hisseden)."
+    },
+    {
+      "id": 85,
+      "level": "C1",
+      "category": "verb_to_adjective",
+      "root_word": "fascinate",
+      "question": "The professor gave a ________ lecture on ancient civilizations.",
+      "options": ["fascinate", "fascinated", "fascinating", "fascinatingly", "fascination"],
+      "answer": "fascinating",
+      "explanation": "'Lecture' (dış nesne) için '-ing' kullanılır. 'Fascinating' büyüleyici (neden olan), 'fascinated' büyülenmiş (hisseden)."
+    },
+    {
+      "id": 86,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "relax",
+      "question": "After a stressful week, she enjoyed a ________ weekend at the spa.",
+      "options": ["relax", "relaxed", "relaxing", "relaxingly", "relaxation"],
+      "answer": "relaxing",
+      "explanation": "'Weekend' (dış deneyim) için '-ing' kullanılır. 'Relaxing' rahatlatıcı (neden olan), 'relaxed' rahat/sakin (hisseden)."
+    },
+    {
+      "id": 87,
+      "level": "C1",
+      "category": "verb_to_adjective",
+      "root_word": "provoke",
+      "question": "The journalist's ________ questions angered the politician.",
+      "options": ["provoke", "provoked", "provoking", "provocative", "provokingly"],
+      "answer": "provoking",
+      "explanation": "'Questions' (dış nesne) için '-ing' kullanılır. 'Provoking' kışkırtıcı (neden olan). 'Provocative' de sıfat ama '-ive' farklı suffix (daha genel karakteristik)."
+    },
+    {
+      "id": 88,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "worry",
+      "question": "The ________ parents waited anxiously for news of their missing child.",
+      "options": ["worry", "worried", "worrying", "worriedly", "worries"],
+      "answer": "worried",
+      "explanation": "'Parents' (kişi) kendi hislerini tanımlar, '-ed' kullanılır. 'Worried' endişeli (hisseden), 'worrying' endişe verici (neden olan)."
+    },
+    {
+      "id": 89,
+      "level": "C1",
+      "category": "verb_to_adjective",
+      "root_word": "inspire",
+      "question": "Her ________ speech motivated the entire team to work harder.",
+      "options": ["inspire", "inspired", "inspiring", "inspiringly", "inspiration"],
+      "answer": "inspiring",
+      "explanation": "'Speech' (dış nesne) için '-ing' kullanılır. 'Inspiring' ilham verici (neden olan), 'inspired' ilham almış (hisseden)."
+    },
+    {
+      "id": 90,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "careful",
+      "question": "The surgeon ________ examined the X-rays before making a diagnosis.",
+      "options": ["careful", "carefully", "carefulness", "carefulled", "carefulize"],
+      "answer": "carefully",
+      "explanation": "'Examined' fiilini tanımlamak için zarf gereklidir. 'Carefully' (-ly) dikkatli bir şekilde anlamındadır. 'Carefulness' isim, diğerleri standart değildir."
+    },
+    {
+      "id": 91,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "quick",
+      "question": "The firefighters responded ________ to the emergency call.",
+      "options": ["quick", "quickly", "quickness", "quicken", "quickened"],
+      "answer": "quickly",
+      "explanation": "'Responded' fiilini tanımlamak için zarf gereklidir. 'Quickly' (-ly) hızlı bir şekilde anlamındadır. 'Quickness' isim, 'quicken' fiildir."
+    },
+    {
+      "id": 92,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "slow",
+      "question": "Please read the contract ________ and check all the details.",
+      "options": ["slow", "slowly", "slowness", "slowed", "slowing"],
+      "answer": "slowly",
+      "explanation": "'Read' fiilini tanımlamak için zarf gereklidir. 'Slowly' (-ly) yavaşça anlamındadır. 'Slowness' isim, 'slowed/slowing' fiil formlarıdır."
+    },
+    {
+      "id": 93,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "clear",
+      "question": "The instructions were ________ written so that anyone could understand them.",
+      "options": ["clear", "clearly", "clearness", "cleared", "clearing"],
+      "answer": "clearly",
+      "explanation": "'Written' fiilini tanımlamak için zarf gereklidir. 'Clearly' (-ly) açıkça anlamındadır. 'Clearness' isim (clarity daha yaygın), diğerleri fiil formlarıdır."
+    },
+    {
+      "id": 94,
+      "level": "C1",
+      "category": "adjective_to_adverb",
+      "root_word": "obvious",
+      "question": "________, the new policy has had both positive and negative effects.",
+      "options": ["obvious", "obviously", "obviousness", "obviate", "obviated"],
+      "answer": "obviously",
+      "explanation": "Cümle başında bütün cümleyi tanımlamak için zarf gereklidir. 'Obviously' (-ly) apaçık anlamındadır. 'Obviate' farklı bir fiildir (ortadan kaldırmak)."
+    },
+    {
+      "id": 95,
+      "level": "C1",
+      "category": "adjective_to_adverb",
+      "root_word": "ironic",
+      "question": "________, the safety measure ultimately caused more problems than it solved.",
+      "options": ["ironic", "ironical", "ironically", "ironicly", "ironicness"],
+      "answer": "ironically",
+      "explanation": "Cümle başında bütün cümleyi tanımlamak için zarf gereklidir. 'Ironically' (-ally, -ic ile biten sıfatlar için) ironik bir şekilde anlamındadır."
+    },
+    {
+      "id": 96,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "rare",
+      "question": "This species is ________ found in the wild.",
+      "options": ["rare", "rarely", "rareness", "rarity", "rarefy"],
+      "answer": "rarely",
+      "explanation": "'Found' fiilini tanımlamak için zarf gereklidir. 'Rarely' (-ly) nadiren anlamındadır. 'Rareness/rarity' isim, 'rarefy' fiildir."
+    },
+    {
+      "id": 97,
+      "level": "C1",
+      "category": "adjective_to_adverb",
+      "root_word": "meticulous",
+      "question": "She ________ recorded every detail of the experiment.",
+      "options": ["meticulous", "meticulously", "meticulousness", "meticulate", "meticulized"],
+      "answer": "meticulously",
+      "explanation": "'Recorded' fiilini tanımlamak için zarf gereklidir. 'Meticulously' (-ly) titizlikle anlamındadır. 'Meticulousness' isim, diğerleri standart değildir."
+    },
+    {
+      "id": 98,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "complete",
+      "question": "The project was ________ finished ahead of schedule.",
+      "options": ["complete", "completely", "completeness", "completion", "completed"],
+      "answer": "completely",
+      "explanation": "'Finished' fiilini tanımlamak için zarf gereklidir. 'Completely' (-ly) tamamen anlamındadır. 'Completeness/completion' isim, 'completed' past participle."
+    },
+    {
+      "id": 99,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "immediate",
+      "question": "The manager ________ addressed the concerns raised by the team.",
+      "options": ["immediate", "immediately", "immediateness", "immediacy", "immediated"],
+      "answer": "immediately",
+      "explanation": "'Addressed' fiilini tanımlamak için zarf gereklidir. 'Immediately' (-ly) derhal anlamındadır. 'Immediacy' isim, 'immediated' standart değildir."
+    },
+    {
+      "id": 100,
+      "level": "C1",
+      "category": "adjective_to_adverb",
+      "root_word": "apparent",
+      "question": "The witness was ________ nervous during the cross-examination.",
+      "options": ["apparent", "apparently", "apparentness", "apparition", "appeared"],
+      "answer": "apparently",
+      "explanation": "'Was' + sıfat yapısı 'apparently' ile değiştirilmiş; 'apparently' (-ly) görünüşe göre anlamındadır. 'Apparition' farklı kelime (hayalet)."
+    },
+    {
+      "id": 101,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "frequent",
+      "question": "The manager ________ checks in with team members about their progress.",
+      "options": ["frequent", "frequently", "frequency", "frequented", "frequenting"],
+      "answer": "frequently",
+      "explanation": "'Checks' fiilini tanımlamak için zarf gereklidir. 'Frequently' (-ly) sık sık anlamındadır. 'Frequency' isim, diğerleri fiil formlarıdır."
+    },
+    {
+      "id": 102,
+      "level": "C1",
+      "category": "adjective_to_adverb",
+      "root_word": "deliberate",
+      "question": "The politician ________ avoided answering the journalist's question.",
+      "options": ["deliberate", "deliberately", "deliberation", "deliberated", "deliberating"],
+      "answer": "deliberately",
+      "explanation": "'Avoided' fiilini tanımlamak için zarf gereklidir. 'Deliberately' (-ly) kasıtlı olarak anlamındadır. 'Deliberation' isim, diğerleri fiil formlarıdır."
+    },
+    {
+      "id": 103,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "unfortunate",
+      "question": "________, the flight was cancelled due to bad weather.",
+      "options": ["unfortunate", "unfortunately", "unfortunateness", "misfortune", "fortune"],
+      "answer": "unfortunately",
+      "explanation": "Cümle başında bütün cümleyi tanımlamak için zarf gereklidir. 'Unfortunately' (-ly) maalesef/ne yazık ki anlamındadır. 'Misfortune' isim."
+    },
+    {
+      "id": 104,
+      "level": "C1",
+      "category": "adjective_to_adverb",
+      "root_word": "significant",
+      "question": "The new treatment has ________ improved patient outcomes.",
+      "options": ["significant", "significantly", "significance", "signify", "signified"],
+      "answer": "significantly",
+      "explanation": "'Improved' fiilini tanımlamak için zarf gereklidir. 'Significantly' (-ly) önemli ölçüde anlamındadır. 'Significance' isim, 'signify' fiildir."
+    },
+    {
+      "id": 105,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "particular",
+      "question": "I am ________ interested in the environmental aspects of the project.",
+      "options": ["particular", "particularly", "particularity", "particularize", "particulars"],
+      "answer": "particularly",
+      "explanation": "'Interested' sıfatını tanımlamak için zarf gereklidir. 'Particularly' (-ly) özellikle anlamındadır. 'Particularity' isim, 'particulars' çoğul isim."
+    },
+    {
+      "id": 106,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "produce",
+      "question": "The factory's ________ of goods has increased by 40% this year.",
+      "options": ["produce", "producing", "production", "productive", "producer"],
+      "answer": "production",
+      "explanation": "'The factory's' + _ + 'of' yapısı isim gerektirir. 'Production' (-tion) üretim süreci anlamındadır. 'Producing' gerund, 'productive' sıfat, 'producer' üretici."
+    },
+    {
+      "id": 107,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "inform",
+      "question": "An ________ decision requires access to current and accurate data.",
+      "options": ["inform", "informed", "informing", "information", "informative"],
+      "answer": "informed",
+      "explanation": "'Decision' tanımlamak için sıfat gereklidir. 'Informed' (-ed) bilgiye dayalı anlamındadır. 'Information' isim, 'informative' bilgi veren (farklı anlam)."
+    },
+    {
+      "id": 108,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "adapt",
+      "question": "The ________ of climate change strategies to regional contexts is crucial.",
+      "options": ["adapt", "adapting", "adaptation", "adaptive", "adaptor"],
+      "answer": "adaptation",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Adaptation' (-tion) uyarlama anlamındadır. 'Adaptive' sıfat (uyum sağlayan), 'adaptor' cihaz/adaptör."
+    },
+    {
+      "id": 109,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "repeat",
+      "question": "The ________ occurrence of the same errors suggests a systemic problem.",
+      "options": ["repeat", "repeated", "repeating", "repetition", "repetitive"],
+      "answer": "repeated",
+      "explanation": "'Occurrence' tanımlamak için sıfat gereklidir. 'Repeated' (-ed) tekrarlanan anlamındadır. 'Repetitive' tekrarlayıcı (farklı nüans), 'repetition' isim."
+    },
+    {
+      "id": 110,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "transform",
+      "question": "The ________ of urban landscapes through technology has profound social implications.",
+      "options": ["transform", "transforming", "transformation", "transformative", "transformer"],
+      "answer": "transformation",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Transformation' (-tion) dönüşüm anlamındadır. 'Transformative' sıfat (dönüştürücü), 'transformer' cihaz."
+    },
+    {
+      "id": 111,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "act",
+      "question": "The government's swift ________ prevented further damage to the economy.",
+      "options": ["act", "acting", "action", "active", "actively"],
+      "answer": "action",
+      "explanation": "'Government's swift' + _ yapısı isim gerektirir. 'Action' (-tion) eylem anlamındadır. 'Active' sıfat, 'actively' zarf, 'acting' vekil (sıfat) veya gerund."
+    },
+    {
+      "id": 112,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "compete",
+      "question": "The ________ between the two companies has intensified over the years.",
+      "options": ["compete", "competing", "competition", "competitive", "competitor"],
+      "answer": "competition",
+      "explanation": "'The' + _ + 'between' yapısı isim gerektirir. 'Competition' (-tion) rekabet anlamındadır. 'Competitive' sıfat, 'competitor' rakip (kişi)."
+    },
+    {
+      "id": 113,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "construct",
+      "question": "The ________ of the new bridge took over three years.",
+      "options": ["construct", "constructing", "construction", "constructive", "constructor"],
+      "answer": "construction",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Construction' (-tion) inşaat anlamındadır. 'Constructive' sıfat (yapıcı), 'constructor' inşaatçı."
+    },
+    {
+      "id": 114,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "recognize",
+      "question": "International ________ of the scientist's work came only after her death.",
+      "options": ["recognize", "recognizing", "recognition", "recognized", "recognizable"],
+      "answer": "recognition",
+      "explanation": "'International' + _ yapısı isim gerektirir. 'Recognition' (-tion) tanınma anlamındadır. 'Recognized' sıfat, 'recognizable' tanınabilir (sıfat)."
+    },
+    {
+      "id": 115,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "describe",
+      "question": "The witness gave a detailed ________ of the suspect.",
+      "options": ["describe", "describing", "description", "descriptive", "described"],
+      "answer": "description",
+      "explanation": "'A detailed' + _ yapısı isim gerektirir. 'Description' (-tion) tasvir anlamındadır. 'Descriptive' sıfat (betimleyici), 'described' past participle."
+    },
+    {
+      "id": 116,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "appreciate",
+      "question": "We would like to express our sincere ________ for your support.",
+      "options": ["appreciate", "appreciating", "appreciation", "appreciative", "appreciatively"],
+      "answer": "appreciation",
+      "explanation": "'Sincere' + _ yapısı isim gerektirir. 'Appreciation' (-tion) takdir/minnet anlamındadır. 'Appreciative' sıfat (takdir eden), 'appreciatively' zarf."
+    },
+    {
+      "id": 117,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "organize",
+      "question": "The ________ of the conference was handled by a professional team.",
+      "options": ["organize", "organizing", "organization", "organized", "organizer"],
+      "answer": "organization",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Organization' (-tion) organizasyon anlamındadır. 'Organized' sıfat, 'organizer' organizatör."
+    },
+    {
+      "id": 118,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "authorize",
+      "question": "Official ________ is required before accessing classified documents.",
+      "options": ["authorize", "authorizing", "authorization", "authorized", "authoritative"],
+      "answer": "authorization",
+      "explanation": "'Official' + _ yapısı isim gerektirir. 'Authorization' (-tion) yetkilendirme anlamındadır. 'Authorized' sıfat, 'authoritative' otoriter/yetkili."
+    },
+    {
+      "id": 119,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "react",
+      "question": "The public's ________ to the announcement was overwhelmingly positive.",
+      "options": ["react", "reacting", "reaction", "reactive", "reactor"],
+      "answer": "reaction",
+      "explanation": "'Public's' + _ yapısı isim gerektirir. 'Reaction' (-tion) tepki anlamındadır. 'Reactive' sıfat (tepkisel), 'reactor' reaktör."
+    },
+    {
+      "id": 120,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "regulate",
+      "question": "Strict ________ of the financial sector is necessary to prevent fraud.",
+      "options": ["regulate", "regulating", "regulation", "regulatory", "regulator"],
+      "answer": "regulation",
+      "explanation": "'Strict' + _ yapısı isim gerektirir. 'Regulation' (-tion) düzenleme anlamındadır. 'Regulatory' sıfat (düzenleyici), 'regulator' düzenleyici kurum/kişi."
+    },
+    {
+      "id": 121,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "solve",
+      "question": "Finding a ________ to the housing crisis requires innovative thinking.",
+      "options": ["solve", "solving", "solution", "solvable", "solver"],
+      "answer": "solution",
+      "explanation": "'A' + _ + 'to' yapısı isim gerektirir. 'Solution' (-tion) çözüm anlamındadır. 'Solvable' çözülebilir (sıfat), 'solver' çözücü."
+    },
+    {
+      "id": 122,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "distribute",
+      "question": "The unequal ________ of wealth remains a major social issue.",
+      "options": ["distribute", "distributing", "distribution", "distributive", "distributor"],
+      "answer": "distribution",
+      "explanation": "'Unequal' + _ yapısı isim gerektirir. 'Distribution' (-tion) dağılım anlamındadır. 'Distributive' sıfat, 'distributor' dağıtıcı."
+    },
+    {
+      "id": 123,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "introduce",
+      "question": "The ________ of new technology has revolutionized the industry.",
+      "options": ["introduce", "introducing", "introduction", "introductory", "introduced"],
+      "answer": "introduction",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Introduction' (-tion) tanıtım/giriş anlamındadır. 'Introductory' sıfat (giriş niteliğinde)."
+    },
+    {
+      "id": 124,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "preserve",
+      "question": "The ________ of cultural heritage is essential for future generations.",
+      "options": ["preserve", "preserving", "preservation", "preservative", "preserved"],
+      "answer": "preservation",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Preservation' (-tion) koruma anlamındadır. 'Preservative' koruyucu madde (isim), 'preserved' korunmuş."
+    },
+    {
+      "id": 125,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "connect",
+      "question": "There is a strong ________ between education and economic success.",
+      "options": ["connect", "connecting", "connection", "connected", "connective"],
+      "answer": "connection",
+      "explanation": "'A strong' + _ yapısı isim gerektirir. 'Connection' (-tion) bağlantı anlamındadır. 'Connected' bağlı (sıfat), 'connective' bağlayıcı (sıfat)."
+    },
+    {
+      "id": 126,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "perceive",
+      "question": "Public ________ of the government has changed dramatically in recent months.",
+      "options": ["perceive", "perceiving", "perception", "perceived", "perceptive"],
+      "answer": "perception",
+      "explanation": "'Public' + _ yapısı isim gerektirir. 'Perception' (-tion) algı anlamındadır. 'Perceived' algılanan (sıfat), 'perceptive' kavrayışlı (sıfat)."
+    },
+    {
+      "id": 127,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "pollute",
+      "question": "Air ________ in major cities has reached dangerous levels.",
+      "options": ["pollute", "polluting", "pollution", "polluted", "pollutant"],
+      "answer": "pollution",
+      "explanation": "'Air' + _ yapısı bileşik isim oluşturur. 'Pollution' (-tion) kirlilik anlamındadır. 'Polluted' kirli (sıfat), 'pollutant' kirletici madde."
+    },
+    {
+      "id": 128,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "dominate",
+      "question": "The company's ________ of the market has raised antitrust concerns.",
+      "options": ["dominate", "dominating", "domination", "dominant", "dominance"],
+      "answer": "domination",
+      "explanation": "'Company's' + _ + 'of' yapısı isim gerektirir. 'Domination' (-tion) hakimiyet anlamındadır. 'Dominant' baskın (sıfat), 'dominance' üstünlük (isim, ama 'of' ile 'domination')."
+    },
+    {
+      "id": 129,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "protect",
+      "question": "Environmental ________ should be a priority for every government.",
+      "options": ["protect", "protecting", "protection", "protective", "protector"],
+      "answer": "protection",
+      "explanation": "'Environmental' + _ yapısı isim gerektirir. 'Protection' (-tion) koruma anlamındadır. 'Protective' koruyucu (sıfat), 'protector' koruyucu (kişi)."
+    },
+    {
+      "id": 130,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "innovate",
+      "question": "Technological ________ has transformed the way we communicate.",
+      "options": ["innovate", "innovating", "innovation", "innovative", "innovator"],
+      "answer": "innovation",
+      "explanation": "'Technological' + _ yapısı isim gerektirir. 'Innovation' (-tion) yenilik anlamındadır. 'Innovative' yenilikçi (sıfat), 'innovator' yenilikçi (kişi)."
+    },
+    {
+      "id": 131,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "price",
+      "question": "The antique vase was extremely ________ and required special insurance.",
+      "options": ["price", "pricey", "priced", "priceless", "pricing"],
+      "answer": "priceless",
+      "explanation": "'Was' + sıfat yapısı gerektirir. 'Priceless' (-less ama burada 'paha biçilemez' anlamı) çok değerli demektir. 'Pricey' pahalı, 'priced' fiyatlandırılmış."
+    },
+    {
+      "id": 132,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "consequence",
+      "question": "The decision had ________ implications for the entire organization.",
+      "options": ["consequence", "consequent", "consequential", "consequently", "consequences"],
+      "answer": "consequential",
+      "explanation": "'Implications' tanımlamak için sıfat gereklidir. 'Consequential' (-ial) önemli/ciddi sonuçları olan anlamındadır. 'Consequently' zarf, 'consequent' sonraki."
+    },
+    {
+      "id": 133,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "popular",
+      "question": "The ________ of social media has increased dramatically among teenagers.",
+      "options": ["popular", "popularity", "popularly", "popularize", "popularized"],
+      "answer": "popularity",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Popularity' (-ity) popülerlik anlamındadır. 'Popularly' zarf, 'popularize' fiildir."
+    },
+    {
+      "id": 134,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "diverse",
+      "question": "Cultural ________ enriches society and promotes tolerance.",
+      "options": ["diverse", "diversity", "diversely", "diversify", "diversified"],
+      "answer": "diversity",
+      "explanation": "'Cultural' + _ yapısı isim gerektirir. 'Diversity' (-ity) çeşitlilik anlamındadır. 'Diversely' zarf, 'diversify' fiildir."
+    },
+    {
+      "id": 135,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "perform",
+      "question": "The athlete's ________ at the Olympics exceeded all expectations.",
+      "options": ["perform", "performing", "performance", "performer", "performed"],
+      "answer": "performance",
+      "explanation": "'Athlete's' + _ yapısı isim gerektirir. 'Performance' (-ance) performans anlamındadır. 'Performer' icracı, 'performing' gerund/sıfat."
+    },
+    {
+      "id": 136,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "interfere",
+      "question": "Government ________ in the market can have unintended consequences.",
+      "options": ["interfere", "interfering", "interference", "interfered", "interferer"],
+      "answer": "interference",
+      "explanation": "'Government' + _ yapısı bileşik isim oluşturur. 'Interference' (-ence) müdahale anlamındadır. 'Interfering' gerund/sıfat."
+    },
+    {
+      "id": 137,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "frighten",
+      "question": "The horror movie was absolutely ________ for the young children.",
+      "options": ["frighten", "frightened", "frightening", "frighteningly", "fright"],
+      "answer": "frightening",
+      "explanation": "'Movie' (dış nesne) için '-ing' kullanılır. 'Frightening' korkutucu (neden olan), 'frightened' korkmuş (hisseden)."
+    },
+    {
+      "id": 138,
+      "level": "C1",
+      "category": "verb_to_adjective",
+      "root_word": "intrigue",
+      "question": "The ________ plot kept readers guessing until the very last page.",
+      "options": ["intrigue", "intrigued", "intriguing", "intriguingly", "intrigues"],
+      "answer": "intriguing",
+      "explanation": "'Plot' (dış nesne) için '-ing' kullanılır. 'Intriguing' merak uyandıran (neden olan), 'intrigued' meraklanmış (hisseden)."
+    },
+    {
+      "id": 139,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "recent",
+      "question": "The company has ________ expanded its operations to Asia.",
+      "options": ["recent", "recently", "recentness", "recency", "recented"],
+      "answer": "recently",
+      "explanation": "'Has expanded' fiilini tanımlamak için zarf gereklidir. 'Recently' (-ly) son zamanlarda anlamındadır. 'Recency' isim."
+    },
+    {
+      "id": 140,
+      "level": "C1",
+      "category": "adjective_to_adverb",
+      "root_word": "subsequent",
+      "question": "The experiment was ________ repeated with similar results.",
+      "options": ["subsequent", "subsequently", "subsequence", "subsequential", "subsequented"],
+      "answer": "subsequently",
+      "explanation": "'Was repeated' fiilini tanımlamak için zarf gereklidir. 'Subsequently' (-ly) ardından/daha sonra anlamındadır."
+    },
+    {
+      "id": 141,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "prepare",
+      "question": "Thorough ________ is essential before any job interview.",
+      "options": ["prepare", "preparing", "preparation", "prepared", "preparatory"],
+      "answer": "preparation",
+      "explanation": "'Thorough' + _ yapısı isim gerektirir. 'Preparation' (-tion) hazırlık anlamındadır. 'Preparatory' sıfat (hazırlayıcı), 'prepared' sıfat."
+    },
+    {
+      "id": 142,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "conclude",
+      "question": "The researcher's ________ were based on extensive data analysis.",
+      "options": ["conclude", "concluding", "conclusion", "conclusions", "conclusive"],
+      "answer": "conclusions",
+      "explanation": "'Researcher's' + _ yapısı isim gerektirir (çoğul 'were'). 'Conclusions' (-tion + s) sonuçlar anlamındadır. 'Conclusive' sıfat (kesin)."
+    },
+    {
+      "id": 143,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "value",
+      "question": "The mentor provided ________ advice that shaped my career.",
+      "options": ["value", "valuable", "valuably", "valued", "valueless"],
+      "answer": "valuable",
+      "explanation": "'Advice' tanımlamak için sıfat gereklidir. 'Valuable' (-able) değerli anlamındadır. 'Valuably' zarf, 'valueless' değersiz (zıt)."
+    },
+    {
+      "id": 144,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "effect",
+      "question": "The new medication proved highly ________ in treating the disease.",
+      "options": ["effect", "effective", "effectively", "effected", "effectiveness"],
+      "answer": "effective",
+      "explanation": "'Proved' + sıfat yapısı gerektirir. 'Effective' (-ive) etkili anlamındadır. 'Effectively' zarf, 'effectiveness' isim."
+    },
+    {
+      "id": 145,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "efficient",
+      "question": "The new system improved ________ by reducing processing time.",
+      "options": ["efficient", "efficiency", "efficiently", "efficiencies", "inefficiency"],
+      "answer": "efficiency",
+      "explanation": "'Improved' + _ yapısı isim gerektirir. 'Efficiency' (-cy) verimlilik anlamındadır. 'Efficiently' zarf, 'inefficiency' zıt anlam."
+    },
+    {
+      "id": 146,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "accurate",
+      "question": "The ________ of the weather forecast has improved significantly.",
+      "options": ["accurate", "accuracy", "accurately", "inaccurate", "inaccuracy"],
+      "answer": "accuracy",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Accuracy' (-cy) doğruluk anlamındadır. 'Accurately' zarf, 'inaccuracy' zıt anlam."
+    },
+    {
+      "id": 147,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "refer",
+      "question": "The doctor made a ________ to a specialist for further examination.",
+      "options": ["refer", "referring", "referral", "reference", "referred"],
+      "answer": "referral",
+      "explanation": "'Made a' + _ yapısı isim gerektirir. 'Referral' (-al) sevk anlamındadır. 'Reference' referans (farklı anlam), 'referring' gerund."
+    },
+    {
+      "id": 148,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "withdraw",
+      "question": "The ________ of troops from the region was completed last month.",
+      "options": ["withdraw", "withdrawing", "withdrawal", "withdrawn", "withdrawer"],
+      "answer": "withdrawal",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Withdrawal' (-al) geri çekilme anlamındadır. 'Withdrawn' sıfat (içine kapanık)."
+    },
+    {
+      "id": 149,
+      "level": "B2",
+      "category": "verb_to_adjective",
+      "root_word": "annoy",
+      "question": "The constant noise from construction was extremely ________.",
+      "options": ["annoy", "annoyed", "annoying", "annoyingly", "annoyance"],
+      "answer": "annoying",
+      "explanation": "'Noise' (dış nesne) için '-ing' kullanılır. 'Annoying' sinir bozucu (neden olan), 'annoyed' sinirlenmiş (hisseden)."
+    },
+    {
+      "id": 150,
+      "level": "C1",
+      "category": "verb_to_adjective",
+      "root_word": "compel",
+      "question": "The lawyer presented a ________ argument that convinced the jury.",
+      "options": ["compel", "compelled", "compelling", "compellingly", "compulsion"],
+      "answer": "compelling",
+      "explanation": "'Argument' (dış nesne) için '-ing' kullanılır. 'Compelling' zorlayıcı/ikna edici (neden olan), 'compelled' zorlanmış."
+    },
+    {
+      "id": 151,
+      "level": "B2",
+      "category": "adjective_to_adverb",
+      "root_word": "extreme",
+      "question": "The weather conditions were ________ difficult for the climbers.",
+      "options": ["extreme", "extremely", "extremity", "extremism", "extremist"],
+      "answer": "extremely",
+      "explanation": "'Difficult' sıfatını tanımlamak için zarf gereklidir. 'Extremely' (-ly) son derece anlamındadır. 'Extremity' isim."
+    },
+    {
+      "id": 152,
+      "level": "C1",
+      "category": "adjective_to_adverb",
+      "root_word": "gradual",
+      "question": "The economy has ________ recovered from the recession.",
+      "options": ["gradual", "gradually", "gradualism", "graduate", "graduated"],
+      "answer": "gradually",
+      "explanation": "'Has recovered' fiilini tanımlamak için zarf gereklidir. 'Gradually' (-ly) kademeli olarak anlamındadır. 'Graduate' fiil/isim."
+    },
+    {
+      "id": 153,
+      "level": "B2",
+      "category": "complex_transformation",
+      "root_word": "depend",
+      "question": "The country's ________ on imported oil makes it vulnerable to price fluctuations.",
+      "options": ["depend", "depending", "dependence", "dependent", "dependable"],
+      "answer": "dependence",
+      "explanation": "'Country's' + _ + 'on' yapısı isim gerektirir. 'Dependence' (-ence) bağımlılık anlamındadır. 'Dependent' sıfat, 'dependable' güvenilir."
+    },
+    {
+      "id": 154,
+      "level": "C1",
+      "category": "complex_transformation",
+      "root_word": "comply",
+      "question": "Strict ________ with safety regulations is mandatory for all employees.",
+      "options": ["comply", "complying", "compliance", "compliant", "compliantly"],
+      "answer": "compliance",
+      "explanation": "'Strict' + _ yapısı isim gerektirir. 'Compliance' (-ance) uyum anlamındadır. 'Compliant' sıfat (uyumlu), 'compliantly' zarf."
+    },
+    {
+      "id": 155,
+      "level": "B2",
+      "category": "noun_to_adjective",
+      "root_word": "profit",
+      "question": "The venture turned out to be highly ________ for all investors.",
+      "options": ["profit", "profitable", "profitably", "profited", "profiteer"],
+      "answer": "profitable",
+      "explanation": "'Turned out to be' + sıfat yapısı gerektirir. 'Profitable' (-able) karlı anlamındadır. 'Profitably' zarf, 'profiteer' isim/fiil."
+    },
+    {
+      "id": 156,
+      "level": "C1",
+      "category": "noun_to_adjective",
+      "root_word": "access",
+      "question": "All public buildings must be ________ to people with disabilities.",
+      "options": ["access", "accessible", "accessibly", "accessed", "accessing"],
+      "answer": "accessible",
+      "explanation": "'Must be' + sıfat yapısı gerektirir. 'Accessible' (-ible) erişilebilir anlamındadır. 'Accessibly' zarf."
+    },
+    {
+      "id": 157,
+      "level": "B2",
+      "category": "adjective_to_noun",
+      "root_word": "pure",
+      "question": "The ________ of the water supply is regularly tested.",
+      "options": ["pure", "purity", "purely", "purify", "purified"],
+      "answer": "purity",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Purity' (-ity) saflık anlamındadır. 'Purely' zarf, 'purify' fiil."
+    },
+    {
+      "id": 158,
+      "level": "C1",
+      "category": "adjective_to_noun",
+      "root_word": "scarce",
+      "question": "The ________ of clean water is a growing concern in many regions.",
+      "options": ["scarce", "scarcity", "scarcely", "scarcer", "scarcest"],
+      "answer": "scarcity",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Scarcity' (-ity) kıtlık anlamındadır. 'Scarcely' zarf (neredeyse hiç)."
+    },
+    {
+      "id": 159,
+      "level": "B2",
+      "category": "verb_to_noun",
+      "root_word": "approve",
+      "question": "The project received official ________ from the board yesterday.",
+      "options": ["approve", "approving", "approval", "approved", "approvable"],
+      "answer": "approval",
+      "explanation": "'Official' + _ yapısı isim gerektirir. 'Approval' (-al) onay anlamındadır. 'Approved' sıfat (onaylanmış)."
+    },
+    {
+      "id": 160,
+      "level": "C1",
+      "category": "verb_to_noun",
+      "root_word": "revise",
+      "question": "The ________ of the textbook took the author over two years.",
+      "options": ["revise", "revising", "revision", "revised", "revisable"],
+      "answer": "revision",
+      "explanation": "'The' + _ + 'of' yapısı isim gerektirir. 'Revision' (-sion) revizyon/gözden geçirme anlamındadır. 'Revised' sıfat."
+    }
+  ]
+}

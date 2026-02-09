@@ -1,0 +1,776 @@
+{
+  "collocations": [
+    {
+      "id": "coll_make_001",
+      "base": "make",
+      "category": "verb_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "make a decision", "tr": "karar vermek", "wrong": ["do", "take", "get"], "sentence": "You need to ___ a decision now.", "correct": "make" },
+        { "phrase": "make a mistake", "tr": "hata yapmak", "wrong": ["do", "have", "get"], "sentence": "Everyone can ___ a mistake.", "correct": "make" },
+        { "phrase": "make progress", "tr": "ilerleme kaydetmek", "wrong": ["do", "have", "take"], "sentence": "We're ___ progress every day.", "correct": "making" },
+        { "phrase": "make an effort", "tr": "çaba göstermek", "wrong": ["do", "have", "put"], "sentence": "Please ___ an effort to be on time.", "correct": "make" },
+        { "phrase": "make money", "tr": "para kazanmak", "wrong": ["do", "earn", "get"], "sentence": "He wants to ___ money quickly.", "correct": "make" },
+        { "phrase": "make a difference", "tr": "fark yaratmak", "wrong": ["do", "have", "create"], "sentence": "Your help can ___ a difference.", "correct": "make" },
+        { "phrase": "make plans", "tr": "plan yapmak", "wrong": ["do", "have", "build"], "sentence": "Let's ___ plans for the weekend.", "correct": "make" },
+        { "phrase": "make friends", "tr": "arkadaş edinmek", "wrong": ["do", "have", "get"], "sentence": "It's easy to ___ friends here.", "correct": "make" },
+        { "phrase": "make a phone call", "tr": "telefon etmek", "wrong": ["do", "take", "give"], "sentence": "I need to ___ a phone call.", "correct": "make" },
+        { "phrase": "make a suggestion", "tr": "öneri yapmak", "wrong": ["do", "give", "take"], "sentence": "Can I ___ a suggestion?", "correct": "make" },
+        { "phrase": "make a choice", "tr": "seçim yapmak", "wrong": ["do", "take", "have"], "sentence": "You must ___ a choice.", "correct": "make" },
+        { "phrase": "make a noise", "tr": "gürültü yapmak", "wrong": ["do", "create", "have"], "sentence": "Don't ___ a noise.", "correct": "make" }
+      ]
+    },
+    {
+      "id": "coll_do_001",
+      "base": "do",
+      "category": "verb_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "do homework", "tr": "ödev yapmak", "wrong": ["make", "have", "get"], "sentence": "I need to ___ my homework.", "correct": "do" },
+        { "phrase": "do the dishes", "tr": "bulaşık yıkamak", "wrong": ["make", "wash", "clean"], "sentence": "Can you ___ the dishes tonight?", "correct": "do" },
+        { "phrase": "do exercise", "tr": "egzersiz yapmak", "wrong": ["make", "have", "take"], "sentence": "I ___ exercise every morning.", "correct": "do" },
+        { "phrase": "do business", "tr": "iş yapmak", "wrong": ["make", "have", "run"], "sentence": "We ___ business with many countries.", "correct": "do" },
+        { "phrase": "do research", "tr": "araştırma yapmak", "wrong": ["make", "have", "conduct"], "sentence": "She's ___ research on climate change.", "correct": "doing" },
+        { "phrase": "do your best", "tr": "elinden gelenin en iyisini yapmak", "wrong": ["make", "give", "try"], "sentence": "Just ___ your best!", "correct": "do" },
+        { "phrase": "do the laundry", "tr": "çamaşır yıkamak", "wrong": ["make", "wash", "clean"], "sentence": "I have to ___ the laundry today.", "correct": "do" },
+        { "phrase": "do a favor", "tr": "iyilik yapmak", "wrong": ["make", "give", "have"], "sentence": "Can you ___ me a favor?", "correct": "do" },
+        { "phrase": "do damage", "tr": "hasar vermek", "wrong": ["make", "cause", "give"], "sentence": "The storm ___ damage to the house.", "correct": "did" },
+        { "phrase": "do well", "tr": "iyi iş çıkarmak", "wrong": ["make", "go", "be"], "sentence": "She's ___ well at school.", "correct": "doing" },
+        { "phrase": "do harm", "tr": "zarar vermek", "wrong": ["make", "cause", "give"], "sentence": "This won't ___ any harm.", "correct": "do" },
+        { "phrase": "do wonders", "tr": "mucize yaratmak", "wrong": ["make", "create", "work"], "sentence": "This medicine ___ wonders.", "correct": "does" }
+      ]
+    },
+    {
+      "id": "coll_have_001",
+      "base": "have",
+      "category": "verb_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "have breakfast", "tr": "kahvaltı yapmak", "wrong": ["make", "do", "take"], "sentence": "I always ___ breakfast at 8.", "correct": "have" },
+        { "phrase": "have a rest", "tr": "dinlenmek", "wrong": ["make", "do", "take"], "sentence": "You should ___ a rest.", "correct": "have" },
+        { "phrase": "have fun", "tr": "eğlenmek", "wrong": ["make", "do", "get"], "sentence": "We ___ fun at the party.", "correct": "had" },
+        { "phrase": "have a look", "tr": "bir göz atmak", "wrong": ["make", "do", "take"], "sentence": "Can I ___ a look?", "correct": "have" },
+        { "phrase": "have a meeting", "tr": "toplantı yapmak", "wrong": ["make", "do", "hold"], "sentence": "We ___ a meeting at 3 PM.", "correct": "have" },
+        { "phrase": "have a problem", "tr": "problemi olmak", "wrong": ["make", "do", "get"], "sentence": "I ___ a problem with my phone.", "correct": "have" },
+        { "phrase": "have a conversation", "tr": "sohbet etmek", "wrong": ["make", "do", "hold"], "sentence": "Let's ___ a conversation.", "correct": "have" },
+        { "phrase": "have an accident", "tr": "kaza yapmak", "wrong": ["make", "do", "get"], "sentence": "He ___ an accident yesterday.", "correct": "had" },
+        { "phrase": "have a dream", "tr": "rüya görmek", "wrong": ["make", "see", "get"], "sentence": "I ___ a strange dream last night.", "correct": "had" },
+        { "phrase": "have a party", "tr": "parti vermek", "wrong": ["make", "do", "throw"], "sentence": "They're ___ a party tonight.", "correct": "having" },
+        { "phrase": "have an idea", "tr": "fikri olmak", "wrong": ["make", "get", "take"], "sentence": "I ___ an idea!", "correct": "have" },
+        { "phrase": "have a headache", "tr": "başı ağrımak", "wrong": ["get", "feel", "take"], "sentence": "I ___ a terrible headache.", "correct": "have" },
+        { "phrase": "have lunch", "tr": "öğle yemeği yemek", "wrong": ["make", "do", "eat"], "sentence": "Let's ___ lunch together.", "correct": "have" },
+        { "phrase": "have a good time", "tr": "iyi vakit geçirmek", "wrong": ["make", "do", "spend"], "sentence": "I hope you ___ a good time.", "correct": "have" }
+      ]
+    },
+    {
+      "id": "coll_take_001",
+      "base": "take",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "take a break", "tr": "mola vermek", "wrong": ["make", "do", "have"], "sentence": "Let's ___ a break.", "correct": "take" },
+        { "phrase": "take a photo", "tr": "fotoğraf çekmek", "wrong": ["make", "do", "shoot"], "sentence": "Can you ___ a photo of me?", "correct": "take" },
+        { "phrase": "take notes", "tr": "not almak", "wrong": ["make", "do", "write"], "sentence": "Please ___ notes during the lecture.", "correct": "take" },
+        { "phrase": "take a shower", "tr": "duş almak", "wrong": ["make", "do", "have"], "sentence": "I ___ a shower every morning.", "correct": "take" },
+        { "phrase": "take a risk", "tr": "risk almak", "wrong": ["make", "do", "have"], "sentence": "Sometimes you need to ___ a risk.", "correct": "take" },
+        { "phrase": "take time", "tr": "zaman almak", "wrong": ["make", "do", "spend"], "sentence": "Learning a language ___ time.", "correct": "takes" },
+        { "phrase": "take an exam", "tr": "sınava girmek", "wrong": ["make", "do", "give"], "sentence": "I'm ___ an exam tomorrow.", "correct": "taking" },
+        { "phrase": "take responsibility", "tr": "sorumluluk almak", "wrong": ["make", "do", "have"], "sentence": "You must ___ responsibility for your actions.", "correct": "take" },
+        { "phrase": "take action", "tr": "harekete geçmek", "wrong": ["make", "do", "have"], "sentence": "We need to ___ action now.", "correct": "take" },
+        { "phrase": "take a walk", "tr": "yürüyüş yapmak", "wrong": ["make", "do", "go"], "sentence": "Let's ___ a walk in the park.", "correct": "take" },
+        { "phrase": "take a seat", "tr": "oturmak", "wrong": ["make", "have", "get"], "sentence": "Please ___ a seat.", "correct": "take" },
+        { "phrase": "take a chance", "tr": "şansını denemek", "wrong": ["make", "have", "get"], "sentence": "I'll ___ a chance.", "correct": "take" },
+        { "phrase": "take care", "tr": "dikkat etmek", "wrong": ["make", "be", "have"], "sentence": "___ care of yourself!", "correct": "Take" },
+        { "phrase": "take advantage", "tr": "faydalanmak", "wrong": ["make", "get", "use"], "sentence": "Don't ___ advantage of others.", "correct": "take" }
+      ]
+    },
+    {
+      "id": "coll_get_001",
+      "base": "get",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "get married", "tr": "evlenmek", "wrong": ["make", "do", "become"], "sentence": "They're ___ married next month.", "correct": "getting" },
+        { "phrase": "get lost", "tr": "kaybolmak", "wrong": ["make", "become", "go"], "sentence": "We ___ lost in the city.", "correct": "got" },
+        { "phrase": "get angry", "tr": "kızmak", "wrong": ["make", "become", "go"], "sentence": "Don't ___ angry with me.", "correct": "get" },
+        { "phrase": "get ready", "tr": "hazırlanmak", "wrong": ["make", "become", "be"], "sentence": "I need to ___ ready for work.", "correct": "get" },
+        { "phrase": "get started", "tr": "başlamak", "wrong": ["make", "become", "be"], "sentence": "Let's ___ started!", "correct": "get" },
+        { "phrase": "get better", "tr": "iyileşmek", "wrong": ["make", "become", "go"], "sentence": "I hope you ___ better soon.", "correct": "get" },
+        { "phrase": "get permission", "tr": "izin almak", "wrong": ["make", "take", "have"], "sentence": "You need to ___ permission first.", "correct": "get" },
+        { "phrase": "get a job", "tr": "iş bulmak", "wrong": ["make", "find", "have"], "sentence": "She finally ___ a job.", "correct": "got" },
+        { "phrase": "get dressed", "tr": "giyinmek", "wrong": ["make", "wear", "put"], "sentence": "I need to ___ dressed.", "correct": "get" },
+        { "phrase": "get tired", "tr": "yorulmak", "wrong": ["become", "feel", "be"], "sentence": "I ___ tired easily.", "correct": "get" },
+        { "phrase": "get worse", "tr": "kötüleşmek", "wrong": ["become", "go", "turn"], "sentence": "The weather is ___ worse.", "correct": "getting" },
+        { "phrase": "get home", "tr": "eve varmak", "wrong": ["arrive", "come", "reach"], "sentence": "When did you ___ home?", "correct": "get" },
+        { "phrase": "get along", "tr": "geçinmek", "wrong": ["go", "be", "live"], "sentence": "They ___ along well.", "correct": "get" },
+        { "phrase": "get rid of", "tr": "kurtulmak", "wrong": ["throw", "remove", "lose"], "sentence": "I want to ___ rid of this.", "correct": "get" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_001",
+      "base": "strong",
+      "category": "adj_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "strong coffee", "tr": "sert kahve", "wrong": ["heavy", "hard", "big"], "sentence": "I like ___ coffee in the morning.", "correct": "strong" },
+        { "phrase": "strong wind", "tr": "şiddetli rüzgar", "wrong": ["heavy", "hard", "big"], "sentence": "There's a ___ wind today.", "correct": "strong" },
+        { "phrase": "strong opinion", "tr": "güçlü görüş", "wrong": ["heavy", "hard", "big"], "sentence": "He has a ___ opinion about this.", "correct": "strong" },
+        { "phrase": "strong relationship", "tr": "güçlü ilişki", "wrong": ["heavy", "hard", "big"], "sentence": "They have a ___ relationship.", "correct": "strong" },
+        { "phrase": "strong feeling", "tr": "güçlü his", "wrong": ["heavy", "deep", "big"], "sentence": "I have a ___ feeling about this.", "correct": "strong" },
+        { "phrase": "strong evidence", "tr": "güçlü kanıt", "wrong": ["heavy", "hard", "big"], "sentence": "There is ___ evidence against him.", "correct": "strong" },
+        { "phrase": "strong support", "tr": "güçlü destek", "wrong": ["heavy", "big", "hard"], "sentence": "The plan has ___ support.", "correct": "strong" },
+        { "phrase": "strong accent", "tr": "belirgin aksan", "wrong": ["heavy", "thick", "big"], "sentence": "She has a ___ accent.", "correct": "strong" },
+        { "phrase": "strong possibility", "tr": "yüksek olasılık", "wrong": ["big", "high", "great"], "sentence": "There's a ___ possibility of rain.", "correct": "strong" },
+        { "phrase": "strong impression", "tr": "güçlü izlenim", "wrong": ["big", "deep", "great"], "sentence": "She made a ___ impression.", "correct": "strong" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_002",
+      "base": "heavy",
+      "category": "adj_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "heavy rain", "tr": "şiddetli yağmur", "wrong": ["strong", "hard", "big"], "sentence": "There was ___ rain last night.", "correct": "heavy" },
+        { "phrase": "heavy traffic", "tr": "yoğun trafik", "wrong": ["strong", "hard", "big"], "sentence": "There's ___ traffic in the morning.", "correct": "heavy" },
+        { "phrase": "heavy smoker", "tr": "ağır sigara içicisi", "wrong": ["strong", "hard", "big"], "sentence": "He's a ___ smoker.", "correct": "heavy" },
+        { "phrase": "heavy meal", "tr": "ağır yemek", "wrong": ["strong", "hard", "big"], "sentence": "Don't eat a ___ meal before sleep.", "correct": "heavy" },
+        { "phrase": "heavy snow", "tr": "yoğun kar", "wrong": ["strong", "thick", "big"], "sentence": "There was ___ snow yesterday.", "correct": "heavy" },
+        { "phrase": "heavy workload", "tr": "ağır iş yükü", "wrong": ["big", "strong", "hard"], "sentence": "I have a ___ workload this week.", "correct": "heavy" },
+        { "phrase": "heavy drinker", "tr": "çok içki içen", "wrong": ["strong", "big", "hard"], "sentence": "He used to be a ___ drinker.", "correct": "heavy" },
+        { "phrase": "heavy heart", "tr": "ağır kalp", "wrong": ["sad", "broken", "hard"], "sentence": "She left with a ___ heart.", "correct": "heavy" },
+        { "phrase": "heavy fog", "tr": "yoğun sis", "wrong": ["thick", "dense", "strong"], "sentence": "There was ___ fog this morning.", "correct": "heavy" },
+        { "phrase": "heavy schedule", "tr": "yoğun program", "wrong": ["busy", "full", "tight"], "sentence": "I have a ___ schedule today.", "correct": "heavy" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_003",
+      "base": "big",
+      "category": "adj_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "big mistake", "tr": "büyük hata", "wrong": ["large", "heavy", "strong"], "sentence": "That was a ___ mistake.", "correct": "big" },
+        { "phrase": "big deal", "tr": "büyük olay", "wrong": ["large", "heavy", "strong"], "sentence": "It's not a ___ deal.", "correct": "big" },
+        { "phrase": "big problem", "tr": "büyük problem", "wrong": ["large", "heavy", "strong"], "sentence": "We have a ___ problem.", "correct": "big" },
+        { "phrase": "big decision", "tr": "büyük karar", "wrong": ["large", "heavy", "strong"], "sentence": "This is a ___ decision.", "correct": "big" },
+        { "phrase": "big difference", "tr": "büyük fark", "wrong": ["large", "huge", "great"], "sentence": "There's a ___ difference between them.", "correct": "big" },
+        { "phrase": "big success", "tr": "büyük başarı", "wrong": ["large", "great", "huge"], "sentence": "The movie was a ___ success.", "correct": "big" },
+        { "phrase": "big fan", "tr": "büyük hayran", "wrong": ["large", "great", "huge"], "sentence": "I'm a ___ fan of your work.", "correct": "big" },
+        { "phrase": "big surprise", "tr": "büyük sürpriz", "wrong": ["large", "great", "huge"], "sentence": "It was a ___ surprise.", "correct": "big" },
+        { "phrase": "big change", "tr": "büyük değişiklik", "wrong": ["large", "major", "great"], "sentence": "This is a ___ change.", "correct": "big" },
+        { "phrase": "big city", "tr": "büyük şehir", "wrong": ["large", "major", "great"], "sentence": "New York is a ___ city.", "correct": "big" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_004",
+      "base": "fast",
+      "category": "adj_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "fast food", "tr": "hazır yemek", "wrong": ["quick", "rapid", "speedy"], "sentence": "I don't like ___ food.", "correct": "fast" },
+        { "phrase": "fast learner", "tr": "çabuk öğrenen", "wrong": ["quick", "rapid", "speedy"], "sentence": "She's a ___ learner.", "correct": "fast" },
+        { "phrase": "fast asleep", "tr": "derin uykuda", "wrong": ["deep", "sound", "heavy"], "sentence": "The baby is ___ asleep.", "correct": "fast" },
+        { "phrase": "fast track", "tr": "hızlı yol", "wrong": ["quick", "rapid", "speedy"], "sentence": "This project is on the ___ track.", "correct": "fast" },
+        { "phrase": "fast friends", "tr": "yakın arkadaşlar", "wrong": ["close", "good", "best"], "sentence": "They became ___ friends.", "correct": "fast" },
+        { "phrase": "fast pace", "tr": "hızlı tempo", "wrong": ["quick", "rapid", "high"], "sentence": "Life moves at a ___ pace.", "correct": "fast" },
+        { "phrase": "fast car", "tr": "hızlı araba", "wrong": ["quick", "speedy", "rapid"], "sentence": "He drives a ___ car.", "correct": "fast" },
+        { "phrase": "fast service", "tr": "hızlı servis", "wrong": ["quick", "rapid", "speedy"], "sentence": "The restaurant offers ___ service.", "correct": "fast" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_005",
+      "base": "deep",
+      "category": "adj_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "deep sleep", "tr": "derin uyku", "wrong": ["heavy", "strong", "hard"], "sentence": "I was in a ___ sleep.", "correct": "deep" },
+        { "phrase": "deep breath", "tr": "derin nefes", "wrong": ["heavy", "strong", "long"], "sentence": "Take a ___ breath.", "correct": "deep" },
+        { "phrase": "deep conversation", "tr": "derin sohbet", "wrong": ["heavy", "strong", "long"], "sentence": "We had a ___ conversation.", "correct": "deep" },
+        { "phrase": "deep trouble", "tr": "büyük bela", "wrong": ["heavy", "strong", "big"], "sentence": "You're in ___ trouble.", "correct": "deep" },
+        { "phrase": "deep thought", "tr": "derin düşünce", "wrong": ["heavy", "hard", "long"], "sentence": "He was in ___ thought.", "correct": "deep" },
+        { "phrase": "deep understanding", "tr": "derin anlayış", "wrong": ["good", "strong", "full"], "sentence": "She has a ___ understanding of the topic.", "correct": "deep" },
+        { "phrase": "deep connection", "tr": "derin bağ", "wrong": ["strong", "close", "good"], "sentence": "They share a ___ connection.", "correct": "deep" },
+        { "phrase": "deep voice", "tr": "kalın ses", "wrong": ["low", "heavy", "thick"], "sentence": "He has a ___ voice.", "correct": "deep" },
+        { "phrase": "deep concern", "tr": "derin kaygı", "wrong": ["big", "great", "strong"], "sentence": "There is ___ concern about the issue.", "correct": "deep" },
+        { "phrase": "deep impact", "tr": "derin etki", "wrong": ["big", "strong", "great"], "sentence": "The movie had a ___ impact on me.", "correct": "deep" }
+      ]
+    },
+    {
+      "id": "coll_pay_001",
+      "base": "pay",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "pay attention", "tr": "dikkat etmek", "wrong": ["give", "make", "take"], "sentence": "Please ___ attention to the teacher.", "correct": "pay" },
+        { "phrase": "pay a visit", "tr": "ziyaret etmek", "wrong": ["give", "make", "take"], "sentence": "I'll ___ you a visit tomorrow.", "correct": "pay" },
+        { "phrase": "pay a compliment", "tr": "iltifat etmek", "wrong": ["give", "make", "say"], "sentence": "He ___ her a compliment.", "correct": "paid" },
+        { "phrase": "pay the bill", "tr": "hesabı ödemek", "wrong": ["give", "make", "do"], "sentence": "I'll ___ the bill.", "correct": "pay" },
+        { "phrase": "pay respect", "tr": "saygı göstermek", "wrong": ["give", "show", "make"], "sentence": "We should ___ respect to elders.", "correct": "pay" },
+        { "phrase": "pay tribute", "tr": "saygı duymak", "wrong": ["give", "show", "make"], "sentence": "They ___ tribute to the fallen heroes.", "correct": "paid" },
+        { "phrase": "pay the price", "tr": "bedelini ödemek", "wrong": ["give", "take", "have"], "sentence": "You'll ___ the price for this.", "correct": "pay" },
+        { "phrase": "pay a fine", "tr": "ceza ödemek", "wrong": ["give", "make", "do"], "sentence": "He had to ___ a fine.", "correct": "pay" },
+        { "phrase": "pay dividends", "tr": "karşılığını vermek", "wrong": ["give", "bring", "make"], "sentence": "Hard work ___ dividends.", "correct": "pays" },
+        { "phrase": "pay heed", "tr": "kulak vermek", "wrong": ["give", "take", "show"], "sentence": "You should ___ heed to her advice.", "correct": "pay" }
+      ]
+    },
+    {
+      "id": "coll_catch_001",
+      "base": "catch",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "catch a cold", "tr": "soğuk algınlığı olmak", "wrong": ["get", "take", "have"], "sentence": "I ___ a cold last week.", "correct": "caught" },
+        { "phrase": "catch a bus", "tr": "otobüse yetişmek", "wrong": ["get", "take", "have"], "sentence": "I need to ___ the bus.", "correct": "catch" },
+        { "phrase": "catch fire", "tr": "alev almak", "wrong": ["get", "take", "start"], "sentence": "The building ___ fire.", "correct": "caught" },
+        { "phrase": "catch someone's eye", "tr": "dikkatini çekmek", "wrong": ["get", "take", "have"], "sentence": "Something ___ my eye.", "correct": "caught" },
+        { "phrase": "catch a glimpse", "tr": "bir an görmek", "wrong": ["get", "take", "have"], "sentence": "I ___ a glimpse of her.", "correct": "caught" },
+        { "phrase": "catch one's breath", "tr": "soluk almak", "wrong": ["get", "take", "have"], "sentence": "Let me ___ my breath.", "correct": "catch" },
+        { "phrase": "catch the sun", "tr": "güneşte bronzlaşmak", "wrong": ["get", "take", "have"], "sentence": "I ___ the sun yesterday.", "correct": "caught" },
+        { "phrase": "catch someone's attention", "tr": "ilgi çekmek", "wrong": ["get", "take", "draw"], "sentence": "The noise ___ my attention.", "correct": "caught" },
+        { "phrase": "catch a flight", "tr": "uçağa yetişmek", "wrong": ["get", "take", "board"], "sentence": "I need to ___ a flight at 6.", "correct": "catch" },
+        { "phrase": "catch a thief", "tr": "hırsız yakalamak", "wrong": ["get", "arrest", "find"], "sentence": "The police ___ the thief.", "correct": "caught" }
+      ]
+    },
+    {
+      "id": "coll_break_001",
+      "base": "break",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "break the law", "tr": "yasayı çiğnemek", "wrong": ["make", "do", "violate"], "sentence": "Don't ___ the law.", "correct": "break" },
+        { "phrase": "break a record", "tr": "rekor kırmak", "wrong": ["make", "do", "beat"], "sentence": "She ___ the world record.", "correct": "broke" },
+        { "phrase": "break the news", "tr": "haberi vermek", "wrong": ["make", "do", "tell"], "sentence": "I have to ___ the news to her.", "correct": "break" },
+        { "phrase": "break a promise", "tr": "sözünü tutmamak", "wrong": ["make", "do", "keep"], "sentence": "Never ___ a promise.", "correct": "break" },
+        { "phrase": "break the ice", "tr": "buzu kırmak", "wrong": ["make", "cut", "melt"], "sentence": "He told a joke to ___ the ice.", "correct": "break" },
+        { "phrase": "break the silence", "tr": "sessizliği bozmak", "wrong": ["cut", "end", "stop"], "sentence": "She ___ the silence.", "correct": "broke" },
+        { "phrase": "break a habit", "tr": "alışkanlığı bırakmak", "wrong": ["stop", "quit", "leave"], "sentence": "It's hard to ___ a bad habit.", "correct": "break" },
+        { "phrase": "break someone's heart", "tr": "kalbini kırmak", "wrong": ["hurt", "crush", "damage"], "sentence": "Don't ___ her heart.", "correct": "break" },
+        { "phrase": "break the rules", "tr": "kuralları çiğnemek", "wrong": ["make", "violate", "ignore"], "sentence": "Don't ___ the rules.", "correct": "break" },
+        { "phrase": "break ground", "tr": "çığır açmak", "wrong": ["make", "start", "begin"], "sentence": "They ___ ground on the project.", "correct": "broke" }
+      ]
+    },
+    {
+      "id": "coll_keep_001",
+      "base": "keep",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "keep a promise", "tr": "sözünü tutmak", "wrong": ["make", "do", "hold"], "sentence": "Always ___ your promises.", "correct": "keep" },
+        { "phrase": "keep a secret", "tr": "sır saklamak", "wrong": ["make", "do", "hold"], "sentence": "Can you ___ a secret?", "correct": "keep" },
+        { "phrase": "keep in touch", "tr": "iletişimde kalmak", "wrong": ["stay", "be", "remain"], "sentence": "Let's ___ in touch.", "correct": "keep" },
+        { "phrase": "keep calm", "tr": "sakin kalmak", "wrong": ["stay", "be", "remain"], "sentence": "Try to ___ calm.", "correct": "keep" },
+        { "phrase": "keep quiet", "tr": "sessiz kalmak", "wrong": ["stay", "be", "remain"], "sentence": "Please ___ quiet.", "correct": "keep" },
+        { "phrase": "keep track", "tr": "takip etmek", "wrong": ["make", "follow", "do"], "sentence": "I can't ___ track of time.", "correct": "keep" },
+        { "phrase": "keep a diary", "tr": "günlük tutmak", "wrong": ["write", "make", "do"], "sentence": "She ___ a diary.", "correct": "keeps" },
+        { "phrase": "keep control", "tr": "kontrolü sağlamak", "wrong": ["have", "take", "hold"], "sentence": "Try to ___ control.", "correct": "keep" },
+        { "phrase": "keep pace", "tr": "ayak uydurmak", "wrong": ["match", "follow", "go"], "sentence": "It's hard to ___ pace with changes.", "correct": "keep" },
+        { "phrase": "keep one's word", "tr": "sözünde durmak", "wrong": ["hold", "make", "stand"], "sentence": "He always ___ his word.", "correct": "keeps" }
+      ]
+    },
+    {
+      "id": "coll_run_001",
+      "base": "run",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "run a business", "tr": "iş yönetmek", "wrong": ["make", "do", "manage"], "sentence": "She ___ her own business.", "correct": "runs" },
+        { "phrase": "run a risk", "tr": "risk almak", "wrong": ["make", "take", "have"], "sentence": "You're ___ a big risk.", "correct": "running" },
+        { "phrase": "run out of", "tr": "bitmek, tükenmek", "wrong": ["get", "go", "be"], "sentence": "We ___ out of milk.", "correct": "ran" },
+        { "phrase": "run late", "tr": "geç kalmak", "wrong": ["be", "get", "go"], "sentence": "I'm ___ late today.", "correct": "running" },
+        { "phrase": "run errands", "tr": "ayak işleri yapmak", "wrong": ["do", "make", "go"], "sentence": "I need to ___ some errands.", "correct": "run" },
+        { "phrase": "run a fever", "tr": "ateşi olmak", "wrong": ["have", "get", "catch"], "sentence": "The child is ___ a fever.", "correct": "running" },
+        { "phrase": "run wild", "tr": "başıboş dolaşmak", "wrong": ["go", "be", "get"], "sentence": "The kids were ___ wild.", "correct": "running" },
+        { "phrase": "run short", "tr": "azalmak", "wrong": ["get", "go", "be"], "sentence": "We're ___ short of time.", "correct": "running" },
+        { "phrase": "run the show", "tr": "idare etmek", "wrong": ["manage", "control", "lead"], "sentence": "He ___ the show around here.", "correct": "runs" },
+        { "phrase": "run deep", "tr": "derinlere inmek", "wrong": ["go", "be", "get"], "sentence": "Old habits ___ deep.", "correct": "run" }
+      ]
+    },
+    {
+      "id": "coll_give_001",
+      "base": "give",
+      "category": "verb_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "give advice", "tr": "tavsiye vermek", "wrong": ["make", "do", "tell"], "sentence": "Can you ___ me some advice?", "correct": "give" },
+        { "phrase": "give a speech", "tr": "konuşma yapmak", "wrong": ["make", "do", "say"], "sentence": "She ___ a great speech.", "correct": "gave" },
+        { "phrase": "give permission", "tr": "izin vermek", "wrong": ["make", "do", "allow"], "sentence": "He ___ me permission to leave.", "correct": "gave" },
+        { "phrase": "give a hand", "tr": "yardım etmek", "wrong": ["make", "do", "lend"], "sentence": "Can you ___ me a hand?", "correct": "give" },
+        { "phrase": "give birth", "tr": "doğurmak", "wrong": ["make", "have", "do"], "sentence": "She ___ birth to twins.", "correct": "gave" },
+        { "phrase": "give notice", "tr": "haber vermek", "wrong": ["make", "send", "do"], "sentence": "He ___ notice to quit.", "correct": "gave" },
+        { "phrase": "give evidence", "tr": "tanıklık etmek", "wrong": ["make", "show", "present"], "sentence": "She ___ evidence in court.", "correct": "gave" },
+        { "phrase": "give a lift", "tr": "arabayla bırakmak", "wrong": ["make", "do", "take"], "sentence": "Can you ___ me a lift?", "correct": "give" },
+        { "phrase": "give an answer", "tr": "cevap vermek", "wrong": ["make", "do", "say"], "sentence": "Please ___ me an answer.", "correct": "give" },
+        { "phrase": "give priority", "tr": "öncelik vermek", "wrong": ["make", "take", "have"], "sentence": "We should ___ priority to safety.", "correct": "give" }
+      ]
+    },
+    {
+      "id": "coll_come_001",
+      "base": "come",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "come to an end", "tr": "sona ermek", "wrong": ["go", "get", "reach"], "sentence": "All good things ___ to an end.", "correct": "come" },
+        { "phrase": "come true", "tr": "gerçekleşmek", "wrong": ["go", "get", "become"], "sentence": "Dreams can ___ true.", "correct": "come" },
+        { "phrase": "come first", "tr": "birinci olmak", "wrong": ["go", "be", "get"], "sentence": "Family ___ first.", "correct": "comes" },
+        { "phrase": "come to a conclusion", "tr": "sonuca varmak", "wrong": ["go", "get", "reach"], "sentence": "We ___ to a conclusion.", "correct": "came" },
+        { "phrase": "come into contact", "tr": "temas etmek", "wrong": ["go", "get", "be"], "sentence": "I ___ into contact with him.", "correct": "came" },
+        { "phrase": "come to terms", "tr": "kabullenmek", "wrong": ["go", "get", "accept"], "sentence": "She ___ to terms with it.", "correct": "came" },
+        { "phrase": "come as a surprise", "tr": "sürpriz olmak", "wrong": ["be", "go", "make"], "sentence": "It ___ as a surprise.", "correct": "came" },
+        { "phrase": "come in handy", "tr": "işe yaramak", "wrong": ["be", "go", "get"], "sentence": "This will ___ in handy.", "correct": "come" },
+        { "phrase": "come to mind", "tr": "akla gelmek", "wrong": ["go", "get", "enter"], "sentence": "Nothing ___ to mind.", "correct": "comes" },
+        { "phrase": "come under pressure", "tr": "baskı altına girmek", "wrong": ["go", "get", "be"], "sentence": "He ___ under pressure.", "correct": "came" }
+      ]
+    },
+    {
+      "id": "coll_go_001",
+      "base": "go",
+      "category": "verb_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "go crazy", "tr": "çıldırmak", "wrong": ["get", "become", "turn"], "sentence": "Don't ___ crazy!", "correct": "go" },
+        { "phrase": "go wrong", "tr": "ters gitmek", "wrong": ["get", "turn", "become"], "sentence": "Something ___ wrong.", "correct": "went" },
+        { "phrase": "go bankrupt", "tr": "iflas etmek", "wrong": ["get", "become", "turn"], "sentence": "The company ___ bankrupt.", "correct": "went" },
+        { "phrase": "go bald", "tr": "kelleşmek", "wrong": ["get", "become", "turn"], "sentence": "He's ___ bald.", "correct": "going" },
+        { "phrase": "go blind", "tr": "kör olmak", "wrong": ["get", "become", "turn"], "sentence": "She ___ blind at 60.", "correct": "went" },
+        { "phrase": "go missing", "tr": "kaybolmak", "wrong": ["get", "become", "be"], "sentence": "The dog ___ missing.", "correct": "went" },
+        { "phrase": "go viral", "tr": "viral olmak", "wrong": ["get", "become", "turn"], "sentence": "The video ___ viral.", "correct": "went" },
+        { "phrase": "go to sleep", "tr": "uyumak", "wrong": ["get", "fall", "be"], "sentence": "I need to ___ to sleep.", "correct": "go" },
+        { "phrase": "go abroad", "tr": "yurt dışına gitmek", "wrong": ["travel", "leave", "move"], "sentence": "I want to ___ abroad.", "correct": "go" },
+        { "phrase": "go on a diet", "tr": "diyet yapmak", "wrong": ["be", "start", "make"], "sentence": "I should ___ on a diet.", "correct": "go" }
+      ]
+    },
+    {
+      "id": "coll_hold_001",
+      "base": "hold",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "hold a meeting", "tr": "toplantı yapmak", "wrong": ["make", "do", "have"], "sentence": "We'll ___ a meeting tomorrow.", "correct": "hold" },
+        { "phrase": "hold your breath", "tr": "nefesini tutmak", "wrong": ["keep", "stop", "take"], "sentence": "___ your breath!", "correct": "Hold" },
+        { "phrase": "hold the line", "tr": "telefonda beklemek", "wrong": ["keep", "stay", "wait"], "sentence": "Please ___ the line.", "correct": "hold" },
+        { "phrase": "hold a conversation", "tr": "sohbet etmek", "wrong": ["make", "have", "do"], "sentence": "She can't ___ a conversation.", "correct": "hold" },
+        { "phrase": "hold hands", "tr": "el ele tutuşmak", "wrong": ["take", "keep", "grab"], "sentence": "They were ___ hands.", "correct": "holding" },
+        { "phrase": "hold an opinion", "tr": "görüş sahibi olmak", "wrong": ["have", "keep", "carry"], "sentence": "I ___ a different opinion.", "correct": "hold" },
+        { "phrase": "hold a record", "tr": "rekor sahibi olmak", "wrong": ["have", "keep", "own"], "sentence": "She ___ the world record.", "correct": "holds" },
+        { "phrase": "hold someone responsible", "tr": "sorumlu tutmak", "wrong": ["make", "keep", "find"], "sentence": "I ___ you responsible.", "correct": "hold" },
+        { "phrase": "hold true", "tr": "geçerli olmak", "wrong": ["be", "stay", "remain"], "sentence": "This ___ true for everyone.", "correct": "holds" },
+        { "phrase": "hold back", "tr": "geri tutmak", "wrong": ["keep", "stop", "stay"], "sentence": "Don't ___ back your tears.", "correct": "hold" }
+      ]
+    },
+    {
+      "id": "coll_set_001",
+      "base": "set",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "set a goal", "tr": "hedef belirlemek", "wrong": ["make", "put", "do"], "sentence": "You should ___ a goal.", "correct": "set" },
+        { "phrase": "set an example", "tr": "örnek olmak", "wrong": ["make", "give", "be"], "sentence": "Parents should ___ an example.", "correct": "set" },
+        { "phrase": "set a record", "tr": "rekor kırmak", "wrong": ["make", "break", "do"], "sentence": "She ___ a new record.", "correct": "set" },
+        { "phrase": "set the table", "tr": "sofrayı kurmak", "wrong": ["make", "put", "lay"], "sentence": "Please ___ the table.", "correct": "set" },
+        { "phrase": "set a deadline", "tr": "son tarih belirlemek", "wrong": ["make", "put", "give"], "sentence": "We need to ___ a deadline.", "correct": "set" },
+        { "phrase": "set fire to", "tr": "ateşe vermek", "wrong": ["make", "put", "light"], "sentence": "Someone ___ fire to the building.", "correct": "set" },
+        { "phrase": "set free", "tr": "serbest bırakmak", "wrong": ["make", "let", "put"], "sentence": "They ___ the prisoners free.", "correct": "set" },
+        { "phrase": "set a date", "tr": "tarih belirlemek", "wrong": ["make", "fix", "choose"], "sentence": "Let's ___ a date for the meeting.", "correct": "set" },
+        { "phrase": "set standards", "tr": "standart belirlemek", "wrong": ["make", "put", "create"], "sentence": "We ___ high standards.", "correct": "set" },
+        { "phrase": "set the scene", "tr": "ortamı hazırlamak", "wrong": ["make", "create", "prepare"], "sentence": "Let me ___ the scene.", "correct": "set" }
+      ]
+    },
+    {
+      "id": "coll_put_001",
+      "base": "put",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "put pressure", "tr": "baskı yapmak", "wrong": ["make", "give", "do"], "sentence": "Don't ___ pressure on me.", "correct": "put" },
+        { "phrase": "put effort", "tr": "çaba göstermek", "wrong": ["make", "give", "do"], "sentence": "You should ___ more effort.", "correct": "put" },
+        { "phrase": "put emphasis", "tr": "vurgu yapmak", "wrong": ["make", "give", "lay"], "sentence": "I want to ___ emphasis on this.", "correct": "put" },
+        { "phrase": "put an end to", "tr": "son vermek", "wrong": ["make", "bring", "give"], "sentence": "We must ___ an end to this.", "correct": "put" },
+        { "phrase": "put into practice", "tr": "uygulamaya koymak", "wrong": ["make", "do", "take"], "sentence": "___ the theory into practice.", "correct": "Put" },
+        { "phrase": "put in order", "tr": "düzene koymak", "wrong": ["make", "set", "get"], "sentence": "I need to ___ my room in order.", "correct": "put" },
+        { "phrase": "put to use", "tr": "kullanmak", "wrong": ["make", "bring", "take"], "sentence": "___ your skills to use.", "correct": "Put" },
+        { "phrase": "put at risk", "tr": "riske atmak", "wrong": ["make", "bring", "take"], "sentence": "Don't ___ your health at risk.", "correct": "put" },
+        { "phrase": "put in writing", "tr": "yazıya dökmek", "wrong": ["make", "do", "get"], "sentence": "___ it in writing.", "correct": "Put" },
+        { "phrase": "put to the test", "tr": "teste tabi tutmak", "wrong": ["make", "bring", "take"], "sentence": "Let's ___ this theory to the test.", "correct": "put" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_006",
+      "base": "close",
+      "category": "adj_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "close friend", "tr": "yakın arkadaş", "wrong": ["near", "tight", "good"], "sentence": "She's a ___ friend of mine.", "correct": "close" },
+        { "phrase": "close relationship", "tr": "yakın ilişki", "wrong": ["near", "tight", "strong"], "sentence": "They have a ___ relationship.", "correct": "close" },
+        { "phrase": "close call", "tr": "kıl payı kurtuluş", "wrong": ["near", "tight", "narrow"], "sentence": "That was a ___ call!", "correct": "close" },
+        { "phrase": "close attention", "tr": "dikkatli ilgi", "wrong": ["careful", "deep", "strong"], "sentence": "Pay ___ attention to this.", "correct": "close" },
+        { "phrase": "close contact", "tr": "yakın temas", "wrong": ["near", "tight", "direct"], "sentence": "We're in ___ contact.", "correct": "close" },
+        { "phrase": "close family", "tr": "yakın aile", "wrong": ["near", "immediate", "direct"], "sentence": "Only ___ family is invited.", "correct": "close" },
+        { "phrase": "close cooperation", "tr": "yakın işbirliği", "wrong": ["tight", "strong", "good"], "sentence": "There's ___ cooperation between us.", "correct": "close" },
+        { "phrase": "close race", "tr": "çekişmeli yarış", "wrong": ["tight", "near", "hard"], "sentence": "It was a ___ race.", "correct": "close" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_007",
+      "base": "sharp",
+      "category": "adj_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "sharp rise", "tr": "keskin artış", "wrong": ["quick", "fast", "steep"], "sentence": "There was a ___ rise in prices.", "correct": "sharp" },
+        { "phrase": "sharp decline", "tr": "keskin düşüş", "wrong": ["quick", "fast", "steep"], "sentence": "We saw a ___ decline.", "correct": "sharp" },
+        { "phrase": "sharp contrast", "tr": "keskin tezat", "wrong": ["big", "strong", "clear"], "sentence": "There's a ___ contrast.", "correct": "sharp" },
+        { "phrase": "sharp pain", "tr": "keskin ağrı", "wrong": ["strong", "hard", "big"], "sentence": "I felt a ___ pain.", "correct": "sharp" },
+        { "phrase": "sharp increase", "tr": "keskin artış", "wrong": ["big", "fast", "quick"], "sentence": "A ___ increase in sales.", "correct": "sharp" },
+        { "phrase": "sharp mind", "tr": "keskin zeka", "wrong": ["quick", "fast", "bright"], "sentence": "She has a ___ mind.", "correct": "sharp" },
+        { "phrase": "sharp criticism", "tr": "sert eleştiri", "wrong": ["hard", "strong", "heavy"], "sentence": "He faced ___ criticism.", "correct": "sharp" },
+        { "phrase": "sharp turn", "tr": "keskin viraj", "wrong": ["quick", "fast", "hard"], "sentence": "Make a ___ turn left.", "correct": "sharp" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_008",
+      "base": "bright",
+      "category": "adj_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "bright future", "tr": "parlak gelecek", "wrong": ["good", "great", "nice"], "sentence": "You have a ___ future.", "correct": "bright" },
+        { "phrase": "bright idea", "tr": "parlak fikir", "wrong": ["good", "great", "smart"], "sentence": "That's a ___ idea!", "correct": "bright" },
+        { "phrase": "bright light", "tr": "parlak ışık", "wrong": ["strong", "big", "clear"], "sentence": "The ___ light hurt my eyes.", "correct": "bright" },
+        { "phrase": "bright colors", "tr": "canlı renkler", "wrong": ["strong", "loud", "deep"], "sentence": "She wears ___ colors.", "correct": "bright" },
+        { "phrase": "bright student", "tr": "zeki öğrenci", "wrong": ["smart", "good", "clever"], "sentence": "He's a ___ student.", "correct": "bright" },
+        { "phrase": "bright side", "tr": "iyi taraf", "wrong": ["good", "positive", "nice"], "sentence": "Look on the ___ side.", "correct": "bright" },
+        { "phrase": "bright smile", "tr": "ışıl ışıl gülümseme", "wrong": ["big", "wide", "happy"], "sentence": "She has a ___ smile.", "correct": "bright" },
+        { "phrase": "bright sunshine", "tr": "parlak güneş", "wrong": ["strong", "hot", "clear"], "sentence": "We had ___ sunshine today.", "correct": "bright" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_009",
+      "base": "full",
+      "category": "adj_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "full attention", "tr": "tam dikkat", "wrong": ["complete", "total", "whole"], "sentence": "Give me your ___ attention.", "correct": "full" },
+        { "phrase": "full control", "tr": "tam kontrol", "wrong": ["complete", "total", "whole"], "sentence": "She has ___ control.", "correct": "full" },
+        { "phrase": "full responsibility", "tr": "tam sorumluluk", "wrong": ["complete", "total", "whole"], "sentence": "Take ___ responsibility.", "correct": "full" },
+        { "phrase": "full speed", "tr": "tam hız", "wrong": ["top", "high", "maximum"], "sentence": "Go at ___ speed!", "correct": "full" },
+        { "phrase": "full potential", "tr": "tam potansiyel", "wrong": ["complete", "total", "whole"], "sentence": "Reach your ___ potential.", "correct": "full" },
+        { "phrase": "full support", "tr": "tam destek", "wrong": ["complete", "total", "whole"], "sentence": "You have my ___ support.", "correct": "full" },
+        { "phrase": "full details", "tr": "tüm detaylar", "wrong": ["complete", "total", "whole"], "sentence": "Give me ___ details.", "correct": "full" },
+        { "phrase": "full moon", "tr": "dolunay", "wrong": ["complete", "round", "whole"], "sentence": "There's a ___ moon tonight.", "correct": "full" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_010",
+      "base": "wide",
+      "category": "adj_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "wide range", "tr": "geniş yelpaze", "wrong": ["big", "large", "broad"], "sentence": "We offer a ___ range of products.", "correct": "wide" },
+        { "phrase": "wide variety", "tr": "geniş çeşitlilik", "wrong": ["big", "large", "broad"], "sentence": "There's a ___ variety.", "correct": "wide" },
+        { "phrase": "wide experience", "tr": "geniş deneyim", "wrong": ["big", "large", "broad"], "sentence": "She has ___ experience.", "correct": "wide" },
+        { "phrase": "wide knowledge", "tr": "geniş bilgi", "wrong": ["big", "large", "broad"], "sentence": "He has ___ knowledge.", "correct": "wide" },
+        { "phrase": "wide selection", "tr": "geniş seçim", "wrong": ["big", "large", "broad"], "sentence": "There's a ___ selection.", "correct": "wide" },
+        { "phrase": "wide smile", "tr": "geniş gülümseme", "wrong": ["big", "large", "broad"], "sentence": "She gave a ___ smile.", "correct": "wide" },
+        { "phrase": "wide gap", "tr": "geniş uçurum", "wrong": ["big", "large", "broad"], "sentence": "There's a ___ gap between them.", "correct": "wide" },
+        { "phrase": "wide audience", "tr": "geniş kitle", "wrong": ["big", "large", "broad"], "sentence": "It appeals to a ___ audience.", "correct": "wide" }
+      ]
+    },
+    {
+      "id": "coll_lose_001",
+      "base": "lose",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "lose weight", "tr": "kilo vermek", "wrong": ["drop", "cut", "reduce"], "sentence": "I need to ___ weight.", "correct": "lose" },
+        { "phrase": "lose time", "tr": "zaman kaybetmek", "wrong": ["waste", "spend", "miss"], "sentence": "Don't ___ time!", "correct": "lose" },
+        { "phrase": "lose control", "tr": "kontrolü kaybetmek", "wrong": ["miss", "drop", "leave"], "sentence": "He ___ control of the car.", "correct": "lost" },
+        { "phrase": "lose patience", "tr": "sabrını kaybetmek", "wrong": ["miss", "drop", "run"], "sentence": "I'm ___ patience.", "correct": "losing" },
+        { "phrase": "lose hope", "tr": "umudunu kaybetmek", "wrong": ["miss", "give", "drop"], "sentence": "Never ___ hope!", "correct": "lose" },
+        { "phrase": "lose touch", "tr": "iletişimi kaybetmek", "wrong": ["miss", "drop", "break"], "sentence": "We ___ touch years ago.", "correct": "lost" },
+        { "phrase": "lose sight of", "tr": "gözden kaybetmek", "wrong": ["miss", "drop", "leave"], "sentence": "Don't ___ sight of your goals.", "correct": "lose" },
+        { "phrase": "lose your temper", "tr": "öfkeni kaybetmek", "wrong": ["miss", "blow", "break"], "sentence": "Try not to ___ your temper.", "correct": "lose" },
+        { "phrase": "lose interest", "tr": "ilgisini kaybetmek", "wrong": ["miss", "drop", "give"], "sentence": "I ___ interest in the project.", "correct": "lost" },
+        { "phrase": "lose face", "tr": "itibar kaybetmek", "wrong": ["miss", "drop", "break"], "sentence": "He didn't want to ___ face.", "correct": "lose" }
+      ]
+    },
+    {
+      "id": "coll_save_001",
+      "base": "save",
+      "category": "verb_noun",
+      "difficulty": "B1",
+      "items": [
+        { "phrase": "save time", "tr": "zaman kazanmak", "wrong": ["keep", "make", "get"], "sentence": "This will ___ time.", "correct": "save" },
+        { "phrase": "save money", "tr": "para biriktirmek", "wrong": ["keep", "make", "get"], "sentence": "I'm trying to ___ money.", "correct": "save" },
+        { "phrase": "save energy", "tr": "enerji tasarrufu yapmak", "wrong": ["keep", "make", "use"], "sentence": "Turn off lights to ___ energy.", "correct": "save" },
+        { "phrase": "save space", "tr": "yer kazanmak", "wrong": ["keep", "make", "get"], "sentence": "This furniture ___ space.", "correct": "saves" },
+        { "phrase": "save face", "tr": "itibarı kurtarmak", "wrong": ["keep", "hold", "protect"], "sentence": "He tried to ___ face.", "correct": "save" },
+        { "phrase": "save the day", "tr": "günü kurtarmak", "wrong": ["keep", "make", "win"], "sentence": "You ___ the day!", "correct": "saved" },
+        { "phrase": "save trouble", "tr": "dertten kurtarmak", "wrong": ["avoid", "prevent", "stop"], "sentence": "This will ___ you trouble.", "correct": "save" },
+        { "phrase": "save lives", "tr": "hayat kurtarmak", "wrong": ["keep", "protect", "rescue"], "sentence": "Doctors ___ lives every day.", "correct": "save" }
+      ]
+    },
+    {
+      "id": "coll_spend_001",
+      "base": "spend",
+      "category": "verb_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "spend time", "tr": "vakit geçirmek", "wrong": ["pass", "use", "take"], "sentence": "I ___ time with my family.", "correct": "spend" },
+        { "phrase": "spend money", "tr": "para harcamak", "wrong": ["use", "pay", "give"], "sentence": "Don't ___ too much money.", "correct": "spend" },
+        { "phrase": "spend the night", "tr": "geceyi geçirmek", "wrong": ["pass", "stay", "sleep"], "sentence": "Can I ___ the night here?", "correct": "spend" },
+        { "phrase": "spend energy", "tr": "enerji harcamak", "wrong": ["use", "waste", "put"], "sentence": "Don't ___ energy on this.", "correct": "spend" },
+        { "phrase": "spend effort", "tr": "çaba harcamak", "wrong": ["use", "put", "make"], "sentence": "We ___ a lot of effort.", "correct": "spent" },
+        { "phrase": "spend a fortune", "tr": "servet harcamak", "wrong": ["pay", "use", "waste"], "sentence": "They ___ a fortune on it.", "correct": "spent" },
+        { "phrase": "spend hours", "tr": "saatler harcamak", "wrong": ["use", "take", "pass"], "sentence": "I ___ hours studying.", "correct": "spend" },
+        { "phrase": "spend wisely", "tr": "akıllıca harcamak", "wrong": ["use", "pay", "give"], "sentence": "___ your money wisely.", "correct": "Spend" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_011",
+      "base": "long",
+      "category": "adj_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "long time", "tr": "uzun süre", "wrong": ["big", "large", "great"], "sentence": "It's been a ___ time.", "correct": "long" },
+        { "phrase": "long way", "tr": "uzun yol", "wrong": ["big", "far", "great"], "sentence": "We've come a ___ way.", "correct": "long" },
+        { "phrase": "long run", "tr": "uzun vade", "wrong": ["far", "big", "great"], "sentence": "In the ___ run, it pays off.", "correct": "long" },
+        { "phrase": "long hours", "tr": "uzun saatler", "wrong": ["many", "big", "hard"], "sentence": "She works ___ hours.", "correct": "long" },
+        { "phrase": "long distance", "tr": "uzun mesafe", "wrong": ["far", "big", "great"], "sentence": "It's a ___ distance call.", "correct": "long" },
+        { "phrase": "long term", "tr": "uzun vadeli", "wrong": ["far", "big", "great"], "sentence": "This is a ___ term plan.", "correct": "long" },
+        { "phrase": "long story", "tr": "uzun hikaye", "wrong": ["big", "great", "large"], "sentence": "It's a ___ story.", "correct": "long" },
+        { "phrase": "long silence", "tr": "uzun sessizlik", "wrong": ["big", "deep", "great"], "sentence": "There was a ___ silence.", "correct": "long" }
+      ]
+    },
+    {
+      "id": "coll_adjnoun_012",
+      "base": "short",
+      "category": "adj_noun",
+      "difficulty": "A2",
+      "items": [
+        { "phrase": "short notice", "tr": "kısa süre önceden", "wrong": ["small", "little", "quick"], "sentence": "I'm sorry for the ___ notice.", "correct": "short" },
+        { "phrase": "short term", "tr": "kısa vadeli", "wrong": ["small", "little", "quick"], "sentence": "It's a ___ term solution.", "correct": "short" },
+        { "phrase": "short break", "tr": "kısa mola", "wrong": ["small", "little", "quick"], "sentence": "Let's take a ___ break.", "correct": "short" },
+        { "phrase": "short distance", "tr": "kısa mesafe", "wrong": ["small", "little", "near"], "sentence": "It's a ___ distance away.", "correct": "short" },
+        { "phrase": "short supply", "tr": "kıt arz", "wrong": ["small", "little", "low"], "sentence": "Water is in ___ supply.", "correct": "short" },
+        { "phrase": "short temper", "tr": "çabuk öfkelenen", "wrong": ["quick", "fast", "hot"], "sentence": "He has a ___ temper.", "correct": "short" },
+        { "phrase": "short cut", "tr": "kestirme yol", "wrong": ["quick", "fast", "easy"], "sentence": "Let's take a ___ cut.", "correct": "short" },
+        { "phrase": "short memory", "tr": "kısa hafıza", "wrong": ["small", "weak", "poor"], "sentence": "He has a ___ memory.", "correct": "short" }
+      ]
+    },
+    {
+      "id": "yds_connectors_001",
+      "base": "connectors",
+      "category": "yds_academic",
+      "difficulty": "C1",
+      "items": [
+        { "phrase": "nevertheless", "tr": "buna rağmen, yine de", "wrong": ["therefore", "moreover", "otherwise", "thus"], "sentence": "The experiment failed; ___, the researchers continued their work with renewed determination.", "correct": "nevertheless" },
+        { "phrase": "whereas", "tr": "oysa, halbuki", "wrong": ["while", "although", "because", "since"], "sentence": "Urban areas show rapid population growth, ___ rural regions are experiencing significant decline.", "correct": "whereas" },
+        { "phrase": "furthermore", "tr": "ayrıca, üstelik", "wrong": ["however", "therefore", "instead", "otherwise"], "sentence": "The study reveals important findings; ___, it suggests new directions for future research.", "correct": "furthermore" },
+        { "phrase": "consequently", "tr": "sonuç olarak", "wrong": ["however", "moreover", "although", "nevertheless"], "sentence": "Global temperatures have risen significantly; ___, sea levels continue to increase.", "correct": "consequently" },
+        { "phrase": "hence", "tr": "bu nedenle", "wrong": ["however", "although", "besides", "otherwise"], "sentence": "The sample size was inadequate; ___, the results cannot be generalized.", "correct": "hence" },
+        { "phrase": "nonetheless", "tr": "yine de, buna karşın", "wrong": ["therefore", "moreover", "thus", "besides"], "sentence": "The theory has been criticized by many scholars; ___, it remains influential in the field.", "correct": "nonetheless" },
+        { "phrase": "thereby", "tr": "böylece", "wrong": ["however", "otherwise", "although", "nevertheless"], "sentence": "The new policy reduced emissions by 30%, ___ meeting environmental targets.", "correct": "thereby" },
+        { "phrase": "likewise", "tr": "aynı şekilde", "wrong": ["however", "therefore", "otherwise", "instead"], "sentence": "Children learn through imitation; ___, adults often acquire new skills by observing others.", "correct": "likewise" },
+        { "phrase": "on the contrary", "tr": "aksine, tersine", "wrong": ["in addition", "moreover", "besides", "similarly"], "sentence": "The critics expected the film to fail; ___, it became a box office success.", "correct": "on the contrary" },
+        { "phrase": "in contrast", "tr": "bunun aksine", "wrong": ["in addition", "moreover", "likewise", "similarly"], "sentence": "Traditional methods relied on manual labor; ___, modern techniques utilize automation extensively.", "correct": "in contrast" },
+        { "phrase": "alternatively", "tr": "alternatif olarak", "wrong": ["consequently", "therefore", "moreover", "however"], "sentence": "You can submit the form online; ___, you may visit our office in person.", "correct": "alternatively" },
+        { "phrase": "subsequently", "tr": "ardından, sonrasında", "wrong": ["previously", "formerly", "beforehand", "initially"], "sentence": "The company launched its product in Asia; ___, it expanded to European markets.", "correct": "subsequently" }
+      ]
+    },
+    {
+      "id": "yds_connectors_002",
+      "base": "connectors_advanced",
+      "category": "yds_academic",
+      "difficulty": "C1",
+      "items": [
+        { "phrase": "notwithstanding", "tr": "rağmen", "wrong": ["therefore", "moreover", "consequently", "hence"], "sentence": "___ the economic challenges, the company maintained its market position.", "correct": "Notwithstanding" },
+        { "phrase": "inasmuch as", "tr": "olduğu için, -dığı sürece", "wrong": ["although", "unless", "whereas", "while"], "sentence": "The results are significant ___ they confirm previous theoretical predictions.", "correct": "inasmuch as" },
+        { "phrase": "insofar as", "tr": "-dığı ölçüde, sürece", "wrong": ["although", "unless", "whereas", "while"], "sentence": "The policy was successful ___ it achieved its immediate objectives.", "correct": "insofar as" },
+        { "phrase": "whereby", "tr": "bu sayede, bu vasıtayla", "wrong": ["however", "therefore", "although", "unless"], "sentence": "The government introduced a new system ___ citizens can access services online.", "correct": "whereby" },
+        { "phrase": "hitherto", "tr": "şimdiye kadar", "wrong": ["afterwards", "subsequently", "henceforth", "thereafter"], "sentence": "The discovery revealed ___ unknown aspects of human evolution.", "correct": "hitherto" },
+        { "phrase": "henceforth", "tr": "bundan böyle", "wrong": ["previously", "formerly", "hitherto", "beforehand"], "sentence": "___, all employees must complete mandatory safety training.", "correct": "Henceforth" },
+        { "phrase": "in lieu of", "tr": "yerine, karşılığında", "wrong": ["in addition to", "along with", "together with", "besides"], "sentence": "The company offered stock options ___ salary increases.", "correct": "in lieu of" },
+        { "phrase": "by virtue of", "tr": "sayesinde, nedeniyle", "wrong": ["in spite of", "regardless of", "despite", "notwithstanding"], "sentence": "___ its strategic location, the city became a major trading hub.", "correct": "By virtue of" },
+        { "phrase": "with a view to", "tr": "amacıyla", "wrong": ["in spite of", "regardless of", "instead of", "rather than"], "sentence": "The reforms were implemented ___ improving economic efficiency.", "correct": "with a view to" },
+        { "phrase": "given that", "tr": "göz önüne alındığında", "wrong": ["although", "unless", "until", "while"], "sentence": "___ resources are limited, we must prioritize essential projects.", "correct": "Given that" }
+      ]
+    },
+    {
+      "id": "yds_academic_verbs_001",
+      "base": "academic_verbs",
+      "category": "yds_academic",
+      "difficulty": "C1",
+      "items": [
+        { "phrase": "indicates", "tr": "göstermek, işaret etmek", "wrong": ["demonstrates", "suggests", "implies", "reveals"], "sentence": "Recent research ___ that climate change affects biodiversity more than previously thought.", "correct": "indicates" },
+        { "phrase": "suggests", "tr": "önermek, ima etmek", "wrong": ["proves", "confirms", "establishes", "demonstrates"], "sentence": "The evidence ___ a correlation between diet and mental health.", "correct": "suggests" },
+        { "phrase": "demonstrates", "tr": "kanıtlamak, göstermek", "wrong": ["implies", "suggests", "hints", "indicates"], "sentence": "The experiment clearly ___ the effectiveness of the new treatment.", "correct": "demonstrates" },
+        { "phrase": "maintains", "tr": "iddia etmek, savunmak", "wrong": ["denies", "rejects", "disputes", "contradicts"], "sentence": "The author ___ that traditional methods are still relevant today.", "correct": "maintains" },
+        { "phrase": "contends", "tr": "ileri sürmek, iddia etmek", "wrong": ["concedes", "admits", "accepts", "acknowledges"], "sentence": "The researcher ___ that the current theory is fundamentally flawed.", "correct": "contends" },
+        { "phrase": "asserts", "tr": "öne sürmek, iddia etmek", "wrong": ["questions", "doubts", "disputes", "challenges"], "sentence": "The study ___ that early intervention is crucial for success.", "correct": "asserts" },
+        { "phrase": "implies", "tr": "ima etmek", "wrong": ["states", "declares", "announces", "proclaims"], "sentence": "The data ___ that economic growth may slow down next year.", "correct": "implies" },
+        { "phrase": "reveals", "tr": "ortaya koymak, açığa çıkarmak", "wrong": ["conceals", "hides", "obscures", "masks"], "sentence": "The investigation ___ widespread corruption in the industry.", "correct": "reveals" },
+        { "phrase": "yields", "tr": "vermek, sağlamak", "wrong": ["prevents", "hinders", "blocks", "impedes"], "sentence": "The new methodology ___ more accurate results than traditional approaches.", "correct": "yields" },
+        { "phrase": "undermines", "tr": "baltalamak, zayıflatmak", "wrong": ["supports", "strengthens", "reinforces", "bolsters"], "sentence": "This evidence ___ the validity of the previous conclusions.", "correct": "undermines" },
+        { "phrase": "encompasses", "tr": "kapsamak, içermek", "wrong": ["excludes", "omits", "ignores", "neglects"], "sentence": "The study ___ various aspects of human behavior.", "correct": "encompasses" },
+        { "phrase": "entails", "tr": "gerektirmek", "wrong": ["excludes", "prevents", "avoids", "eliminates"], "sentence": "Scientific research ___ rigorous methodology and careful analysis.", "correct": "entails" }
+      ]
+    },
+    {
+      "id": "yds_academic_verbs_002",
+      "base": "academic_verbs_advanced",
+      "category": "yds_academic",
+      "difficulty": "C1",
+      "items": [
+        { "phrase": "postulates", "tr": "varsaymak, öne sürmek", "wrong": ["denies", "rejects", "refutes", "disproves"], "sentence": "Darwin's theory ___ that all species evolved from common ancestors.", "correct": "postulates" },
+        { "phrase": "substantiates", "tr": "kanıtlamak, desteklemek", "wrong": ["refutes", "contradicts", "disproves", "undermines"], "sentence": "Further research ___ the original hypothesis.", "correct": "substantiates" },
+        { "phrase": "corroborates", "tr": "doğrulamak, teyit etmek", "wrong": ["contradicts", "refutes", "disputes", "challenges"], "sentence": "The witness testimony ___ the defendant's account of events.", "correct": "corroborates" },
+        { "phrase": "refutes", "tr": "çürütmek, reddetmek", "wrong": ["supports", "confirms", "validates", "endorses"], "sentence": "The new evidence ___ the long-held assumption about human migration.", "correct": "refutes" },
+        { "phrase": "elucidates", "tr": "açıklamak, aydınlatmak", "wrong": ["obscures", "confuses", "complicates", "muddles"], "sentence": "The professor ___ complex concepts in an accessible manner.", "correct": "elucidates" },
+        { "phrase": "delineates", "tr": "tanımlamak, sınırlarını çizmek", "wrong": ["obscures", "blurs", "confuses", "muddles"], "sentence": "The report clearly ___ the boundaries of the protected area.", "correct": "delineates" },
+        { "phrase": "precipitates", "tr": "hızlandırmak, tetiklemek", "wrong": ["prevents", "delays", "hinders", "impedes"], "sentence": "Economic instability often ___ political changes.", "correct": "precipitates" },
+        { "phrase": "mitigates", "tr": "hafifletmek, azaltmak", "wrong": ["exacerbates", "aggravates", "intensifies", "worsens"], "sentence": "The new regulations aim to ___ environmental damage.", "correct": "mitigate" },
+        { "phrase": "exacerbates", "tr": "kötüleştirmek, şiddetlendirmek", "wrong": ["alleviates", "mitigates", "reduces", "diminishes"], "sentence": "Social inequality ___ health disparities among different groups.", "correct": "exacerbates" },
+        { "phrase": "proliferates", "tr": "hızla yayılmak, çoğalmak", "wrong": ["diminishes", "decreases", "declines", "shrinks"], "sentence": "Misinformation ___ rapidly on social media platforms.", "correct": "proliferates" }
+      ]
+    },
+    {
+      "id": "yds_fixed_expressions_001",
+      "base": "fixed_expressions",
+      "category": "yds_academic",
+      "difficulty": "C1",
+      "items": [
+        { "phrase": "raise concerns", "tr": "endişe uyandırmak", "wrong": ["lift", "grow", "make", "bring"], "sentence": "The findings ___ concerns about the long-term effects of the medication.", "correct": "raise" },
+        { "phrase": "lead to", "tr": "yol açmak", "wrong": ["cause to", "result to", "bring to", "make to"], "sentence": "Poor nutrition can ___ serious health problems.", "correct": "lead to" },
+        { "phrase": "give rise to", "tr": "neden olmak, yol açmak", "wrong": ["make rise to", "bring rise to", "cause rise to", "take rise to"], "sentence": "Rapid urbanization has ___ numerous environmental challenges.", "correct": "given rise to" },
+        { "phrase": "account for", "tr": "açıklamak, oluşturmak", "wrong": ["explain to", "describe for", "reason for", "tell for"], "sentence": "Genetic factors ___ approximately 40% of the variance.", "correct": "account for" },
+        { "phrase": "in terms of", "tr": "açısından, bakımından", "wrong": ["in ways of", "in forms of", "in parts of", "in means of"], "sentence": "___ economic growth, the country has made significant progress.", "correct": "In terms of" },
+        { "phrase": "with regard to", "tr": "ile ilgili olarak", "wrong": ["with respect of", "in regard of", "about to", "concerning to"], "sentence": "___ environmental policy, the government has announced new initiatives.", "correct": "With regard to" },
+        { "phrase": "in the light of", "tr": "ışığında, göz önüne alarak", "wrong": ["in the view of", "in the sight of", "in the face of", "in the way of"], "sentence": "___ recent developments, we need to reconsider our strategy.", "correct": "In the light of" },
+        { "phrase": "by means of", "tr": "aracılığıyla, vasıtasıyla", "wrong": ["by ways of", "by forms of", "through means of", "with means of"], "sentence": "Data was collected ___ standardized questionnaires.", "correct": "by means of" },
+        { "phrase": "on the grounds that", "tr": "gerekçesiyle", "wrong": ["on the basis of", "for the reason of", "by the cause that", "with the ground that"], "sentence": "The proposal was rejected ___ it lacked sufficient evidence.", "correct": "on the grounds that" },
+        { "phrase": "in the course of", "tr": "sırasında, süresince", "wrong": ["in the time of", "during the course of", "within the course of", "through the course of"], "sentence": "___ the experiment, several unexpected results emerged.", "correct": "In the course of" },
+        { "phrase": "for the sake of", "tr": "uğruna, aşkına", "wrong": ["for the purpose of", "for the reason of", "for the cause of", "by the sake of"], "sentence": "___ clarity, let me rephrase the question.", "correct": "For the sake of" },
+        { "phrase": "in conjunction with", "tr": "ile birlikte", "wrong": ["in connection of", "with conjunction to", "in combination of", "together of"], "sentence": "The new drug works best ___ traditional therapy.", "correct": "in conjunction with" }
+      ]
+    },
+    {
+      "id": "yds_fixed_expressions_002",
+      "base": "fixed_expressions_advanced",
+      "category": "yds_academic",
+      "difficulty": "C1",
+      "items": [
+        { "phrase": "be subject to", "tr": "tabi olmak, maruz kalmak", "wrong": ["be object to", "be liable for", "be prone of", "be bound of"], "sentence": "All research proposals are ___ ethical review.", "correct": "subject to" },
+        { "phrase": "be consistent with", "tr": "ile tutarlı olmak", "wrong": ["be similar of", "be aligned of", "be matched of", "be compatible of"], "sentence": "The findings are ___ previous research in this field.", "correct": "consistent with" },
+        { "phrase": "be attributed to", "tr": "atfedilmek", "wrong": ["be assigned for", "be related of", "be connected of", "be linked of"], "sentence": "The success can be ___ effective leadership.", "correct": "attributed to" },
+        { "phrase": "be contingent on", "tr": "bağlı olmak, koşuluna bağlı", "wrong": ["be dependent of", "be reliant of", "be based of", "be conditional of"], "sentence": "Funding for the project is ___ approval from the board.", "correct": "contingent on" },
+        { "phrase": "be tantamount to", "tr": "eşdeğer olmak", "wrong": ["be equal for", "be similar of", "be equivalent of", "be same of"], "sentence": "Ignoring the evidence would be ___ scientific misconduct.", "correct": "tantamount to" },
+        { "phrase": "be conducive to", "tr": "yardımcı olmak, elverişli olmak", "wrong": ["be helpful for", "be useful of", "be beneficial of", "be supportive of"], "sentence": "A quiet environment is ___ effective learning.", "correct": "conducive to" },
+        { "phrase": "be susceptible to", "tr": "hassas olmak, eğilimli olmak", "wrong": ["be sensitive for", "be vulnerable of", "be prone of", "be liable of"], "sentence": "Elderly patients are more ___ respiratory infections.", "correct": "susceptible to" },
+        { "phrase": "be amenable to", "tr": "uygun olmak, yatkın olmak", "wrong": ["be open for", "be willing of", "be ready of", "be suitable of"], "sentence": "The data is ___ various statistical analyses.", "correct": "amenable to" },
+        { "phrase": "be akin to", "tr": "benzer olmak", "wrong": ["be similar of", "be like of", "be related of", "be close of"], "sentence": "The relationship between the two variables is ___ correlation.", "correct": "akin to" },
+        { "phrase": "be paramount to", "tr": "son derece önemli olmak", "wrong": ["be important of", "be essential of", "be crucial of", "be vital of"], "sentence": "Safety is ___ all other considerations.", "correct": "paramount" }
+      ]
+    },
+    {
+      "id": "yds_prepositions_001",
+      "base": "academic_prepositions",
+      "category": "yds_academic",
+      "difficulty": "B2",
+      "items": [
+        { "phrase": "dependent on", "tr": "bağımlı, bağlı", "wrong": ["dependent of", "dependent to", "dependent with", "dependent for"], "sentence": "Economic growth is heavily ___ foreign investment.", "correct": "dependent on" },
+        { "phrase": "relevant to", "tr": "ile ilgili", "wrong": ["relevant for", "relevant with", "relevant of", "relevant about"], "sentence": "The research is particularly ___ current policy debates.", "correct": "relevant to" },
+        { "phrase": "responsible for", "tr": "sorumlu", "wrong": ["responsible of", "responsible to", "responsible with", "responsible about"], "sentence": "Climate change is ___ many environmental problems.", "correct": "responsible for" },
+        { "phrase": "aware of", "tr": "farkında", "wrong": ["aware about", "aware to", "aware with", "aware for"], "sentence": "Scientists are increasingly ___ the limitations of this approach.", "correct": "aware of" },
+        { "phrase": "capable of", "tr": "muktedir, yapabilir", "wrong": ["capable to", "capable for", "capable with", "capable about"], "sentence": "Modern computers are ___ processing vast amounts of data.", "correct": "capable of" },
+        { "phrase": "detrimental to", "tr": "zararlı", "wrong": ["detrimental for", "detrimental of", "detrimental with", "detrimental about"], "sentence": "Excessive screen time can be ___ children's development.", "correct": "detrimental to" },
+        { "phrase": "inherent in", "tr": "doğasında var olan", "wrong": ["inherent to", "inherent of", "inherent with", "inherent for"], "sentence": "There are risks ___ any major investment decision.", "correct": "inherent in" },
+        { "phrase": "integral to", "tr": "ayrılmaz bir parçası", "wrong": ["integral of", "integral for", "integral with", "integral about"], "sentence": "Teamwork is ___ the success of any organization.", "correct": "integral to" },
+        { "phrase": "prone to", "tr": "eğilimli, yatkın", "wrong": ["prone of", "prone for", "prone with", "prone about"], "sentence": "Some individuals are more ___ anxiety disorders.", "correct": "prone to" },
+        { "phrase": "synonymous with", "tr": "eş anlamlı, özdeş", "wrong": ["synonymous to", "synonymous of", "synonymous for", "synonymous about"], "sentence": "The brand has become ___ quality and reliability.", "correct": "synonymous with" },
+        { "phrase": "averse to", "tr": "karşı, isteksiz", "wrong": ["averse of", "averse for", "averse with", "averse about"], "sentence": "Many investors are ___ taking unnecessary risks.", "correct": "averse to" },
+        { "phrase": "commensurate with", "tr": "orantılı, uygun", "wrong": ["commensurate to", "commensurate of", "commensurate for", "commensurate about"], "sentence": "Salaries should be ___ experience and qualifications.", "correct": "commensurate with" }
+      ]
+    },
+    {
+      "id": "yds_relative_clauses_001",
+      "base": "relative_clauses",
+      "category": "yds_academic",
+      "difficulty": "B2",
+      "items": [
+        { "phrase": "whose", "tr": "kimin, -in ...si", "wrong": ["which", "whom", "who's", "that"], "sentence": "Researchers ___ work focuses on genetics have made significant progress.", "correct": "whose" },
+        { "phrase": "whom", "tr": "kimi", "wrong": ["who", "whose", "which", "that"], "sentence": "The scientist to ___ the award was given has published over 100 papers.", "correct": "whom" },
+        { "phrase": "whereby", "tr": "hangi yolla, bu sayede", "wrong": ["where", "which", "when", "while"], "sentence": "They developed a process ___ waste could be converted into energy.", "correct": "whereby" },
+        { "phrase": "wherein", "tr": "içinde, hangi hususta", "wrong": ["where", "which", "when", "while"], "sentence": "The document ___ these rules are outlined was published last year.", "correct": "wherein" },
+        { "phrase": "upon which", "tr": "üzerine, dayalı", "wrong": ["on that", "in which", "at which", "by which"], "sentence": "The principles ___ modern democracy is based were established centuries ago.", "correct": "upon which" },
+        { "phrase": "with which", "tr": "ile, beraber", "wrong": ["with that", "by which", "in which", "at which"], "sentence": "The equipment ___ the experiment was conducted was state-of-the-art.", "correct": "with which" },
+        { "phrase": "for which", "tr": "için, uğruna", "wrong": ["for that", "to which", "in which", "by which"], "sentence": "The reason ___ the project was cancelled remains unclear.", "correct": "for which" },
+        { "phrase": "in which", "tr": "içinde, -de", "wrong": ["where that", "on which", "at which", "to which"], "sentence": "The era ___ these discoveries were made was marked by rapid change.", "correct": "in which" }
+      ]
+    },
+    {
+      "id": "yds_conditionals_001",
+      "base": "conditionals",
+      "category": "yds_academic",
+      "difficulty": "C1",
+      "items": [
+        { "phrase": "had known", "tr": "bilseydi (geçmiş varsayım)", "wrong": ["would know", "have known", "knew", "has known"], "sentence": "If scientists ___ about the risks earlier, they would have taken precautions.", "correct": "had known" },
+        { "phrase": "were to", "tr": "olsaydı (gelecek varsayım)", "wrong": ["would", "will", "was to", "had to"], "sentence": "If the government ___ increase taxes, economic growth would slow down.", "correct": "were to" },
+        { "phrase": "should", "tr": "eğer ... olursa (resmi)", "wrong": ["would", "could", "might", "will"], "sentence": "___ you require any further information, please do not hesitate to contact us.", "correct": "Should" },
+        { "phrase": "were it not for", "tr": "olmasaydı", "wrong": ["was it not for", "if not for", "had it not for", "without"], "sentence": "___ the financial support, the project would have been abandoned.", "correct": "Were it not for" },
+        { "phrase": "had it not been for", "tr": "olmasaydı (geçmiş)", "wrong": ["was it not for", "if not for", "were it not for", "without"], "sentence": "___ the intervention, the crisis would have escalated.", "correct": "Had it not been for" },
+        { "phrase": "provided that", "tr": "şartıyla, koşuluyla", "wrong": ["unless", "although", "despite", "even if"], "sentence": "The experiment will proceed ___ all safety protocols are followed.", "correct": "provided that" },
+        { "phrase": "on condition that", "tr": "koşuluyla, şartıyla", "wrong": ["unless", "although", "despite", "even if"], "sentence": "Funding will be released ___ the interim report is submitted.", "correct": "on condition that" },
+        { "phrase": "supposing", "tr": "varsayalım ki", "wrong": ["unless", "although", "despite", "however"], "sentence": "___ the hypothesis is correct, we would expect different results.", "correct": "Supposing" },
+        { "phrase": "lest", "tr": "olmasın diye, -mesin diye", "wrong": ["unless", "although", "despite", "while"], "sentence": "The data was encrypted ___ unauthorized users access it.", "correct": "lest" },
+        { "phrase": "otherwise", "tr": "aksi takdirde", "wrong": ["however", "moreover", "therefore", "besides"], "sentence": "The findings must be replicated; ___, they cannot be considered valid.", "correct": "otherwise" }
+      ]
+    },
+    {
+      "id": "yds_modals_001",
+      "base": "modal_expressions",
+      "category": "yds_academic",
+      "difficulty": "C1",
+      "items": [
+        { "phrase": "must have been", "tr": "olmuş olmalı", "wrong": ["should be", "might be", "could be", "would be"], "sentence": "The error ___ caused by a software malfunction.", "correct": "must have been" },
+        { "phrase": "could have been", "tr": "olabilirdi", "wrong": ["must be", "would be", "should be", "might be"], "sentence": "The results ___ more accurate if better equipment had been used.", "correct": "could have been" },
+        { "phrase": "should have been", "tr": "olmalıydı", "wrong": ["must be", "would be", "could be", "might be"], "sentence": "The safety measures ___ implemented before the incident occurred.", "correct": "should have been" },
+        { "phrase": "might have been", "tr": "olmuş olabilir", "wrong": ["must be", "would be", "should be", "could be"], "sentence": "The civilization ___ more advanced than previously believed.", "correct": "might have been" },
+        { "phrase": "would have been", "tr": "olurdu", "wrong": ["must be", "could be", "should be", "might be"], "sentence": "The project ___ successful if funding had continued.", "correct": "would have been" },
+        { "phrase": "need not have", "tr": "gerekmezdi", "wrong": ["should not", "would not", "could not", "must not"], "sentence": "We ___ worried; the experiment was a complete success.", "correct": "need not have" },
+        { "phrase": "be to", "tr": "...acak/ecek (resmi planlama)", "wrong": ["will", "would", "should", "must"], "sentence": "The conference ___ take place in Geneva next month.", "correct": "is to" },
+        { "phrase": "be bound to", "tr": "muhakkak ... olacak", "wrong": ["be likely to", "be sure of", "be certain of", "be about to"], "sentence": "Given the evidence, the theory ___ gain widespread acceptance.", "correct": "is bound to" }
+      ]
+    },
+    {
+      "id": "yds_cause_effect_001",
+      "base": "cause_effect",
+      "category": "yds_academic",
+      "difficulty": "B2",
+      "items": [
+        { "phrase": "owing to", "tr": "nedeniyle, dolayı", "wrong": ["despite", "although", "however", "whereas"], "sentence": "___ technical difficulties, the launch was postponed.", "correct": "Owing to" },
+        { "phrase": "due to", "tr": "nedeniyle, -dan dolayı", "wrong": ["despite", "although", "however", "whereas"], "sentence": "The delay was ___ unforeseen circumstances.", "correct": "due to" },
+        { "phrase": "on account of", "tr": "nedeniyle, yüzünden", "wrong": ["despite", "although", "however", "whereas"], "sentence": "The match was cancelled ___ heavy rain.", "correct": "on account of" },
+        { "phrase": "as a result of", "tr": "sonucu olarak", "wrong": ["despite", "although", "in spite of", "regardless of"], "sentence": "___ the new regulations, emissions have decreased significantly.", "correct": "As a result of" },
+        { "phrase": "stem from", "tr": "kaynaklanmak", "wrong": ["lead to", "result in", "cause", "bring about"], "sentence": "Many health problems ___ poor lifestyle choices.", "correct": "stem from" },
+        { "phrase": "bring about", "tr": "neden olmak, meydana getirmek", "wrong": ["stem from", "result from", "arise from", "derive from"], "sentence": "The reforms ___ significant changes in the education system.", "correct": "brought about" },
+        { "phrase": "result in", "tr": "sonucunu doğurmak", "wrong": ["stem from", "result from", "arise from", "derive from"], "sentence": "The policy changes ___ improved public health outcomes.", "correct": "resulted in" },
+        { "phrase": "arise from", "tr": "ortaya çıkmak, kaynaklanmak", "wrong": ["lead to", "result in", "cause", "bring about"], "sentence": "Conflicts often ___ misunderstandings between parties.", "correct": "arise from" },
+        { "phrase": "attribute to", "tr": "atfetmek, bağlamak", "wrong": ["result from", "arise from", "stem from", "derive from"], "sentence": "Researchers ___ the success ___ effective collaboration.", "correct": "attribute ... to" },
+        { "phrase": "contribute to", "tr": "katkıda bulunmak", "wrong": ["result from", "arise from", "stem from", "derive from"], "sentence": "Multiple factors ___ the development of the disease.", "correct": "contribute to" }
+      ]
+    },
+    {
+      "id": "yds_comparison_001",
+      "base": "comparison",
+      "category": "yds_academic",
+      "difficulty": "B2",
+      "items": [
+        { "phrase": "as ... as", "tr": "kadar ... gibi", "wrong": ["so ... that", "such ... that", "more ... than", "less ... than"], "sentence": "The new method is twice ___ efficient ___ the traditional one.", "correct": "as ... as" },
+        { "phrase": "the more ... the more", "tr": "ne kadar ... o kadar", "wrong": ["as ... as", "so ... that", "more ... than", "less ... than"], "sentence": "___ data we collect, ___ accurate our predictions become.", "correct": "The more ... the more" },
+        { "phrase": "rather than", "tr": "yerine, -den ziyade", "wrong": ["instead", "other than", "more than", "less than"], "sentence": "The study focuses on prevention ___ treatment.", "correct": "rather than" },
+        { "phrase": "as opposed to", "tr": "aksine, karşılık", "wrong": ["similar to", "like", "same as", "equal to"], "sentence": "Qualitative research, ___ quantitative methods, emphasizes depth of understanding.", "correct": "as opposed to" },
+        { "phrase": "in comparison with", "tr": "ile karşılaştırıldığında", "wrong": ["similar to", "same as", "equal to", "like"], "sentence": "___ developed countries, developing nations face greater challenges.", "correct": "In comparison with" },
+        { "phrase": "inferior to", "tr": "daha aşağı, düşük", "wrong": ["less than", "worse than", "lower than", "below"], "sentence": "The new model is ___ the previous version in terms of durability.", "correct": "inferior to" },
+        { "phrase": "superior to", "tr": "üstün, daha iyi", "wrong": ["better than", "more than", "higher than", "above"], "sentence": "This approach is ___ conventional methods in several ways.", "correct": "superior to" },
+        { "phrase": "prior to", "tr": "önce, öncesinde", "wrong": ["before than", "earlier than", "previous than", "ahead of"], "sentence": "___ the Industrial Revolution, most economies were agricultural.", "correct": "Prior to" }
+      ]
+    }
+  ]
+}

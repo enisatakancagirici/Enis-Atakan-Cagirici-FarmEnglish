@@ -1,0 +1,623 @@
+{
+  "idioms": [
+    {
+      "id": "break_ice",
+      "category": "social",
+      "idiom": "break the ice",
+      "meaning": "Ortamı yumuşatmak, konuşmayı başlatmak",
+      "example": "He told a joke to break the ice at the meeting.",
+      "example_tr": "Toplantıda ortamı yumuşatmak için bir şaka anlattı.",
+      "literal": "Buzu kırmak",
+      "difficulty": 1
+    },
+    {
+      "id": "piece_cake",
+      "category": "easy",
+      "idiom": "a piece of cake",
+      "meaning": "Çok kolay bir şey",
+      "example": "The exam was a piece of cake for her.",
+      "example_tr": "Sınav onun için çocuk oyuncağıydı.",
+      "literal": "Bir parça kek",
+      "difficulty": 1
+    },
+    {
+      "id": "cost_arm_leg",
+      "category": "money",
+      "idiom": "cost an arm and a leg",
+      "meaning": "Çok pahalı olmak",
+      "example": "That new car cost an arm and a leg.",
+      "example_tr": "O yeni araba çok pahalıya mal oldu.",
+      "literal": "Bir kol ve bacağa mal olmak",
+      "difficulty": 2
+    },
+    {
+      "id": "hit_nail",
+      "category": "accuracy",
+      "idiom": "hit the nail on the head",
+      "meaning": "Tam isabetli konuşmak, doğruyu söylemek",
+      "example": "You hit the nail on the head with that analysis.",
+      "example_tr": "O analizle tam isabet ettin.",
+      "literal": "Çivinin kafasına vurmak",
+      "difficulty": 2
+    },
+    {
+      "id": "under_weather",
+      "category": "health",
+      "idiom": "under the weather",
+      "meaning": "Hasta veya keyifsiz olmak",
+      "example": "I'm feeling a bit under the weather today.",
+      "example_tr": "Bugün biraz keyifsizim.",
+      "literal": "Havanın altında",
+      "difficulty": 1
+    },
+    {
+      "id": "bite_bullet",
+      "category": "courage",
+      "idiom": "bite the bullet",
+      "meaning": "Zor bir durumu kabullenmek",
+      "example": "I had to bite the bullet and ask for help.",
+      "example_tr": "Gururumu yutup yardım istemek zorunda kaldım.",
+      "literal": "Mermiyi ısırmak",
+      "difficulty": 2
+    },
+    {
+      "id": "once_blue_moon",
+      "category": "time",
+      "idiom": "once in a blue moon",
+      "meaning": "Çok nadiren",
+      "example": "He visits us once in a blue moon.",
+      "example_tr": "Bizi çok nadiren ziyaret eder.",
+      "literal": "Mavi ayda bir kez",
+      "difficulty": 2
+    },
+    {
+      "id": "spill_beans",
+      "category": "secrets",
+      "idiom": "spill the beans",
+      "meaning": "Sırrı ifşa etmek",
+      "example": "Don't spill the beans about the surprise party!",
+      "example_tr": "Sürpriz parti hakkında ağzını açma!",
+      "literal": "Fasulyeleri dökmek",
+      "difficulty": 2
+    },
+    {
+      "id": "ball_court",
+      "category": "responsibility",
+      "idiom": "the ball is in your court",
+      "meaning": "Sıra sende, karar sende",
+      "example": "I've made my offer. The ball is in your court.",
+      "example_tr": "Teklifimi yaptım. Karar sende.",
+      "literal": "Top senin kortunda",
+      "difficulty": 2
+    },
+    {
+      "id": "sit_fence",
+      "category": "decision",
+      "idiom": "sit on the fence",
+      "meaning": "Kararsız kalmak, taraf tutmamak",
+      "example": "Stop sitting on the fence and make a decision.",
+      "example_tr": "Kararsız kalma ve bir karar ver.",
+      "literal": "Çitin üstünde oturmak",
+      "difficulty": 2
+    },
+    {
+      "id": "burn_midnight",
+      "category": "work",
+      "idiom": "burn the midnight oil",
+      "meaning": "Gece geç saatlere kadar çalışmak",
+      "example": "I had to burn the midnight oil to finish the project.",
+      "example_tr": "Projeyi bitirmek için gece geç saatlere kadar çalışmak zorunda kaldım.",
+      "literal": "Gece yarısı yağını yakmak",
+      "difficulty": 2
+    },
+    {
+      "id": "kill_birds",
+      "category": "efficiency",
+      "idiom": "kill two birds with one stone",
+      "meaning": "Bir taşla iki kuş vurmak",
+      "example": "By cycling to work, I kill two birds with one stone.",
+      "example_tr": "İşe bisikletle giderek bir taşla iki kuş vuruyorum.",
+      "literal": "Bir taşla iki kuş öldürmek",
+      "difficulty": 1
+    },
+    {
+      "id": "let_cat",
+      "category": "secrets",
+      "idiom": "let the cat out of the bag",
+      "meaning": "Yanlışlıkla sırrı açığa vurmak",
+      "example": "She let the cat out of the bag about his birthday.",
+      "example_tr": "Onun doğum günü hakkında ağzından kaçırdı.",
+      "literal": "Kediyi çantadan çıkarmak",
+      "difficulty": 2
+    },
+    {
+      "id": "best_both",
+      "category": "advantage",
+      "idiom": "the best of both worlds",
+      "meaning": "Her iki tarafın da avantajlarını yaşamak",
+      "example": "Working from home gives me the best of both worlds.",
+      "example_tr": "Evden çalışmak bana her iki dünyanın en iyisini veriyor.",
+      "literal": "Her iki dünyanın en iyisi",
+      "difficulty": 1
+    },
+    {
+      "id": "speak_mind",
+      "category": "communication",
+      "idiom": "speak your mind",
+      "meaning": "Düşündüğünü açıkça söylemek",
+      "example": "Don't be afraid to speak your mind in the meeting.",
+      "example_tr": "Toplantıda düşündüğünü söylemekten korkma.",
+      "literal": "Aklını konuşmak",
+      "difficulty": 1
+    },
+    {
+      "id": "back_wall",
+      "category": "difficulty",
+      "idiom": "have your back against the wall",
+      "meaning": "Zor durumda kalmak, köşeye sıkışmak",
+      "example": "With no money left, he had his back against the wall.",
+      "example_tr": "Parası kalmayınca köşeye sıkıştı.",
+      "literal": "Sırtı duvara yaslanmış",
+      "difficulty": 2
+    },
+    {
+      "id": "add_insult",
+      "category": "negative",
+      "idiom": "add insult to injury",
+      "meaning": "Kötü bir durumu daha da kötüleştirmek",
+      "example": "To add insult to injury, it started raining.",
+      "example_tr": "İşin kötüsü, yağmur da yağmaya başladı.",
+      "literal": "Yaralanmaya hakaret eklemek",
+      "difficulty": 2
+    },
+    {
+      "id": "blessing_disguise",
+      "category": "positive",
+      "idiom": "a blessing in disguise",
+      "meaning": "Görünmeyen bir nimet, kılık değiştirmiş lütuf",
+      "example": "Losing that job was a blessing in disguise.",
+      "example_tr": "O işi kaybetmek aslında hayra gitti.",
+      "literal": "Kılık değiştirmiş bir lütuf",
+      "difficulty": 2
+    },
+    {
+      "id": "call_day",
+      "category": "work",
+      "idiom": "call it a day",
+      "meaning": "Bugünlük bitirmek, işi bırakmak",
+      "example": "I'm tired. Let's call it a day.",
+      "example_tr": "Yorgunum. Bugünlük bitirelim.",
+      "literal": "Buna gün demek",
+      "difficulty": 1
+    },
+    {
+      "id": "get_hang",
+      "category": "learning",
+      "idiom": "get the hang of something",
+      "meaning": "Bir şeyin alışmak, anlamak",
+      "example": "It took me a week to get the hang of the new system.",
+      "example_tr": "Yeni sisteme alışmam bir hafta sürdü.",
+      "literal": "Bir şeyin asıntısını almak",
+      "difficulty": 1
+    },
+    {
+      "id": "go_extra_mile",
+      "category": "effort",
+      "idiom": "go the extra mile",
+      "meaning": "Ekstra çaba göstermek",
+      "example": "She always goes the extra mile for her clients.",
+      "example_tr": "Müşterileri için her zaman ekstra çaba gösterir.",
+      "literal": "Ekstra mil gitmek",
+      "difficulty": 1
+    },
+    {
+      "id": "hang_there",
+      "category": "encouragement",
+      "idiom": "hang in there",
+      "meaning": "Dayanmak, pes etmemek",
+      "example": "Things are tough, but hang in there!",
+      "example_tr": "İşler zor ama dayanmaya devam et!",
+      "literal": "Orada asılı kal",
+      "difficulty": 1
+    },
+    {
+      "id": "last_straw",
+      "category": "limits",
+      "idiom": "the last straw",
+      "meaning": "Bardağı taşıran son damla",
+      "example": "His rudeness was the last straw. I quit.",
+      "example_tr": "Kabalığı bardağı taşıran son damla oldu. İstifa ettim.",
+      "literal": "Son saman çöpü",
+      "difficulty": 2
+    },
+    {
+      "id": "on_same_page",
+      "category": "agreement",
+      "idiom": "on the same page",
+      "meaning": "Aynı fikirde olmak, uyum içinde olmak",
+      "example": "Let's make sure we're all on the same page.",
+      "example_tr": "Hepimizin aynı fikirde olduğundan emin olalım.",
+      "literal": "Aynı sayfada olmak",
+      "difficulty": 1
+    },
+    {
+      "id": "whole_nine",
+      "category": "completeness",
+      "idiom": "the whole nine yards",
+      "meaning": "Her şey, tamamı",
+      "example": "They decorated the house - lights, tree, the whole nine yards.",
+      "example_tr": "Evi dekore ettiler - ışıklar, ağaç, her şey.",
+      "literal": "Tüm dokuz yarda",
+      "difficulty": 3
+    },
+    {
+      "id": "tip_iceberg",
+      "category": "beginning",
+      "idiom": "the tip of the iceberg",
+      "meaning": "Buzdağının görünen kısmı",
+      "example": "These problems are just the tip of the iceberg.",
+      "example_tr": "Bu sorunlar sadece buzdağının görünen kısmı.",
+      "literal": "Buzdağının ucu",
+      "difficulty": 2
+    },
+    {
+      "id": "when_pigs_fly",
+      "category": "impossible",
+      "idiom": "when pigs fly",
+      "meaning": "Asla, imkansız",
+      "example": "He'll clean his room when pigs fly.",
+      "example_tr": "O odasını ancak kıyamet kopunca temizler.",
+      "literal": "Domuzlar uçtuğunda",
+      "difficulty": 2
+    },
+    {
+      "id": "time_flies",
+      "category": "time",
+      "idiom": "time flies",
+      "meaning": "Zaman çabuk geçer",
+      "example": "I can't believe it's already December. Time flies!",
+      "example_tr": "Aralık ayı olduğuna inanamıyorum. Zaman ne çabuk geçiyor!",
+      "literal": "Zaman uçar",
+      "difficulty": 1
+    },
+    {
+      "id": "break_leg",
+      "category": "luck",
+      "idiom": "break a leg",
+      "meaning": "İyi şanslar! (tiyatro/performans öncesi)",
+      "example": "You have an interview? Break a leg!",
+      "example_tr": "Mülakatın mı var? İyi şanslar!",
+      "literal": "Bir bacak kır",
+      "difficulty": 1
+    },
+    {
+      "id": "raining_cats",
+      "category": "weather",
+      "idiom": "raining cats and dogs",
+      "meaning": "Bardaktan boşanırcasına yağmur yağmak",
+      "example": "We can't go out - it's raining cats and dogs.",
+      "example_tr": "Dışarı çıkamayız - şakır şakır yağmur yağıyor.",
+      "literal": "Kediler ve köpekler yağıyor",
+      "difficulty": 1
+    },
+    {
+      "id": "beat_around_bush",
+      "category": "communication",
+      "idiom": "beat around the bush",
+      "meaning": "Lafı dolandırmak, konuya girmemek",
+      "example": "Stop beating around the bush and tell me what happened.",
+      "example_tr": "Lafı dolandırmayı bırak ve ne olduğunu söyle.",
+      "literal": "Çalının etrafında dövmek",
+      "difficulty": 1
+    },
+    {
+      "id": "cold_feet",
+      "category": "fear",
+      "idiom": "get cold feet",
+      "meaning": "Son anda korkmak, çekinmek",
+      "example": "He got cold feet before the wedding.",
+      "example_tr": "Düğünden önce paniğe kapıldı.",
+      "literal": "Ayakları soğumak",
+      "difficulty": 1
+    },
+    {
+      "id": "hit_books",
+      "category": "study",
+      "idiom": "hit the books",
+      "meaning": "Ders çalışmaya başlamak",
+      "example": "I need to hit the books for my exam.",
+      "example_tr": "Sınavım için ders çalışmam gerekiyor.",
+      "literal": "Kitaplara vurmak",
+      "difficulty": 1
+    },
+    {
+      "id": "up_air",
+      "category": "uncertainty",
+      "idiom": "up in the air",
+      "meaning": "Belirsiz, kararsız durumda",
+      "example": "Our vacation plans are still up in the air.",
+      "example_tr": "Tatil planlarımız hâlâ belirsiz.",
+      "literal": "Havada",
+      "difficulty": 1
+    },
+    {
+      "id": "let_steam",
+      "category": "emotion",
+      "idiom": "let off steam",
+      "meaning": "Stres atmak, rahatlamak",
+      "example": "I go to the gym to let off steam.",
+      "example_tr": "Stres atmak için spor salonuna gidiyorum.",
+      "literal": "Buhar bırakmak",
+      "difficulty": 1
+    },
+    {
+      "id": "drop_hat",
+      "category": "speed",
+      "idiom": "at the drop of a hat",
+      "meaning": "Hiç düşünmeden, anında",
+      "example": "She'll help you at the drop of a hat.",
+      "example_tr": "Sana hiç düşünmeden yardım eder.",
+      "literal": "Şapka düşüşünde",
+      "difficulty": 2
+    },
+    {
+      "id": "actions_words",
+      "category": "behavior",
+      "idiom": "actions speak louder than words",
+      "meaning": "Eylemler sözlerden önemlidir",
+      "example": "Don't just promise - actions speak louder than words.",
+      "example_tr": "Sadece söz verme - eylemler sözlerden önemlidir.",
+      "literal": "Eylemler sözlerden daha yüksek sesle konuşur",
+      "difficulty": 1
+    },
+    {
+      "id": "blessing_disguise",
+      "category": "positive",
+      "idiom": "a blessing in disguise",
+      "meaning": "Gizli nimet, hayra vesile",
+      "example": "Losing that job was a blessing in disguise.",
+      "example_tr": "O işi kaybetmek hayra vesile oldu.",
+      "literal": "Kılık değiştirmiş bir nimet",
+      "difficulty": 2
+    },
+    {
+      "id": "back_wall",
+      "category": "difficulty",
+      "idiom": "back against the wall",
+      "meaning": "Köşeye sıkışmak, zor durumda kalmak",
+      "example": "With no money left, my back is against the wall.",
+      "example_tr": "Para kalmayınca köşeye sıkıştım.",
+      "literal": "Sırtı duvara dayalı",
+      "difficulty": 2
+    },
+    {
+      "id": "bark_bite",
+      "category": "threat",
+      "idiom": "bark is worse than bite",
+      "meaning": "Havlaması ısırmasından beter (göründüğü kadar tehlikeli değil)",
+      "example": "Don't worry about him, his bark is worse than his bite.",
+      "example_tr": "Onun için endişelenme, göründüğü kadar kötü değil.",
+      "literal": "Havlaması ısırmasından kötü",
+      "difficulty": 2
+    },
+    {
+      "id": "bent_shape",
+      "category": "upset",
+      "idiom": "bent out of shape",
+      "meaning": "Sinirli olmak, bozulmak",
+      "example": "Don't get so bent out of shape about it.",
+      "example_tr": "Bu konuda bu kadar sinirlenme.",
+      "literal": "Şeklinden sapmış",
+      "difficulty": 2
+    },
+    {
+      "id": "bite_off",
+      "category": "overcommit",
+      "idiom": "bite off more than you can chew",
+      "meaning": "Başa çıkamayacağın işe girişmek",
+      "example": "Taking three jobs at once? You've bitten off more than you can chew.",
+      "example_tr": "Aynı anda üç iş mi? Altından kalkamayacağın bir işe girmişsin.",
+      "literal": "Çiğneyebileceğinden fazla ısırmak",
+      "difficulty": 2
+    },
+    {
+      "id": "cut_corners",
+      "category": "shortcut",
+      "idiom": "cut corners",
+      "meaning": "İşi kestirmeden yapmak, kolay yolu seçmek",
+      "example": "Don't cut corners on safety.",
+      "example_tr": "Güvenlik konusunda kısa yol arama.",
+      "literal": "Köşeleri kesmek",
+      "difficulty": 1
+    },
+    {
+      "id": "cross_bridge",
+      "category": "planning",
+      "idiom": "cross that bridge when you come to it",
+      "meaning": "O zaman düşünürüz, vakti gelince",
+      "example": "Let's cross that bridge when we come to it.",
+      "example_tr": "O zamana kadar düşünürüz.",
+      "literal": "O köprüye gelince geçeriz",
+      "difficulty": 2
+    },
+    {
+      "id": "easy_abc",
+      "category": "easy",
+      "idiom": "as easy as ABC",
+      "meaning": "Çocuk oyuncağı kadar kolay",
+      "example": "Don't worry, the test is as easy as ABC.",
+      "example_tr": "Merak etme, test çocuk oyuncağı.",
+      "literal": "ABC kadar kolay",
+      "difficulty": 1
+    },
+    {
+      "id": "feeling_blue",
+      "category": "emotion",
+      "idiom": "feeling blue",
+      "meaning": "Üzgün hissetmek, moralı bozuk olmak",
+      "example": "I've been feeling blue since she left.",
+      "example_tr": "O gideli beri moralim bozuk.",
+      "literal": "Mavi hissetmek",
+      "difficulty": 1
+    },
+    {
+      "id": "get_act",
+      "category": "improvement",
+      "idiom": "get your act together",
+      "meaning": "Kendini toparlamak, düzene girmek",
+      "example": "You need to get your act together before the meeting.",
+      "example_tr": "Toplantıdan önce kendini toparlamalısın.",
+      "literal": "Gösterini topla",
+      "difficulty": 1
+    },
+    {
+      "id": "hit_road",
+      "category": "departure",
+      "idiom": "hit the road",
+      "meaning": "Yola çıkmak, gitmek",
+      "example": "It's getting late, let's hit the road.",
+      "example_tr": "Geç oluyor, yola çıkalım.",
+      "literal": "Yola vurmak",
+      "difficulty": 1
+    },
+    {
+      "id": "in_boat",
+      "category": "situation",
+      "idiom": "in the same boat",
+      "meaning": "Aynı durumda olmak",
+      "example": "We're all in the same boat with this project.",
+      "example_tr": "Bu projede hepimiz aynı durumdayız.",
+      "literal": "Aynı teknede",
+      "difficulty": 1
+    },
+    {
+      "id": "keep_eye",
+      "category": "attention",
+      "idiom": "keep an eye on",
+      "meaning": "Göz kulak olmak, izlemek",
+      "example": "Could you keep an eye on my bag?",
+      "example_tr": "Çantama göz kulak olur musun?",
+      "literal": "Üzerinde göz tutmak",
+      "difficulty": 1
+    },
+    {
+      "id": "make_ends",
+      "category": "money",
+      "idiom": "make ends meet",
+      "meaning": "İdare etmek, geçinmek",
+      "example": "It's hard to make ends meet with this salary.",
+      "example_tr": "Bu maaşla geçinmek zor.",
+      "literal": "Uçları buluşturmak",
+      "difficulty": 2
+    },
+    {
+      "id": "no_brainer",
+      "category": "decision",
+      "idiom": "no-brainer",
+      "meaning": "Çok kolay karar, düşünmeye gerek yok",
+      "example": "Accepting that job offer was a no-brainer.",
+      "example_tr": "O iş teklifini kabul etmek çok kolay bir karardı.",
+      "literal": "Beyinsiz",
+      "difficulty": 1
+    },
+    {
+      "id": "over_moon",
+      "category": "happiness",
+      "idiom": "over the moon",
+      "meaning": "Çok mutlu olmak, sevinçten uçmak",
+      "example": "She was over the moon when she got the job.",
+      "example_tr": "İşi aldığında sevinçten uçuyordu.",
+      "literal": "Ayın üstünde",
+      "difficulty": 1
+    },
+    {
+      "id": "play_ear",
+      "category": "planning",
+      "idiom": "play it by ear",
+      "meaning": "Duruma göre hareket etmek, plansız gitmek",
+      "example": "I don't have a plan, I'll just play it by ear.",
+      "example_tr": "Planım yok, duruma göre hareket ederim.",
+      "literal": "Kulaktan çalmak",
+      "difficulty": 2
+    },
+    {
+      "id": "pull_leg",
+      "category": "joke",
+      "idiom": "pull someone's leg",
+      "meaning": "Birini kandırmak, şaka yapmak",
+      "example": "Are you serious or just pulling my leg?",
+      "example_tr": "Ciddi misin yoksa dalga mı geçiyorsun?",
+      "literal": "Bacağını çekmek",
+      "difficulty": 1
+    },
+    {
+      "id": "rain_check",
+      "category": "postpone",
+      "idiom": "take a rain check",
+      "meaning": "Ertelemek, başka zaman yapmak",
+      "example": "Can I take a rain check on dinner?",
+      "example_tr": "Akşam yemeğini erteleyebilir miyiz?",
+      "literal": "Yağmur çeki almak",
+      "difficulty": 2
+    },
+    {
+      "id": "see_eye",
+      "category": "agreement",
+      "idiom": "see eye to eye",
+      "meaning": "Aynı fikirde olmak, uyuşmak",
+      "example": "We don't always see eye to eye on politics.",
+      "example_tr": "Politika konusunda her zaman aynı fikirde değiliz.",
+      "literal": "Göz göze görmek",
+      "difficulty": 1
+    },
+    {
+      "id": "steal_thunder",
+      "category": "attention",
+      "idiom": "steal someone's thunder",
+      "meaning": "Birinin şovunu çalmak, gölgede bırakmak",
+      "example": "She stole my thunder by announcing the news first.",
+      "example_tr": "Haberi önce o açıklayarak şovumu çaldı.",
+      "literal": "Gök gürültüsünü çalmak",
+      "difficulty": 2
+    },
+    {
+      "id": "throw_towel",
+      "category": "giving up",
+      "idiom": "throw in the towel",
+      "meaning": "Pes etmek, havlu atmak",
+      "example": "After three failed attempts, he threw in the towel.",
+      "example_tr": "Üç başarısız denemeden sonra pes etti.",
+      "literal": "Havluyu içeri atmak",
+      "difficulty": 1
+    }
+  ],
+  "categories": {
+    "social": "Sosyal",
+    "easy": "Kolaylık",
+    "money": "Para",
+    "accuracy": "İsabetlilik",
+    "health": "Sağlık",
+    "courage": "Cesaret",
+    "time": "Zaman",
+    "secrets": "Sırlar",
+    "responsibility": "Sorumluluk",
+    "decision": "Karar",
+    "work": "İş",
+    "efficiency": "Verimlilik",
+    "advantage": "Avantaj",
+    "communication": "İletişim",
+    "difficulty": "Zorluk",
+    "negative": "Olumsuz",
+    "positive": "Olumlu",
+    "learning": "Öğrenme",
+    "effort": "Çaba",
+    "encouragement": "Teşvik",
+    "limits": "Limitler",
+    "agreement": "Anlaşma",
+    "completeness": "Bütünlük",
+    "beginning": "Başlangıç",
+    "impossible": "İmkansız",
+    "luck": "Şans",
+    "weather": "Hava"
+  }
+}

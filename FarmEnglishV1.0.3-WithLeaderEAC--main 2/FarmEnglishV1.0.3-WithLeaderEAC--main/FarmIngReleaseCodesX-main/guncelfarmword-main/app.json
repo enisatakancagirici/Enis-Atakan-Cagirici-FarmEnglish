@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "FarmEnglish",
+    "slug": "farming",
+    "version": "1.0.2",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash_screen.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.machinexus.farming.ios",
+      "buildNumber": "4",
+      "deploymentTarget": "17.0",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#0f172a"
+      },
+      "package": "com.machinexus.farming",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/logo.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-audio"
+    ],
+    "scheme": "farming",
+    "extra": {
+      "eas": {
+        "projectId": "51c8f165-c3f6-4a80-ae98-68ed1ef04f46"
+      }
+    }
+  }
+}

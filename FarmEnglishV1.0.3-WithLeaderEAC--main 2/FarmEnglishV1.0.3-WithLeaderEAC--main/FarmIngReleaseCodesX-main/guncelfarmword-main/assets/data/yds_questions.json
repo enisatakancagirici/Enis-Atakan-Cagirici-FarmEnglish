@@ -1,0 +1,1613 @@
+{
+  "meta": {
+    "exam": "YDS",
+    "language": "English",
+    "license": "royalty-free / original content",
+    "levels": ["B2", "C1"],
+    "question_type": "fill_in_the_blank",
+    "total_questions": 200,
+    "categories": ["academic_verbs", "connectors", "fixed_expressions", "prepositions", "relative_clauses", "conditionals", "modals", "cause_effect", "comparison"]
+  },
+  "questions": [
+    {
+      "id": 1,
+      "level": "B2",
+      "question": "The rapid spread of digital technologies has significantly ________ the way people access information.",
+      "options": ["transformed", "delayed", "restricted", "isolated", "ignored"],
+      "answer": "transformed",
+      "explanation": "'Transform' fiili, sistemlerde veya süreçlerdeki köklü değişimi ifade eden akademik bir fiildir."
+    },
+    {
+      "id": 2,
+      "level": "B2",
+      "question": "Many economists argue that inflation can be controlled only if effective fiscal policies are ________.",
+      "options": ["implemented", "eliminated", "transferred", "predicted", "abandoned"],
+      "answer": "implemented",
+      "explanation": "Politikalar uygulamaya konulduğunda 'implemented' fiili kullanılır; diğer seçenekler bu bağlama uymaz."
+    },
+    {
+      "id": 3,
+      "level": "B2",
+      "question": "The theory was initially criticized; ________, it later gained widespread acceptance.",
+      "options": ["however", "because", "unless", "despite", "otherwise"],
+      "answer": "however",
+      "explanation": "'However' bağlacı, ilk eleştiri ile sonraki kabul arasındaki zıtlığı doğru şekilde ifade eder."
+    },
+    {
+      "id": 4,
+      "level": "B2",
+      "question": "Scientific research plays a crucial role ________ shaping public policy decisions.",
+      "options": ["in", "on", "at", "for", "by"],
+      "answer": "in",
+      "explanation": "'Play a role in' sabit ifadesi 'in' edatını gerektirir."
+    },
+    {
+      "id": 5,
+      "level": "B2",
+      "question": "The decline in biodiversity may result ________ irreversible environmental damage.",
+      "options": ["in", "on", "to", "with", "by"],
+      "answer": "in",
+      "explanation": "'Result in' akademik bir kalıptır ve 'yol açmak' anlamına gelir."
+    },
+    {
+      "id": 6,
+      "level": "B2",
+      "question": "Environmental pollution has been ________ as one of the major threats to public health.",
+      "options": ["identified", "reserved", "abandoned", "confused", "neglected"],
+      "answer": "identified",
+      "explanation": "'Identify' fiili, bir şeyi tespit etmek veya tanımlamak anlamında akademik metinlerde sıkça kullanılır."
+    },
+    {
+      "id": 7,
+      "level": "B2",
+      "question": "The government has ________ new regulations to reduce carbon emissions.",
+      "options": ["introduced", "removed", "forgotten", "ignored", "delayed"],
+      "answer": "introduced",
+      "explanation": "'Introduce regulations' yeni düzenlemeleri yürürlüğe koymak anlamındaki standart akademik kullanımdır."
+    },
+    {
+      "id": 8,
+      "level": "B2",
+      "question": "The study ________ that regular exercise improves mental health.",
+      "options": ["suggests", "denies", "rejects", "forgets", "abandons"],
+      "answer": "suggests",
+      "explanation": "'Suggest' fiili, araştırma bulgularını ifade ederken kesinlik içermeyen bir öneri sunar."
+    },
+    {
+      "id": 9,
+      "level": "B2",
+      "question": "Climate change is expected to have a significant ________ on agricultural productivity.",
+      "options": ["impact", "relief", "comfort", "pleasure", "benefit"],
+      "answer": "impact",
+      "explanation": "'Have an impact on' sabit ifadesi 'etki yapmak' anlamında kullanılır."
+    },
+    {
+      "id": 10,
+      "level": "B2",
+      "question": "The researchers ________ data from over 5,000 participants.",
+      "options": ["collected", "rejected", "ignored", "abandoned", "forgot"],
+      "answer": "collected",
+      "explanation": "'Collect data' veri toplamak anlamındaki standart akademik ifadedir."
+    },
+    {
+      "id": 11,
+      "level": "B2",
+      "question": "The findings of this study are ________ with previous research in the field.",
+      "options": ["consistent", "familiar", "popular", "comfortable", "friendly"],
+      "answer": "consistent",
+      "explanation": "'Be consistent with' tutarlı olmak anlamındaki akademik sabit ifadedir."
+    },
+    {
+      "id": 12,
+      "level": "B2",
+      "question": "________ the economic crisis, many companies managed to survive.",
+      "options": ["Despite", "Because", "Unless", "Although", "Since"],
+      "answer": "Despite",
+      "explanation": "'Despite' edatı, olumsuz bir duruma rağmen beklenmedik bir sonucu ifade eder."
+    },
+    {
+      "id": 13,
+      "level": "B2",
+      "question": "The new policy aims to ________ unemployment rates in rural areas.",
+      "options": ["reduce", "increase", "ignore", "promote", "encourage"],
+      "answer": "reduce",
+      "explanation": "'Reduce' fiili, azaltmak anlamında politika hedeflerini ifade ederken kullanılır."
+    },
+    {
+      "id": 14,
+      "level": "B2",
+      "question": "Education is widely ________ as a key factor in economic development.",
+      "options": ["regarded", "forgotten", "ignored", "abandoned", "rejected"],
+      "answer": "regarded",
+      "explanation": "'Be regarded as' olarak kabul edilmek anlamındaki akademik pasif yapıdır."
+    },
+    {
+      "id": 15,
+      "level": "B2",
+      "question": "The author ________ that modern technology has both advantages and disadvantages.",
+      "options": ["argues", "forgets", "ignores", "denies", "rejects"],
+      "answer": "argues",
+      "explanation": "'Argue' fiili, bir görüşü savunmak veya ileri sürmek anlamında akademik yazımda kullanılır."
+    },
+    {
+      "id": 16,
+      "level": "B2",
+      "question": "The experiment was ________ under controlled laboratory conditions.",
+      "options": ["conducted", "abandoned", "forgotten", "ignored", "rejected"],
+      "answer": "conducted",
+      "explanation": "'Conduct an experiment' deney yapmak anlamındaki standart akademik ifadedir."
+    },
+    {
+      "id": 17,
+      "level": "B2",
+      "question": "There is growing ________ about the effects of social media on young people.",
+      "options": ["concern", "happiness", "pleasure", "comfort", "relief"],
+      "answer": "concern",
+      "explanation": "'Growing concern' artan endişe anlamında sıkça kullanılan akademik ifadedir."
+    },
+    {
+      "id": 18,
+      "level": "B2",
+      "question": "The report ________ several important recommendations for policymakers.",
+      "options": ["provides", "hides", "ignores", "forgets", "abandons"],
+      "answer": "provides",
+      "explanation": "'Provide recommendations' önerilerde bulunmak anlamındaki akademik kalıptır."
+    },
+    {
+      "id": 19,
+      "level": "B2",
+      "question": "Urban areas are more ________ to air pollution than rural regions.",
+      "options": ["susceptible", "immune", "resistant", "opposed", "allergic"],
+      "answer": "susceptible",
+      "explanation": "'Susceptible to' -e karşı hassas olmak anlamındaki akademik edat yapısıdır."
+    },
+    {
+      "id": 20,
+      "level": "B2",
+      "question": "The success of the project ________ on effective teamwork.",
+      "options": ["depends", "insists", "focuses", "relies", "counts"],
+      "answer": "depends",
+      "explanation": "'Depend on' -e bağlı olmak anlamındaki yaygın akademik fiil + edat yapısıdır."
+    },
+    {
+      "id": 21,
+      "level": "B2",
+      "question": "The company has ________ significant progress in reducing its carbon footprint.",
+      "options": ["made", "done", "taken", "given", "brought"],
+      "answer": "made",
+      "explanation": "'Make progress' ilerleme kaydetmek anlamındaki sabit fiil + isim birleşimidir."
+    },
+    {
+      "id": 22,
+      "level": "B2",
+      "question": "The research ________ light on the causes of the disease.",
+      "options": ["sheds", "puts", "gives", "takes", "brings"],
+      "answer": "sheds",
+      "explanation": "'Shed light on' bir konuyu aydınlatmak anlamındaki akademik deyimdir."
+    },
+    {
+      "id": 23,
+      "level": "B2",
+      "question": "Global warming poses a serious ________ to biodiversity.",
+      "options": ["threat", "gift", "benefit", "advantage", "favor"],
+      "answer": "threat",
+      "explanation": "'Pose a threat to' tehdit oluşturmak anlamındaki akademik sabit ifadedir."
+    },
+    {
+      "id": 24,
+      "level": "B2",
+      "question": "The study ________ important implications for future research.",
+      "options": ["has", "makes", "does", "gives", "takes"],
+      "answer": "has",
+      "explanation": "'Have implications for' sonuçları/etkileri olmak anlamındaki akademik kalıptır."
+    },
+    {
+      "id": 25,
+      "level": "B2",
+      "question": "________ to popular belief, not all fats are harmful to health.",
+      "options": ["Contrary", "According", "Due", "Similar", "Related"],
+      "answer": "Contrary",
+      "explanation": "'Contrary to' -in aksine anlamındaki zıtlık ifade eden akademik yapıdır."
+    },
+    {
+      "id": 26,
+      "level": "B2",
+      "question": "The medication should be taken ________ accordance with the doctor's instructions.",
+      "options": ["in", "on", "at", "by", "with"],
+      "answer": "in",
+      "explanation": "'In accordance with' uygun olarak anlamındaki resmi/akademik sabit ifadedir."
+    },
+    {
+      "id": 27,
+      "level": "B2",
+      "question": "The findings of this study ________ those of earlier research.",
+      "options": ["support", "reject", "ignore", "forget", "abandon"],
+      "answer": "support",
+      "explanation": "'Support findings' bulguları desteklemek anlamında akademik yazımda kullanılır."
+    },
+    {
+      "id": 28,
+      "level": "B2",
+      "question": "The government must ________ action to address the housing crisis.",
+      "options": ["take", "make", "do", "give", "bring"],
+      "answer": "take",
+      "explanation": "'Take action' harekete geçmek/önlem almak anlamındaki sabit ifadedir."
+    },
+    {
+      "id": 29,
+      "level": "B2",
+      "question": "Renewable energy sources are ________ more cost-effective than fossil fuels.",
+      "options": ["becoming", "staying", "remaining", "keeping", "holding"],
+      "answer": "becoming",
+      "explanation": "'Become' fiili, değişim sürecini ifade eden akademik bağlamlarda kullanılır."
+    },
+    {
+      "id": 30,
+      "level": "B2",
+      "question": "The data ________ that there is a strong correlation between education and income.",
+      "options": ["indicates", "hides", "ignores", "rejects", "forgets"],
+      "answer": "indicates",
+      "explanation": "'Indicate' fiili, verilerin bir sonucu gösterdiğini ifade eden akademik fiildir."
+    },
+    {
+      "id": 31,
+      "level": "B2",
+      "question": "________ terms of efficiency, the new system is far superior to the old one.",
+      "options": ["In", "On", "At", "By", "For"],
+      "answer": "In",
+      "explanation": "'In terms of' açısından/bakımından anlamındaki akademik sabit ifadedir."
+    },
+    {
+      "id": 32,
+      "level": "B2",
+      "question": "The committee will ________ a decision by the end of the month.",
+      "options": ["reach", "touch", "hit", "find", "catch"],
+      "answer": "reach",
+      "explanation": "'Reach a decision' bir karara varmak anlamındaki resmi/akademik ifadedir."
+    },
+    {
+      "id": 33,
+      "level": "B2",
+      "question": "Many species are at ________ of extinction due to habitat destruction.",
+      "options": ["risk", "chance", "hope", "point", "edge"],
+      "answer": "risk",
+      "explanation": "'At risk of' riski altında anlamındaki akademik sabit yapıdır."
+    },
+    {
+      "id": 34,
+      "level": "B2",
+      "question": "The study was ________ out over a period of five years.",
+      "options": ["carried", "brought", "taken", "put", "given"],
+      "answer": "carried",
+      "explanation": "'Carry out' yürütmek/gerçekleştirmek anlamındaki akademik phrasal verb'dür."
+    },
+    {
+      "id": 35,
+      "level": "B2",
+      "question": "The professor ________ emphasis on the importance of critical thinking.",
+      "options": ["placed", "made", "did", "gave", "took"],
+      "answer": "placed",
+      "explanation": "'Place emphasis on' vurgulamak/önem vermek anlamındaki akademik sabit ifadedir."
+    },
+    {
+      "id": 36,
+      "level": "B2",
+      "question": "The new law will come ________ effect next January.",
+      "options": ["into", "in", "to", "at", "on"],
+      "answer": "into",
+      "explanation": "'Come into effect' yürürlüğe girmek anlamındaki resmi/hukuki sabit ifadedir."
+    },
+    {
+      "id": 37,
+      "level": "B2",
+      "question": "The conference ________ place in Geneva last month.",
+      "options": ["took", "made", "had", "did", "gave"],
+      "answer": "took",
+      "explanation": "'Take place' gerçekleşmek/yapılmak anlamındaki yaygın akademik ifadedir."
+    },
+    {
+      "id": 38,
+      "level": "B2",
+      "question": "________ addition to financial support, the organization provides training programs.",
+      "options": ["In", "On", "At", "By", "For"],
+      "answer": "In",
+      "explanation": "'In addition to' -e ek olarak anlamındaki akademik bağlaç yapısıdır."
+    },
+    {
+      "id": 39,
+      "level": "B2",
+      "question": "The results of the experiment ________ our initial hypothesis.",
+      "options": ["confirmed", "rejected", "ignored", "forgot", "abandoned"],
+      "answer": "confirmed",
+      "explanation": "'Confirm' fiili, bir hipotezi doğrulamak anlamında bilimsel yazımda kullanılır."
+    },
+    {
+      "id": 40,
+      "level": "B2",
+      "question": "The new technology has the ________ to revolutionize the healthcare industry.",
+      "options": ["potential", "duty", "obligation", "requirement", "necessity"],
+      "answer": "potential",
+      "explanation": "'Have the potential to' potansiyele sahip olmak anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 41,
+      "level": "B2",
+      "question": "________  the fact that he lacked experience, he was given the job.",
+      "options": ["Despite", "Because", "Since", "Although", "Unless"],
+      "answer": "Despite",
+      "explanation": "'Despite the fact that' -e rağmen anlamında zıtlık bildiren edattır."
+    },
+    {
+      "id": 42,
+      "level": "B2",
+      "question": "The study ________ to examine the effects of social media on teenagers.",
+      "options": ["aims", "hopes", "wishes", "wants", "expects"],
+      "answer": "aims",
+      "explanation": "'Aim to' hedeflemek anlamındaki akademik araştırma amaçlarını ifade eden fiildir."
+    },
+    {
+      "id": 43,
+      "level": "B2",
+      "question": "Access to clean water is ________ for human survival.",
+      "options": ["essential", "optional", "unnecessary", "irrelevant", "unimportant"],
+      "answer": "essential",
+      "explanation": "'Essential for' için gerekli/zorunlu anlamındaki akademik sıfat + edat yapısıdır."
+    },
+    {
+      "id": 44,
+      "level": "B2",
+      "question": "The company is ________ of developing innovative products.",
+      "options": ["capable", "able", "possible", "probable", "likely"],
+      "answer": "capable",
+      "explanation": "'Capable of' yapabilecek durumda olmak anlamındaki akademik sıfat + edat yapısıdır."
+    },
+    {
+      "id": 45,
+      "level": "B2",
+      "question": "The main ________ of this research is to identify risk factors for heart disease.",
+      "options": ["objective", "opinion", "feeling", "emotion", "reaction"],
+      "answer": "objective",
+      "explanation": "'Objective' araştırmanın amacını ifade eden akademik terimdir."
+    },
+    {
+      "id": 46,
+      "level": "B2",
+      "question": "The report ________ attention to the growing problem of water scarcity.",
+      "options": ["draws", "takes", "makes", "gives", "puts"],
+      "answer": "draws",
+      "explanation": "'Draw attention to' dikkat çekmek anlamındaki akademik sabit ifadedir."
+    },
+    {
+      "id": 47,
+      "level": "B2",
+      "question": "The economy has shown signs of ________ after the recession.",
+      "options": ["recovery", "decline", "failure", "collapse", "destruction"],
+      "answer": "recovery",
+      "explanation": "'Recovery' toparlanma/iyileşme anlamındaki ekonomik terimdir."
+    },
+    {
+      "id": 48,
+      "level": "B2",
+      "question": "The participants were ________ into two groups for the experiment.",
+      "options": ["divided", "united", "combined", "merged", "joined"],
+      "answer": "divided",
+      "explanation": "'Divide into' -e bölmek anlamındaki deney metodolojisi ifadesidir."
+    },
+    {
+      "id": 49,
+      "level": "B2",
+      "question": "The new policy is ________ at reducing income inequality.",
+      "options": ["aimed", "pointed", "directed", "focused", "targeted"],
+      "answer": "aimed",
+      "explanation": "'Be aimed at' -i hedeflemek anlamındaki pasif akademik yapıdır."
+    },
+    {
+      "id": 50,
+      "level": "B2",
+      "question": "________ to recent studies, exercise can improve cognitive function.",
+      "options": ["According", "Due", "Thanks", "Related", "Similar"],
+      "answer": "According",
+      "explanation": "'According to' -e göre anlamındaki kaynak belirten akademik ifadedir."
+    },
+    {
+      "id": 51,
+      "level": "B2",
+      "question": "The government should ________ measures to combat climate change.",
+      "options": ["adopt", "reject", "ignore", "abandon", "forget"],
+      "answer": "adopt",
+      "explanation": "'Adopt measures' önlemler almak anlamındaki resmi/akademik ifadedir."
+    },
+    {
+      "id": 52,
+      "level": "B2",
+      "question": "There has been a significant ________ in the number of students pursuing higher education.",
+      "options": ["increase", "decrease", "decline", "reduction", "drop"],
+      "answer": "increase",
+      "explanation": "'Increase' artış anlamında istatistiksel verileri ifade ederken kullanılır."
+    },
+    {
+      "id": 53,
+      "level": "B2",
+      "question": "The article ________ the issue of gender inequality in the workplace.",
+      "options": ["addresses", "ignores", "forgets", "abandons", "rejects"],
+      "answer": "addresses",
+      "explanation": "'Address an issue' bir konuyu ele almak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 54,
+      "level": "B2",
+      "question": "The company has ________ a new marketing strategy.",
+      "options": ["developed", "destroyed", "abandoned", "forgotten", "ignored"],
+      "answer": "developed",
+      "explanation": "'Develop a strategy' strateji geliştirmek anlamındaki iş/akademik ifadedir."
+    },
+    {
+      "id": 55,
+      "level": "B2",
+      "question": "The study ________ a number of limitations that should be considered.",
+      "options": ["acknowledges", "hides", "ignores", "forgets", "denies"],
+      "answer": "acknowledges",
+      "explanation": "'Acknowledge limitations' sınırlılıkları kabul etmek anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 56,
+      "level": "B2",
+      "question": "________ a result of urbanization, many natural habitats have been destroyed.",
+      "options": ["As", "By", "In", "On", "At"],
+      "answer": "As",
+      "explanation": "'As a result of' sonucu olarak anlamındaki neden-sonuç bağlacıdır."
+    },
+    {
+      "id": 57,
+      "level": "B2",
+      "question": "The theory has been widely ________ by scholars in the field.",
+      "options": ["accepted", "rejected", "ignored", "forgotten", "abandoned"],
+      "answer": "accepted",
+      "explanation": "'Widely accepted' geniş çapta kabul görmüş anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 58,
+      "level": "B2",
+      "question": "The report ________ a comprehensive analysis of the current situation.",
+      "options": ["offers", "hides", "ignores", "forgets", "rejects"],
+      "answer": "offers",
+      "explanation": "'Offer an analysis' analiz sunmak anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 59,
+      "level": "B2",
+      "question": "The new regulations are ________ to protect consumer rights.",
+      "options": ["designed", "failed", "forgotten", "ignored", "abandoned"],
+      "answer": "designed",
+      "explanation": "'Be designed to' -mek için tasarlanmak anlamındaki akademik pasif yapıdır."
+    },
+    {
+      "id": 60,
+      "level": "B2",
+      "question": "________ regard to environmental issues, the government has implemented new policies.",
+      "options": ["With", "In", "On", "At", "By"],
+      "answer": "With",
+      "explanation": "'With regard to' ile ilgili olarak anlamındaki resmi/akademik ifadedir."
+    },
+    {
+      "id": 61,
+      "level": "C1",
+      "question": "The phenomenon can be ________ to a combination of social and economic factors.",
+      "options": ["attributed", "dedicated", "devoted", "committed", "assigned"],
+      "answer": "attributed",
+      "explanation": "'Be attributed to' -e atfedilmek anlamındaki akademik pasif yapıdır."
+    },
+    {
+      "id": 62,
+      "level": "C1",
+      "question": "The study ________ the hypothesis that early intervention leads to better outcomes.",
+      "options": ["corroborates", "contradicts", "confuses", "complicates", "conceals"],
+      "answer": "corroborates",
+      "explanation": "'Corroborate' doğrulamak/teyit etmek anlamındaki ileri düzey akademik fiildir."
+    },
+    {
+      "id": 63,
+      "level": "C1",
+      "question": "________ the increasing demand for renewable energy, fossil fuel consumption remains high.",
+      "options": ["Notwithstanding", "Because", "Since", "Unless", "Although"],
+      "answer": "Notwithstanding",
+      "explanation": "'Notwithstanding' -e rağmen anlamındaki resmi/akademik zıtlık edatıdır."
+    },
+    {
+      "id": 64,
+      "level": "C1",
+      "question": "The economic crisis ________ far-reaching consequences for developing countries.",
+      "options": ["entailed", "avoided", "prevented", "ignored", "rejected"],
+      "answer": "entailed",
+      "explanation": "'Entail' gerektirmek/içermek anlamındaki ileri düzey akademik fiildir."
+    },
+    {
+      "id": 65,
+      "level": "C1",
+      "question": "The government's decision to cut funding has ________ widespread criticism.",
+      "options": ["elicited", "prevented", "avoided", "ignored", "rejected"],
+      "answer": "elicited",
+      "explanation": "'Elicit' ortaya çıkarmak/uyandırmak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 66,
+      "level": "C1",
+      "question": "The author ________ that traditional teaching methods are no longer effective.",
+      "options": ["contends", "agrees", "accepts", "admits", "allows"],
+      "answer": "contends",
+      "explanation": "'Contend' iddia etmek/ileri sürmek anlamındaki akademik tartışma fiilidir."
+    },
+    {
+      "id": 67,
+      "level": "C1",
+      "question": "________ virtue of its strategic location, the city became a major trading hub.",
+      "options": ["By", "In", "On", "At", "For"],
+      "answer": "By",
+      "explanation": "'By virtue of' sayesinde/nedeniyle anlamındaki resmi akademik ifadedir."
+    },
+    {
+      "id": 68,
+      "level": "C1",
+      "question": "The new evidence ________ the validity of the previous findings.",
+      "options": ["undermines", "supports", "confirms", "validates", "reinforces"],
+      "answer": "undermines",
+      "explanation": "'Undermine' zayıflatmak/baltalamak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 69,
+      "level": "C1",
+      "question": "The study ________ significant differences between the two groups.",
+      "options": ["reveals", "conceals", "hides", "ignores", "forgets"],
+      "answer": "reveals",
+      "explanation": "'Reveal' ortaya koymak/açığa çıkarmak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 70,
+      "level": "C1",
+      "question": "The new policy is ________ to failure if not properly implemented.",
+      "options": ["doomed", "destined", "meant", "supposed", "intended"],
+      "answer": "doomed",
+      "explanation": "'Be doomed to' başarısızlığa mahkum olmak anlamındaki olumsuz akademik ifadedir."
+    },
+    {
+      "id": 71,
+      "level": "C1",
+      "question": "The research ________ new insights into the mechanisms of learning.",
+      "options": ["yields", "hides", "conceals", "ignores", "rejects"],
+      "answer": "yields",
+      "explanation": "'Yield' vermek/sağlamak anlamındaki akademik sonuç fiilidir."
+    },
+    {
+      "id": 72,
+      "level": "C1",
+      "question": "The professor ________ the complex theory in simple terms.",
+      "options": ["elucidated", "complicated", "confused", "obscured", "muddled"],
+      "answer": "elucidated",
+      "explanation": "'Elucidate' açıklamak/aydınlatmak anlamındaki ileri düzey akademik fiildir."
+    },
+    {
+      "id": 73,
+      "level": "C1",
+      "question": "________ it not been for government intervention, the company would have collapsed.",
+      "options": ["Had", "Were", "Should", "Would", "Could"],
+      "answer": "Had",
+      "explanation": "'Had it not been for' olmasaydı anlamındaki üçüncü tip koşul cümlesi yapısıdır."
+    },
+    {
+      "id": 74,
+      "level": "C1",
+      "question": "The findings of the study are ________ with those of previous research.",
+      "options": ["congruent", "contrary", "opposite", "different", "unrelated"],
+      "answer": "congruent",
+      "explanation": "'Congruent with' uyumlu/tutarlı anlamındaki ileri düzey akademik sıfattır."
+    },
+    {
+      "id": 75,
+      "level": "C1",
+      "question": "The company has ________ itself as a leader in sustainable technology.",
+      "options": ["established", "destroyed", "ruined", "forgotten", "ignored"],
+      "answer": "established",
+      "explanation": "'Establish oneself as' kendini ... olarak konumlandırmak anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 76,
+      "level": "C1",
+      "question": "The economic reforms ________ significant changes in the labor market.",
+      "options": ["precipitated", "prevented", "delayed", "postponed", "avoided"],
+      "answer": "precipitated",
+      "explanation": "'Precipitate' tetiklemek/hızlandırmak anlamındaki ileri düzey akademik fiildir."
+    },
+    {
+      "id": 77,
+      "level": "C1",
+      "question": "The new regulations aim to ________ environmental damage caused by industrial activities.",
+      "options": ["mitigate", "exacerbate", "increase", "worsen", "intensify"],
+      "answer": "mitigate",
+      "explanation": "'Mitigate' hafifletmek/azaltmak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 78,
+      "level": "C1",
+      "question": "Social inequality ________ health disparities among different population groups.",
+      "options": ["exacerbates", "reduces", "eliminates", "prevents", "avoids"],
+      "answer": "exacerbates",
+      "explanation": "'Exacerbate' kötüleştirmek/şiddetlendirmek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 79,
+      "level": "C1",
+      "question": "The theory ________ that human behavior is shaped by both genetic and environmental factors.",
+      "options": ["postulates", "denies", "rejects", "ignores", "forgets"],
+      "answer": "postulates",
+      "explanation": "'Postulate' varsaymak/öne sürmek anlamındaki akademik hipotez fiilidir."
+    },
+    {
+      "id": 80,
+      "level": "C1",
+      "question": "________ we receive additional funding, we will not be able to complete the project.",
+      "options": ["Unless", "If", "When", "Although", "Despite"],
+      "answer": "Unless",
+      "explanation": "'Unless' -medikçe/-mazsa anlamındaki olumsuz koşul bağlacıdır."
+    },
+    {
+      "id": 81,
+      "level": "C1",
+      "question": "The report ________ the boundaries of the protected area.",
+      "options": ["delineates", "confuses", "blurs", "obscures", "hides"],
+      "answer": "delineates",
+      "explanation": "'Delineate' tanımlamak/sınırlarını çizmek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 82,
+      "level": "C1",
+      "question": "The study ________ a wide range of topics related to public health.",
+      "options": ["encompasses", "excludes", "ignores", "rejects", "avoids"],
+      "answer": "encompasses",
+      "explanation": "'Encompass' kapsamak/içermek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 83,
+      "level": "C1",
+      "question": "________ the government were to increase taxes, it would face strong public opposition.",
+      "options": ["Were", "Had", "Should", "Would", "Could"],
+      "answer": "Were",
+      "explanation": "'Were ... to' olsaydı anlamındaki ikinci tip koşul cümlesi devrik yapısıdır."
+    },
+    {
+      "id": 84,
+      "level": "C1",
+      "question": "The widespread use of pesticides is ________ to public health.",
+      "options": ["detrimental", "beneficial", "helpful", "useful", "advantageous"],
+      "answer": "detrimental",
+      "explanation": "'Detrimental to' zararlı anlamındaki akademik sıfat + edat yapısıdır."
+    },
+    {
+      "id": 85,
+      "level": "C1",
+      "question": "The researcher ________ the importance of replicating the study.",
+      "options": ["underscored", "ignored", "forgot", "abandoned", "rejected"],
+      "answer": "underscored",
+      "explanation": "'Underscore' altını çizmek/vurgulamak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 86,
+      "level": "C1",
+      "question": "The new findings ________ the long-held assumption about climate patterns.",
+      "options": ["refute", "confirm", "support", "validate", "reinforce"],
+      "answer": "refute",
+      "explanation": "'Refute' çürütmek/reddetmek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 87,
+      "level": "C1",
+      "question": "Misinformation ________ rapidly on social media platforms.",
+      "options": ["proliferates", "decreases", "declines", "diminishes", "reduces"],
+      "answer": "proliferates",
+      "explanation": "'Proliferate' hızla yayılmak/çoğalmak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 88,
+      "level": "C1",
+      "question": "The treaty came into ________ after being ratified by all member states.",
+      "options": ["force", "power", "strength", "effect", "action"],
+      "answer": "force",
+      "explanation": "'Come into force' yürürlüğe girmek anlamındaki hukuki/resmi ifadedir."
+    },
+    {
+      "id": 89,
+      "level": "C1",
+      "question": "Further research is needed to ________ the findings of this study.",
+      "options": ["substantiate", "contradict", "refute", "disprove", "challenge"],
+      "answer": "substantiate",
+      "explanation": "'Substantiate' kanıtlamak/desteklemek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 90,
+      "level": "C1",
+      "question": "The success of the project is ________ on securing adequate funding.",
+      "options": ["contingent", "dependent", "reliant", "based", "founded"],
+      "answer": "contingent",
+      "explanation": "'Contingent on' -e bağlı/koşullu anlamındaki ileri düzey akademik sıfattır."
+    },
+    {
+      "id": 91,
+      "level": "C1",
+      "question": "Ignoring scientific evidence would be ________ to intellectual dishonesty.",
+      "options": ["tantamount", "equal", "similar", "comparable", "equivalent"],
+      "answer": "tantamount",
+      "explanation": "'Tantamount to' eşdeğer anlamındaki ileri düzey akademik sıfattır."
+    },
+    {
+      "id": 92,
+      "level": "C1",
+      "question": "A quiet environment is ________ to effective learning.",
+      "options": ["conducive", "harmful", "detrimental", "damaging", "destructive"],
+      "answer": "conducive",
+      "explanation": "'Conducive to' yardımcı/elverişli anlamındaki akademik sıfat + edat yapısıdır."
+    },
+    {
+      "id": 93,
+      "level": "C1",
+      "question": "The data is ________ to various statistical analyses.",
+      "options": ["amenable", "resistant", "opposed", "contrary", "immune"],
+      "answer": "amenable",
+      "explanation": "'Amenable to' uygun/yatkın anlamındaki ileri düzey akademik sıfattır."
+    },
+    {
+      "id": 94,
+      "level": "C1",
+      "question": "________ you require any further information, please do not hesitate to contact us.",
+      "options": ["Should", "Would", "Could", "Might", "Will"],
+      "answer": "Should",
+      "explanation": "'Should' resmi koşul cümlelerinde 'eğer ... olursa' anlamında kullanılır."
+    },
+    {
+      "id": 95,
+      "level": "C1",
+      "question": "The relationship between the two variables is ________ to correlation rather than causation.",
+      "options": ["akin", "similar", "equal", "same", "identical"],
+      "answer": "akin",
+      "explanation": "'Akin to' benzer anlamındaki ileri düzey akademik sıfattır."
+    },
+    {
+      "id": 96,
+      "level": "C1",
+      "question": "________ it not for the financial support, the project would have been abandoned.",
+      "options": ["Were", "Had", "Should", "Would", "Could"],
+      "answer": "Were",
+      "explanation": "'Were it not for' olmasaydı anlamındaki ikinci tip koşul devrik yapısıdır."
+    },
+    {
+      "id": 97,
+      "level": "C1",
+      "question": "The experiment will proceed ________ all safety protocols are followed.",
+      "options": ["provided", "unless", "although", "despite", "whereas"],
+      "answer": "provided",
+      "explanation": "'Provided (that)' koşuluyla/şartıyla anlamındaki koşul bağlacıdır."
+    },
+    {
+      "id": 98,
+      "level": "C1",
+      "question": "The data was encrypted ________ unauthorized users access it.",
+      "options": ["lest", "unless", "although", "despite", "because"],
+      "answer": "lest",
+      "explanation": "'Lest' -mesin diye anlamındaki resmi/edebi koşul bağlacıdır."
+    },
+    {
+      "id": 99,
+      "level": "C1",
+      "question": "The findings must be replicated; ________, they cannot be considered valid.",
+      "options": ["otherwise", "however", "moreover", "therefore", "besides"],
+      "answer": "otherwise",
+      "explanation": "'Otherwise' aksi takdirde anlamındaki koşul sonuç bağlacıdır."
+    },
+    {
+      "id": 100,
+      "level": "C1",
+      "question": "The error ________ caused by a software malfunction.",
+      "options": ["must have been", "should be", "might be", "could be", "would be"],
+      "answer": "must have been",
+      "explanation": "'Must have been' geçmişte kesin çıkarım yapılan modal yapıdır."
+    },
+    {
+      "id": 101,
+      "level": "C1",
+      "question": "The results ________ more accurate if better equipment had been used.",
+      "options": ["could have been", "must be", "would be", "should be", "might be"],
+      "answer": "could have been",
+      "explanation": "'Could have been' geçmişte olabilirdi anlamındaki üçüncü tip koşul yapısıdır."
+    },
+    {
+      "id": 102,
+      "level": "C1",
+      "question": "The safety measures ________ implemented before the incident occurred.",
+      "options": ["should have been", "must be", "would be", "could be", "might be"],
+      "answer": "should have been",
+      "explanation": "'Should have been' geçmişte yapılması gerekiyordu anlamındaki pişmanlık ifadesidir."
+    },
+    {
+      "id": 103,
+      "level": "C1",
+      "question": "________ governments invested more heavily in education, social inequality would have decreased.",
+      "options": ["Had", "Were", "Should", "Would", "Could"],
+      "answer": "Had",
+      "explanation": "'Had + past participle' üçüncü tip koşul cümlesinin devrik yapısıdır."
+    },
+    {
+      "id": 104,
+      "level": "C1",
+      "question": "The conference ________ take place in Geneva next month.",
+      "options": ["is to", "will to", "would to", "should to", "must to"],
+      "answer": "is to",
+      "explanation": "'Be to' resmi planlama/program ifade eden modal yapıdır."
+    },
+    {
+      "id": 105,
+      "level": "C1",
+      "question": "Given the evidence, the theory ________ gain widespread acceptance.",
+      "options": ["is bound to", "is likely", "is sure of", "is certain of", "is about"],
+      "answer": "is bound to",
+      "explanation": "'Be bound to' muhakkak olacak anlamındaki kesinlik ifade eden yapıdır."
+    },
+    {
+      "id": 106,
+      "level": "C1",
+      "question": "We ________ worried; the experiment was a complete success.",
+      "options": ["need not have", "should not", "would not", "could not", "must not"],
+      "answer": "need not have",
+      "explanation": "'Need not have' gerekli olmayan geçmiş eylemi ifade eden modal yapıdır."
+    },
+    {
+      "id": 107,
+      "level": "C1",
+      "question": "________ technical difficulties, the launch was postponed.",
+      "options": ["Owing to", "Despite", "Although", "However", "Whereas"],
+      "answer": "Owing to",
+      "explanation": "'Owing to' nedeniyle anlamındaki resmi neden-sonuç edatıdır."
+    },
+    {
+      "id": 108,
+      "level": "C1",
+      "question": "The delay was ________ unforeseen circumstances.",
+      "options": ["due to", "despite", "although", "however", "whereas"],
+      "answer": "due to",
+      "explanation": "'Due to' nedeniyle anlamındaki yaygın akademik neden-sonuç ifadesidir."
+    },
+    {
+      "id": 109,
+      "level": "C1",
+      "question": "Many health problems ________ poor lifestyle choices.",
+      "options": ["stem from", "lead to", "result in", "cause", "bring about"],
+      "answer": "stem from",
+      "explanation": "'Stem from' kaynaklanmak anlamındaki akademik neden ifade eden fiildir."
+    },
+    {
+      "id": 110,
+      "level": "C1",
+      "question": "The reforms ________ significant changes in the education system.",
+      "options": ["brought about", "stemmed from", "resulted from", "arose from", "derived from"],
+      "answer": "brought about",
+      "explanation": "'Bring about' neden olmak/meydana getirmek anlamındaki sonuç fiilidir."
+    },
+    {
+      "id": 111,
+      "level": "C1",
+      "question": "The policy changes ________ improved public health outcomes.",
+      "options": ["resulted in", "stemmed from", "arose from", "derived from", "came from"],
+      "answer": "resulted in",
+      "explanation": "'Result in' sonucunu doğurmak anlamındaki akademik neden-sonuç fiilidir."
+    },
+    {
+      "id": 112,
+      "level": "C1",
+      "question": "Conflicts often ________ misunderstandings between parties.",
+      "options": ["arise from", "lead to", "result in", "cause", "bring about"],
+      "answer": "arise from",
+      "explanation": "'Arise from' ortaya çıkmak/kaynaklanmak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 113,
+      "level": "C1",
+      "question": "Multiple factors ________ the development of the disease.",
+      "options": ["contribute to", "result from", "arise from", "stem from", "derive from"],
+      "answer": "contribute to",
+      "explanation": "'Contribute to' katkıda bulunmak anlamındaki akademik neden fiilidir."
+    },
+    {
+      "id": 114,
+      "level": "C1",
+      "question": "The new method is twice as efficient ________ the traditional one.",
+      "options": ["as", "than", "like", "with", "from"],
+      "answer": "as",
+      "explanation": "'As...as' eşitlik karşılaştırma yapısının ikinci 'as' edatıdır."
+    },
+    {
+      "id": 115,
+      "level": "C1",
+      "question": "________ data we collect, the more accurate our predictions become.",
+      "options": ["The more", "As more", "More", "Much more", "Even more"],
+      "answer": "The more",
+      "explanation": "'The more...the more' ne kadar...o kadar anlamındaki karşılaştırma yapısıdır."
+    },
+    {
+      "id": 116,
+      "level": "C1",
+      "question": "The study focuses on prevention ________ treatment.",
+      "options": ["rather than", "instead", "other than", "more than", "less than"],
+      "answer": "rather than",
+      "explanation": "'Rather than' yerine/-den ziyade anlamındaki tercih ifadesidir."
+    },
+    {
+      "id": 117,
+      "level": "C1",
+      "question": "Qualitative research, ________ quantitative methods, emphasizes depth of understanding.",
+      "options": ["as opposed to", "similar to", "like", "same as", "equal to"],
+      "answer": "as opposed to",
+      "explanation": "'As opposed to' aksine/karşılık anlamındaki zıtlık ifadesidir."
+    },
+    {
+      "id": 118,
+      "level": "C1",
+      "question": "________ developed countries, developing nations face greater challenges.",
+      "options": ["In comparison with", "Similar to", "Same as", "Equal to", "Like"],
+      "answer": "In comparison with",
+      "explanation": "'In comparison with' ile karşılaştırıldığında anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 119,
+      "level": "C1",
+      "question": "The new model is ________ the previous version in terms of durability.",
+      "options": ["inferior to", "less than", "worse than", "lower than", "below"],
+      "answer": "inferior to",
+      "explanation": "'Inferior to' daha aşağı/düşük anlamındaki resmi karşılaştırma sıfatıdır."
+    },
+    {
+      "id": 120,
+      "level": "C1",
+      "question": "This approach is ________ conventional methods in several ways.",
+      "options": ["superior to", "better than", "more than", "higher than", "above"],
+      "answer": "superior to",
+      "explanation": "'Superior to' üstün anlamındaki resmi karşılaştırma sıfatıdır."
+    },
+    {
+      "id": 121,
+      "level": "C1",
+      "question": "________ the Industrial Revolution, most economies were agricultural.",
+      "options": ["Prior to", "Before than", "Earlier than", "Previous than", "Ahead of"],
+      "answer": "Prior to",
+      "explanation": "'Prior to' önce anlamındaki resmi zaman edatıdır."
+    },
+    {
+      "id": 122,
+      "level": "C1",
+      "question": "Researchers ________ work focuses on genetics have made significant progress.",
+      "options": ["whose", "which", "whom", "who's", "that"],
+      "answer": "whose",
+      "explanation": "'Whose' iyelik bildiren ilgi zamiridir (kimin, -in ...si)."
+    },
+    {
+      "id": 123,
+      "level": "C1",
+      "question": "The scientist to ________ the award was given has published over 100 papers.",
+      "options": ["whom", "who", "whose", "which", "that"],
+      "answer": "whom",
+      "explanation": "'Whom' edat sonrası nesne durumundaki kişiyi ifade eden ilgi zamiridir."
+    },
+    {
+      "id": 124,
+      "level": "C1",
+      "question": "They developed a process ________ waste could be converted into energy.",
+      "options": ["whereby", "where", "which", "when", "while"],
+      "answer": "whereby",
+      "explanation": "'Whereby' hangi yolla/bu sayede anlamındaki resmi ilgi zarfıdır."
+    },
+    {
+      "id": 125,
+      "level": "C1",
+      "question": "The document ________ these rules are outlined was published last year.",
+      "options": ["wherein", "where", "which", "when", "while"],
+      "answer": "wherein",
+      "explanation": "'Wherein' içinde/hangi hususta anlamındaki resmi ilgi zarfıdır."
+    },
+    {
+      "id": 126,
+      "level": "C1",
+      "question": "The principles ________ modern democracy is based were established centuries ago.",
+      "options": ["upon which", "on that", "in which", "at which", "by which"],
+      "answer": "upon which",
+      "explanation": "'Upon which' üzerine/dayalı anlamındaki resmi edat + ilgi zamiri yapısıdır."
+    },
+    {
+      "id": 127,
+      "level": "C1",
+      "question": "The equipment ________ the experiment was conducted was state-of-the-art.",
+      "options": ["with which", "with that", "by which", "in which", "at which"],
+      "answer": "with which",
+      "explanation": "'With which' ile/beraber anlamındaki edat + ilgi zamiri yapısıdır."
+    },
+    {
+      "id": 128,
+      "level": "C1",
+      "question": "The reason ________ the project was cancelled remains unclear.",
+      "options": ["for which", "for that", "to which", "in which", "by which"],
+      "answer": "for which",
+      "explanation": "'For which' için/uğruna anlamındaki neden bildiren edat + ilgi zamiri yapısıdır."
+    },
+    {
+      "id": 129,
+      "level": "C1",
+      "question": "The era ________ these discoveries were made was marked by rapid change.",
+      "options": ["in which", "where that", "on which", "at which", "to which"],
+      "answer": "in which",
+      "explanation": "'In which' içinde/-de anlamındaki zaman/yer bildiren edat + ilgi zamiri yapısıdır."
+    },
+    {
+      "id": 130,
+      "level": "B2",
+      "question": "The study ________ that more research is needed in this area.",
+      "options": ["concludes", "starts", "begins", "opens", "initiates"],
+      "answer": "concludes",
+      "explanation": "'Conclude' sonuçlandırmak anlamındaki akademik araştırma fiilidir."
+    },
+    {
+      "id": 131,
+      "level": "B2",
+      "question": "The report ________ the need for urgent action on climate change.",
+      "options": ["highlights", "hides", "conceals", "ignores", "forgets"],
+      "answer": "highlights",
+      "explanation": "'Highlight' vurgulamak/öne çıkarmak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 132,
+      "level": "B2",
+      "question": "The government has ________ to increase spending on healthcare.",
+      "options": ["committed", "refused", "declined", "rejected", "denied"],
+      "answer": "committed",
+      "explanation": "'Commit to' taahhüt etmek/söz vermek anlamındaki resmi fiildir."
+    },
+    {
+      "id": 133,
+      "level": "B2",
+      "question": "The new evidence ________ the theory that was proposed last year.",
+      "options": ["supports", "rejects", "denies", "ignores", "forgets"],
+      "answer": "supports",
+      "explanation": "'Support' desteklemek anlamındaki akademik kanıt fiilidir."
+    },
+    {
+      "id": 134,
+      "level": "B2",
+      "question": "The study ________ a sample of 500 participants.",
+      "options": ["involved", "avoided", "ignored", "rejected", "forgot"],
+      "answer": "involved",
+      "explanation": "'Involve' içermek/kapsamak anlamındaki akademik metodoloji fiilidir."
+    },
+    {
+      "id": 135,
+      "level": "B2",
+      "question": "The results ________ the importance of early intervention.",
+      "options": ["demonstrate", "hide", "conceal", "ignore", "forget"],
+      "answer": "demonstrate",
+      "explanation": "'Demonstrate' göstermek/kanıtlamak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 136,
+      "level": "B2",
+      "question": "The policy has been ________ by the majority of stakeholders.",
+      "options": ["endorsed", "rejected", "opposed", "criticized", "condemned"],
+      "answer": "endorsed",
+      "explanation": "'Endorse' onaylamak/desteklemek anlamındaki resmi fiildir."
+    },
+    {
+      "id": 137,
+      "level": "B2",
+      "question": "The organization ________ for the rights of minorities.",
+      "options": ["advocates", "opposes", "rejects", "ignores", "forgets"],
+      "answer": "advocates",
+      "explanation": "'Advocate for' savunmak anlamındaki sosyal/politik fiildir."
+    },
+    {
+      "id": 138,
+      "level": "B2",
+      "question": "The committee will ________ the proposal at the next meeting.",
+      "options": ["consider", "ignore", "forget", "reject", "abandon"],
+      "answer": "consider",
+      "explanation": "'Consider' değerlendirmek/düşünmek anlamındaki resmi fiildir."
+    },
+    {
+      "id": 139,
+      "level": "B2",
+      "question": "The study ________ important questions about the effectiveness of the treatment.",
+      "options": ["raises", "lowers", "drops", "falls", "decreases"],
+      "answer": "raises",
+      "explanation": "'Raise questions' soru ortaya koymak anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 140,
+      "level": "B2",
+      "question": "The data ________ a strong relationship between poverty and health outcomes.",
+      "options": ["shows", "hides", "conceals", "ignores", "forgets"],
+      "answer": "shows",
+      "explanation": "'Show' göstermek anlamındaki yaygın veri sunumu fiilidir."
+    },
+    {
+      "id": 141,
+      "level": "B2",
+      "question": "The researchers ________ the limitations of their study.",
+      "options": ["acknowledged", "denied", "hid", "ignored", "forgot"],
+      "answer": "acknowledged",
+      "explanation": "'Acknowledge' kabul etmek/tanımak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 142,
+      "level": "B2",
+      "question": "The government has ________ a series of reforms to improve the economy.",
+      "options": ["initiated", "ended", "stopped", "cancelled", "abandoned"],
+      "answer": "initiated",
+      "explanation": "'Initiate' başlatmak anlamındaki resmi/akademik fiildir."
+    },
+    {
+      "id": 143,
+      "level": "B2",
+      "question": "The study ________ to fill a gap in the existing literature.",
+      "options": ["seeks", "avoids", "refuses", "rejects", "declines"],
+      "answer": "seeks",
+      "explanation": "'Seek to' -meyi amaçlamak anlamındaki akademik amaç fiilidir."
+    },
+    {
+      "id": 144,
+      "level": "B2",
+      "question": "The findings ________ valuable insights into consumer behavior.",
+      "options": ["provide", "hide", "conceal", "ignore", "forget"],
+      "answer": "provide",
+      "explanation": "'Provide insights' içgörü sağlamak anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 145,
+      "level": "B2",
+      "question": "The policy is ________ to promote economic growth.",
+      "options": ["intended", "forced", "required", "obliged", "compelled"],
+      "answer": "intended",
+      "explanation": "'Be intended to' amaçlamak anlamındaki pasif amaç yapısıdır."
+    },
+    {
+      "id": 146,
+      "level": "B2",
+      "question": "The report ________ the progress made over the past decade.",
+      "options": ["documents", "hides", "conceals", "ignores", "forgets"],
+      "answer": "documents",
+      "explanation": "'Document' belgelemek anlamındaki akademik kayıt fiilidir."
+    },
+    {
+      "id": 147,
+      "level": "B2",
+      "question": "The organization has ________ a significant role in promoting human rights.",
+      "options": ["played", "made", "done", "taken", "given"],
+      "answer": "played",
+      "explanation": "'Play a role' rol oynamak anlamındaki sabit fiil + isim birleşimidir."
+    },
+    {
+      "id": 148,
+      "level": "B2",
+      "question": "The study ________ the factors that influence academic achievement.",
+      "options": ["examines", "ignores", "forgets", "rejects", "abandons"],
+      "answer": "examines",
+      "explanation": "'Examine' incelemek anlamındaki akademik araştırma fiilidir."
+    },
+    {
+      "id": 149,
+      "level": "B2",
+      "question": "The new policy has ________ criticism from various groups.",
+      "options": ["attracted", "avoided", "escaped", "evaded", "prevented"],
+      "answer": "attracted",
+      "explanation": "'Attract criticism' eleştiri çekmek anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 150,
+      "level": "B2",
+      "question": "The research ________ a wide range of perspectives on the issue.",
+      "options": ["incorporates", "excludes", "ignores", "rejects", "abandons"],
+      "answer": "incorporates",
+      "explanation": "'Incorporate' dahil etmek/içermek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 151,
+      "level": "C1",
+      "question": "The study ________ a comprehensive analysis of the economic impact.",
+      "options": ["undertakes", "avoids", "ignores", "rejects", "abandons"],
+      "answer": "undertakes",
+      "explanation": "'Undertake' üstlenmek anlamındaki resmi/akademik fiildir."
+    },
+    {
+      "id": 152,
+      "level": "C1",
+      "question": "The findings ________ the prevailing view on this matter.",
+      "options": ["challenge", "support", "confirm", "validate", "endorse"],
+      "answer": "challenge",
+      "explanation": "'Challenge' sorgulamak/itiraz etmek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 153,
+      "level": "C1",
+      "question": "The theory has been ________ modified to account for new evidence.",
+      "options": ["subsequently", "previously", "formerly", "beforehand", "initially"],
+      "answer": "subsequently",
+      "explanation": "'Subsequently' ardından/sonrasında anlamındaki zaman zarfıdır."
+    },
+    {
+      "id": 154,
+      "level": "C1",
+      "question": "The proposal was rejected ________ that it lacked sufficient evidence.",
+      "options": ["on the grounds", "on the basis", "for the reason", "by the cause", "with the ground"],
+      "answer": "on the grounds",
+      "explanation": "'On the grounds that' gerekçesiyle anlamındaki resmi neden ifadesidir."
+    },
+    {
+      "id": 155,
+      "level": "C1",
+      "question": "The reforms were implemented ________ improving economic efficiency.",
+      "options": ["with a view to", "in spite of", "regardless of", "instead of", "rather than"],
+      "answer": "with a view to",
+      "explanation": "'With a view to' amacıyla anlamındaki resmi amaç ifadesidir."
+    },
+    {
+      "id": 156,
+      "level": "C1",
+      "question": "________ resources are limited, we must prioritize essential projects.",
+      "options": ["Given that", "Although", "Unless", "Until", "While"],
+      "answer": "Given that",
+      "explanation": "'Given that' göz önüne alındığında anlamındaki koşul bağlacıdır."
+    },
+    {
+      "id": 157,
+      "level": "C1",
+      "question": "The results are significant ________ they confirm previous theoretical predictions.",
+      "options": ["inasmuch as", "although", "unless", "whereas", "while"],
+      "answer": "inasmuch as",
+      "explanation": "'Inasmuch as' olduğu için/-dığı sürece anlamındaki resmi neden bağlacıdır."
+    },
+    {
+      "id": 158,
+      "level": "C1",
+      "question": "The policy was successful ________ it achieved its immediate objectives.",
+      "options": ["insofar as", "although", "unless", "whereas", "while"],
+      "answer": "insofar as",
+      "explanation": "'Insofar as' -dığı ölçüde/sürece anlamındaki resmi koşul bağlacıdır."
+    },
+    {
+      "id": 159,
+      "level": "C1",
+      "question": "The government introduced a new system ________ citizens can access services online.",
+      "options": ["whereby", "however", "therefore", "although", "unless"],
+      "answer": "whereby",
+      "explanation": "'Whereby' bu sayede/bu vasıtayla anlamındaki resmi ilgi zarfıdır."
+    },
+    {
+      "id": 160,
+      "level": "C1",
+      "question": "The discovery revealed ________ unknown aspects of human evolution.",
+      "options": ["hitherto", "afterwards", "subsequently", "henceforth", "thereafter"],
+      "answer": "hitherto",
+      "explanation": "'Hitherto' şimdiye kadar anlamındaki resmi zaman zarfıdır."
+    },
+    {
+      "id": 161,
+      "level": "C1",
+      "question": "________, all employees must complete mandatory safety training.",
+      "options": ["Henceforth", "Previously", "Formerly", "Hitherto", "Beforehand"],
+      "answer": "Henceforth",
+      "explanation": "'Henceforth' bundan böyle anlamındaki resmi zaman zarfıdır."
+    },
+    {
+      "id": 162,
+      "level": "C1",
+      "question": "The company offered stock options ________ salary increases.",
+      "options": ["in lieu of", "in addition to", "along with", "together with", "besides"],
+      "answer": "in lieu of",
+      "explanation": "'In lieu of' yerine/karşılığında anlamındaki resmi değişim ifadesidir."
+    },
+    {
+      "id": 163,
+      "level": "C1",
+      "question": "________ the experiment, several unexpected results emerged.",
+      "options": ["In the course of", "In the time of", "During the course of", "Within the course of", "Through the course of"],
+      "answer": "In the course of",
+      "explanation": "'In the course of' sırasında/süresince anlamındaki resmi zaman ifadesidir."
+    },
+    {
+      "id": 164,
+      "level": "C1",
+      "question": "________ clarity, let me rephrase the question.",
+      "options": ["For the sake of", "For the purpose of", "For the reason of", "For the cause of", "By the sake of"],
+      "answer": "For the sake of",
+      "explanation": "'For the sake of' uğruna/aşkına anlamındaki resmi amaç ifadesidir."
+    },
+    {
+      "id": 165,
+      "level": "C1",
+      "question": "The new drug works best ________ traditional therapy.",
+      "options": ["in conjunction with", "in connection of", "with conjunction to", "in combination of", "together of"],
+      "answer": "in conjunction with",
+      "explanation": "'In conjunction with' ile birlikte anlamındaki resmi birleşim ifadesidir."
+    },
+    {
+      "id": 166,
+      "level": "C1",
+      "question": "Data was collected ________ standardized questionnaires.",
+      "options": ["by means of", "by ways of", "by forms of", "through means of", "with means of"],
+      "answer": "by means of",
+      "explanation": "'By means of' aracılığıyla/vasıtasıyla anlamındaki resmi araç ifadesidir."
+    },
+    {
+      "id": 167,
+      "level": "C1",
+      "question": "All research proposals are ________ ethical review.",
+      "options": ["subject to", "object to", "liable for", "prone of", "bound of"],
+      "answer": "subject to",
+      "explanation": "'Be subject to' tabi olmak anlamındaki akademik sıfat + edat yapısıdır."
+    },
+    {
+      "id": 168,
+      "level": "C1",
+      "question": "Elderly patients are more ________ respiratory infections.",
+      "options": ["susceptible to", "sensitive for", "vulnerable of", "prone of", "liable of"],
+      "answer": "susceptible to",
+      "explanation": "'Susceptible to' hassas olmak/eğilimli olmak anlamındaki tıbbi/akademik ifadedir."
+    },
+    {
+      "id": 169,
+      "level": "C1",
+      "question": "Salaries should be ________ experience and qualifications.",
+      "options": ["commensurate with", "commensurate to", "commensurate of", "commensurate for", "commensurate about"],
+      "answer": "commensurate with",
+      "explanation": "'Commensurate with' orantılı/uygun anlamındaki resmi akademik sıfattır."
+    },
+    {
+      "id": 170,
+      "level": "C1",
+      "question": "Many investors are ________ taking unnecessary risks.",
+      "options": ["averse to", "averse of", "averse for", "averse with", "averse about"],
+      "answer": "averse to",
+      "explanation": "'Averse to' karşı/isteksiz anlamındaki akademik sıfat + edat yapısıdır."
+    },
+    {
+      "id": 171,
+      "level": "B2",
+      "question": "The study ________ useful information for policymakers.",
+      "options": ["generates", "destroys", "eliminates", "removes", "deletes"],
+      "answer": "generates",
+      "explanation": "'Generate' üretmek/oluşturmak anlamındaki akademik sonuç fiilidir."
+    },
+    {
+      "id": 172,
+      "level": "B2",
+      "question": "The findings ________ a need for further research in this area.",
+      "options": ["indicate", "hide", "conceal", "ignore", "forget"],
+      "answer": "indicate",
+      "explanation": "'Indicate' göstermek/işaret etmek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 173,
+      "level": "B2",
+      "question": "The new technology ________ significant benefits for the environment.",
+      "options": ["offers", "removes", "eliminates", "destroys", "prevents"],
+      "answer": "offers",
+      "explanation": "'Offer benefits' fayda sunmak anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 174,
+      "level": "B2",
+      "question": "The organization ________ a key role in the peace negotiations.",
+      "options": ["plays", "makes", "does", "takes", "gives"],
+      "answer": "plays",
+      "explanation": "'Play a role' rol oynamak anlamındaki standart akademik ifadedir."
+    },
+    {
+      "id": 175,
+      "level": "B2",
+      "question": "The policy has been in ________ for over a decade.",
+      "options": ["effect", "affect", "impact", "result", "consequence"],
+      "answer": "effect",
+      "explanation": "'Be in effect' yürürlükte olmak anlamındaki hukuki/resmi ifadedir."
+    },
+    {
+      "id": 176,
+      "level": "B2",
+      "question": "The government ________ priority to education spending.",
+      "options": ["gives", "makes", "does", "takes", "puts"],
+      "answer": "gives",
+      "explanation": "'Give priority to' öncelik vermek anlamındaki resmi ifadedir."
+    },
+    {
+      "id": 177,
+      "level": "B2",
+      "question": "The company has ________ a reputation for quality products.",
+      "options": ["built", "destroyed", "ruined", "damaged", "broken"],
+      "answer": "built",
+      "explanation": "'Build a reputation' itibar kazanmak anlamındaki iş/akademik ifadedir."
+    },
+    {
+      "id": 178,
+      "level": "B2",
+      "question": "The study ________ light on the causes of the problem.",
+      "options": ["sheds", "throws", "puts", "gives", "takes"],
+      "answer": "sheds",
+      "explanation": "'Shed light on' aydınlatmak anlamındaki akademik deyimdir."
+    },
+    {
+      "id": 179,
+      "level": "B2",
+      "question": "The new law will ________ effect from January 1st.",
+      "options": ["take", "make", "do", "have", "give"],
+      "answer": "take",
+      "explanation": "'Take effect' yürürlüğe girmek anlamındaki hukuki sabit ifadedir."
+    },
+    {
+      "id": 180,
+      "level": "B2",
+      "question": "The policy ________ the interests of the general public.",
+      "options": ["serves", "ignores", "forgets", "abandons", "rejects"],
+      "answer": "serves",
+      "explanation": "'Serve interests' çıkarlara hizmet etmek anlamındaki resmi ifadedir."
+    },
+    {
+      "id": 181,
+      "level": "B2",
+      "question": "The research ________ a significant contribution to the field.",
+      "options": ["makes", "does", "gives", "takes", "brings"],
+      "answer": "makes",
+      "explanation": "'Make a contribution' katkıda bulunmak anlamındaki akademik sabit ifadedir."
+    },
+    {
+      "id": 182,
+      "level": "B2",
+      "question": "The company has ________ substantial losses this year.",
+      "options": ["incurred", "gained", "earned", "won", "achieved"],
+      "answer": "incurred",
+      "explanation": "'Incur losses' zarara uğramak anlamındaki resmi finansal fiildir."
+    },
+    {
+      "id": 183,
+      "level": "B2",
+      "question": "The study ________ the relationship between diet and health.",
+      "options": ["explores", "ignores", "forgets", "abandons", "rejects"],
+      "answer": "explores",
+      "explanation": "'Explore' araştırmak/incelemek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 184,
+      "level": "B2",
+      "question": "The evidence ________ the theory proposed by earlier researchers.",
+      "options": ["validates", "invalidates", "contradicts", "disproves", "refutes"],
+      "answer": "validates",
+      "explanation": "'Validate' doğrulamak/geçerli kılmak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 185,
+      "level": "B2",
+      "question": "The policy ________ to address the needs of disadvantaged groups.",
+      "options": ["seeks", "refuses", "declines", "rejects", "avoids"],
+      "answer": "seeks",
+      "explanation": "'Seek to' -meyi amaçlamak anlamındaki resmi amaç fiilidir."
+    },
+    {
+      "id": 186,
+      "level": "B2",
+      "question": "The company has ________ a series of measures to reduce costs.",
+      "options": ["implemented", "abandoned", "rejected", "ignored", "forgot"],
+      "answer": "implemented",
+      "explanation": "'Implement measures' önlemleri uygulamak anlamındaki resmi ifadedir."
+    },
+    {
+      "id": 187,
+      "level": "B2",
+      "question": "The report ________ a number of recommendations for improvement.",
+      "options": ["outlines", "hides", "conceals", "ignores", "forgets"],
+      "answer": "outlines",
+      "explanation": "'Outline' ana hatlarıyla belirtmek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 188,
+      "level": "B2",
+      "question": "The study was ________ to determine the effectiveness of the treatment.",
+      "options": ["designed", "failed", "forgotten", "ignored", "abandoned"],
+      "answer": "designed",
+      "explanation": "'Be designed to' -mek için tasarlanmak anlamındaki metodoloji ifadesidir."
+    },
+    {
+      "id": 189,
+      "level": "B2",
+      "question": "The government ________ measures to stimulate economic growth.",
+      "options": ["introduced", "removed", "cancelled", "abandoned", "rejected"],
+      "answer": "introduced",
+      "explanation": "'Introduce measures' önlemler getirmek anlamındaki resmi ifadedir."
+    },
+    {
+      "id": 190,
+      "level": "B2",
+      "question": "The research ________ valuable insights into consumer behavior.",
+      "options": ["offers", "hides", "conceals", "ignores", "forgets"],
+      "answer": "offers",
+      "explanation": "'Offer insights' içgörü sunmak anlamındaki akademik ifadedir."
+    },
+    {
+      "id": 191,
+      "level": "C1",
+      "question": "The phenomenon cannot be ________ by existing theoretical frameworks.",
+      "options": ["accounted for", "responsible for", "blamed on", "charged with", "accused of"],
+      "answer": "accounted for",
+      "explanation": "'Account for' açıklamak anlamındaki akademik analiz fiilidir."
+    },
+    {
+      "id": 192,
+      "level": "C1",
+      "question": "The study ________ a paradigm shift in our understanding of the issue.",
+      "options": ["heralds", "prevents", "delays", "postpones", "avoids"],
+      "answer": "heralds",
+      "explanation": "'Herald' müjdelemek/haber vermek anlamındaki ileri düzey akademik fiildir."
+    },
+    {
+      "id": 193,
+      "level": "C1",
+      "question": "The findings ________ the notion that success depends solely on talent.",
+      "options": ["dispel", "support", "confirm", "validate", "endorse"],
+      "answer": "dispel",
+      "explanation": "'Dispel' gidermek/ortadan kaldırmak anlamındaki akademik fiildir."
+    },
+    {
+      "id": 194,
+      "level": "C1",
+      "question": "The new regulations ________ to ensure fair competition in the market.",
+      "options": ["purport", "refuse", "decline", "reject", "avoid"],
+      "answer": "purport",
+      "explanation": "'Purport to' iddia etmek/amaçlamak anlamındaki resmi fiildir."
+    },
+    {
+      "id": 195,
+      "level": "C1",
+      "question": "The evidence ________ the effectiveness of the intervention.",
+      "options": ["attests to", "denies", "rejects", "ignores", "forgets"],
+      "answer": "attests to",
+      "explanation": "'Attest to' kanıtlamak/tanıklık etmek anlamındaki akademik fiildir."
+    },
+    {
+      "id": 196,
+      "level": "C1",
+      "question": "Had governments invested more heavily in education, social inequality ________ significantly.",
+      "options": ["would have decreased", "will decrease", "has decreased", "decreases", "is decreasing"],
+      "answer": "would have decreased",
+      "explanation": "Bu üçüncü tip koşul cümlesidir; gerçekleşmemiş geçmiş koşul ve varsayımsal sonucu ifade eder."
+    },
+    {
+      "id": 197,
+      "level": "C1",
+      "question": "The report suggests that economic growth is not always ________ with improved quality of life.",
+      "options": ["consistent", "responsible", "familiar", "available", "equal"],
+      "answer": "consistent",
+      "explanation": "'Be consistent with' uyumlu/tutarlı olmak anlamındaki akademik sabit ifadedir."
+    },
+    {
+      "id": 198,
+      "level": "C1",
+      "question": "The researcher emphasized the importance of objective data, ________ personal opinions.",
+      "options": ["rather than", "because of", "in case of", "apart from", "along with"],
+      "answer": "rather than",
+      "explanation": "'Rather than' yerine/-den ziyade anlamındaki tercih ifade eden bağlaçtır."
+    },
+    {
+      "id": 199,
+      "level": "C1",
+      "question": "Technological innovation can enhance productivity; ________, it may also lead to job displacement.",
+      "options": ["nevertheless", "therefore", "otherwise", "meanwhile", "instead"],
+      "answer": "nevertheless",
+      "explanation": "'Nevertheless' buna rağmen/yine de anlamındaki zıtlık bağlacıdır."
+    },
+    {
+      "id": 200,
+      "level": "C1",
+      "question": "The increasing use of automation in industry is expected to ________ productivity rather than reduce employment.",
+      "options": ["enhance", "prevent", "complicate", "conceal", "postpone"],
+      "answer": "enhance",
+      "explanation": "'Enhance productivity' verimliliği artırmak anlamındaki standart akademik ifadedir."
+    }
+  ]
+}
