@@ -22,7 +22,7 @@ import { haptic } from '../../utils/sound';
 import { getTierReward, getFruitEmoji, getFruitType, type FruitType } from '../../utils/fruitSystem';
 import { usePerformanceStore } from '../../store/performanceStore';
 import { useFarmStore } from '../../store/farmStore';
-import { getThemeOverlay } from '../../data/cardThemes';
+import { BORDER_STYLES, DEFAULT_CUSTOMIZATION, getThemeOverlay, type CardFontStyle } from '../../data/cardThemes';
 
 // 🎯 WordModel interface
 export interface WordModel {
@@ -252,6 +252,34 @@ const useResponsiveStyles = () => {
   }), [width, height, isTiny, isSmall, isMedium, isTablet]);
 };
 
+const SOIL_DOT_LAYOUT = [
+  { left: '10%', top: '16%', size: 4 },
+  { left: '26%', top: '34%', size: 3 },
+  { left: '42%', top: '24%', size: 5 },
+  { left: '56%', top: '58%', size: 4 },
+  { left: '70%', top: '30%', size: 3 },
+  { left: '82%', top: '66%', size: 4 },
+  { left: '18%', top: '72%', size: 3 },
+] as const;
+
+const getCardSizeMultiplier = (compactMode: boolean, largeMode: boolean): number => {
+  if (largeMode) return 1.16;
+  if (compactMode) return 0.8;
+  return 1;
+};
+
+const getFontStyle = (fontStyle: CardFontStyle) => {
+  if (fontStyle === 'serif') return { fontFamily: 'serif' as const, letterSpacing: 0 };
+  if (fontStyle === 'mono') {
+    return {
+      fontFamily: Platform.OS === 'ios' ? ('Menlo' as const) : ('monospace' as const),
+      letterSpacing: 0,
+    };
+  }
+  if (fontStyle === 'rounded') return { letterSpacing: 0.3 };
+  return {};
+};
+
 /**
  * 🎴 WordCardRN - Main component
  */
@@ -268,7 +296,7 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
 }) => {
   const rs = useResponsiveStyles();
   const { width: screenWidth } = useWindowDimensions();
-  const cardWidth = (screenWidth - 48 - rs.cardMargin) / 2;
+  const baseHalfCardWidth = (screenWidth - 48 - rs.cardMargin) / 2;
 
   const masterLevel = w.masterLevel ?? 0;
   
@@ -306,11 +334,41 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
 
   // 🎨 KART TEMA OVERLAY
   const activeThemeId = useFarmStore(s => s.activeCardTheme);
-  const overlay = activeThemeId !== 'default' ? getThemeOverlay(activeThemeId) : null;
-  const theme = overlay ? {
+  const cardCustomization = useFarmStore(s => s.cardCustomization);
+  const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
+  const cardSizeMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
+  const dynamicCardWidth = safeCustomization.largeMode
+    ? screenWidth - (rs.isTiny ? 20 : 24)
+    : baseHalfCardWidth * cardSizeMultiplier;
+  const dynamicCardPadding = rs.cardPadding * cardSizeMultiplier;
+  const dynamicCardMinHeight = rs.cardMinHeight * cardSizeMultiplier;
+  const borderPreset = BORDER_STYLES[safeCustomization.borderStyle || 'default'] || BORDER_STYLES.default;
+  const dynamicCardRadius = borderPreset.borderRadius;
+  const dynamicBorderWidth = borderPreset.borderWidth;
+  const dynamicShadowRadius = borderPreset.shadowRadius;
+  const fontStyleOverride = getFontStyle(safeCustomization.fontStyle || 'default');
+  const isSoilBackground = safeCustomization.backgroundStyle === 'soil';
+  const overlay = !isSoilBackground && activeThemeId !== 'default' ? getThemeOverlay(activeThemeId) : null;
+
+  const themedBase = overlay ? {
     ...baseTheme,
     border: overlay.borderColor,
   } : baseTheme;
+
+  const theme = isSoilBackground ? {
+    ...themedBase,
+    bgGradient: ['#24150f', '#3d2a24', '#1c120d'] as const,
+    border: 'rgba(121, 85, 72, 0.86)',
+    textPrimary: '#f6ece0',
+    textSecondary: '#dcc6ad',
+    badgeBg: 'rgba(78, 52, 46, 0.86)',
+    badgeText: '#f2e5d4',
+    buttonGradient: ['#8d6e63', '#6d4c41', '#5d4037'] as const,
+    starInactive: 'rgba(121, 85, 72, 0.45)',
+  } : themedBase;
+  const progressGradient = isSoilBackground
+    ? (['#a1887f', '#6d4c41'] as const)
+    : ([theme.buttonGradient[0], theme.buttonGradient[1]] as const);
 
   // 🎬 Animations
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -382,7 +440,7 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
 
   const shimmerTranslate = shimmerAnim.interpolate({
     inputRange: [-1, 1],
-    outputRange: [-cardWidth * 1.5, cardWidth * 1.5],
+    outputRange: [-dynamicCardWidth * 1.5, dynamicCardWidth * 1.5],
   });
 
   // 📝 Word text - PV ise verb kullan
@@ -393,20 +451,47 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
       {...panResponder.panHandlers}
       style={[
         styles.container,
-        { marginBottom: rs.cardMargin, opacity: fadeAnim, transform: [{ translateY: translateAnim }, { scale: Animated.multiply(scaleAnim, bounceAnim) }] },
+        {
+          width: dynamicCardWidth,
+          alignSelf: 'center',
+          marginBottom: rs.cardMargin,
+          opacity: fadeAnim,
+          transform: [{ translateY: translateAnim }, { scale: Animated.multiply(scaleAnim, bounceAnim) }],
+        },
       ]}
     >
       <TouchableOpacity activeOpacity={1} onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={handleCardPress}>
-        <View style={[styles.card, { borderRadius: rs.cardRadius, borderColor: theme.border, overflow: 'hidden' }]}>
+        <View
+          style={[
+            styles.card,
+            {
+              borderRadius: dynamicCardRadius,
+              borderColor: theme.border,
+              borderWidth: dynamicBorderWidth,
+              shadowColor: theme.border,
+              shadowRadius: dynamicShadowRadius,
+              shadowOpacity: dynamicShadowRadius > 0 ? 0.24 : 0,
+              elevation: dynamicShadowRadius > 0 ? Math.max(2, Math.round(dynamicShadowRadius / 2)) : 0,
+              overflow: 'hidden',
+            },
+          ]}
+        >
           <LinearGradient
             colors={theme.bgGradient}
-            style={[styles.gradient, { padding: rs.cardPadding, minHeight: rs.cardMinHeight }]}
+            style={[
+              styles.gradient,
+              {
+                padding: dynamicCardPadding,
+                minHeight: dynamicCardMinHeight,
+                borderRadius: dynamicCardRadius,
+              },
+            ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0.5, y: 1 }}
           >
             {/* ✨ Shimmer Effect - SADECE performans izin veriyorsa */}
             {premium && config.enableShimmer && (
-              <Animated.View pointerEvents="none" style={[styles.shimmer, { transform: [{ translateX: shimmerTranslate }], width: cardWidth * 2 }]}>
+              <Animated.View pointerEvents="none" style={[styles.shimmer, { transform: [{ translateX: shimmerTranslate }], width: dynamicCardWidth * 2 }]}>
                 <LinearGradient
                   colors={['transparent', 'rgba(255,255,255,0.12)', 'rgba(255,255,255,0.25)', 'rgba(255,255,255,0.12)', 'transparent']}
                   style={StyleSheet.absoluteFill}
@@ -425,6 +510,31 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
                 style={StyleSheet.absoluteFill}
                 pointerEvents="none"
               />
+            )}
+
+            {isSoilBackground && (
+              <View style={styles.soilOverlay} pointerEvents="none">
+                <LinearGradient
+                  colors={['rgba(22, 12, 8, 0.72)', 'rgba(36, 21, 14, 0.68)', 'rgba(54, 33, 27, 0.62)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                />
+                {SOIL_DOT_LAYOUT.map((dot, idx) => (
+                  <View
+                    key={`soil-dot-${idx}`}
+                    style={[
+                      styles.soilDot,
+                      {
+                        left: dot.left,
+                        top: dot.top,
+                        width: dot.size,
+                        height: dot.size,
+                      },
+                    ]}
+                  />
+                ))}
+              </View>
             )}
 
             {/* ⭐ Favorite Button - SABİT sağ üst */}
@@ -447,11 +557,13 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
 
             {/* 🏆 Header: Tier Badge + Harvest Count */}
             <View style={[styles.header, { marginBottom: rs.gap }]}>
-              <View style={[styles.tierBadge, { backgroundColor: theme.badgeBg, paddingHorizontal: rs.badgePadH, paddingVertical: rs.badgePadV, borderRadius: 14, gap: rs.badgeGap }]}>
-                {premium && <Trophy size={rs.trophySize} color={theme.badgeText} strokeWidth={2.5} />}
-                <Text style={[styles.tierText, { color: theme.badgeText, fontSize: rs.badgeSize }]}>{tierLabel}</Text>
-              </View>
-              <Text style={[styles.harvestText, { color: theme.textSecondary, fontSize: rs.labelSize }]}>
+              {safeCustomization.showLevel && (
+                <View style={[styles.tierBadge, { backgroundColor: theme.badgeBg, paddingHorizontal: rs.badgePadH, paddingVertical: rs.badgePadV, borderRadius: 14, gap: rs.badgeGap }]}>
+                  {premium && <Trophy size={rs.trophySize} color={theme.badgeText} strokeWidth={2.5} />}
+                  <Text style={[styles.tierText, { color: theme.badgeText, fontSize: rs.badgeSize }, fontStyleOverride]}>{tierLabel}</Text>
+                </View>
+              )}
+              <Text style={[styles.harvestText, { color: theme.textSecondary, fontSize: rs.labelSize }, fontStyleOverride]}>
                 ☆ {totalHarvests} Hasat
               </Text>
             </View>
@@ -461,7 +573,7 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
               {/* 🔤 Word Row - Kelime + Meyve + PV + 🧩 Badge'lar aynı satırda */}
               <View style={[styles.wordRow, { marginBottom: rs.gap - 2, gap: rs.badgeGap }]}>
                 <Text
-                  style={[styles.wordText, { color: theme.textPrimary, fontSize: rs.wordSize }]}
+                  style={[styles.wordText, { color: theme.textPrimary, fontSize: rs.wordSize }, fontStyleOverride]}
                   numberOfLines={1}
                   adjustsFontSizeToFit
                   minimumFontScale={0.6}
@@ -470,7 +582,7 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
                 </Text>
                 
                 {/* 🍎 Meyve İkonu - Kelimenin yanında */}
-                {(() => {
+                {safeCustomization.showEmoji && (() => {
                   const fruitType = w.fruitType || (w.difficulty ? getFruitType(w.difficulty, w.isPhrasalVerb) : null);
                   if (!fruitType) return null;
                   return (
@@ -495,7 +607,7 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
                 )}
                 
                 {/* 🧩 Puzzle Badge - SADECE yapbozdan hasat edilmişse! */}
-                {showPuzzleBadge && (
+                {safeCustomization.showEmoji && showPuzzleBadge && (
                   <View style={[styles.inlineBadge, styles.puzzleBadge]}>
                     <Text style={[styles.puzzleText, { fontSize: rs.badgeSize + 1 }]}>🧩</Text>
                   </View>
@@ -512,7 +624,7 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
                 const nextTier = Math.min((masterLevel || 0) + 1, 4);
                 const harvestReward = getTierReward(nextTier);
                 return (
-                  <Text style={[styles.statsText, { color: theme.textPrimary, fontSize: rs.statsSize, marginBottom: rs.gap - 4 }]}>
+                  <Text style={[styles.statsText, { color: theme.textPrimary, fontSize: rs.statsSize, marginBottom: rs.gap - 4 }, fontStyleOverride]}>
                     💰{harvestReward?.coins || 0} • ⭐{harvestReward?.xp || 0}XP • ✓{quizCorrect} | ✗{quizWrong}
                   </Text>
                 );
@@ -520,8 +632,19 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
 
               {/* 📈 Success Ratio Badge */}
               <View style={[styles.ratioBadge, { paddingHorizontal: rs.badgePadH, paddingVertical: rs.isTiny ? 2 : 3, marginBottom: rs.gap }]}>
-                <Text style={[styles.ratioText, { color: theme.textSecondary, fontSize: rs.labelSize }]}>Başarı: {ratio}%</Text>
+                <Text style={[styles.ratioText, { color: theme.textSecondary, fontSize: rs.labelSize }, fontStyleOverride]}>Başarı: {ratio}%</Text>
               </View>
+
+              {safeCustomization.showProgressBar && (
+                <View style={[styles.progressTrack, { marginBottom: rs.gap }]}>
+                  <LinearGradient
+                    colors={progressGradient}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                    style={[styles.progressFill, { width: `${Math.max(0, Math.min(ratio, 100))}%` }]}
+                  />
+                </View>
+              )}
 
               {/* 🎯 CTA Button - Yapbozdaki gibi güzel ve estetik */}
               <TouchableOpacity style={[styles.ctaBtn, { borderRadius: rs.buttonRadius }]} onPress={handleHarvestPress} activeOpacity={0.85}>
@@ -531,7 +654,7 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-                  <Text style={[styles.ctaText, { fontSize: rs.buttonSize }]}>{ctaText ?? '🌱 TARLAYA GÖNDER'}</Text>
+                  <Text style={[styles.ctaText, { fontSize: rs.buttonSize }, fontStyleOverride]}>{ctaText ?? '🌱 TARLAYA GÖNDER'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -562,9 +685,18 @@ const styles = StyleSheet.create({
   },
   gradient: {
     // minHeight dinamik olarak set ediliyor
+    overflow: 'hidden',
   },
   shimmer: {
     ...StyleSheet.absoluteFillObject,
+  },
+  soilOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  soilDot: {
+    position: 'absolute',
+    backgroundColor: 'rgba(109, 76, 65, 0.52)',
+    borderRadius: 12,
   },
   favoriteBtn: {
     position: 'absolute',
@@ -674,6 +806,18 @@ const styles = StyleSheet.create({
   },
   ratioText: {
     fontWeight: '600',
+  },
+  progressTrack: {
+    height: 8,
+    width: '100%',
+    borderRadius: 999,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(161, 136, 127, 0.55)',
+  },
+  progressFill: {
+    height: '100%',
   },
   ctaBtn: {
     overflow: 'hidden',

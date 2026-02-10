@@ -934,7 +934,7 @@ const FilterTab: React.FC<{
 export function FarmScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { farm, inventory, pool, level, xp, streak, bestStreak, answerMiniQuiz, coins, toggleFavorite, plantFromInventory, phrasalVerbFarm, harvestWord } = useFarmStore();
+  const { farm, inventory, pool, level, xp, streak, bestStreak, answerMiniQuiz, coins, toggleFavorite, plantFromInventory, phrasalVerbFarm, harvestWord, cardCustomization } = useFarmStore();
   const transferEvent = useFarmStore(state => state.transferEvent);
   const consumeTransferEvent = useFarmStore(state => state.consumeTransferEvent);
   const setStoreFeedVisible = useFarmStore(state => state.setFeedVisible); // Swipe block için
@@ -960,6 +960,7 @@ export function FarmScreen() {
   const [filter, setFilter] = useState<'all' | 'ready' | 'study' | 'master' | 'favorites' | 'custom'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
+  const gridColumns = cardCustomization?.largeMode ? 1 : 2;
 
   // 🎯 GÜNLÜK GÖREVLER PANEL
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
@@ -1798,7 +1799,8 @@ export function FarmScreen() {
                 ref={gridListRef}
                 data={filteredWords}
                 keyExtractor={keyExtractor}
-                numColumns={2}
+                numColumns={gridColumns}
+                key={`farm-grid-${gridColumns}`}
                 renderItem={renderWordCard}
                 contentContainerStyle={styles.flashListContent}
                 showsVerticalScrollIndicator={false}
@@ -1860,7 +1862,6 @@ export function FarmScreen() {
                         performanceConfig={feedPerformanceConfig}
                         screenWidth={SCREEN_WIDTH}
                         screenHeight={SCREEN_HEIGHT}
-                      />
                       />
                     </View>
                   );

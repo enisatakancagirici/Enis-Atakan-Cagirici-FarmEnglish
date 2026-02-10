@@ -30,6 +30,12 @@ import { MASCOT_IMAGE } from '../utils/assetPreloader';
 import { COLOR_TRANSITION_MESSAGES } from './TutorialManagerFixed';
 import { usePerformanceStore } from '../store/performanceStore';
 import { CardFeedbackAnimation } from './CardFeedbackAnimation';
+import {
+  BORDER_STYLES,
+  DEFAULT_CUSTOMIZATION,
+  getThemeOverlay,
+  type CardFontStyle,
+} from '../data/cardThemes';
 
 // 📚 PHRASAL VERB HAVUZU - Quiz şıkları için SABİT kaynak
 const PHRASAL_VERBS_POOL = require('../../assets/data/PHARASAL_VERBS_EXAMPLE.json');
@@ -168,6 +174,24 @@ const CATEGORY_COLORS: Record<CategoryType, {
     glow: '#f472b6',
     comboGradient: ['rgba(244, 114, 182, 0.95)', 'rgba(157, 23, 77, 0.95)'] as const,
   },
+};
+
+const getCardSizeMultiplier = (compactMode: boolean, largeMode: boolean): number => {
+  if (largeMode) return 1.16;
+  if (compactMode) return 0.82;
+  return 1;
+};
+
+const getFontStyle = (fontStyle: CardFontStyle) => {
+  if (fontStyle === 'serif') return { fontFamily: 'serif' as const, letterSpacing: 0 };
+  if (fontStyle === 'mono') {
+    return {
+      fontFamily: Platform.OS === 'ios' ? ('Menlo' as const) : ('monospace' as const),
+      letterSpacing: 0,
+    };
+  }
+  if (fontStyle === 'rounded') return { letterSpacing: 0.3 };
+  return {};
 };
 
 // �🌱 MASCOT TEŞVİK MESAJLARI - Seviyeye göre
@@ -996,6 +1020,8 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
   const addCoins = useFarmStore(s => s.addCoins);
   const coins = useFarmStore(s => s.coins);
   const setCardFeedback = useFarmStore(s => s.setCardFeedback);
+  const activeCardTheme = useFarmStore(s => s.activeCardTheme);
+  const cardCustomization = useFarmStore(s => s.cardCustomization);
 
   // 🚨 TUTORIAL: FullScreen modal adımlarında MiniQuiz KAPANMALI - Modal çakışması önle
   const prevTutorialStepRef = useRef(tutorialStep);
@@ -1103,6 +1129,24 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     visible: false,
     key: 0 
   });
+  const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
+  const fontStyleOverride = useMemo(
+    () => getFontStyle(safeCustomization.fontStyle || 'default'),
+    [safeCustomization.fontStyle]
+  );
+  const borderPreset = useMemo(
+    () => BORDER_STYLES[safeCustomization.borderStyle || 'default'] || BORDER_STYLES.default,
+    [safeCustomization.borderStyle]
+  );
+  const cardScaleMultiplier = useMemo(
+    () => getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode),
+    [safeCustomization.compactMode, safeCustomization.largeMode]
+  );
+  const isSoilBackground = safeCustomization.backgroundStyle === 'soil';
+  const overlayTheme = useMemo(
+    () => (!isSoilBackground && activeCardTheme !== 'default' ? getThemeOverlay(activeCardTheme) : null),
+    [activeCardTheme, isSoilBackground]
+  );
   
   // 📱 RESPONSIVE - SABİT DEĞERLER KULLAN (performans için)
   // Dimensions.get yerine sabit SCREEN değerleri - layout shift önle
@@ -1120,14 +1164,17 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     const compactModal = isTinyScreen || isSmallScreen || isTabletPortrait || isTabletLandscape;
     
     const safeAreaPadding = isTinyScreen ? 2 : isSmallScreen ? 2 : isMediumScreen ? 3 : 4;
-    const dialogPadding = isTinyScreen ? 3 : isSmallScreen ? 4 : isMediumScreen ? 5 : 6;
+    const dialogPaddingBase = isTinyScreen ? 3 : isSmallScreen ? 4 : isMediumScreen ? 5 : 6;
+    const dialogPadding = Math.max(3, Math.round(dialogPaddingBase * cardScaleMultiplier));
     // 📱 Notch safeArea'da zaten paddingTop ile karşılanıyor, modalMaxHeight bunun dışında kalmalı
     // safeArea.paddingTop = NOTCH_HEIGHT, safeArea.padding = 4
     // Yani modal'ın kullanabileceği alan: screenHeight - NOTCH_HEIGHT - 8 (üst/alt padding)
     const usableHeight = screenHeight - NOTCH_HEIGHT - 8;
     // Hepsi için maksimum alan kullan - scroll engellensin
     const modalMaxHeight = usableHeight;
-    const modalMaxWidth = isTabletLandscape ? Math.min(screenWidth * 0.85, 650) : Math.min(screenWidth - 12, 480);
+    const baseModalMaxWidth = isTabletLandscape ? Math.min(screenWidth * 0.85, 650) : Math.min(screenWidth - 12, 480);
+    const modalWidthScale = safeCustomization.largeMode ? 1.08 : safeCustomization.compactMode ? 0.93 : 1;
+    const modalMaxWidth = Math.min(screenWidth - 8, baseModalMaxWidth * modalWidthScale);
     
     return {
       isTinyScreen,
@@ -1142,7 +1189,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
       modalMaxHeight,
       modalMaxWidth,
     };
-  }, [screenWidth, screenHeight]);
+  }, [screenWidth, screenHeight, cardScaleMultiplier, safeCustomization.largeMode, safeCustomization.compactMode]);
   
   const { 
     isTinyScreen, isSmallScreen, isMediumScreen, isLargeScreen,
@@ -1173,7 +1220,31 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
   }, [currentWord]);
 
   // 🔥 Memoize derived values to prevent re-renders
-  const catColors = useMemo(() => CATEGORY_COLORS[category], [category]);
+  const catColors = useMemo(() => {
+    const base = CATEGORY_COLORS[category];
+    const overlayBase = overlayTheme
+      ? {
+        ...base,
+        border: overlayTheme.borderColor,
+        glow: overlayTheme.borderGlow,
+      }
+      : base;
+
+    if (isSoilBackground) {
+      return {
+        ...overlayBase,
+        bg: ['#24150f', '#3d2a24', '#1c120d'] as const,
+        border: 'rgba(121, 85, 72, 0.86)',
+        badge: '#a1887f',
+        badgeBg: 'rgba(93, 64, 55, 0.55)',
+        text: '#f7efe4',
+        glow: '#6d4c41',
+        comboGradient: ['rgba(141, 110, 99, 0.95)', 'rgba(93, 64, 55, 0.95)'] as const,
+      };
+    }
+
+    return overlayBase;
+  }, [category, overlayTheme, isSoilBackground]);
   const required = useMemo(() => getRequiredCorrect(category), [category]);
   const isMaster = useMemo(() => category === 'master', [category]);
 
@@ -1899,6 +1970,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
             transform: [
               { translateY: slideAnim },
               { scale: scaleAnim },
+              { scale: safeCustomization.largeMode ? 1.05 : safeCustomization.compactMode ? 0.94 : 1 },
               { rotate: rotation },
             ]
           }
@@ -1908,7 +1980,11 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
           {/* Outer glow */}
           <Animated.View style={[
             styles.outerGlow,
-            { backgroundColor: catColors.glow, opacity: glowOpacity }
+            {
+              backgroundColor: catColors.glow,
+              opacity: glowOpacity,
+              borderRadius: borderPreset.borderRadius + 6,
+            }
           ]} />
 
           <LinearGradient
@@ -1919,6 +1995,8 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
                 borderColor: catColors.border,
                 maxHeight: modalMaxHeight,
                 padding: dialogPadding,
+                borderRadius: borderPreset.borderRadius,
+                borderWidth: borderPreset.borderWidth,
               },
             ]}
             start={{ x: 0, y: 0 }}
@@ -1935,9 +2013,13 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
             >
               {/* 🌾 Header */}
               <Animated.View style={[styles.header, isSmallScreen && styles.header_tiny, isTinyScreen && styles.header_tiny, { transform: [{ scale: headerScale }] }]}>
-                <Text style={[styles.headerEmoji, isSmallScreen && { fontSize: 12 }, isTinyScreen && { fontSize: 11 }]}>🌾</Text>
-                <Text style={[styles.headerTitle, isSmallScreen && { fontSize: 12 }, isTinyScreen && { fontSize: 11 }]}>HASAT QUİZ</Text>
-                <Text style={[styles.headerEmoji, isSmallScreen && { fontSize: 12 }, isTinyScreen && { fontSize: 11 }]}>{catColors.emoji}</Text>
+                {safeCustomization.showEmoji && (
+                  <Text style={[styles.headerEmoji, isSmallScreen && { fontSize: 12 }, isTinyScreen && { fontSize: 11 }]}>🌾</Text>
+                )}
+                <Text style={[styles.headerTitle, isSmallScreen && { fontSize: 12 }, isTinyScreen && { fontSize: 11 }, fontStyleOverride]}>HASAT QUİZ</Text>
+                {safeCustomization.showEmoji && (
+                  <Text style={[styles.headerEmoji, isSmallScreen && { fontSize: 12 }, isTinyScreen && { fontSize: 11 }]}>{catColors.emoji}</Text>
+                )}
               </Animated.View>
 
               {/* 💰 COİN GÖSTERGESİ - Sol üst */}
@@ -1957,8 +2039,10 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
 
               {/* Category Badge */}
               <View style={[styles.categoryBadge, isTinyScreen && { paddingHorizontal: 7, paddingVertical: 2 }, { backgroundColor: catColors.badgeBg, borderColor: catColors.badge }]}>
-                <Text style={[styles.categoryDot, isTinyScreen && { fontSize: 10 }]}>{catColors.emoji}</Text>
-                <Text style={[styles.categoryText, isTinyScreen && { fontSize: 9 }, { color: catColors.badge }]}>{catColors.label}</Text>
+                {safeCustomization.showEmoji && (
+                  <Text style={[styles.categoryDot, isTinyScreen && { fontSize: 10 }]}>{catColors.emoji}</Text>
+                )}
+                <Text style={[styles.categoryText, isTinyScreen && { fontSize: 9 }, { color: catColors.badge }, fontStyleOverride]}>{catColors.label}</Text>
               </View>
 
               {/* 📝 Word Card with pulse */}
@@ -1976,12 +2060,12 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
                 />
                 */}
                 
-                <Text style={[styles.wordLabel, isSmallScreen && { fontSize: 8 }, isTinyScreen && { fontSize: 8 }]}>KELİME</Text>
+                <Text style={[styles.wordLabel, isSmallScreen && { fontSize: 8 }, isTinyScreen && { fontSize: 8 }, fontStyleOverride]}>KELİME</Text>
                 <View style={styles.wordWithLevelContainer}>
-                  <Text style={[styles.wordText, isSmallScreen && { fontSize: 20 }, isTinyScreen && { fontSize: 18 }, { color: catColors.text, textShadowColor: catColors.glow }]}>{currentWord.text}</Text>
+                  <Text style={[styles.wordText, isSmallScreen && { fontSize: 20 }, isTinyScreen && { fontSize: 18 }, { color: catColors.text, textShadowColor: catColors.glow }, fontStyleOverride]}>{currentWord.text}</Text>
                   {!!currentWord.difficulty && (
                     <View style={[styles.cefrBadge, { backgroundColor: catColors.badgeBg, borderColor: catColors.badge }]}>
-                      <Text style={[styles.cefrText, { color: catColors.badge }]}>{currentWord.difficulty}</Text>
+                      <Text style={[styles.cefrText, { color: catColors.badge }, fontStyleOverride]}>{currentWord.difficulty}</Text>
                     </View>
                   )}
                 </View>
@@ -2003,19 +2087,23 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
               {/* 📊 Progress Section */}
               <View style={[styles.progressSection, isTinyScreen && styles.progressSection_tiny, isSmallScreen && { padding: 5, marginBottom: 3 }]}>
                 <View style={styles.progressHeader}>
-                  <Text style={[styles.progressTitle, isTinyScreen && { fontSize: 10 }, isSmallScreen && { fontSize: 10 }]}>İlerleme</Text>
-                  <Text style={[styles.progressCount, isTinyScreen && { fontSize: 13 }, isSmallScreen && { fontSize: 13 }, { color: catColors.badge }]}>{totalStreak}/{required}</Text>
+                  <Text style={[styles.progressTitle, isTinyScreen && { fontSize: 10 }, isSmallScreen && { fontSize: 10 }, fontStyleOverride]}>İlerleme</Text>
+                  <Text style={[styles.progressCount, isTinyScreen && { fontSize: 13 }, isSmallScreen && { fontSize: 13 }, { color: catColors.badge }, fontStyleOverride]}>{totalStreak}/{required}</Text>
                 </View>
 
                 {/* Progress bar */}
-                <View style={[styles.progressTrack, isTinyScreen && { height: 4, marginBottom: 3 }, isSmallScreen && { height: 5, marginBottom: 3 }, { borderColor: catColors.border }]}>
-                  <Animated.View style={[styles.progressFill, { width: progressWidth, backgroundColor: catColors.badge }]}>
-                    <View style={[styles.progressShine, { backgroundColor: catColors.glow }]} />
-                  </Animated.View>
-                </View>
+                {safeCustomization.showProgressBar && (
+                  <>
+                    <View style={[styles.progressTrack, isTinyScreen && { height: 4, marginBottom: 3 }, isSmallScreen && { height: 5, marginBottom: 3 }, { borderColor: catColors.border }]}>
+                      <Animated.View style={[styles.progressFill, { width: progressWidth, backgroundColor: catColors.badge }]}>
+                        <View style={[styles.progressShine, { backgroundColor: catColors.glow }]} />
+                      </Animated.View>
+                    </View>
 
-                {/* Progress dots */}
-                <ProgressDots current={totalStreak} total={required} color={catColors.badge} />
+                    {/* Progress dots */}
+                    <ProgressDots current={totalStreak} total={required} color={catColors.badge} />
+                  </>
+                )}
 
                 {/* 🎨 Color Level Indicator - using memoized data */}
                 {(currentWord?.masterLevel || 0) === 0 && currentWord?.wrongCount < 3 && (
@@ -2047,7 +2135,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
                 {(currentWord?.masterLevel || 0) === 0 && (currentWord?.wrongCount || 0) < 2 && (
                   <View style={[styles.masterProgressContainer, isTinyScreen && styles.masterProgressContainer_tiny, isTabletPortrait && { marginTop: 6 }]}>
                     <View style={styles.masterProgressHeader}>
-                      <Text style={[styles.masterProgressTitle, isTabletPortrait && { fontSize: 10 }]}>
+                      <Text style={[styles.masterProgressTitle, isTabletPortrait && { fontSize: 10 }, fontStyleOverride]}>
                         🔥 {getNextCategory(category)} kategoriye yüksel!
                       </Text>
                       <Text style={[styles.masterProgressCount, isTabletPortrait && { fontSize: 12 }]}>
@@ -2069,7 +2157,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
                 
                 {/* Yeşil kart session gösterimi (wrongCount >= 2 ve masterLevel = 0) */}
                 {(currentWord?.masterLevel || 0) === 0 && (currentWord?.wrongCount || 0) >= 2 && (
-                  <Text style={[styles.nextLevelHint, isTinyScreen && { fontSize: 10, marginTop: 3 }]}>
+                  <Text style={[styles.nextLevelHint, isTinyScreen && { fontSize: 10, marginTop: 3 }, fontStyleOverride]}>
                     🔥 {required} art arda doğru → Envanter'e gönder! ({currentWord?.consecutiveMasterSessions || 0}/3 session)
                   </Text>
                 )}
@@ -2078,7 +2166,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
                 {((currentWord?.wrongCount || 0) >= 2 || (currentWord?.masterLevel || 0) > 0) && (
                   <View style={[styles.masterProgressContainer, isTinyScreen && styles.masterProgressContainer_tiny, isTabletPortrait && { marginTop: 6 }]}>
                     <View style={styles.masterProgressHeader}>
-                      <Text style={[styles.masterProgressTitle, isTabletPortrait && { fontSize: 10 }]}>🏆 Master İlerleme</Text>
+                      <Text style={[styles.masterProgressTitle, isTabletPortrait && { fontSize: 10 }, fontStyleOverride]}>🏆 Master İlerleme</Text>
                       <Text style={[styles.masterProgressCount, isTabletPortrait && { fontSize: 12 }]}>
                         {currentWord.consecutiveMasterSessions || 0} / {
                           // Session sayıları: kırmızı=1, sarı=2, yeşil=3, master=4, ultra=5, perfect=6 (claimed=1)
@@ -2145,14 +2233,14 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
 
                     {/* Next tier hint */}
                     {(currentWord?.masterLevel || 0) < 3 && (
-                      <Text style={[styles.masterProgressHint, isTinyScreen && { fontSize: 10 }]}>
+                      <Text style={[styles.masterProgressHint, isTinyScreen && { fontSize: 10 }, fontStyleOverride]}>
                         {(currentWord?.masterLevel || 0) === 0 && '⭐ 3 başarılı session → Altın Master!'}
                         {(currentWord?.masterLevel || 0) === 1 && '💎 4 başarılı session → Elmas Master!'}
                         {(currentWord?.masterLevel || 0) === 2 && '👑 5 başarılı session → Kraliyet Master!'}
                       </Text>
                     )}
                     {(currentWord?.masterLevel || 0) >= 3 && (
-                      <Text style={[styles.masterProgressHint, isTinyScreen && { fontSize: 10 }, { color: '#f472b6' }]}>
+                      <Text style={[styles.masterProgressHint, isTinyScreen && { fontSize: 10 }, { color: '#f472b6' }, fontStyleOverride]}>
                         👑 {currentWord?.rewardClaimedPerfect ? '1 session sonra hasat!' : '6 session sonra ilk ödül!'} ✨
                       </Text>
                     )}
@@ -2161,7 +2249,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
               </View>
 
               {/* 🎯 Question */}
-              <Text style={[styles.questionTitle, compactModal && styles.questionTitle_compact, isSmallScreen && { fontSize: 11, marginBottom: 4 }, isTinyScreen && { fontSize: 10, marginBottom: 3 }]}>
+              <Text style={[styles.questionTitle, compactModal && styles.questionTitle_compact, isSmallScreen && { fontSize: 11, marginBottom: 4 }, isTinyScreen && { fontSize: 10, marginBottom: 3 }, fontStyleOverride]}>
                 Doğru anlamı seç:
               </Text>
 

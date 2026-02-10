@@ -24,7 +24,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Swords, User, Trophy, Shield, ChevronRight, Zap, CheckCircle, XCircle } from 'lucide-react-native';
 import { useFarmStore } from '../store/farmStore';
 import { haptic } from '../utils/sound';
-import { checkNicknameAvailable, registerUser, getUser, isNicknameClean } from '../utils/firebaseBattle';
+import { checkNicknameAvailable, registerUser, getUser } from '../utils/firebaseBattle';
+import { isNicknameClean } from '../utils/nicknameModeration';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -77,6 +78,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
 
         if (trimmed.length < 2) {
             setNicknameStatus('idle');
+            setChecking(false);
+            return;
+        }
+
+        if (!isNicknameClean(trimmed)) {
+            setNicknameStatus('taken');
+            setChecking(false);
             return;
         }
 

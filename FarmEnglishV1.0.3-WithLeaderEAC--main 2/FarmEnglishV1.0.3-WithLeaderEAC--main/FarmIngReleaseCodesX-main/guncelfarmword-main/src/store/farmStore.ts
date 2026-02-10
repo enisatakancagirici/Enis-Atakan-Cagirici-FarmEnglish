@@ -4170,6 +4170,7 @@ export const useFarmStore = create<FarmStore>()(
         };
 
         const newCards: string[] = [];
+        const unlockedRewardThemes: string[] = [];
         for (const card of COLLECTIBLE_CARDS) {
           if (state.collectedCards.includes(card.id)) continue;
           if (checkCollectibleUnlock(card.id, stats)) {
@@ -4177,8 +4178,20 @@ export const useFarmStore = create<FarmStore>()(
           }
         }
 
-        if (newCards.length > 0) {
-          set({ collectedCards: [...state.collectedCards, ...newCards] });
+        const collectedSet = new Set([...state.collectedCards, ...newCards]);
+        for (const card of COLLECTIBLE_CARDS) {
+          if (!collectedSet.has(card.id) || !card.rewardThemeId) continue;
+          if (!getThemeOverlay(card.rewardThemeId)) continue;
+          if (state.ownedCardThemes.includes(card.rewardThemeId)) continue;
+          if (unlockedRewardThemes.includes(card.rewardThemeId)) continue;
+          unlockedRewardThemes.push(card.rewardThemeId);
+        }
+
+        if (newCards.length > 0 || unlockedRewardThemes.length > 0) {
+          set({
+            collectedCards: [...state.collectedCards, ...newCards],
+            ownedCardThemes: [...state.ownedCardThemes, ...unlockedRewardThemes],
+          });
         }
         return newCards;
       },
@@ -4886,7 +4899,7 @@ export const useFarmStore = create<FarmStore>()(
           if (!Array.isArray(state.ownedCardThemes)) state.ownedCardThemes = [];
           if (!Array.isArray(state.collectedCards)) state.collectedCards = [];
           if (!state.activeCardTheme) state.activeCardTheme = 'default';
-          if (!state.cardCustomization) state.cardCustomization = { ...DEFAULT_CUSTOMIZATION };
+          state.cardCustomization = { ...DEFAULT_CUSTOMIZATION, ...(state.cardCustomization || {}) };
         }
         // �🔥 MİGRATION: Başarımları temizle ve güncelle
         if (state && state.achievements) {

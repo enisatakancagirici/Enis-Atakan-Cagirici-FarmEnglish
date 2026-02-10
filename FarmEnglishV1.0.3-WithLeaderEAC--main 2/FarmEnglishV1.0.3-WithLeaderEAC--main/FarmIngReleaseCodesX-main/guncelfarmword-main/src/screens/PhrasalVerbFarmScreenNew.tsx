@@ -547,6 +547,7 @@ export default function PhrasalVerbFarmScreenNew({
   const coins = useFarmStore(s => s.coins);
   const setStoreFeedVisible = useFarmStore(s => s.setFeedVisible); // Swipe block için
   const updateQuestProgress = useFarmStore(s => s.updateQuestProgress); // 🎯 Quest tracking
+  const cardCustomization = useFarmStore(s => s.cardCustomization);
   
   // ☁️ CloudTip state - persist edilmiş
   const cloudTipsDismissed = useFarmStore(s => s.cloudTipsDismissed);
@@ -583,6 +584,7 @@ export default function PhrasalVerbFarmScreenNew({
   const [feedQuizWordId, setFeedQuizWordId] = useState<string | null>(null);
   const [feedScrollEnabled, setFeedScrollEnabled] = useState(true);
   const [lastViewedWordId, setLastViewedWordId] = useState<string | null>(null);
+  const gridColumns = cardCustomization?.largeMode ? 1 : 2;
   
   // 🌾 HASAT SONRASI "TEKRAR EK" STATE
   const [harvestedWordIds, setHarvestedWordIds] = useState<Set<string>>(new Set());
@@ -1063,7 +1065,8 @@ export default function PhrasalVerbFarmScreenNew({
             ref={gridListRef}
             data={filteredFarm}
             renderItem={renderItem}
-            numColumns={2}
+            numColumns={gridColumns}
+            key={`phrasal-grid-embedded-${gridColumns}`}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />
@@ -1275,7 +1278,8 @@ export default function PhrasalVerbFarmScreenNew({
           ref={gridListRef}
           data={filteredFarm}
           renderItem={renderItem}
-          numColumns={2}
+          numColumns={gridColumns}
+          key={`phrasal-grid-${gridColumns}`}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={(() => {

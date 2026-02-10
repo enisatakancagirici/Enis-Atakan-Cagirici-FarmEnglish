@@ -738,18 +738,20 @@ export default function InventoryScreenNew() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { inventory, phrasalVerbInventory, plantFromInventory, streak, toggleFavorite, pool, demoteWordLevel, lastInventoryQuizTime, setLastInventoryQuizTime, insecticideActive } = useFarmStore();
+  const cardCustomization = useFarmStore(s => s.cardCustomization);
   const lastMeaningSpokenRef = useRef<{ meaning: string; time: number } | null>(null);
   const windowDims = useWindowDimensions();
   const isSmallScreen = windowDims.height < 700;
   
   // 📱 RESPONSIVE LAYOUT - Dinamik sütun sayısı ve kart genişliği
   const numColumns = useMemo(() => {
+    if (cardCustomization?.largeMode) return 1;
     const screenWidth = windowDims.width;
     if (screenWidth > 900) return 4; // Tablet landscape - çok geniş
     if (screenWidth > 700) return 3; // Tablet portrait veya büyük telefon landscape
     if (screenWidth > 500) return 3; // Telefon landscape
     return 2; // Telefon portrait
-  }, [windowDims.width]);
+  }, [windowDims.width, cardCustomization?.largeMode]);
   
   const cardWidth = useMemo(() => {
     const screenWidth = windowDims.width;

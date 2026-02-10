@@ -23,6 +23,7 @@ import { useFarmStore, TutorialStep } from '../store/farmStore';
 import { haptic } from '../utils/sound';
 import { ChevronRight, Lock, Sparkles, User } from 'lucide-react-native';
 import { MASCOT_IMAGE } from '../utils/assetPreloader';
+import { isNicknameClean } from '../utils/nicknameModeration';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const IS_SMALL_SCREEN = SCREEN_HEIGHT < 700;
@@ -2246,17 +2247,23 @@ export const NicknameModal = memo(() => {
   }, [showNicknameModal]);
   
   const handleSave = useCallback(() => {
-    if (name.trim().length > 0) {
-      // 🚫 Küfür kontrolü
-      const { isNicknameClean } = require('../utils/firebaseBattle');
-      if (!isNicknameClean(name.trim())) {
-        Alert.alert('Uygunsuz İsim', 'Bu isim uygunsuz ifade içeriyor. Lütfen farklı bir ad seçin.');
-        return;
-      }
-      haptic.medium();
-      setNickname(name.trim());
-      setShowNicknameModal(false);
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2) {
+      Alert.alert('Hata', 'Takma ad en az 2 karakter olmalı.');
+      return;
     }
+    if (trimmedName.length > 15) {
+      Alert.alert('Hata', 'Takma ad en fazla 15 karakter olabilir.');
+      return;
+    }
+    if (!isNicknameClean(trimmedName)) {
+      Alert.alert('Uygunsuz İsim', 'Bu isim uygunsuz ifade içeriyor. Lütfen farklı bir ad seçin.');
+      return;
+    }
+
+    haptic.medium();
+    setNickname(trimmedName);
+    setShowNicknameModal(false);
   }, [name, setNickname, setShowNicknameModal]);
   
   if (!showNicknameModal) return null;
@@ -2305,7 +2312,7 @@ export const NicknameModal = memo(() => {
                 placeholderTextColor="#666"
                 value={name}
                 onChangeText={setName}
-                maxLength={20}
+                maxLength={15}
                 autoFocus
               />
             </View>

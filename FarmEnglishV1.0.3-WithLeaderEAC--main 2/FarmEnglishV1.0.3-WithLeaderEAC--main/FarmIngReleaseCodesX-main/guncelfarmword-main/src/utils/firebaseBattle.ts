@@ -30,6 +30,8 @@ import {
     writeBatch,
     runTransaction,
 } from 'firebase/firestore';
+import { isNicknameClean } from './nicknameModeration';
+export { isNicknameClean } from './nicknameModeration';
 
 // Firebase Config - GoogleService-Info.plist'ten alındı
 const firebaseConfig = {
@@ -151,7 +153,11 @@ export interface LeaderboardEntry {
  */
 export async function checkNicknameAvailable(nickname: string): Promise<boolean> {
     try {
-        const normalizedNickname = nickname.toLowerCase().trim();
+        const trimmedNickname = nickname?.trim() || '';
+        if (trimmedNickname.length < 2 || trimmedNickname.length > 15) return false;
+        if (!isNicknameClean(trimmedNickname)) return false;
+
+        const normalizedNickname = trimmedNickname.toLowerCase();
         const usersRef = collection(db, 'users');
         const q = query(usersRef, where('nicknameLower', '==', normalizedNickname));
         const snapshot = await getDocs(q);
@@ -172,7 +178,17 @@ export async function registerUser(
 ): Promise<{ success: boolean; error?: string }> {
     try {
         // Önce nickname kontrolü
-        const isAvailable = await checkNicknameAvailable(nickname);
+        const trimmedNickname = nickname?.trim() || '';
+        if (trimmedNickname.length < 2) {
+            return { success: false, error: 'Takma ad en az 2 karakter olmali' };
+        }
+        if (trimmedNickname.length > 15) {
+            return { success: false, error: 'Takma ad en fazla 15 karakter olabilir' };
+        }
+        if (!isNicknameClean(trimmedNickname)) {
+            return { success: false, error: 'Bu kullanici adi uygunsuz ifade iceriyor' };
+        }
+        const isAvailable = await checkNicknameAvailable(trimmedNickname);
         if (!isAvailable) {
             return { success: false, error: 'Bu kullanıcı adı zaten alınmış' };
         }
@@ -180,7 +196,7 @@ export async function registerUser(
         const userRef = doc(db, 'users', odId);
         const userData: BattleUser = {
             odId,
-            nickname: nickname.trim(),
+            nickname: trimmedNickname,
             level,
             battleWins: 0,
             battleLosses: 0,
@@ -193,7 +209,7 @@ export async function registerUser(
 
         await setDoc(userRef, {
             ...userData,
-            nicknameLower: nickname.toLowerCase().trim(), // Arama için
+            nicknameLower: trimmedNickname.toLowerCase(), // Arama için
         });
 
         return { success: true };

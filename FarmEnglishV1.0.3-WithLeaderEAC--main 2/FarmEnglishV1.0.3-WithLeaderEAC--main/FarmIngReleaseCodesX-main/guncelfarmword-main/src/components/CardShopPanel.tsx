@@ -18,6 +18,7 @@ import {
   RARITY_COLORS,
   FONT_STYLES,
   BORDER_STYLES,
+  DEFAULT_CUSTOMIZATION,
   getThemeOverlay,
   checkThemeUnlock,
   type CardThemeOverlay,
@@ -25,6 +26,7 @@ import {
   type CardRarity,
   type CardFontStyle,
   type CardBorderStyle,
+  type CardBackgroundStyle,
 } from '../data/cardThemes';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -187,7 +189,11 @@ const CollectibleCardItem: React.FC<{
   isUnlocked: boolean;
   progress: number;
   onCollect?: (cardId: string) => void;
-}> = ({ card, isUnlocked, progress, onCollect }) => {
+  isThemeOwned?: boolean;
+  rewardThemeName?: string;
+  onClaimTheme?: () => void;
+  onEquipTheme?: () => void;
+}> = ({ card, isUnlocked, progress, onCollect, isThemeOwned = false, rewardThemeName, onClaimTheme, onEquipTheme }) => {
   const rarity = RARITY_COLORS[card.rarity];
   const progressPct = Math.min(progress / card.unlockTarget, 1);
   const conditionMet = progress >= card.unlockTarget;
@@ -241,6 +247,31 @@ const CollectibleCardItem: React.FC<{
         <View style={styles.collectibleUnlockedBadge}>
           <Text style={styles.collectibleUnlockedText}>{'✓ Koleksiyonda'}</Text>
         </View>
+      )}
+      {isUnlocked && card.rewardThemeId && (
+        <View style={styles.collectibleThemeReward}>
+          <Text style={styles.collectibleThemeRewardText}>
+            {`🎨 Tema: ${rewardThemeName || card.rewardThemeId}`}
+          </Text>
+        </View>
+      )}
+      {isUnlocked && card.rewardThemeId && isThemeOwned && onEquipTheme && (
+        <TouchableOpacity
+          style={styles.collectibleEquipBtn}
+          onPress={onEquipTheme}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.collectibleEquipText}>{'🎨 Tasarımı Kullan'}</Text>
+        </TouchableOpacity>
+      )}
+      {isUnlocked && card.rewardThemeId && !isThemeOwned && onClaimTheme && (
+        <TouchableOpacity
+          style={styles.collectibleClaimBtn}
+          onPress={onClaimTheme}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.collectibleClaimText}>{'🎁 Tasarımı Al'}</Text>
+        </TouchableOpacity>
       )}
       {/* Collect button — condition met but not yet collected */}
       {!isUnlocked && conditionMet && onCollect && (
@@ -370,7 +401,13 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
 
   const handleEquipTheme = useCallback((themeId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    useFarmStore.getState().setActiveCardTheme(themeId);
+    const store = useFarmStore.getState();
+    store.setActiveCardTheme(themeId);
+
+    // "Varsayılan"a dönünce tüm kişiselleştirmeyi ilk haline sıfırla
+    if (themeId === 'default') {
+      store.updateCardCustomization({ ...DEFAULT_CUSTOMIZATION });
+    }
   }, []);
 
   // Şartı sağlanmış achievement temayı ücretsiz al
@@ -394,12 +431,43 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
       // checkCollectibleCards bulmadıysa, manuel olarak ekle
       const state = useFarmStore.getState();
       if (!state.collectedCards.includes(cardId)) {
-        useFarmStore.setState({ collectedCards: [...state.collectedCards, cardId] });
         const card = COLLECTIBLE_CARDS.find(c => c.id === cardId);
+        const rewardThemeId = card?.rewardThemeId;
+        const shouldUnlockTheme = !!(
+          rewardThemeId &&
+          getThemeOverlay(rewardThemeId) &&
+          !state.ownedCardThemes.includes(rewardThemeId)
+        );
+
+        useFarmStore.setState({
+          collectedCards: [...state.collectedCards, cardId],
+          ownedCardThemes: shouldUnlockTheme && rewardThemeId
+            ? [...state.ownedCardThemes, rewardThemeId]
+            : state.ownedCardThemes,
+        });
         Alert.alert('🎉 Kart Toplandı!', `${card?.emoji || '🏆'} ${card?.name || 'Kart'} koleksiyonuna eklendi!`);
       }
     }
   }, []);
+
+  const handleClaimCollectibleTheme = useCallback((card: CollectibleCard) => {
+    if (!card.rewardThemeId) return;
+    const rewardTheme = getThemeOverlay(card.rewardThemeId);
+    if (!rewardTheme) return;
+
+    const state = useFarmStore.getState();
+    if (state.ownedCardThemes.includes(rewardTheme.id)) {
+      handleEquipTheme(rewardTheme.id);
+      return;
+    }
+
+    useFarmStore.setState({
+      ownedCardThemes: [...state.ownedCardThemes, rewardTheme.id],
+      activeCardTheme: rewardTheme.id,
+    });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    Alert.alert('Tema Acildi', `${rewardTheme.emoji} ${rewardTheme.name} artik kullanima hazir!`);
+  }, [handleEquipTheme]);
 
   // Tema için unlock kontrolü (her tema için hesapla)
   const themeUnlockMap = useMemo(() => {
@@ -414,6 +482,20 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
 
   const handleCustomizationChange = useCallback((key: string, value: any) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (key === 'compactMode') {
+      useFarmStore.getState().updateCardCustomization({
+        compactMode: !!value,
+        largeMode: value ? false : useFarmStore.getState().cardCustomization.largeMode,
+      });
+      return;
+    }
+    if (key === 'largeMode') {
+      useFarmStore.getState().updateCardCustomization({
+        largeMode: !!value,
+        compactMode: value ? false : useFarmStore.getState().cardCustomization.compactMode,
+      });
+      return;
+    }
     useFarmStore.getState().updateCardCustomization({ [key]: value });
   }, []);
 
@@ -543,15 +625,24 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
               Başarılarınla özel kartlar kazan!
             </Text>
             <View style={styles.collectibleGrid}>
-              {COLLECTIBLE_CARDS.map((card) => (
-                <CollectibleCardItem
-                  key={card.id}
-                  card={card}
-                  isUnlocked={collectedCards.includes(card.id)}
-                  progress={collectibleProgress[card.id] || 0}
-                  onCollect={handleCollectCard}
-                />
-              ))}
+              {COLLECTIBLE_CARDS.map((card) => {
+                const rewardTheme = card.rewardThemeId ? getThemeOverlay(card.rewardThemeId) : undefined;
+                const isThemeOwned = !!(rewardTheme && ownedThemes.includes(rewardTheme.id));
+
+                return (
+                  <CollectibleCardItem
+                    key={card.id}
+                    card={card}
+                    isUnlocked={collectedCards.includes(card.id)}
+                    progress={collectibleProgress[card.id] || 0}
+                    onCollect={handleCollectCard}
+                    isThemeOwned={isThemeOwned}
+                    rewardThemeName={rewardTheme?.name}
+                    onClaimTheme={() => handleClaimCollectibleTheme(card)}
+                    onEquipTheme={rewardTheme ? () => handleEquipTheme(rewardTheme.id) : undefined}
+                  />
+                );
+              })}
             </View>
           </View>
         )}
@@ -605,6 +696,31 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
               ))}
             </View>
 
+            {/* Background Style */}
+            <Text style={styles.sectionTitle}>🌾 Arka Plan</Text>
+            <View style={styles.optionRow}>
+              {([
+                { key: 'default', label: 'Varsayilan' },
+                { key: 'soil', label: 'Toprak' },
+              ] as { key: CardBackgroundStyle; label: string }[]).map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[
+                    styles.optionChip,
+                    cardCustomization.backgroundStyle === option.key && styles.optionChipActive,
+                  ]}
+                  onPress={() => handleCustomizationChange('backgroundStyle', option.key)}
+                >
+                  <Text style={[
+                    styles.optionChipText,
+                    cardCustomization.backgroundStyle === option.key && styles.optionChipTextActive,
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
             {/* Toggle options */}
             <Text style={styles.sectionTitle}>🎛️ Görünüm Seçenekleri</Text>
             {[
@@ -612,6 +728,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
               { key: 'showProgressBar', label: 'İlerleme Çubuğu', desc: 'Hasat ilerlemesini göster' },
               { key: 'showLevel', label: 'Seviye Göster', desc: 'Kart seviyesini göster' },
               { key: 'compactMode', label: 'Kompakt Mod', desc: 'Kartları daha küçük göster' },
+              { key: 'largeMode', label: 'Büyük Kart Modu', desc: 'Kartları daha büyük göster' },
             ].map((opt) => (
               <TouchableOpacity
                 key={opt.key}
@@ -935,6 +1052,32 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   collectibleUnlockedText: { fontSize: 11, fontWeight: '700', color: '#86efac' },
+  collectibleThemeReward: {
+    marginTop: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(59,130,246,0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(96,165,250,0.35)',
+  },
+  collectibleThemeRewardText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#bfdbfe',
+    textAlign: 'center',
+  },
+  collectibleEquipBtn: {
+    backgroundColor: 'rgba(99,102,241,0.35)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(129,140,248,0.65)',
+    borderRadius: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  collectibleEquipText: { fontSize: 13, fontWeight: '800', color: '#e0e7ff' },
   collectibleClaimBtn: {
     backgroundColor: 'rgba(85,139,47,0.4)',
     borderWidth: 1.5,

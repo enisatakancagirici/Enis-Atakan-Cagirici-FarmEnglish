@@ -24,6 +24,7 @@ export const FONT_STYLES: Record<CardFontStyle, { label: string; fontFamily?: st
 
 // ─── Border style system ───
 export type CardBorderStyle = 'default' | 'glow' | 'sharp' | 'rounded' | 'none';
+export type CardBackgroundStyle = 'default' | 'soil';
 
 export const BORDER_STYLES: Record<CardBorderStyle, { label: string; borderRadius: number; borderWidth: number; shadowRadius: number }> = {
   default: { label: 'Normal', borderRadius: 20, borderWidth: 1.5, shadowRadius: 12 },
@@ -58,19 +59,23 @@ export interface CardThemeOverlay {
 export interface CardCustomization {
   fontStyle: CardFontStyle;
   borderStyle: CardBorderStyle;
+  backgroundStyle: CardBackgroundStyle;
   showEmoji: boolean;
   showProgressBar: boolean;
   showLevel: boolean;
   compactMode: boolean;
+  largeMode: boolean;
 }
 
 export const DEFAULT_CUSTOMIZATION: CardCustomization = {
   fontStyle: 'default',
   borderStyle: 'default',
+  backgroundStyle: 'default',
   showEmoji: true,
   showProgressBar: true,
   showLevel: true,
   compactMode: false,
+  largeMode: false,
 };
 
 // ─── Collectible card definition ───
@@ -83,6 +88,7 @@ export interface CollectibleCard {
   unlockCondition: string;  // description
   unlockKey: string;        // programmatic key to check
   unlockTarget: number;     // target value
+  rewardThemeId?: string;   // optional theme reward unlock
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -357,39 +363,39 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
 
 export const COLLECTIBLE_CARDS: CollectibleCard[] = [
   // Milestone kartları
-  { id: 'first_harvest', name: 'İlk Hasat', description: 'İlk kelimeni hasat ettin!', rarity: 'common', emoji: '🌾', unlockCondition: 'İlk kelimeyi hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 1 },
-  { id: 'word_farmer', name: 'Kelime Çiftçisi', description: '50 kelime hasat ettin', rarity: 'common', emoji: '👨‍🌾', unlockCondition: '50 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 50 },
-  { id: 'harvest_master', name: 'Hasat Ustası', description: '200 kelime hasat ettin', rarity: 'rare', emoji: '🏅', unlockCondition: '200 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 200 },
-  { id: 'harvest_legend', name: 'Hasat Efsanesi', description: '500 kelime hasat ettin', rarity: 'epic', emoji: '🏆', unlockCondition: '500 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 500 },
+  { id: 'first_harvest', name: 'İlk Hasat', description: 'İlk kelimeni hasat ettin!', rarity: 'common', emoji: '🌾', unlockCondition: 'İlk kelimeyi hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 1, rewardThemeId: 'nature' },
+  { id: 'word_farmer', name: 'Kelime Çiftçisi', description: '50 kelime hasat ettin', rarity: 'common', emoji: '👨‍🌾', unlockCondition: '50 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 50, rewardThemeId: 'forest' },
+  { id: 'harvest_master', name: 'Hasat Ustası', description: '200 kelime hasat ettin', rarity: 'rare', emoji: '🏅', unlockCondition: '200 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 200, rewardThemeId: 'soil' },
+  { id: 'harvest_legend', name: 'Hasat Efsanesi', description: '500 kelime hasat ettin', rarity: 'epic', emoji: '🏆', unlockCondition: '500 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 500, rewardThemeId: 'dragon' },
   
   // Quiz kartları
-  { id: 'quiz_starter', name: 'Quiz Başlangıcı', description: 'İlk quiz\'ini tamamladın', rarity: 'common', emoji: '📝', unlockCondition: 'İlk quiz\'i tamamla', unlockKey: 'totalQuizzes', unlockTarget: 1 },
-  { id: 'quiz_addict', name: 'Quiz Tutkunu', description: '100 quiz tamamladın', rarity: 'rare', emoji: '🧠', unlockCondition: '100 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 100 },
-  { id: 'quiz_master', name: 'Quiz Ustası', description: '500 quiz tamamladın', rarity: 'epic', emoji: '🎓', unlockCondition: '500 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 500 },
+  { id: 'quiz_starter', name: 'Quiz Başlangıcı', description: 'İlk quiz\'ini tamamladın', rarity: 'common', emoji: '📝', unlockCondition: 'İlk quiz\'i tamamla', unlockKey: 'totalQuizzes', unlockTarget: 1, rewardThemeId: 'minimal' },
+  { id: 'quiz_addict', name: 'Quiz Tutkunu', description: '100 quiz tamamladın', rarity: 'rare', emoji: '🧠', unlockCondition: '100 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 100, rewardThemeId: 'neon' },
+  { id: 'quiz_master', name: 'Quiz Ustası', description: '500 quiz tamamladın', rarity: 'epic', emoji: '🎓', unlockCondition: '500 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 500, rewardThemeId: 'galaxy' },
   
   // Combo kartları
-  { id: 'combo_5', name: 'Combo Başlangıcı', description: '5 combo yaptın', rarity: 'common', emoji: '🔥', unlockCondition: '5 combo yap', unlockKey: 'bestStreak', unlockTarget: 5 },
-  { id: 'combo_20', name: 'Combo Avcısı', description: '20 combo yaptın', rarity: 'rare', emoji: '⚡', unlockCondition: '20 combo yap', unlockKey: 'bestStreak', unlockTarget: 20 },
-  { id: 'combo_50', name: 'Combo Kralı', description: '50 combo yaptın', rarity: 'epic', emoji: '👑', unlockCondition: '50 combo yap', unlockKey: 'bestStreak', unlockTarget: 50 },
-  { id: 'combo_100', name: 'Combo Efsanesi', description: '100 combo yaptın!', rarity: 'legendary', emoji: '🌟', unlockCondition: '100 combo yap', unlockKey: 'bestStreak', unlockTarget: 100 },
+  { id: 'combo_5', name: 'Combo Başlangıcı', description: '5 combo yaptın', rarity: 'common', emoji: '🔥', unlockCondition: '5 combo yap', unlockKey: 'bestStreak', unlockTarget: 5, rewardThemeId: 'sunset' },
+  { id: 'combo_20', name: 'Combo Avcısı', description: '20 combo yaptın', rarity: 'rare', emoji: '⚡', unlockCondition: '20 combo yap', unlockKey: 'bestStreak', unlockTarget: 20, rewardThemeId: 'retro' },
+  { id: 'combo_50', name: 'Combo Kralı', description: '50 combo yaptın', rarity: 'epic', emoji: '👑', unlockCondition: '50 combo yap', unlockKey: 'bestStreak', unlockTarget: 50, rewardThemeId: 'cyberpunk' },
+  { id: 'combo_100', name: 'Combo Efsanesi', description: '100 combo yaptın!', rarity: 'legendary', emoji: '🌟', unlockCondition: '100 combo yap', unlockKey: 'bestStreak', unlockTarget: 100, rewardThemeId: 'holographic' },
   
   // Battle kartları
-  { id: 'first_battle', name: 'İlk Zafer', description: 'İlk savaşını kazandın', rarity: 'common', emoji: '⚔️', unlockCondition: 'İlk battle\'ı kazan', unlockKey: 'battleWins', unlockTarget: 1 },
-  { id: 'battle_veteran', name: 'Savaş Gazisi', description: '25 savaş kazandın', rarity: 'rare', emoji: '🛡️', unlockCondition: '25 battle kazan', unlockKey: 'battleWins', unlockTarget: 25 },
-  { id: 'battle_champion', name: 'Şampiyon', description: '100 savaş kazandın', rarity: 'epic', emoji: '🏅', unlockCondition: '100 battle kazan', unlockKey: 'battleWins', unlockTarget: 100 },
+  { id: 'first_battle', name: 'İlk Zafer', description: 'İlk savaşını kazandın', rarity: 'common', emoji: '⚔️', unlockCondition: 'İlk battle\'ı kazan', unlockKey: 'battleWins', unlockTarget: 1, rewardThemeId: 'amber' },
+  { id: 'battle_veteran', name: 'Savaş Gazisi', description: '25 savaş kazandın', rarity: 'rare', emoji: '🛡️', unlockCondition: '25 battle kazan', unlockKey: 'battleWins', unlockTarget: 25, rewardThemeId: 'crystal' },
+  { id: 'battle_champion', name: 'Şampiyon', description: '100 savaş kazandın', rarity: 'epic', emoji: '🏅', unlockCondition: '100 battle kazan', unlockKey: 'battleWins', unlockTarget: 100, rewardThemeId: 'phoenix' },
   
   // Streak kartları
-  { id: 'streak_7', name: 'Haftalık Seri', description: '7 günlük seri', rarity: 'rare', emoji: '📆', unlockCondition: '7 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 7 },
-  { id: 'streak_30', name: 'Aylık Seri', description: '30 günlük seri', rarity: 'epic', emoji: '🗓️', unlockCondition: '30 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 30 },
-  { id: 'streak_100', name: 'Yüz Gün!', description: '100 günlük seri!', rarity: 'legendary', emoji: '💯', unlockCondition: '100 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 100 },
+  { id: 'streak_7', name: 'Haftalık Seri', description: '7 günlük seri', rarity: 'rare', emoji: '📆', unlockCondition: '7 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 7, rewardThemeId: 'cherry' },
+  { id: 'streak_30', name: 'Aylık Seri', description: '30 günlük seri', rarity: 'epic', emoji: '🗓️', unlockCondition: '30 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 30, rewardThemeId: 'aurora' },
+  { id: 'streak_100', name: 'Yüz Gün!', description: '100 günlük seri!', rarity: 'legendary', emoji: '💯', unlockCondition: '100 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 100, rewardThemeId: 'royal' },
   
   // Coin kartları
-  { id: 'rich_farmer', name: 'Zengin Çiftçi', description: '10.000 coin kazandın', rarity: 'rare', emoji: '💰', unlockCondition: '10.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 10000 },
-  { id: 'millionaire', name: 'Milyoner', description: '100.000 coin kazandın', rarity: 'legendary', emoji: '💎', unlockCondition: '100.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 100000 },
+  { id: 'rich_farmer', name: 'Zengin Çiftçi', description: '10.000 coin kazandın', rarity: 'rare', emoji: '💰', unlockCondition: '10.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 10000, rewardThemeId: 'diamond' },
+  { id: 'millionaire', name: 'Milyoner', description: '100.000 coin kazandın', rarity: 'legendary', emoji: '💎', unlockCondition: '100.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 100000, rewardThemeId: 'royal' },
 
   // Plant kartları
-  { id: 'planter_100', name: 'Ekici', description: '100 kelime ektin', rarity: 'rare', emoji: '🌱', unlockCondition: '100 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 100 },
-  { id: 'planter_500', name: 'Baş Ekici', description: '500 kelime ektin', rarity: 'epic', emoji: '🌳', unlockCondition: '500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 500 },
+  { id: 'planter_100', name: 'Ekici', description: '100 kelime ektin', rarity: 'rare', emoji: '🌱', unlockCondition: '100 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 100, rewardThemeId: 'ocean' },
+  { id: 'planter_500', name: 'Baş Ekici', description: '500 kelime ektin', rarity: 'epic', emoji: '🌳', unlockCondition: '500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 500, rewardThemeId: 'soil' },
 ];
 
 // ═══════════════════════════════════════════════════════════════
