@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   PanResponder,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -2246,6 +2247,12 @@ export const NicknameModal = memo(() => {
   
   const handleSave = useCallback(() => {
     if (name.trim().length > 0) {
+      // 🚫 Küfür kontrolü
+      const { isNicknameClean } = require('../utils/firebaseBattle');
+      if (!isNicknameClean(name.trim())) {
+        Alert.alert('Uygunsuz İsim', 'Bu isim uygunsuz ifade içeriyor. Lütfen farklı bir ad seçin.');
+        return;
+      }
       haptic.medium();
       setNickname(name.trim());
       setShowNicknameModal(false);

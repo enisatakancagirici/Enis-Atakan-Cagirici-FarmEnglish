@@ -24,7 +24,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Swords, User, Trophy, Shield, ChevronRight, Zap, CheckCircle, XCircle } from 'lucide-react-native';
 import { useFarmStore } from '../store/farmStore';
 import { haptic } from '../utils/sound';
-import { checkNicknameAvailable, registerUser, getUser } from '../utils/firebaseBattle';
+import { checkNicknameAvailable, registerUser, getUser, isNicknameClean } from '../utils/firebaseBattle';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -96,6 +96,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
 
         if (trimmedName.length < 2) {
             Alert.alert('Hata', 'Takma ad en az 2 karakter olmalı');
+            return;
+        }
+
+        if (!isNicknameClean(trimmedName)) {
+            Alert.alert('Uygunsuz İsim', 'Bu kullanıcı adı uygunsuz ifade içeriyor. Lütfen farklı bir ad seçin.');
             return;
         }
 

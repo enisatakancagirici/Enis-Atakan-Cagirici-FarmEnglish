@@ -58,7 +58,7 @@ import { X, Zap, Flame, Star, Trophy, Swords, Crown, Check, AlertCircle } from '
 import ConfettiCannon from 'react-native-confetti-cannon';
 
 import { useFarmStore } from '../store/farmStore';
-
+import { BattleLoadingScreen } from '../components/BattleLoadingScreen';
 import { haptic, sound } from '../utils/sound';
 
 import {
@@ -593,6 +593,11 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     const isAuthenticated = useFarmStore((s) => s.isAuthenticated);
 
+    // Battle stats for loading screen
+    const battleWins = useFarmStore((s) => s.battleWins);
+    const battleLosses = useFarmStore((s) => s.battleLosses);
+    const bestBattleStreak = useFarmStore((s) => s.bestBattleStreak);
+
     // Actions
 
     const setBattleState = useFarmStore((s) => s.setBattleState);
@@ -1071,7 +1076,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                 if (isCancelled) return;
 
-                await joinMatchmaking(user.odId, nickname || user.nickname, level);
+                await joinMatchmaking(user.odId, user?.nickname || nickname || 'Player', level);
 
                 // 👍‚ 1. PASIF: Biri beni bulup davet etti mi? (Listener)
 
@@ -1155,7 +1160,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                             if (battleData.hostId !== user!.odId) {
                                 await updateDoc(battleRef, {
                                     guestId: user!.odId,
-                                    guestNickname: nickname || user!.nickname,
+                                    guestNickname: user?.nickname || nickname || 'Player',
                                     guestLastActiveAt: serverTimestamp(),
                                     status: 'inProgress',
                                     startedAt: serverTimestamp()
@@ -1308,7 +1313,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                 hostId: user!.odId,
 
-                                hostNickname: nickname || user!.nickname,
+                                hostNickname: user?.nickname || nickname || 'Player',
 
                                 guestId: null,
 
@@ -2096,7 +2101,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     // ===============================
 
-    // 1. MATCHMAKING VIEW
+    // 1. MATCHMAKING VIEW — Şaşalı Battle Loading Screen
 
     if (battleState === 'searching' || battleState === 'matched') {
 
@@ -2104,37 +2109,20 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
             <SafeAreaView style={styles.container}>
 
-                <LinearGradient colors={['#1a1b2e', '#2d1b4e']} style={styles.gradient} />
-
-                <View style={styles.matchmakingContainer}>
-
-                    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-
-                        <Swords color="#8b5cf6" size={80} />
-
-                    </Animated.View>
-
-                    <Text style={styles.matchmakingTitle}>
-
-                        {battleState === 'matched' ? 'Rakip Bulundu!' : 'Rakip Aranıyor...'}
-
-                    </Text>
-
-                    <Text style={styles.matchmakingSubtitle}>
-
-                        {battleState === 'matched' ? 'Savaş başlıyor...' : 'Benzer seviyede rakip bekleniyor'}
-
-                    </Text>
-
-                    {battleState === 'searching' && <ActivityIndicator size="large" color="#8b5cf6" style={{ marginTop: 20 }} />}
-
-                    <Pressable style={styles.cancelButton} onPress={handleExit}>
-
-                        <Text style={styles.cancelButtonText}>İptal</Text>
-
-                    </Pressable>
-
-                </View>
+                <BattleLoadingScreen
+                    myNickname={nickname || user?.nickname || 'Sen'}
+                    opponentNickname={opponentInfo?.nickname}
+                    myWins={battleWins}
+                    myLosses={battleLosses}
+                    myBestStreak={bestBattleStreak}
+                    myLevel={level}
+                    opponentWins={undefined}
+                    opponentLosses={undefined}
+                    opponentBestStreak={undefined}
+                    opponentLevel={opponentInfo?.level}
+                    status={battleState === 'matched' ? 'matched' : 'searching'}
+                    onCancel={handleExit}
+                />
 
             </SafeAreaView>
 

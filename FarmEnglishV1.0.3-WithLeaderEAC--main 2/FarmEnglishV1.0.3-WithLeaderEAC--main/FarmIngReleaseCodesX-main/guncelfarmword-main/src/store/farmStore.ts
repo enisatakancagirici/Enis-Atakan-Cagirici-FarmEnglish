@@ -607,7 +607,22 @@ export const useFarmStore = create<FarmStore>()(
       // 👤 KULLANICI PROFİL
       nickname: undefined,
       showNicknameModal: false,
-      setNickname: (name) => set({ nickname: name }),
+      setNickname: (name) => {
+        set({ nickname: name });
+        // ⚡ Firebase'de de güncelle (eğer kullanıcı kayıtlıysa)
+        const state = get();
+        if (state.user?.odId && state.isAuthenticated) {
+          // user objesindeki nickname'i de güncelle
+          set({ user: { ...state.user, nickname: name } });
+          // Firebase async güncelle (fire-and-forget)
+          import('../utils/firebaseBattle').then(({ db }) => {
+            import('firebase/firestore').then(({ doc, updateDoc }) => {
+              const userRef = doc(db, 'users', state.user!.odId);
+              updateDoc(userRef, { nickname: name, nicknameLower: name.toLowerCase().trim() }).catch(() => {});
+            });
+          }).catch(() => {});
+        }
+      },
       setShowNicknameModal: (show) => set({ showNicknameModal: show }),
 
       // ===============================

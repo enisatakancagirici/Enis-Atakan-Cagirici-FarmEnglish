@@ -1861,6 +1861,7 @@ export function FarmScreen() {
                         screenWidth={SCREEN_WIDTH}
                         screenHeight={SCREEN_HEIGHT}
                       />
+                      />
                     </View>
                   );
                 }}
