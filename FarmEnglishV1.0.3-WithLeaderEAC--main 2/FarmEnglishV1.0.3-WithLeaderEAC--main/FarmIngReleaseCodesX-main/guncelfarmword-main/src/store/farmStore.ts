@@ -19,10 +19,41 @@ let dailyQuestResetInFlight = false;
 let lastQuestCheckTime = 0; // Debounce: at most every 30s
 let questInitInFlight = false; // Guard for initializeAllQuests re-entry
 
-// � Cached Firebase updateUserStats — dynamic import her hasat'ta yapılmasın
+// 🔄 Cached Firebase updateUserStats — dynamic import her hasat'ta yapılmasın
 let _cachedUpdateUserStats: ((odId: string, updates: any) => Promise<void>) | null = null;
+// 🔄 Cached Firebase db + firestore refs — nickname güncellemesi için
+let _cachedDb: any = null;
+let _cachedFirestoreFns: { doc: any; updateDoc: any } | null = null;
+let _firebaseImportInFlight = false;
 
-// �🛡️ Cached RewardToast reference — no more dynamic import crashes
+/** Firebase modülünü bir kez import edip cache'le — tüm dynamic import'ları ortadan kaldırır */
+function ensureFirebaseCache(): Promise<void> {
+  if (_cachedUpdateUserStats && _cachedDb && _cachedFirestoreFns) return Promise.resolve();
+  if (_firebaseImportInFlight) return new Promise((resolve) => setTimeout(resolve, 500)); // bekle
+  _firebaseImportInFlight = true;
+  return import('../utils/firebaseBattle').then((mod) => {
+    _cachedUpdateUserStats = mod.updateUserStats;
+    _cachedDb = mod.db;
+    return import('firebase/firestore').then((fs) => {
+      _cachedFirestoreFns = { doc: fs.doc, updateDoc: fs.updateDoc };
+    });
+  }).catch(() => {}).finally(() => { _firebaseImportInFlight = false; });
+}
+
+/** Cached updateUserStats — null-safe fire-and-forget */
+function safeSyncFirebase(odId: string, updates: any) {
+  try {
+    if (_cachedUpdateUserStats) {
+      _cachedUpdateUserStats(odId, updates).catch(() => {});
+    } else {
+      ensureFirebaseCache().then(() => {
+        _cachedUpdateUserStats?.(odId, updates)?.catch(() => {});
+      });
+    }
+  } catch (e) {}
+}
+
+// 🛡️ Cached RewardToast reference — no more dynamic import crashes
 let _cachedShowRewardToast: ((type: string, value: number, message?: string) => void) | null = null;
 let _toastImportAttempted = false;
 
@@ -614,13 +645,20 @@ export const useFarmStore = create<FarmStore>()(
         if (state.user?.odId && state.isAuthenticated) {
           // user objesindeki nickname'i de güncelle
           set({ user: { ...state.user, nickname: name } });
-          // Firebase async güncelle (fire-and-forget)
-          import('../utils/firebaseBattle').then(({ db }) => {
-            import('firebase/firestore').then(({ doc, updateDoc }) => {
-              const userRef = doc(db, 'users', state.user!.odId);
-              updateDoc(userRef, { nickname: name, nicknameLower: name.toLowerCase().trim() }).catch(() => {});
-            });
-          }).catch(() => {});
+          // Firebase async güncelle (fire-and-forget) — cached, dynamic import yok
+          try {
+            if (_cachedDb && _cachedFirestoreFns) {
+              const userRef = _cachedFirestoreFns.doc(_cachedDb, 'users', state.user!.odId);
+              _cachedFirestoreFns.updateDoc(userRef, { nickname: name, nicknameLower: name.toLowerCase().trim() }).catch(() => {});
+            } else {
+              ensureFirebaseCache().then(() => {
+                if (_cachedDb && _cachedFirestoreFns) {
+                  const userRef = _cachedFirestoreFns.doc(_cachedDb, 'users', state.user!.odId);
+                  _cachedFirestoreFns.updateDoc(userRef, { nickname: name, nicknameLower: name.toLowerCase().trim() }).catch(() => {});
+                }
+              });
+            }
+          } catch (e) {}
         }
       },
       setShowNicknameModal: (show) => set({ showNicknameModal: show }),
@@ -1735,14 +1773,10 @@ export const useFarmStore = create<FarmStore>()(
         const newScore = get().puzzleScore + points;
         set({ puzzleScore: newScore });
 
-        // Firebase'e sync - güvenli async
+        // Firebase'e sync - cached, güvenli
         const user = get().user;
         if (user?.odId) {
-          setTimeout(() => {
-            import('../utils/firebaseBattle').then(({ updateUserStats }) => {
-              updateUserStats(user.odId, { puzzleScore: newScore }).catch(() => {});
-            }).catch(() => {});
-          }, 100);
+          setTimeout(() => safeSyncFirebase(user.odId, { puzzleScore: newScore }), 100);
         }
       },
 
@@ -1750,14 +1784,10 @@ export const useFarmStore = create<FarmStore>()(
         const newScore = get().sesyapScore + points;
         set({ sesyapScore: newScore });
 
-        // Firebase'e sync - güvenli async
+        // Firebase'e sync - cached, güvenli
         const user = get().user;
         if (user?.odId) {
-          setTimeout(() => {
-            import('../utils/firebaseBattle').then(({ updateUserStats }) => {
-              updateUserStats(user.odId, { sesyapScore: newScore }).catch(() => {});
-            }).catch(() => {});
-          }, 100);
+          setTimeout(() => safeSyncFirebase(user.odId, { sesyapScore: newScore }), 100);
         }
       },
 

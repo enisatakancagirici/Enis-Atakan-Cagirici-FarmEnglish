@@ -635,6 +635,7 @@ const PremiumMenuCard = ({
   accentColor = "#FFFFFF",
   delay = 0,
   hasBounce = false,
+  helpText,
 }: any) => {
   const config = usePerformanceStore(s => s.config);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -830,6 +831,22 @@ const PremiumMenuCard = ({
               />
             )}
 
+            {/* ❓ Help Icon - Top Right */}
+            {helpText && (
+              <TouchableOpacity
+                style={styles.helpIconContainer}
+                activeOpacity={0.7}
+                onPress={(e) => {
+                  e.stopPropagation?.();
+                  haptic.light();
+                  Alert.alert(title || "Bilgi", helpText);
+                }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={styles.helpIconText}>❓</Text>
+              </TouchableOpacity>
+            )}
+
             {/* Content */}
             {(title || subtitle) && (
               <View style={styles.cardTextContainer}>
@@ -870,11 +887,12 @@ const PremiumGridMenu = ({
           onPress={onQuizPress}
           imageSource={PRELOADED_IMAGES.quiz}
           title="QUIZ"
-          subtitle=""
+          subtitle="Kelime topla tarlana ek!"
           size="large"
           accentColor="#A855F7"
           delay={0}
           hasBounce={true}
+          helpText="Kelime quizü çöz, doğru bil tarlana tohum ek! Yanlış bilsen bile kelime tarlana eklenir."
         />
         <PremiumMenuCard
           onPress={onRandomPress}
@@ -893,20 +911,22 @@ const PremiumGridMenu = ({
           onPress={onInventoryPress}
           imageSource={PRELOADED_IMAGES.envanter}
           title="ENVANTER"
-          subtitle=""
+          subtitle="Hasatların için tarlaya ek!"
           size="small"
           accentColor="#60A5FA"
           delay={100}
+          helpText="Hasat ettiğin kelimeler burada! Tarlaya geri göndererek tekrar çalışabilirsin."
         />
         <PremiumMenuCard
           onPress={onFarmPress}
           imageSource={PRELOADED_IMAGES.farm}
-          title="FARM"
-          subtitle=""
+          title="ÇİFTLİK"
+          subtitle="Kelimelerini büyüt hasat et!"
           size="large"
           accentColor="#22C55E"
           delay={150}
           hasBounce={true}
+          helpText="Kelimelerini burada büyüt! Quiz çöz, yeşille, hasat et. Hasat = Öğrendin!"
         />
       </View>
 
@@ -916,19 +936,21 @@ const PremiumGridMenu = ({
           onPress={onPuzzlePress}
           imageSource={PRELOADED_IMAGES.puzzle}
           title="PUZZLE"
-          subtitle=""
+          subtitle="Cümle pratiği"
           size="medium"
           accentColor="#F97316"
           delay={200}
+          helpText="Cümlelerdeki kelimeleri doğru sıraya diz! 4300+ örnek cümle ile pratik yap."
         />
         <PremiumMenuCard
           onPress={onPhrasalPress}
           imageSource={PRELOADED_IMAGES.phrasal}
           title="PHRASAL"
-          subtitle=""
+          subtitle="Deyimleri öğren"
           size="medium"
           accentColor="#EC4899"
           delay={250}
+          helpText="give up, look after gibi deyimsel fiilleri öğren! Ayrı tarla, ayrı quiz."
         />
       </View>
 
@@ -1009,7 +1031,7 @@ const PremiumGridMenu = ({
           <View style={styles.marketTextContainer}>
             <Text style={styles.marketTitle}>🏪 MARKET</Text>
             <Text style={styles.marketSubtitle}>
-              Tohum Pazarı • Phrasal Verbs • Güç Mağazası
+              Güçlen • Tohum Pazarı • Güç Mağazası
             </Text>
           </View>
           <ChevronRight size={24} color="#a78bfa" />
@@ -2215,6 +2237,23 @@ const styles = StyleSheet.create({
     width: 80,
     height: 300,
     backgroundColor: "rgba(255, 255, 255, 0.15)",
+  },
+
+  // Help Icon
+  helpIconContainer: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  helpIconText: {
+    fontSize: 14,
   },
 
   // Card Text Container

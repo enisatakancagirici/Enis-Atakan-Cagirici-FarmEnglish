@@ -235,6 +235,19 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
     emoji: '🟤',
     previewGradient: ['#451a03', '#78350f', '#451a03'],
   },
+  {
+    id: 'soil',
+    name: 'Toprak',
+    description: 'Bereketli çiftlik toprağı',
+    rarity: 'rare',
+    price: 1500,
+    gradientTint: ['rgba(93, 64, 55, 0.18)', 'rgba(62, 39, 35, 0.18)'],
+    borderColor: 'rgba(141, 110, 99, 0.75)',
+    borderGlow: '#8D6E63',
+    particleColor: '#A1887F',
+    emoji: '🌾',
+    previewGradient: ['#2C1810', '#4E342E', '#2C1810'],
+  },
 
   // ── EPIC (5000-10000 coins) ──
   {

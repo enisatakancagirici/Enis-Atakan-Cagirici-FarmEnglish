@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         padding: normalize(24),
         alignItems: 'center',
-        paddingBottom: normalize(40), // Extra padding at bottom
+        paddingBottom: normalize(120), // Extra padding at bottom for nav bar
     },
     // ... existing header, iconContainer, title, subtitle, scoreCard, etc ...
     header: {

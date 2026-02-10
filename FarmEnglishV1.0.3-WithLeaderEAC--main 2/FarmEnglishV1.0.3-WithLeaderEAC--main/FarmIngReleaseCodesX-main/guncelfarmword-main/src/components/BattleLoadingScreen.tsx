@@ -805,7 +805,7 @@ const styles = StyleSheet.create({
   // Cancel
   cancelContainer: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 140 : 120,
+    bottom: Platform.OS === 'ios' ? 200 : 180,
   },
   cancelButton: {
     paddingHorizontal: 28,

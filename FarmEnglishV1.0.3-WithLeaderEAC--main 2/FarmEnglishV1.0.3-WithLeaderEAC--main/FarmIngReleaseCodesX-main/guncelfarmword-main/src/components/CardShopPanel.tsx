@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   Dimensions,
   Alert,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFarmStore } from '../store/farmStore';
@@ -35,30 +36,76 @@ interface CardShopPanelProps {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// � TOPRAK RENK PALETİ
+// ═══════════════════════════════════════════════════════════════
+const SOIL_COLORS = {
+  darkSoil: '#2C1810',
+  richSoil: '#3E2723',
+  mediumSoil: '#4E342E',
+  lightSoil: '#5D4037',
+  warmSoil: '#6D4C41',
+  sandySoil: '#8D6E63',
+  dirtAccent: '#A1887F',
+  grassGreen: '#558B2F',
+  leafGreen: '#33691E',
+  wheat: '#F9A825',
+  straw: '#FFD54F',
+  root: '#795548',
+  pebble: '#9E9E9E',
+  clayOrange: '#BF360C',
+};
+
+// ═══════════════════════════════════════════════════════════════
 // 🎨 Kart Önizleme Bileşeni
 // ═══════════════════════════════════════════════════════════════
 const ThemePreviewCard: React.FC<{
   theme: CardThemeOverlay;
   isOwned: boolean;
   isActive: boolean;
+  isUnlockable: boolean;
   coins: number;
   onBuy: () => void;
   onEquip: () => void;
-}> = ({ theme, isOwned, isActive, coins, onBuy, onEquip }) => {
+  onClaim: () => void;
+}> = ({ theme, isOwned, isActive, isUnlockable, coins, onBuy, onEquip, onClaim }) => {
   const rarity = RARITY_COLORS[theme.rarity];
   const canAfford = theme.price === 0 || coins >= theme.price;
 
   return (
     <View style={[styles.themeCard, { borderColor: rarity.border }]}>
+      {/* Toprak arka plan katmanı */}
       <LinearGradient
-        colors={[...theme.previewGradient] as [string, string, string]}
+        colors={[SOIL_COLORS.darkSoil, SOIL_COLORS.richSoil, SOIL_COLORS.mediumSoil]}
         style={styles.themePreview}
       >
-        {/* Tint overlay */}
+        {/* Toprak doku efekti - küçük noktalar */}
+        <View style={styles.soilTextureOverlay}>
+          {[...Array(12)].map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.soilDot,
+                {
+                  left: `${(i * 23 + 7) % 90}%` as any,
+                  top: `${(i * 31 + 11) % 85}%` as any,
+                  width: 3 + (i % 3) * 2,
+                  height: 3 + (i % 3) * 2,
+                  backgroundColor: i % 2 === 0
+                    ? 'rgba(141,110,99,0.35)'
+                    : 'rgba(93,64,55,0.4)',
+                  borderRadius: 4,
+                },
+              ]}
+            />
+          ))}
+        </View>
+        {/* Tema tint overlay */}
         <LinearGradient
           colors={[...theme.gradientTint] as [string, string]}
-          style={StyleSheet.absoluteFill}
+          style={[StyleSheet.absoluteFill, { opacity: 0.6 }]}
         />
+        {/* Üstte çimen şeridi */}
+        <View style={styles.grassStripe} />
         {/* Card content preview */}
         <Text style={styles.themeEmoji}>{theme.emoji}</Text>
         <Text style={[styles.themePreviewWord, { color: theme.borderGlow }]}>
@@ -74,7 +121,7 @@ const ThemePreviewCard: React.FC<{
         }]} />
       </LinearGradient>
 
-      {/* Info section */}
+      {/* Info section - toprak tonlu arka plan */}
       <View style={styles.themeInfo}>
         <View style={styles.themeNameRow}>
           <Text style={styles.themeName}>{theme.name}</Text>
@@ -98,7 +145,16 @@ const ThemePreviewCard: React.FC<{
           >
             <Text style={styles.themeBtnEquipText}>Kullan</Text>
           </TouchableOpacity>
+        ) : theme.price === 0 && isUnlockable ? (
+          // Şart sağlanmış - hemen al butonu
+          <TouchableOpacity
+            style={[styles.themeBtn, styles.themeBtnClaim]}
+            onPress={onClaim}
+          >
+            <Text style={styles.themeBtnClaimText}>🎉 Hemen Al!</Text>
+          </TouchableOpacity>
         ) : theme.price === 0 ? (
+          // Şart henüz sağlanmamış
           <View style={[styles.themeBtn, styles.themeBtnLocked]}>
             <Text style={styles.themeBtnLockedText}>
               🔒 {theme.unlockDescription || 'Başarı ile aç'}
@@ -130,18 +186,43 @@ const CollectibleCardItem: React.FC<{
   card: CollectibleCard;
   isUnlocked: boolean;
   progress: number;
-}> = ({ card, isUnlocked, progress }) => {
+  onCollect?: (cardId: string) => void;
+}> = ({ card, isUnlocked, progress, onCollect }) => {
   const rarity = RARITY_COLORS[card.rarity];
   const progressPct = Math.min(progress / card.unlockTarget, 1);
+  const conditionMet = progress >= card.unlockTarget;
 
   return (
     <View style={[styles.collectibleCard, {
-      borderColor: isUnlocked ? rarity.border : 'rgba(100,100,100,0.3)',
-      opacity: isUnlocked ? 1 : 0.7,
+      borderColor: isUnlocked ? rarity.border : conditionMet ? SOIL_COLORS.wheat : 'rgba(100,100,100,0.3)',
+      opacity: isUnlocked ? 1 : conditionMet ? 1 : 0.7,
     }]}>
+      {/* Toprak arka plan */}
+      <LinearGradient
+        colors={isUnlocked
+          ? [SOIL_COLORS.richSoil, SOIL_COLORS.lightSoil]
+          : [SOIL_COLORS.darkSoil, SOIL_COLORS.richSoil]
+        }
+        style={StyleSheet.absoluteFill}
+      />
+      {/* Toprak doku noktaları */}
+      {[...Array(6)].map((_, i) => (
+        <View
+          key={i}
+          style={{
+            position: 'absolute',
+            left: `${(i * 29 + 5) % 85}%` as any,
+            top: `${(i * 37 + 8) % 80}%` as any,
+            width: 2 + (i % 2) * 2,
+            height: 2 + (i % 2) * 2,
+            backgroundColor: 'rgba(141,110,99,0.3)',
+            borderRadius: 3,
+          }}
+        />
+      ))}
       <View style={styles.collectibleTop}>
         <Text style={styles.collectibleEmoji}>
-          {isUnlocked ? card.emoji : '🔒'}
+          {isUnlocked ? card.emoji : conditionMet ? '🎁' : '🔒'}
         </Text>
         <View style={[styles.rarityBadge, { backgroundColor: rarity.bg }]}>
           <Text style={[styles.rarityText, { color: rarity.text }]}>
@@ -149,21 +230,37 @@ const CollectibleCardItem: React.FC<{
           </Text>
         </View>
       </View>
-      <Text style={[styles.collectibleName, !isUnlocked && styles.collectibleNameLocked]}>
-        {isUnlocked ? card.name : '???'}
+      <Text style={[styles.collectibleName, !isUnlocked && !conditionMet && styles.collectibleNameLocked]}>
+        {isUnlocked ? card.name : conditionMet ? card.name : '???'}
       </Text>
       <Text style={styles.collectibleDesc}>
-        {isUnlocked ? card.description : card.unlockCondition}
+        {isUnlocked ? card.description : conditionMet ? '✅ Şart sağlandı!' : card.unlockCondition}
       </Text>
-      {/* Progress bar */}
-      {!isUnlocked && (
+      {/* Unlocked badge */}
+      {isUnlocked && (
+        <View style={styles.collectibleUnlockedBadge}>
+          <Text style={styles.collectibleUnlockedText}>{'✓ Koleksiyonda'}</Text>
+        </View>
+      )}
+      {/* Collect button — condition met but not yet collected */}
+      {!isUnlocked && conditionMet && onCollect && (
+        <TouchableOpacity
+          style={styles.collectibleClaimBtn}
+          onPress={() => onCollect(card.id)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.collectibleClaimText}>{'🎉 Topla!'}</Text>
+        </TouchableOpacity>
+      )}
+      {/* Progress bar — only for not-yet-met conditions */}
+      {!isUnlocked && !conditionMet && (
         <View style={styles.collectibleProgressBg}>
           <View style={[styles.collectibleProgressFill, {
             width: `${progressPct * 100}%`,
             backgroundColor: rarity.border,
           }]} />
           <Text style={styles.collectibleProgressText}>
-            {progress}/{card.unlockTarget}
+            {`${progress}/${card.unlockTarget}`}
           </Text>
         </View>
       )}
@@ -184,6 +281,14 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
   const activeTheme = useFarmStore(s => s.activeCardTheme);
   const collectedCards = useFarmStore(s => s.collectedCards);
   const cardCustomization = useFarmStore(s => s.cardCustomization);
+
+  // Panel açıldığında koleksiyon kartlarını kontrol et
+  useEffect(() => {
+    const newCards = useFarmStore.getState().checkCollectibleCards();
+    if (newCards.length > 0) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  }, []);
 
   // Stats for unlock checks — individual primitives avoid new-object-per-render
   const lifetimeHarvests = useFarmStore(s => s.lifetimeHarvests || 0);
@@ -268,6 +373,45 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
     useFarmStore.getState().setActiveCardTheme(themeId);
   }, []);
 
+  // Şartı sağlanmış achievement temayı ücretsiz al
+  const handleClaimTheme = useCallback((theme: CardThemeOverlay) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    const success = useFarmStore.getState().purchaseCardTheme(theme.id);
+    if (success) {
+      Alert.alert('🎉 Tebrikler!', `${theme.emoji} ${theme.name} teması açıldı ve aktif edildi!`);
+    }
+  }, []);
+
+  // Koleksiyon kartını topla
+  const handleCollectCard = useCallback((cardId: string) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // checkCollectibleCards tüm eligible kartları toplar
+    const newCards = useFarmStore.getState().checkCollectibleCards();
+    if (newCards.length > 0) {
+      const card = COLLECTIBLE_CARDS.find(c => c.id === cardId);
+      Alert.alert('🎉 Kart Toplandı!', `${card?.emoji || '🏆'} ${card?.name || 'Kart'} koleksiyonuna eklendi!`);
+    } else {
+      // checkCollectibleCards bulmadıysa, manuel olarak ekle
+      const state = useFarmStore.getState();
+      if (!state.collectedCards.includes(cardId)) {
+        useFarmStore.setState({ collectedCards: [...state.collectedCards, cardId] });
+        const card = COLLECTIBLE_CARDS.find(c => c.id === cardId);
+        Alert.alert('🎉 Kart Toplandı!', `${card?.emoji || '🏆'} ${card?.name || 'Kart'} koleksiyonuna eklendi!`);
+      }
+    }
+  }, []);
+
+  // Tema için unlock kontrolü (her tema için hesapla)
+  const themeUnlockMap = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    for (const theme of CARD_THEME_OVERLAYS) {
+      if (theme.price === 0 && theme.unlockRequirement) {
+        map[theme.id] = checkThemeUnlock(theme.id, stats);
+      }
+    }
+    return map;
+  }, [stats]);
+
   const handleCustomizationChange = useCallback((key: string, value: any) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     useFarmStore.getState().updateCardCustomization({ [key]: value });
@@ -289,17 +433,31 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Header - Toprak tonlu gradient */}
       <LinearGradient
-        colors={['#6366f1', '#8b5cf6']}
+        colors={[SOIL_COLORS.richSoil, SOIL_COLORS.lightSoil, SOIL_COLORS.warmSoil]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
-        <Text style={styles.headerTitle}>🎨 Kart Mağazası</Text>
-        <View style={styles.coinContainer}>
+        <Text style={styles.headerTitle}>🌾 Kart Pazarı</Text>
+        <View style={styles.headerRight}>
+          <View style={styles.coinContainer}>
           <Text style={styles.coinIcon}>💰</Text>
           <Text style={styles.coinCount}>{coins.toLocaleString()}</Text>
+          </View>
+          {/* ✕ KAPAT BUTONU */}
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              onClose?.();
+            }}
+            activeOpacity={0.7}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Text style={styles.closeButtonText}>✕</Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
 
@@ -364,9 +522,11 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
                   theme={theme}
                   isOwned={ownedThemes.includes(theme.id)}
                   isActive={activeTheme === theme.id}
+                  isUnlockable={!!(theme.price === 0 && theme.unlockRequirement && themeUnlockMap[theme.id])}
                   coins={coins}
                   onBuy={() => handleBuyTheme(theme)}
                   onEquip={() => handleEquipTheme(theme.id)}
+                  onClaim={() => handleClaimTheme(theme)}
                 />
               ))}
             </View>
@@ -389,6 +549,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
                   card={card}
                   isUnlocked={collectedCards.includes(card.id)}
                   progress={collectibleProgress[card.id] || 0}
+                  onCollect={handleCollectCard}
                 />
               ))}
             </View>
@@ -491,38 +652,87 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f0f1a',
+    backgroundColor: SOIL_COLORS.darkSoil,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 50 : 16,
+    paddingBottom: 14,
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: SOIL_COLORS.grassGreen,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#fff',
+    color: SOIL_COLORS.straw,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   coinContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(249,168,37,0.3)',
   },
   coinIcon: { fontSize: 16, marginRight: 4 },
-  coinCount: { fontSize: 16, fontWeight: '700', color: '#fef08a' },
+  coinCount: { fontSize: 16, fontWeight: '700', color: SOIL_COLORS.straw },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#fff',
+    lineHeight: 20,
+  },
 
+  // Toprak doku elementleri
+  soilTextureOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+  },
+  soilDot: {
+    position: 'absolute',
+  },
+  grassStripe: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+    backgroundColor: SOIL_COLORS.grassGreen,
+    opacity: 0.6,
+  },
   // Tab bar
   tabBar: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     maxHeight: 52,
+    backgroundColor: 'rgba(62,39,35,0.5)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(141,110,99,0.2)',
   },
   tabItem: {
     flexDirection: 'row',
@@ -531,24 +741,24 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginRight: 8,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(93,64,55,0.4)',
   },
   tabItemActive: {
-    backgroundColor: 'rgba(99, 102, 241, 0.3)',
-    borderColor: 'rgba(99, 102, 241, 0.5)',
+    backgroundColor: 'rgba(85,139,47,0.35)',
+    borderColor: 'rgba(85,139,47,0.6)',
     borderWidth: 1,
   },
   tabIcon: { fontSize: 16, marginRight: 6 },
-  tabLabel: { fontSize: 13, color: '#9ca3af', fontWeight: '600' },
-  tabLabelActive: { color: '#a5b4fc' },
+  tabLabel: { fontSize: 13, color: SOIL_COLORS.dirtAccent, fontWeight: '600' },
+  tabLabelActive: { color: SOIL_COLORS.straw },
   tabBadge: {
-    backgroundColor: 'rgba(99, 102, 241, 0.4)',
+    backgroundColor: 'rgba(85,139,47,0.45)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 10,
     marginLeft: 6,
   },
-  tabBadgeText: { fontSize: 11, color: '#c7d2fe', fontWeight: '700' },
+  tabBadgeText: { fontSize: 11, color: SOIL_COLORS.straw, fontWeight: '700' },
 
   content: {
     flex: 1,
@@ -560,18 +770,18 @@ const styles = StyleSheet.create({
   defaultThemeBtn: {
     padding: 12,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(93,64,55,0.4)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(141,110,99,0.3)',
     marginBottom: 12,
     alignItems: 'center',
   },
   defaultThemeBtnActive: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderColor: 'rgba(34, 197, 94, 0.4)',
+    backgroundColor: 'rgba(85,139,47,0.25)',
+    borderColor: 'rgba(85,139,47,0.5)',
   },
   defaultThemeBtnText: {
-    color: '#d1d5db',
+    color: SOIL_COLORS.dirtAccent,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -585,14 +795,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(93,64,55,0.4)',
     marginRight: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(141,110,99,0.25)',
   },
   filterChipActive: {
-    backgroundColor: 'rgba(99, 102, 241, 0.25)',
-    borderColor: 'rgba(99, 102, 241, 0.5)',
+    backgroundColor: 'rgba(85,139,47,0.3)',
+    borderColor: 'rgba(85,139,47,0.6)',
   },
   filterChipText: {
     fontSize: 12,
@@ -609,7 +819,7 @@ const styles = StyleSheet.create({
     width: (SCREEN_WIDTH - 48) / 2,
     marginBottom: 14,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: SOIL_COLORS.richSoil,
     borderWidth: 1.5,
     overflow: 'hidden',
   },
@@ -678,10 +888,16 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(100,100,100,0.2)',
   },
   themeBtnCantAffordText: { color: '#6b7280', fontSize: 13, fontWeight: '700' },
-  themeBtnLocked: {
-    backgroundColor: 'rgba(100,100,100,0.1)',
+  themeBtnClaim: {
+    backgroundColor: 'rgba(85,139,47,0.35)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(85,139,47,0.7)',
   },
-  themeBtnLockedText: { color: '#6b7280', fontSize: 11, fontWeight: '600' },
+  themeBtnClaimText: { color: SOIL_COLORS.straw, fontSize: 13, fontWeight: '800' },
+  themeBtnLocked: {
+    backgroundColor: 'rgba(44,24,16,0.5)',
+  },
+  themeBtnLockedText: { color: SOIL_COLORS.sandySoil, fontSize: 11, fontWeight: '600' },
 
   // Collectible grid
   collectibleGrid: {
@@ -693,9 +909,10 @@ const styles = StyleSheet.create({
     width: (SCREEN_WIDTH - 48) / 2,
     marginBottom: 12,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: SOIL_COLORS.richSoil,
     borderWidth: 1,
     padding: 12,
+    overflow: 'hidden',
   },
   collectibleTop: {
     flexDirection: 'row',
@@ -707,6 +924,28 @@ const styles = StyleSheet.create({
   collectibleName: { fontSize: 14, fontWeight: '700', color: '#e5e7eb', marginBottom: 2 },
   collectibleNameLocked: { color: '#6b7280' },
   collectibleDesc: { fontSize: 11, color: '#9ca3af', marginBottom: 6 },
+  collectibleUnlockedBadge: {
+    backgroundColor: 'rgba(85,139,47,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(85,139,47,0.5)',
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  collectibleUnlockedText: { fontSize: 11, fontWeight: '700', color: '#86efac' },
+  collectibleClaimBtn: {
+    backgroundColor: 'rgba(85,139,47,0.4)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(85,139,47,0.7)',
+    borderRadius: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  collectibleClaimText: { fontSize: 13, fontWeight: '800', color: SOIL_COLORS.straw },
   collectibleProgressBg: {
     height: 16,
     borderRadius: 8,
@@ -732,13 +971,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#e5e7eb',
+    color: SOIL_COLORS.straw,
     marginBottom: 6,
     marginTop: 8,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#9ca3af',
+    color: SOIL_COLORS.dirtAccent,
     marginBottom: 14,
   },
 
@@ -753,21 +992,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(93,64,55,0.4)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(141,110,99,0.25)',
   },
   optionChipActive: {
-    backgroundColor: 'rgba(99, 102, 241, 0.25)',
-    borderColor: 'rgba(99, 102, 241, 0.5)',
+    backgroundColor: 'rgba(85,139,47,0.3)',
+    borderColor: 'rgba(85,139,47,0.6)',
   },
   optionChipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: SOIL_COLORS.dirtAccent,
   },
   optionChipTextActive: {
-    color: '#a5b4fc',
+    color: SOIL_COLORS.straw,
   },
 
   // Toggle rows
@@ -777,30 +1016,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    borderBottomColor: 'rgba(141,110,99,0.15)',
   },
   toggleInfo: { flex: 1, marginRight: 12 },
   toggleLabel: { fontSize: 14, fontWeight: '700', color: '#e5e7eb' },
-  toggleDesc: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
+  toggleDesc: { fontSize: 11, color: SOIL_COLORS.dirtAccent, marginTop: 2 },
   toggleSwitch: {
     width: 48,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(100,100,100,0.3)',
+    backgroundColor: 'rgba(93,64,55,0.5)',
     padding: 3,
     justifyContent: 'center',
   },
   toggleSwitchOn: {
-    backgroundColor: 'rgba(99, 102, 241, 0.5)',
+    backgroundColor: 'rgba(85,139,47,0.5)',
   },
   toggleKnob: {
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#6b7280',
+    backgroundColor: SOIL_COLORS.sandySoil,
   },
   toggleKnobOn: {
-    backgroundColor: '#a5b4fc',
+    backgroundColor: SOIL_COLORS.straw,
     alignSelf: 'flex-end',
   },
 });
