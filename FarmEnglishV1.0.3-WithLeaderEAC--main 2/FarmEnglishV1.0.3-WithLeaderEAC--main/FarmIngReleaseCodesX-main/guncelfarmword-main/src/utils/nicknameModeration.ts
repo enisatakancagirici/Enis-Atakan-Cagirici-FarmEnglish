@@ -70,3 +70,5 @@ export function isNicknameClean(nickname: string): boolean {
         return compact.includes(word);
     });
 }
+
+export default isNicknameClean;

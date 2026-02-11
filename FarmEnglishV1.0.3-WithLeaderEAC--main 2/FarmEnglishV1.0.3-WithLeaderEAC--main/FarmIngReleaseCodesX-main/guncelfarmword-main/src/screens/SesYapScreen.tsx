@@ -1,8 +1,8 @@
 /**
- * 🎤 SesYap Ekranı - Yapboz Tarzı Konuşma Modu
+ * Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â¤ SesYap EkranÃƒâ€Ã‚Â± - Yapboz TarzÃƒâ€Ã‚Â± KonuÃƒâ€¦Ã…Â¸ma Modu
  *
- * Kelimeler boşluk olarak gösterilir, doğru söylenenler yerine oturur.
- * Yapboz MiniQuiz'e çok benzer UI.
+ * Kelimeler boÃƒâ€¦Ã…Â¸luk olarak gÃƒÆ’Ã‚Â¶sterilir, doÃƒâ€Ã…Â¸ru sÃƒÆ’Ã‚Â¶ylenenler yerine oturur.
+ * Yapboz MiniQuiz'e ÃƒÆ’Ã‚Â§ok benzer UI.
  */
 
 import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
@@ -16,7 +16,7 @@ import {
     Dimensions,
     Platform,
     ActivityIndicator,
-    Alert,
+    Linking,
     ScrollView,
     Easing,
 } from 'react-native';
@@ -41,9 +41,19 @@ import {
 import { useNavigation, CommonActions } from '@react-navigation/native';
 
 import { haptic, sound } from '../utils/sound';
-import { startRecording, stopRecording, transcribeAudio, deleteRecording, getRecordingStatus } from '../utils/speechToText';
+import {
+    startRecording,
+    stopRecording,
+    transcribeAudio,
+    deleteRecording,
+    getRecordingStatus,
+    getMicrophonePermissionState,
+    requestMicrophonePermission,
+} from '../utils/speechToText';
 import { compareSentences, ComparisonResult } from '../utils/compareSentences';
 import { useFarmStore } from '../store/farmStore';
+import JuicyModal from '../components/JuicyModal';
+import { estimateCefrLevel } from '../utils/cefrEstimator';
 import {
     BORDER_STYLES,
     DEFAULT_CUSTOMIZATION,
@@ -51,7 +61,7 @@ import {
     type CardFontStyle,
 } from '../data/cardThemes';
 
-// Örnek cümleler veri kaynağı
+// ÃƒÆ’Ã¢â‚¬â€œrnek cÃƒÆ’Ã‚Â¼mleler veri kaynaÃƒâ€Ã…Â¸Ãƒâ€Ã‚Â±
 import ensaglamData from '../../assets/data/ensaglamdata_with_example_tr.json';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -59,21 +69,22 @@ const IS_SMALL_DEVICE = SCREEN_HEIGHT < 700;
 
 // Mod tipleri
 type SesYapMode = 'calis' | 'tarla';
+type MicModalState = 'hidden' | 'needPermission' | 'settingsRequired' | 'startFailed';
 
-// Çalışılmış cümle geçmişi için tip
+// ÃƒÆ’Ã¢â‚¬Â¡alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸Ãƒâ€Ã‚Â±lmÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸ cÃƒÆ’Ã‚Â¼mle geÃƒÆ’Ã‚Â§miÃƒâ€¦Ã…Â¸i iÃƒÆ’Ã‚Â§in tip
 interface SentenceHistory {
     sentence: SentenceData;
     correct: boolean;
     timestamp: number;
 }
 
-// Kayıt ayarları - Hızlı sonuç için optimize edildi
+// KayÃƒâ€Ã‚Â±t ayarlarÃƒâ€Ã‚Â± - HÃƒâ€Ã‚Â±zlÃƒâ€Ã‚Â± sonuÃƒÆ’Ã‚Â§ iÃƒÆ’Ã‚Â§in optimize edildi
 const RECORDING_DURATION_MS = 6000;
 const SILENCE_THRESHOLD = -35;
-const SILENCE_DURATION_MS = 800; // 1500 → 800ms - Anında sonuç
-const MIN_SPEECH_TIME_MS = 600; // 800 → 600ms - Daha hızlı algılama
+const SILENCE_DURATION_MS = 800; // 1500 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 800ms - AnÃƒâ€Ã‚Â±nda sonuÃƒÆ’Ã‚Â§
+const MIN_SPEECH_TIME_MS = 600; // 800 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 600ms - Daha hÃƒâ€Ã‚Â±zlÃƒâ€Ã‚Â± algÃƒâ€Ã‚Â±lama
 
-// 🌈 Renk paleti - Yapboz ile uyumlu
+// Ã„Å¸Ã…Â¸Ã…â€™Ã‹â€  Renk paleti - Yapboz ile uyumlu
 const COLORS = {
     background: '#0F172A',
     surface: 'rgba(30, 41, 59, 0.95)',
@@ -125,7 +136,7 @@ interface SentenceData {
     example_tr: string;
 }
 
-// 🎲 Rastgele örnek cümle seç (performans için önceden filtrelenmiş)
+// Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â² Rastgele ÃƒÆ’Ã‚Â¶rnek cÃƒÆ’Ã‚Â¼mle seÃƒÆ’Ã‚Â§ (performans iÃƒÆ’Ã‚Â§in ÃƒÆ’Ã‚Â¶nceden filtrelenmiÃƒâ€¦Ã…Â¸)
 const ENSAGLAM_DATA = ensaglamData as EnsaglamDataType;
 const VALID_SENTENCES: WordItem[] = (ENSAGLAM_DATA.items || []).filter(item => {
     if (!item.example || item.example.length < 10) return false;
@@ -137,17 +148,22 @@ function normalizeDisplayText(value: unknown): string {
     const raw = typeof value === 'string' ? value.trim() : '';
     if (!raw) return '';
 
-    // Common mojibake markers seen in persisted/localized strings.
-    if (!/[ÃÂâÅÄ]/.test(raw)) {
-        return raw;
+    const markers = /[ÃƒÆ’Ãƒâ€šÃƒÂ¢Ãƒâ€¦Ãƒâ€Ã„Å¸Ã…Â¸]/;
+    if (!markers.test(raw)) return raw;
+
+    let normalized = raw;
+    for (let i = 0; i < 2; i += 1) {
+        if (!markers.test(normalized)) break;
+        try {
+            const decoded = decodeURIComponent(escape(normalized));
+            if (!decoded || decoded === normalized) break;
+            normalized = decoded;
+        } catch {
+            break;
+        }
     }
 
-    try {
-        const decoded = decodeURIComponent(escape(raw));
-        return decoded && decoded.length > 0 ? decoded : raw;
-    } catch {
-        return raw;
-    }
+    return normalized;
 }
 
 function getRandomSentence(): SentenceData | null {
@@ -164,7 +180,7 @@ function getRandomSentence(): SentenceData | null {
     };
 }
 
-// 🧩 Kelime Slot'u - Her zaman İngilizce kelimeyi göster
+// Ã„Å¸Ã…Â¸Ã‚Â§Ã‚Â© Kelime Slot'u - Her zaman Ãƒâ€Ã‚Â°ngilizce kelimeyi gÃƒÆ’Ã‚Â¶ster
 interface WordSlotProps {
     word: string;
     status: 'pending' | 'correct' | 'wrong';
@@ -191,7 +207,7 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
                 }),
             ]).start();
 
-            // Glow (sadece doğruysa)
+            // Glow (sadece doÃƒâ€Ã…Â¸ruysa)
             if (status === 'correct') {
                 Animated.loop(
                     Animated.sequence([
@@ -218,7 +234,7 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
     const getTextColor = () => {
         if (status === 'correct') return COLORS.success;
         if (status === 'wrong') return COLORS.error;
-        return COLORS.text; // Pending için normal beyaz renk - kelime görünsün!
+        return COLORS.text; // Pending iÃƒÆ’Ã‚Â§in normal beyaz renk - kelime gÃƒÆ’Ã‚Â¶rÃƒÆ’Ã‚Â¼nsÃƒÆ’Ã‚Â¼n!
     };
 
     return (
@@ -248,7 +264,7 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
 });
 WordSlot.displayName = 'WordSlot';
 
-// 🎤 Mikrofon Butonu
+// Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â¤ Mikrofon Butonu
 interface MicButtonProps {
     isRecording: boolean;
     isProcessing: boolean;
@@ -408,7 +424,7 @@ const MicButton = memo<MicButtonProps>(({ isRecording, isProcessing, remainingTi
 });
 MicButton.displayName = 'MicButton';
 
-// � Cümle Seslendirme Butonu
+// ÃƒÂ¯Ã‚Â¿Ã‚Â½ CÃƒÆ’Ã‚Â¼mle Seslendirme Butonu
 interface SpeakButtonProps {
     sentence: SentenceData | null;
     disabled?: boolean;
@@ -465,11 +481,11 @@ const SpeakButton = memo<SpeakButtonProps>(({ sentence, disabled = false, onPres
 });
 SpeakButton.displayName = 'SpeakButton';
 
-// 📱 Ana Ekran
+// Ã„Å¸Ã…Â¸Ã¢â‚¬Å“Ã‚Â± Ana Ekran
 export default function SesYapScreen() {
     const navigation = useNavigation();
 
-    // 📦 Store'dan sesyapHistory ve aksiyonları al
+    // Ã„Å¸Ã…Â¸Ã¢â‚¬Å“Ã‚Â¦ Store'dan sesyapHistory ve aksiyonlarÃƒâ€Ã‚Â± al
     const sesyapHistory = useFarmStore(state => state.sesyapHistory);
     const addSesyapHistory = useFarmStore(state => state.addSesyapHistory);
     const clearSesyapHistory = useFarmStore(state => state.clearSesyapHistory);
@@ -477,6 +493,10 @@ export default function SesYapScreen() {
     const updateQuestProgress = useFarmStore(state => state.updateQuestProgress);
     const activeThemeId = useFarmStore(state => state.activeCardTheme);
     const cardCustomization = useFarmStore(state => state.cardCustomization);
+    const farmWords = useFarmStore(state => state.farm);
+    const inventoryWords = useFarmStore(state => state.inventory);
+    const phrasalFarmWords = useFarmStore(state => state.phrasalVerbFarm);
+    const phrasalInventoryWords = useFarmStore(state => state.phrasalVerbInventory);
 
     const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
     const cardSizeMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
@@ -512,9 +532,21 @@ export default function SesYapScreen() {
     const [questionCount, setQuestionCount] = useState(0);
     const [remainingTime, setRemainingTime] = useState(RECORDING_DURATION_MS / 1000);
     const [isComplete, setIsComplete] = useState(false);
-    const [transcript, setTranscript] = useState<string>(''); // Kullanıcının söylediği
+    const [transcript, setTranscript] = useState<string>(''); // KullanÃƒâ€Ã‚Â±cÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â±n sÃƒÆ’Ã‚Â¶ylediÃƒâ€Ã…Â¸i
+    const [micModalState, setMicModalState] = useState<MicModalState>('hidden');
+    const [pendingMicStart, setPendingMicStart] = useState(false);
 
-    // Cümle kelimeleri
+    const cefrEstimate = useMemo(() => {
+        const sourceWords = [
+            ...(Array.isArray(farmWords) ? farmWords : []),
+            ...(Array.isArray(inventoryWords) ? inventoryWords : []),
+            ...(Array.isArray(phrasalFarmWords) ? phrasalFarmWords : []),
+            ...(Array.isArray(phrasalInventoryWords) ? phrasalInventoryWords : []),
+        ];
+        return estimateCefrLevel(sourceWords, sesyapHistory);
+    }, [farmWords, inventoryWords, phrasalFarmWords, phrasalInventoryWords, sesyapHistory]);
+
+    // CÃƒÆ’Ã‚Â¼mle kelimeleri
     const sentenceWords = useMemo(() => {
         if (!sentence) return [];
         return sentence.example_en.split(' ').filter(w => w.trim().length > 0);
@@ -531,7 +563,7 @@ export default function SesYapScreen() {
     const silenceStartRef = useRef<number | null>(null);
     const hasSpokenRef = useRef(false);
 
-    // İlk cümleyi yükle
+    // Ãƒâ€Ã‚Â°lk cÃƒÆ’Ã‚Â¼mleyi yÃƒÆ’Ã‚Â¼kle
     useEffect(() => {
         loadNewSentence();
 
@@ -544,13 +576,13 @@ export default function SesYapScreen() {
             if (timerRef.current) clearTimeout(timerRef.current);
             if (countdownRef.current) clearInterval(countdownRef.current);
             if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
-            // 🛡️ TTS'i durdur — audio session çakışmasını önle
+            // Ã„Å¸Ã…Â¸Ã¢â‚¬ÂºÃ‚Â¡ÃƒÂ¯Ã‚Â¸Ã‚Â TTS'i durdur ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â audio session ÃƒÆ’Ã‚Â§akÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸masÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â± ÃƒÆ’Ã‚Â¶nle
             sound.stopSpeaking?.();
             sound.setRecordingActive?.(false);
         };
     }, []);
 
-    // Yeni cümle yükle
+    // Yeni cÃƒÆ’Ã‚Â¼mle yÃƒÆ’Ã‚Â¼kle
     const loadNewSentence = useCallback(() => {
         const newSentence = getRandomSentence();
         setSentence(newSentence);
@@ -559,8 +591,7 @@ export default function SesYapScreen() {
         setIsComplete(false);
         setTranscript(''); // Transcript'i temizle
     }, []);
-
-    // 🎤 Mikrofon press
+    // Mikrofon press
     const handleMicPress = useCallback(async () => {
         if (isRecording) {
             if (timerRef.current) clearTimeout(timerRef.current);
@@ -572,15 +603,20 @@ export default function SesYapScreen() {
 
         if (isRecordingRef.current || isProcessing || isComplete) return;
 
+        const permission = await getMicrophonePermissionState();
+        if (!permission.granted) {
+            setPendingMicStart(true);
+            setMicModalState(permission.canAskAgain ? 'needPermission' : 'settingsRequired');
+            return;
+        }
+
         isRecordingRef.current = true;
         hasSpokenRef.current = false;
         silenceStartRef.current = null;
         silenceCheckRunningRef.current = false;
         haptic.medium();
-        // 🛡️ Audio mode thrashing önle
         sound.setRecordingActive?.(true);
 
-        // ⚡ Anında UI tepki ver
         setIsRecording(true);
         setRemainingTime(RECORDING_DURATION_MS / 1000);
 
@@ -588,7 +624,6 @@ export default function SesYapScreen() {
         if (started) {
             const recordingStartTime = Date.now();
 
-            // Countdown
             let timeLeft = RECORDING_DURATION_MS / 1000;
             countdownRef.current = setInterval(() => {
                 timeLeft -= 1;
@@ -598,7 +633,6 @@ export default function SesYapScreen() {
                 }
             }, 1000);
 
-            // Sessizlik algılama
             silenceCheckRef.current = setInterval(async () => {
                 if (silenceCheckRunningRef.current || isProcessing || !isRecordingRef.current) return;
                 silenceCheckRunningRef.current = true;
@@ -609,43 +643,41 @@ export default function SesYapScreen() {
                     const metering = status.metering;
                     const elapsedTime = Date.now() - recordingStartTime;
 
-                if (metering > SILENCE_THRESHOLD) {
-                    hasSpokenRef.current = true;
-                    silenceStartRef.current = null;
-                } else if (hasSpokenRef.current && elapsedTime > MIN_SPEECH_TIME_MS) {
-                    if (!silenceStartRef.current) {
-                        silenceStartRef.current = Date.now();
-                    } else {
-                        const silenceDuration = Date.now() - silenceStartRef.current;
-                        if (silenceDuration >= SILENCE_DURATION_MS) {
-                            console.log('🔇 Sessizlik algılandı');
-                            if (timerRef.current) clearTimeout(timerRef.current);
-                            if (countdownRef.current) clearInterval(countdownRef.current);
-                            if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
-                            await processRecording();
+                    if (metering > SILENCE_THRESHOLD) {
+                        hasSpokenRef.current = true;
+                        silenceStartRef.current = null;
+                    } else if (hasSpokenRef.current && elapsedTime > MIN_SPEECH_TIME_MS) {
+                        if (!silenceStartRef.current) {
+                            silenceStartRef.current = Date.now();
+                        } else {
+                            const silenceDuration = Date.now() - silenceStartRef.current;
+                            if (silenceDuration >= SILENCE_DURATION_MS) {
+                                if (timerRef.current) clearTimeout(timerRef.current);
+                                if (countdownRef.current) clearInterval(countdownRef.current);
+                                if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+                                await processRecording();
+                            }
                         }
                     }
+                } finally {
+                    silenceCheckRunningRef.current = false;
                 }
-            } finally {
-                silenceCheckRunningRef.current = false;
-            }
-            }, 400); // 120 → 400ms - RN bridge yükünü azalt, kasma önle
+            }, 400);
 
-            // Max süre
             timerRef.current = setTimeout(async () => {
                 if (countdownRef.current) clearInterval(countdownRef.current);
                 if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
                 await processRecording();
             }, RECORDING_DURATION_MS);
         } else {
-            // Başlatılamadı -> UI'ı geri al
             setIsRecording(false);
             isRecordingRef.current = false;
-            Alert.alert('Mikrofon Hatasi', 'Mikrofon erisimi saglanamadi.');
+            setPendingMicStart(false);
+            setMicModalState('startFailed');
         }
     }, [isProcessing, isComplete, isRecording]);
 
-    // 🔊 Kaydı işle
+    // KayÄ±dÄ± iÅŸleÃƒâ€Ã‚Â± iÃƒâ€¦Ã…Â¸le
     const processRecording = useCallback(async () => {
         if (!isRecording && !isRecordingRef.current) return;
 
@@ -657,7 +689,7 @@ export default function SesYapScreen() {
         setIsRecording(false);
         setIsProcessing(true);
         haptic.light();
-        // 🛡️ Kayıt bitti, audio mode değişebilir
+        // Ã„Å¸Ã…Â¸Ã¢â‚¬ÂºÃ‚Â¡ÃƒÂ¯Ã‚Â¸Ã‚Â KayÃƒâ€Ã‚Â±t bitti, audio mode deÃƒâ€Ã…Â¸iÃƒâ€¦Ã…Â¸ebilir
         sound.setRecordingActive?.(false);
 
         try {
@@ -677,13 +709,13 @@ export default function SesYapScreen() {
                 return;
             }
 
-            // Karşılaştır
+            // KarÃƒâ€¦Ã…Â¸Ãƒâ€Ã‚Â±laÃƒâ€¦Ã…Â¸tÃƒâ€Ã‚Â±r
             const comparison = compareSentences(speechResult.transcript, sentence.example_en);
 
-            // Kullanıcının söylediğini kaydet
+            // KullanÃƒâ€Ã‚Â±cÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â±n sÃƒÆ’Ã‚Â¶ylediÃƒâ€Ã…Â¸ini kaydet
             setTranscript(speechResult.transcript);
 
-            // Her kelimeyi kontrol et ve slot'lara yerleştir
+            // Her kelimeyi kontrol et ve slot'lara yerleÃƒâ€¦Ã…Â¸tir
             const newFilledWords = new Map(filledWords);
             let newCorrectCount = 0;
 
@@ -706,14 +738,14 @@ export default function SesYapScreen() {
 
             setFilledWords(newFilledWords);
 
-            // Skor güncelle
+            // Skor gÃƒÆ’Ã‚Â¼ncelle
             if (newCorrectCount > 0) {
-                // 🌾 Tarlaya gönder + combo-based premium haptic!
+                // Ã„Å¸Ã…Â¸Ã…â€™Ã‚Â¾ Tarlaya gÃƒÆ’Ã‚Â¶nder + combo-based premium haptic!
                 sound.playPlant();
 
-                // 🎮 Combo-based premium haptic!
+                // Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â® Combo-based premium haptic!
                 if (newCorrectCount >= 5) {
-                    haptic.masterCelebration(); // Tüm kelimeleri söyledi!
+                    haptic.masterCelebration(); // TÃƒÆ’Ã‚Â¼m kelimeleri sÃƒÆ’Ã‚Â¶yledi!
                 } else if (newCorrectCount >= 3) {
                     haptic.rigid();
                     setTimeout(() => haptic.heavy(), 50);
@@ -733,13 +765,13 @@ export default function SesYapScreen() {
                 setCombo(0);
             }
 
-            // Tamamlandı mı?
+            // TamamlandÃƒâ€Ã‚Â± mÃƒâ€Ã‚Â±?
             if (newFilledWords.size === sentenceWords.length) {
                 const allCorrect = Array.from(newFilledWords.values()).every(v => v.isCorrect);
                 setIsComplete(true);
                 setQuestionCount(prev => prev + 1);
 
-                // 📚 Tarla geçmişine kaydet (store'a persist edilir)
+                // Ã„Å¸Ã…Â¸Ã¢â‚¬Å“Ã…Â¡ Tarla geÃƒÆ’Ã‚Â§miÃƒâ€¦Ã…Â¸ine kaydet (store'a persist edilir)
                 if (sentence) {
                     addSesyapHistory({
                         word: normalizeDisplayText(sentence.word),
@@ -752,16 +784,16 @@ export default function SesYapScreen() {
                 }
 
                 if (allCorrect) {
-                    // 🏆 Mükemmel - epik hasat! Premium kutlama!
+                    // Ã„Å¸Ã…Â¸Ã‚ÂÃ¢â‚¬Â  MÃƒÆ’Ã‚Â¼kemmel - epik hasat! Premium kutlama!
                     haptic.masterCelebration();
                     sound.playEpicHarvest();
                     setScore(prev => prev + 50); // Bonus
                     addSesyapScore(50); // Store bonus
-                    updateQuestProgress('SPEECH_PRACTICE', 1); // 🎯 Günlük görev
+                    updateQuestProgress('SPEECH_PRACTICE', 1); // Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â¯ GÃƒÆ’Ã‚Â¼nlÃƒÆ’Ã‚Â¼k gÃƒÆ’Ã‚Â¶rev
                 }
             }
         } catch (error) {
-            console.error('İşlem hatası:', error);
+            console.error('Ãƒâ€Ã‚Â°Ãƒâ€¦Ã…Â¸lem hatasÃƒâ€Ã‚Â±:', error);
         }
 
         setIsProcessing(false);
@@ -812,18 +844,18 @@ export default function SesYapScreen() {
         hasSpokenRef.current = false;
     }, [isProcessing]);
 
-    // 🔊 Cümleyi seslendir
+    // Ã„Å¸Ã…Â¸Ã¢â‚¬ÂÃ…Â  CÃƒÆ’Ã‚Â¼mleyi seslendir
     const handleSpeakSentence = useCallback(() => {
         if (!sentence?.example_en) return;
         haptic.medium();
         sound.speakSentence(sentence.example_en, 'en-US');
     }, [sentence]);
 
-    // Geri - Güçlendirilmiş navigasyon (DailyQuestsPanel'den gelse de çalışır)
+    // Geri - GÃƒÆ’Ã‚Â¼ÃƒÆ’Ã‚Â§lendirilmiÃƒâ€¦Ã…Â¸ navigasyon (DailyQuestsPanel'den gelse de ÃƒÆ’Ã‚Â§alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸Ãƒâ€Ã‚Â±r)
     const handleBack = useCallback(() => {
         haptic.medium();
 
-        // Önce goBack dene, eğer çalışmazsa Home'a git
+        // ÃƒÆ’Ã¢â‚¬â€œnce goBack dene, eÃƒâ€Ã…Â¸er ÃƒÆ’Ã‚Â§alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸mazsa Home'a git
         if (navigation.canGoBack()) {
             navigation.goBack();
         } else {
@@ -836,6 +868,93 @@ export default function SesYapScreen() {
             );
         }
     }, [navigation]);
+
+    const handleMicPermissionConfirm = useCallback(async () => {
+        const requested = await requestMicrophonePermission();
+        if (!requested.granted) {
+            setMicModalState(requested.canAskAgain ? 'needPermission' : 'settingsRequired');
+            return;
+        }
+
+        setMicModalState('hidden');
+        const shouldStart = pendingMicStart;
+        setPendingMicStart(false);
+
+        if (shouldStart) {
+            setTimeout(() => {
+                handleMicPress().catch(() => {
+                    setMicModalState('startFailed');
+                });
+            }, 120);
+        }
+    }, [pendingMicStart, handleMicPress]);
+
+    const handleMicModalClose = useCallback(() => {
+        setMicModalState('hidden');
+        setPendingMicStart(false);
+    }, []);
+
+    const handleOpenSettings = useCallback(() => {
+        setMicModalState('hidden');
+        setPendingMicStart(false);
+        Linking.openSettings().catch(() => {});
+    }, []);
+
+    const micModalConfig = useMemo(() => {
+        if (micModalState === 'needPermission') {
+            return {
+                visible: true,
+                title: 'Mikrofon İzni',
+                titleEmoji: '\u{1F399}\uFE0F',
+                message: 'SesYap için mikrofon izni gerekiyor. İzin verirsen telaffuz kontrolü başlayacak.',
+                secondaryMessage: 'İzin olmadan konuşma kaydı alınamaz.',
+                type: 'warning' as const,
+                buttons: [
+                    { text: 'Şimdi İzin Ver', type: 'primary' as const, onPress: handleMicPermissionConfirm },
+                    { text: 'Vazgeç', type: 'cancel' as const, onPress: handleMicModalClose },
+                ],
+            };
+        }
+
+        if (micModalState === 'settingsRequired') {
+            return {
+                visible: true,
+                title: 'İzin Kapalı',
+                titleEmoji: '\u{1F512}',
+                message: 'Mikrofon izni sistemde kapatılmış. Ayarlardan izin verip geri dönebilirsin.',
+                secondaryMessage: 'Ayarlar > FarmEnglish > Mikrofon',
+                type: 'error' as const,
+                buttons: [
+                    { text: 'Ayarları Aç', type: 'primary' as const, onPress: handleOpenSettings },
+                    { text: 'Kapat', type: 'cancel' as const, onPress: handleMicModalClose },
+                ],
+            };
+        }
+
+        if (micModalState === 'startFailed') {
+            return {
+                visible: true,
+                title: 'Mikrofon Başlatılamadı',
+                titleEmoji: '\u{26A0}\uFE0F',
+                message: 'Kayıt başlatılamadı. Lütfen tekrar dene.',
+                secondaryMessage: 'Sorun sürerse uygulamayı yeniden açıp tekrar dene.',
+                type: 'error' as const,
+                buttons: [
+                    { text: 'Tamam', type: 'primary' as const, onPress: handleMicModalClose },
+                ],
+            };
+        }
+
+        return {
+            visible: false,
+            title: '',
+            titleEmoji: '',
+            message: '',
+            secondaryMessage: '',
+            type: 'info' as const,
+            buttons: [] as Array<{ text: string; type: 'primary' | 'cancel'; onPress: () => void }>,
+        };
+    }, [micModalState, handleMicPermissionConfirm, handleMicModalClose, handleOpenSettings]);
 
     // Loading
     if (!sentence) {
@@ -874,7 +993,7 @@ export default function SesYapScreen() {
                         </View>
                     </View>
 
-                    {/* Mod Seçici */}
+                    {/* Mod SeÃƒÆ’Ã‚Â§ici */}
                     <View style={styles.modeSelector}>
                         <TouchableOpacity
                             style={[
@@ -911,7 +1030,7 @@ export default function SesYapScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    {/* İlerleme - sadece çalış modunda */}
+                    {/* Ãƒâ€Ã‚Â°lerleme - sadece ÃƒÆ’Ã‚Â§alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸ modunda */}
                     {activeMode === 'calis' && (
                         <View style={styles.progressRow}>
                             <Text style={styles.progressText}>Soru {questionCount + 1}</Text>
@@ -923,7 +1042,7 @@ export default function SesYapScreen() {
                         </View>
                     )}
 
-                    {/* Ana içerik - Çalış modu */}
+                    {/* Ana iÃƒÆ’Ã‚Â§erik - ÃƒÆ’Ã¢â‚¬Â¡alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸ modu */}
                     {activeMode === 'calis' ? (
                         <ScrollView
                             style={styles.calisScrollView}
@@ -937,7 +1056,7 @@ export default function SesYapScreen() {
                                 { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
                             ]}
                         >
-                            {/* Hedef kelime kartı */}
+                            {/* Hedef kelime kartÃƒâ€Ã‚Â± */}
                             <View style={styles.targetCard}>
                                 <LinearGradient
                                     colors={['rgba(139, 92, 246, 0.15)', 'rgba(139, 92, 246, 0.05)']}
@@ -949,7 +1068,7 @@ export default function SesYapScreen() {
                                 </LinearGradient>
                             </View>
 
-                            {/* Cümle alanı - Yapboz tarzı slot'lar */}
+                            {/* CÃƒÆ’Ã‚Â¼mle alanÃƒâ€Ã‚Â± - Yapboz tarzÃƒâ€Ã‚Â± slot'lar */}
                             <View style={styles.sentenceArea}>
                                 <Text style={styles.sentenceLabel}>Bu cumleyi soyle:</Text>
 
@@ -974,9 +1093,9 @@ export default function SesYapScreen() {
                                 <Text style={styles.translationHint}>Ipucu: {normalizeDisplayText(sentence.example_tr)}</Text>
                             </View>
 
-                            {/* Mikrofon veya sonuç butonları */}
+                            {/* Mikrofon veya sonuÃƒÆ’Ã‚Â§ butonlarÃƒâ€Ã‚Â± */}
                             <View style={styles.actionArea}>
-                                {/* Söylediğin */}
+                                {/* SÃƒÆ’Ã‚Â¶ylediÃƒâ€Ã…Â¸in */}
                                 {transcript ? (
                                     <View style={styles.transcriptBox}>
                                         <Text style={styles.transcriptLabel}>Sen:</Text>
@@ -986,7 +1105,7 @@ export default function SesYapScreen() {
 
                                 {isComplete ? (
                                     <View style={styles.resultArea}>
-                                        {/* Sonuç gösterimi */}
+                                        {/* SonuÃƒÆ’Ã‚Â§ gÃƒÆ’Ã‚Â¶sterimi */}
                                         <View style={[
                                             styles.resultBadge,
                                             { backgroundColor: allCorrect ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }
@@ -1039,8 +1158,25 @@ export default function SesYapScreen() {
                         </Animated.View>
                         </ScrollView>
                     ) : (
-                        /* Tarla modu - Geçmiş cümleler */
+                        /* Tarla modu - GeÃƒÆ’Ã‚Â§miÃƒâ€¦Ã…Â¸ cÃƒÆ’Ã‚Â¼mleler */
                         <ScrollView style={styles.tarlaContent} contentContainerStyle={styles.tarlaContentContainer}>
+                            <View style={styles.tarlaGuideCard}>
+                                <Text style={styles.tarlaGuideText}>
+                                    SesYapda mukemmel bildiklerin meyvedir, bilemediklerin tohumdur. Buradan secerek hem bilemediklerine hem bildiklerine calisabilirsin.
+                                </Text>
+                            </View>
+
+                            <View style={styles.cefrCard}>
+                                <View style={styles.cefrHeader}>
+                                    <Text style={styles.cefrLabel}>Tahmini CEFR Seviyesi</Text>
+                                    <Text style={styles.cefrLevel}>{cefrEstimate.level}</Text>
+                                </View>
+                                <Text style={styles.cefrMessage}>{cefrEstimate.message}</Text>
+                                <Text style={styles.cefrMeta}>
+                                    Guven {cefrEstimate.confidence}% · Bilinen {cefrEstimate.knownWordCount} · Gelistirilecek {cefrEstimate.unknownWordCount}
+                                </Text>
+                            </View>
+
                             <View style={styles.tarlaHeader}>
                                 <Text style={styles.tarlaTitle}>Senin Tarlan</Text>
                                 <Text style={styles.tarlaSubtitle}>
@@ -1172,6 +1308,17 @@ export default function SesYapScreen() {
 
                         </ScrollView>
                     )}
+
+                    <JuicyModal
+                        visible={micModalConfig.visible}
+                        onClose={handleMicModalClose}
+                        title={micModalConfig.title}
+                        titleEmoji={micModalConfig.titleEmoji}
+                        message={micModalConfig.message}
+                        secondaryMessage={micModalConfig.secondaryMessage}
+                        type={micModalConfig.type}
+                        buttons={micModalConfig.buttons}
+                    />
                 </SafeAreaView>
             </LinearGradient>
         </View>
@@ -1267,7 +1414,7 @@ const styles = StyleSheet.create({
         color: '#F97316',
     },
 
-    // Çalış modu ScrollView
+    // ÃƒÆ’Ã¢â‚¬Â¡alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸ modu ScrollView
     calisScrollView: {
         flex: 1,
     },
@@ -1396,7 +1543,7 @@ const styles = StyleSheet.create({
 
     // Action Area
     actionArea: {
-        paddingBottom: IS_SMALL_DEVICE ? 100 : 120, // Navbar için daha fazla alan
+        paddingBottom: IS_SMALL_DEVICE ? 100 : 120, // Navbar iÃƒÆ’Ã‚Â§in daha fazla alan
         alignItems: 'center',
     },
 
@@ -1545,7 +1692,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
 
-    // Mod seçici
+    // Mod seÃƒÆ’Ã‚Â§ici
     modeSelector: {
         flexDirection: 'row',
         marginHorizontal: 16,
@@ -1582,6 +1729,58 @@ const styles = StyleSheet.create({
     tarlaContentContainer: {
         paddingHorizontal: 16,
         paddingBottom: 120,
+    },
+    tarlaGuideCard: {
+        marginTop: 14,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(34, 197, 94, 0.35)',
+        backgroundColor: 'rgba(15, 118, 110, 0.18)',
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+    },
+    tarlaGuideText: {
+        color: '#ccfbf1',
+        fontSize: 13,
+        lineHeight: 18,
+        fontWeight: '600',
+    },
+    cefrCard: {
+        marginTop: 10,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(139, 92, 246, 0.38)',
+        backgroundColor: 'rgba(49, 46, 129, 0.22)',
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+    },
+    cefrHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 6,
+    },
+    cefrLabel: {
+        color: '#c4b5fd',
+        fontSize: 12,
+        fontWeight: '700',
+        letterSpacing: 0.2,
+    },
+    cefrLevel: {
+        color: '#ffffff',
+        fontSize: 18,
+        fontWeight: '900',
+    },
+    cefrMessage: {
+        color: '#e9d5ff',
+        fontSize: 12,
+        lineHeight: 17,
+    },
+    cefrMeta: {
+        marginTop: 6,
+        color: '#c4b5fd',
+        fontSize: 11,
+        fontWeight: '600',
     },
     tarlaHeader: {
         alignItems: 'center',
@@ -1660,3 +1859,4 @@ const styles = StyleSheet.create({
         lineHeight: 16,
     },
 });
+

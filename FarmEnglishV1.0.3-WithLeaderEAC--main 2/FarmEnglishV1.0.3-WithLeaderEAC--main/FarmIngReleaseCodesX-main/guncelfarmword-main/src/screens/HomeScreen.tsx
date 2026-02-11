@@ -64,6 +64,13 @@ import {
   TUTORIAL_DIALOGS,
 } from "../components/TutorialManagerFixed";
 import { TutorialFinalQuizPremium } from "../components/TutorialFinalQuizPremium";
+import {
+  configureNotifications,
+  hasPromptedNotificationPermission,
+  markNotificationPermissionPrompted,
+  requestNotificationPermission,
+  scheduleComebackNotifications,
+} from "../utils/notifications";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -1124,11 +1131,18 @@ export const HomeScreen = ({ navigation }: any) => {
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [helpModalTitle, setHelpModalTitle] = useState("Bilgi");
   const [helpModalMessage, setHelpModalMessage] = useState("");
+  const [guidedModalVisible, setGuidedModalVisible] = useState(false);
+  const [notificationPromptVisible, setNotificationPromptVisible] = useState(false);
+  const notificationPromptCheckedRef = useRef(false);
 
   const showHomeHelpModal = useCallback((title: string, message: string) => {
     setHelpModalTitle(title || "Bilgi");
     setHelpModalMessage(message || "");
     setHelpModalVisible(true);
+  }, []);
+
+  useEffect(() => {
+    configureNotifications();
   }, []);
 
   const quizWord = useMemo(() => {
@@ -1216,6 +1230,20 @@ export const HomeScreen = ({ navigation }: any) => {
     return farm.filter((w) => (w as any).forPuzzleOnly === true).slice(0, 10);
   }, [farm]);
 
+  const guidedLessonText = useMemo(() => {
+    const quizTarget = level < 8 ? 8 : level < 18 ? 10 : 12;
+    const farmTarget = Math.max(1, Math.min(3, learningWords.length));
+    const harvestTarget = Math.max(1, Math.min(2, harvestWords.length));
+
+    return [
+      `1. Quiz Isinmasi: ${quizTarget} soru coz.`,
+      `2. Tarla Pekistirme: ${farmTarget} karta mini quiz yap.`,
+      `3. Hasat Rutini: ${harvestTarget} karti hasada getir.`,
+      "4. Envanter Turunu tamamla, bir karti tekrar tarlaya dik.",
+      "5. SesYapta 2 cumleyi mukemmel soyle.",
+    ].join("\n");
+  }, [level, learningWords.length, harvestWords.length]);
+
   const handleNav = (route: string, params?: any) => {
     const now = Date.now();
     if (isNavigating.current || now - lastNavigationTime.current < 500) {
@@ -1235,6 +1263,64 @@ export const HomeScreen = ({ navigation }: any) => {
       isNavigating.current = false;
     }, 500);
   };
+
+  useEffect(() => {
+    if (tutorialStep !== "COMPLETED") return;
+    if (notificationPromptCheckedRef.current) return;
+    notificationPromptCheckedRef.current = true;
+
+    let mounted = true;
+    (async () => {
+      const prompted = await hasPromptedNotificationPermission();
+      if (!prompted && mounted) {
+        setNotificationPromptVisible(true);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [tutorialStep]);
+
+  const handleRequestNotifications = useCallback(async () => {
+    setNotificationPromptVisible(false);
+    await markNotificationPermissionPrompted();
+    const result = await requestNotificationPermission();
+
+    if (result.granted) {
+      await scheduleComebackNotifications();
+      showHomeHelpModal(
+        "Bildirimler Acildi",
+        "Hatirlaticilar aktif. Tarlan, quiz ve SesYap rutinleri icin gun icinde nazik bildirimler gelecektir."
+      );
+      return;
+    }
+
+    showHomeHelpModal(
+      "Bildirim Kapali",
+      "İstersen daha sonra ayarlardan bildirimleri acabilirsin."
+    );
+  }, [showHomeHelpModal]);
+
+  const handleSkipNotifications = useCallback(async () => {
+    setNotificationPromptVisible(false);
+    await markNotificationPermissionPrompted();
+  }, []);
+
+  const handleStartGuidedMode = useCallback(() => {
+    setGuidedModalVisible(false);
+    haptic.medium();
+
+    if (learningWords.length > 0) {
+      handleNav("Farm", { filter: "study" });
+      return;
+    }
+    if (harvestWords.length > 0) {
+      handleNav("Farm", { filter: "ready" });
+      return;
+    }
+    handleNav("Quiz");
+  }, [learningWords.length, harvestWords.length, handleNav]);
 
   // 🧩 PUZZLE -> Farm puzzle sekmesine yönlendir
   const handlePuzzlePress = () => {
@@ -1392,6 +1478,25 @@ export const HomeScreen = ({ navigation }: any) => {
             >
               <Text style={styles.questsButtonIcon}>🎨</Text>
               <Text style={styles.questsButtonText}>Kart Mağazası</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.questsButton}
+            onPress={() => {
+              haptic.light();
+              setGuidedModalVisible(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <LinearGradient
+              colors={['#0EA5E9', '#0284C7']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.questsGradient}
+            >
+              <Text style={styles.questsButtonIcon}>🧭</Text>
+              <Text style={styles.questsButtonText}>Beni Sen Yonlendir</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -1868,6 +1973,7 @@ export const HomeScreen = ({ navigation }: any) => {
         animationType="slide"
         transparent={false}
         presentationStyle="fullScreen"
+        statusBarTranslucent
         onRequestClose={() => setCardShopVisible(false)}
       >
         <View style={styles.cardShopFullScreen}>
@@ -1888,6 +1994,48 @@ export const HomeScreen = ({ navigation }: any) => {
             text: "Tamam",
             type: "primary",
             onPress: () => setHelpModalVisible(false),
+          },
+        ]}
+      />
+      <JuicyModal
+        visible={guidedModalVisible}
+        onClose={() => setGuidedModalVisible(false)}
+        title="Beni Sen Yonlendir"
+        titleEmoji={'\u{1F9ED}'}
+        message="Bu modda oyun seni ders akisina gore adim adim yonlendirir. Serbest moda istedigin zaman donebilirsin."
+        secondaryMessage={guidedLessonText}
+        type="info"
+        buttons={[
+          {
+            text: "Dersi Baslat",
+            type: "primary",
+            onPress: handleStartGuidedMode,
+          },
+          {
+            text: "Sonra",
+            type: "cancel",
+            onPress: () => setGuidedModalVisible(false),
+          },
+        ]}
+      />
+      <JuicyModal
+        visible={notificationPromptVisible}
+        onClose={handleSkipNotifications}
+        title="Bildirim Izni"
+        titleEmoji={'\u{1F514}'}
+        message="Tutorial tamamlandi. Gunluk rutini kacirmaman icin oyun ici bildirim izni acmak ister misin?"
+        secondaryMessage="Reddetsen bile oyunu ayni sekilde kullanmaya devam edebilirsin."
+        type="warning"
+        buttons={[
+          {
+            text: "Izni Ac",
+            type: "primary",
+            onPress: handleRequestNotifications,
+          },
+          {
+            text: "Simdilik Gec",
+            type: "cancel",
+            onPress: handleSkipNotifications,
           },
         ]}
       />

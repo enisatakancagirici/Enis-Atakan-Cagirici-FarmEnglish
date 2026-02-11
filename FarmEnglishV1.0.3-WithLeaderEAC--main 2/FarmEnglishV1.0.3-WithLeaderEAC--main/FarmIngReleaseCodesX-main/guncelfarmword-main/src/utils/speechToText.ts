@@ -24,10 +24,56 @@ interface RecordingState {
     uri: string | null;
 }
 
+export type MicrophonePermissionState = {
+    granted: boolean;
+    canAskAgain: boolean;
+    status: string;
+};
+
 let recordingState: RecordingState = {
     recording: null,
     uri: null,
 };
+
+/**
+ * Mikrofon izin durumunu oku (prompt tetiklemez)
+ */
+export async function getMicrophonePermissionState(): Promise<MicrophonePermissionState> {
+    try {
+        const permission = await Audio.getPermissionsAsync();
+        return {
+            granted: permission.status === 'granted',
+            canAskAgain: !!permission.canAskAgain,
+            status: permission.status,
+        };
+    } catch {
+        return {
+            granted: false,
+            canAskAgain: false,
+            status: 'denied',
+        };
+    }
+}
+
+/**
+ * Mikrofon izni iste (sistem promptu)
+ */
+export async function requestMicrophonePermission(): Promise<MicrophonePermissionState> {
+    try {
+        const permission = await Audio.requestPermissionsAsync();
+        return {
+            granted: permission.status === 'granted',
+            canAskAgain: !!permission.canAskAgain,
+            status: permission.status,
+        };
+    } catch {
+        return {
+            granted: false,
+            canAskAgain: false,
+            status: 'denied',
+        };
+    }
+}
 
 /**
  * 🎙️ Mikrofon izni iste ve kayıt başlat
@@ -53,9 +99,9 @@ export async function startRecording(): Promise<boolean> {
             playsInSilentModeIOS: false,
         });
 
-        // İzin kontrolü
-        const { status } = await Audio.requestPermissionsAsync();
-        if (status !== 'granted') {
+        // İzin kontrolü (prompt göstermeden)
+        const permission = await Audio.getPermissionsAsync();
+        if (permission.status !== 'granted') {
             console.log('Mikrofon izni reddedildi');
             return false;
         }

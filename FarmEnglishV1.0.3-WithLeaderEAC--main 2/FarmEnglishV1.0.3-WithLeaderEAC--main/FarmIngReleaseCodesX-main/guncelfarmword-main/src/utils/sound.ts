@@ -60,6 +60,7 @@ class SoundManager {
   private minInterval: number = 30; // ms - daha düşük gecikme için azalttık
   private audioInitialized: boolean = false;
   private lastAudioInit: number = 0;
+  private recordingActive: boolean = false;
 
   constructor() {
     this.loadSettings();
@@ -199,7 +200,7 @@ class SoundManager {
 
   // 🔊 Ses çal - ANINDA TETİKLENME (gecikme yok!)
   private async playSound(key: SoundKey, volumeMultiplier: number = 1) {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled || this.recordingActive) return;
 
     // Hafif spam kontrolü
     const now = Date.now();
@@ -407,6 +408,13 @@ class SoundManager {
     try {
       await AsyncStorage.setItem('farmword:sounds', enabled ? 'on' : 'off');
     } catch (e) {}
+  }
+
+  setRecordingActive(active: boolean) {
+    this.recordingActive = !!active;
+    if (this.recordingActive) {
+      try { Speech.stop(); } catch {}
+    }
   }
   
   isAudioEnabled() { 

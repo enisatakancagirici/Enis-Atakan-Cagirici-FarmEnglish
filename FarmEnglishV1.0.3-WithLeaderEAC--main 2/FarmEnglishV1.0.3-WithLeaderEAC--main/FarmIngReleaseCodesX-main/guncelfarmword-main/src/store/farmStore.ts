@@ -85,6 +85,10 @@ function toSafePositiveInt(value: unknown): number {
   return Math.max(0, Math.floor(toSafeNumber(value, 0)));
 }
 
+function toSafeLowerText(value: unknown): string {
+  return typeof value === 'string' ? value.trim().toLowerCase() : '';
+}
+
 // 🛡️ Achievement/mastery check debounce
 let _achievementCheckTimer: any = null;
 
@@ -887,10 +891,18 @@ export const useFarmStore = create<FarmStore>()(
       loadWords: (words) => set((state) => {
         // Yeni kelimelerle mevcut farm/inventory kelimelerini eşleştir
         // Kelime text'ine göre örnek cümle ekle
-        const wordMap = new Map(words.map(w => [w.text.toLowerCase(), w]));
+        const safeWords = Array.isArray(words) ? words.filter(Boolean) : [];
+        const wordMap = new Map<string, WordModel>();
+        safeWords.forEach((w) => {
+          const key = toSafeLowerText((w as any)?.text);
+          if (!key || wordMap.has(key)) return;
+          wordMap.set(key, w);
+        });
 
         const updatedFarm = state.farm.map(word => {
-          const newWord = wordMap.get(word.text.toLowerCase());
+          const sourceKey = toSafeLowerText((word as any)?.text);
+          if (!sourceKey) return word;
+          const newWord = wordMap.get(sourceKey);
           if (newWord?.example) {
             return { ...word, example: newWord.example, meaning: newWord.meaning };
           }
@@ -898,7 +910,9 @@ export const useFarmStore = create<FarmStore>()(
         });
 
         const updatedInventory = state.inventory.map(word => {
-          const newWord = wordMap.get(word.text.toLowerCase());
+          const sourceKey = toSafeLowerText((word as any)?.text);
+          if (!sourceKey) return word;
+          const newWord = wordMap.get(sourceKey);
           if (newWord?.example) {
             return { ...word, example: newWord.example, meaning: newWord.meaning };
           }
@@ -906,7 +920,7 @@ export const useFarmStore = create<FarmStore>()(
         });
 
         return {
-          pool: words,
+          pool: safeWords,
           farm: updatedFarm,
           inventory: updatedInventory,
         };
@@ -1792,7 +1806,10 @@ export const useFarmStore = create<FarmStore>()(
 
       // 🧩 YAPBOZ VE SESYAP SKORLARI
       addPuzzleScore: (points: number) => {
-        const newScore = get().puzzleScore + points;
+        const safePoints = toSafePositiveInt(points);
+        if (safePoints <= 0) return;
+
+        const newScore = toSafeNumber(get().puzzleScore, 0) + safePoints;
         set({ puzzleScore: newScore });
 
         // Firebase'e sync - cached, güvenli
@@ -1803,7 +1820,10 @@ export const useFarmStore = create<FarmStore>()(
       },
 
       addSesyapScore: (points: number) => {
-        const newScore = get().sesyapScore + points;
+        const safePoints = toSafePositiveInt(points);
+        if (safePoints <= 0) return;
+
+        const newScore = toSafeNumber(get().sesyapScore, 0) + safePoints;
         set({ sesyapScore: newScore });
 
         // Firebase'e sync - cached, güvenli
@@ -1815,23 +1835,42 @@ export const useFarmStore = create<FarmStore>()(
 
       addSesyapHistory: (entry) => {
         set(state => {
+          const incomingWord = toSafeLowerText(entry?.word);
+          if (!incomingWord) {
+            return state;
+          }
+
+          const safeEntry = {
+            word: typeof entry?.word === 'string' ? entry.word.trim() : '',
+            meaning_tr: typeof entry?.meaning_tr === 'string' ? entry.meaning_tr.trim() : '',
+            example_en: typeof entry?.example_en === 'string' ? entry.example_en.trim() : '',
+            example_tr: typeof entry?.example_tr === 'string' ? entry.example_tr.trim() : '',
+            correct: !!entry?.correct,
+            timestamp: toSafeNumber(entry?.timestamp, Date.now()),
+          };
+
+          const safeHistory = Array.isArray(state.sesyapHistory) ? state.sesyapHistory : [];
           // Aynı kelime zaten varsa güncelle, yoksa ekle
-          const existingIndex = state.sesyapHistory.findIndex(
-            item => item.word.toLowerCase() === entry.word.toLowerCase()
+          const existingIndex = safeHistory.findIndex(
+            item => toSafeLowerText(item?.word) === incomingWord
           );
 
           let newHistory: typeof state.sesyapHistory;
           if (existingIndex !== -1) {
             // Kelime zaten var - durumu güncelle
-            newHistory = [...state.sesyapHistory];
+            newHistory = [...safeHistory];
             newHistory[existingIndex] = {
               ...newHistory[existingIndex],
-              correct: entry.correct, // Son durumu yaz
-              timestamp: entry.timestamp,
+              word: safeEntry.word || newHistory[existingIndex]?.word || '',
+              meaning_tr: safeEntry.meaning_tr || newHistory[existingIndex]?.meaning_tr || '',
+              example_en: safeEntry.example_en || newHistory[existingIndex]?.example_en || '',
+              example_tr: safeEntry.example_tr || newHistory[existingIndex]?.example_tr || '',
+              correct: safeEntry.correct, // Son durumu yaz
+              timestamp: safeEntry.timestamp,
             };
           } else {
             // Yeni kelime - ekle
-            newHistory = [...state.sesyapHistory, entry];
+            newHistory = [...safeHistory, safeEntry];
           }
 
           // Performans için son 50 kaydı tut
@@ -4107,7 +4146,7 @@ export const useFarmStore = create<FarmStore>()(
         }
 
         // 🔒 Normalize — case-insensitive kontrol
-        const normalizedText = text.trim().toLowerCase();
+        const normalizedText = toSafeLowerText(text);
         if (!normalizedText || normalizedText.length < 2) {
           return { success: false, message: 'Kelime en az 2 karakter olmalı.' };
         }
@@ -4116,19 +4155,19 @@ export const useFarmStore = create<FarmStore>()(
         }
 
         // 🌾 Tarlada var mı kontrol et
-        const inFarm = state.farm.some(w => w.text.toLowerCase() === normalizedText);
+        const inFarm = state.farm.some(w => toSafeLowerText((w as any)?.text) === normalizedText);
         if (inFarm) {
           return { success: false, message: `Bu tohum zaten tarlada var! 🌾` };
         }
 
         // 📦 Envanterde var mı kontrol et
-        const inInventory = state.inventory.some(w => w.text.toLowerCase() === normalizedText);
+        const inInventory = state.inventory.some(w => toSafeLowerText((w as any)?.text) === normalizedText);
         if (inInventory) {
           return { success: false, message: `Bu tohum zaten envanterde var! 📦` };
         }
 
         // 🏪 Tohum pazarında (pool'da) var mı kontrol et — daha ucuza alabilir
-        const inPool = state.pool.some(w => w.text.toLowerCase() === normalizedText);
+        const inPool = state.pool.some(w => toSafeLowerText((w as any)?.text) === normalizedText);
         if (inPool) {
           return { success: false, message: `Bu kelime tohum pazarında var! Oradan daha ucuza satın alabilirsin. 🏪` };
         }

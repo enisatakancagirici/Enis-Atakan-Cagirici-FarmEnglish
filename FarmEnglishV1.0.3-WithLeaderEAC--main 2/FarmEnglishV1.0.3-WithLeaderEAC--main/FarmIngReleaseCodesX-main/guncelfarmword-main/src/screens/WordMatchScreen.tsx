@@ -820,8 +820,8 @@ export default function WordMatchScreen() {
                         <View style={[
                             styles.bottomBar,
                             {
-                                paddingBottom: Math.max(insets.bottom + 2, IS_SMALL_DEVICE ? 6 : 8),
-                                marginBottom: IS_SMALL_DEVICE ? 38 : 46,
+                                paddingBottom: Math.max(insets.bottom, IS_SMALL_DEVICE ? 4 : 6),
+                                marginBottom: IS_SMALL_DEVICE ? 10 : 14,
                             }
                         ]}>
                             <TouchableOpacity 
@@ -1115,8 +1115,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingTop: IS_SMALL_DEVICE ? 4 : 6,
-        paddingBottom: Platform.OS === 'ios' ? 12 : 8,
+        paddingTop: IS_SMALL_DEVICE ? 3 : 5,
+        paddingBottom: Platform.OS === 'ios' ? 8 : 6,
         backgroundColor: 'rgba(15, 23, 42, 0.95)',
         borderTopWidth: 1,
         borderTopColor: 'rgba(148, 163, 184, 0.1)',

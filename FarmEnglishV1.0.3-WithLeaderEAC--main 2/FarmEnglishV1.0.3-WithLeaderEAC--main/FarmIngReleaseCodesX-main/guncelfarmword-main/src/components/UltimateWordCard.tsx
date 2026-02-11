@@ -851,6 +851,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   // ğŸ MEYVE ANÄ°MASYONLARI
   const fruitScaleAnim = useRef(new Animated.Value(1)).current;
   const fruitGlowAnim = useRef(new Animated.Value(0)).current;
+  const previousSessionProgressRef = useRef<number | null>(null);
 
   // ğŸ“ Phrasal Verb kontrolÃ¼
   const isPhrasalVerb = word.isPhrasalVerb || false;
@@ -1154,26 +1155,46 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     outputRange: [-dynamicCardWidth * 2, dynamicCardWidth * 2],
   });
 
+  const playFruitGrowPulse = useCallback(() => {
+    Animated.sequence([
+      Animated.spring(fruitScaleAnim, {
+        toValue: 1.3,
+        friction: 4,
+        tension: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(fruitScaleAnim, {
+        toValue: 1,
+        friction: 5,
+        tension: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fruitScaleAnim]);
+
   // ğŸ MEYVE BÃœYÃœME ANÄ°MASYONU - Session tamamlandÄ±ÄŸÄ±nda
   useEffect(() => {
     if (showFruit && fruitGrowthStage > 0) {
-      // Meyve bÃ¼yÃ¼me animasyonu
-      Animated.sequence([
-        Animated.spring(fruitScaleAnim, {
-          toValue: 1.3,
-          friction: 4,
-          tension: 200,
-          useNativeDriver: true,
-        }),
-        Animated.spring(fruitScaleAnim, {
-          toValue: 1,
-          friction: 5,
-          tension: 150,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      playFruitGrowPulse();
     }
-  }, [fruitGrowthStage, showFruit]);
+  }, [fruitGrowthStage, showFruit, playFruitGrowPulse]);
+
+  // ğŸ Session arttÄ±ÄŸÄ±nda da meyve animasyonu tetikle (stage aynÄ± kalsa bile)
+  useEffect(() => {
+    if (!showFruit) {
+      previousSessionProgressRef.current = null;
+      return;
+    }
+
+    const currentProgress = Math.max(0, Math.floor(Number(displayStreak) || 0));
+    const previousProgress = previousSessionProgressRef.current;
+    previousSessionProgressRef.current = currentProgress;
+
+    if (previousProgress === null) return;
+    if (currentProgress <= previousProgress) return;
+
+    playFruitGrowPulse();
+  }, [displayStreak, showFruit, playFruitGrowPulse]);
 
   // ğŸ HASAT HAZIR GLOW - Hasat hazÄ±r olduÄŸunda pulse
   useEffect(() => {
@@ -1438,7 +1459,6 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             {/* ğŸ MEYVE veya ğŸŒ± SPROUT - Arka planda */}
             {(() => {
               const masterLevel = word.masterLevel || 0;
-              const wrongCount = word.wrongCount || 0;
 
               // ğŸ MEYVE GÃ–RSELÄ° - YEÅÄ°L (wrongCount >= 2) VE ÃœSTÃœ KARTLARDA
               if (showFruit) {
@@ -1535,8 +1555,8 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
               let seedSize: number;
               let seedOpacity: number;
 
-              if (wrongCount >= 1) {
-                const yellowProgress = Math.min(displayStreak || 0, streakNeeded || 0);
+              if (category === 'yellow') {
+                const yellowProgress = Math.max(0, Math.min(displayStreak || 0, streakNeeded || 0));
                 const isYellowAdvanced = yellowProgress >= 1;
                 seedSource = isYellowAdvanced ? SEED_LARGE_IMAGE : SEED_MEDIUM_IMAGE;
                 seedSize = isYellowAdvanced
