@@ -73,14 +73,22 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
         const quest = repeatableQuests.find(q => q.id === safeQuestId);
         if (quest) {
           setTimeout(() => {
-            useFarmStore.getState().generateRepeatableQuest(quest.category);
+            try {
+              useFarmStore.getState().generateRepeatableQuest(quest.category);
+            } catch (e) {
+              console.log('[DailyQuestsPanel] generateRepeatableQuest error:', e);
+            }
           }, 500);
         }
       }
 
       if (questType === 'story') {
         setTimeout(() => {
-          useFarmStore.getState().checkStoryQuestUnlocks();
+          try {
+            useFarmStore.getState().checkStoryQuestUnlocks();
+          } catch (e) {
+            console.log('[DailyQuestsPanel] checkStoryQuestUnlocks error:', e);
+          }
         }, 500);
       }
     } finally {
@@ -121,7 +129,11 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
       onNavigate(target.screen, target.params);
     } else {
       setTimeout(() => {
-        navigation.navigate(target.screen as any, target.params);
+        try {
+          navigation.navigate(target.screen as any, target.params);
+        } catch (e) {
+          console.log('[DailyQuestsPanel] navigation error:', e);
+        }
       }, 300);
     }
   };
@@ -169,7 +181,11 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     if (allClaimed && dailyQuests.length > 0 && (now - lastGenerateRef.current) > 5000) {
       lastGenerateRef.current = now;
       const handle = setTimeout(() => {
-        useFarmStore.getState().generateDailyQuests();
+        try {
+          useFarmStore.getState().generateDailyQuests();
+        } catch (e) {
+          console.log('[DailyQuestsPanel] generateDailyQuests error:', e);
+        }
       }, 1000);
       return () => clearTimeout(handle);
     }

@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   useMemo,
   useRef,
   useCallback,
@@ -62,11 +62,12 @@ import { normalizeDisplayText } from "../utils/textNormalization";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-// 📱 RESPONSIVE SİSTEM - Apple Style
+// Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â± RESPONSIVE SÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â°STEM - Apple Style
 const IS_SMALL_DEVICE = SCREEN_HEIGHT < 700;
 const IS_MEDIUM_DEVICE = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
 const IS_TABLET_DEVICE = SCREEN_WIDTH >= 768;
 const IS_LARGE_TABLET = SCREEN_WIDTH >= 1024;
+const IS_NARROW_DEVICE = SCREEN_WIDTH <= 430;
 
 // Grid card sizes based on screen
 const GRID_GAP = 8;
@@ -87,7 +88,7 @@ const SPACING = {
 
 let homeVisualsPreloaded = false;
 
-// 🖼️ PRELOAD ALL IMAGES - Optimized webp format for fast loading
+// Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â PRELOAD ALL IMAGES - Optimized webp format for fast loading
 const PRELOADED_IMAGES = {
   logo: require("../../assets/logo.webp"),
   quiz: require("../../assets/images/maskot/yeniTasar\u0131mlar/quizegelecek.png"),
@@ -115,7 +116,6 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
   const logoGlow = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
-    // Shimmer animation - only if enabled
     if (config.enableShimmer) {
       Animated.loop(
         Animated.timing(shimmerAnim, {
@@ -126,7 +126,6 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
       ).start();
     }
 
-    // Logo glow pulse - only if enabled
     if (config.enablePulseAnimations) {
       Animated.loop(
         Animated.sequence([
@@ -152,65 +151,128 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
 
   return (
     <View style={styles.premiumHeader}>
-      {/* Left: Logo + Title */}
-      <Pressable onPress={onProfilePress} style={styles.headerLeftSection}>
-        <View style={styles.logoWrapper}>
-          {/* Glow Effect - only if enabled */}
-          {config.enableGlow && (
-            <Animated.View style={[styles.logoGlow, { opacity: logoGlow }]} />
-          )}
-          <View style={styles.logoContainer}>
-            <Image
-              source={PRELOADED_IMAGES.logo}
-              style={styles.logoImage}
-              contentFit="contain"
-              cachePolicy="memory-disk"
-              priority="high"
-              transition={0}
-            />
-          </View>
-        </View>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>FarmEnglish</Text>
-          <Text style={styles.headerSubtitle}>Kelime Çiftliğin</Text>
-        </View>
-      </Pressable>
+      <LinearGradient
+        colors={["rgba(3, 6, 12, 0.99)", "rgba(7, 10, 18, 0.98)", "rgba(5, 8, 16, 0.98)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.headerFrame, IS_NARROW_DEVICE && styles.headerFrameCompact]}
+      >
+        <LinearGradient
+          colors={["rgba(59, 130, 246, 0.06)", "rgba(99, 102, 241, 0.05)", "rgba(15, 23, 42, 0.04)"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerFrameGlow}
+          pointerEvents="none"
+        />
 
-      {/* Right: Stats Pills */}
-      <View style={styles.headerRightSection}>
-        {/* Coins */}
-        <View style={styles.statPill}>
-          {config.enableShimmer && (
-            <Animated.View
+        <Pressable
+          onPress={onProfilePress}
+          style={[styles.headerLeftSection, IS_NARROW_DEVICE && styles.headerLeftSectionCompact]}
+        >
+          <LinearGradient
+            colors={["rgba(8, 12, 20, 0.92)", "rgba(12, 20, 34, 0.9)", "rgba(8, 14, 24, 0.88)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.brandChip, IS_NARROW_DEVICE && styles.brandChipCompact]}
+          >
+            <View style={styles.logoWrapper}>
+              {config.enableGlow && (
+                <Animated.View style={[styles.logoGlow, { opacity: logoGlow }]} />
+              )}
+              <View style={[styles.logoContainer, IS_NARROW_DEVICE && styles.logoContainerCompact]}>
+                <Image
+                  source={PRELOADED_IMAGES.logo}
+                  style={styles.logoImage}
+                  contentFit="contain"
+                  cachePolicy="memory-disk"
+                  priority="high"
+                  transition={0}
+                />
+              </View>
+            </View>
+            <View
               style={[
-                styles.pillShimmer,
-                { transform: [{ translateX: shimmerTranslate }] },
+                styles.headerTitleContainer,
+                IS_NARROW_DEVICE && styles.headerTitleContainerCompact,
               ]}
-            />
-          )}
-          <Coins color="#FFD700" size={16} strokeWidth={2.5} />
-          <Text style={styles.statPillText}>
-            {coins >= 10000
-              ? `${(coins / 1000).toFixed(0)}k`
-              : coins >= 1000
-                ? `${(coins / 1000).toFixed(1)}k`
-                : coins}
-          </Text>
-        </View>
+            >
+              <Text
+                style={[styles.headerTitle, IS_NARROW_DEVICE && styles.headerTitleCompact]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                adjustsFontSizeToFit
+                minimumFontScale={0.82}
+              >
+                {normalizeDisplayText("FarmEnglish")}
+              </Text>
+              <Text
+                style={[styles.headerSubtitle, IS_NARROW_DEVICE && styles.headerSubtitleCompact]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                adjustsFontSizeToFit
+                minimumFontScale={0.86}
+              >
+                {"Kelime Ciftligin"}
+              </Text>
+            </View>
+          </LinearGradient>
+        </Pressable>
 
-        {/* Level */}
-        <View style={[styles.statPill, styles.levelPill]}>
-          <Award color="#A855F7" size={16} strokeWidth={2.5} />
-          <Text style={[styles.statPillText, { color: "#A855F7" }]}>
-            {level}
-          </Text>
+        <View style={[styles.headerRightSection, IS_NARROW_DEVICE && styles.headerRightSectionCompact]}>
+          <LinearGradient
+            colors={["rgba(255, 215, 0, 0.26)", "rgba(250, 204, 21, 0.1)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[
+              styles.statPill,
+              styles.coinPill,
+              IS_NARROW_DEVICE && styles.statPillCompact,
+            ]}
+          >
+            {config.enableShimmer && (
+              <Animated.View
+                style={[
+                  styles.pillShimmer,
+                  { transform: [{ translateX: shimmerTranslate }] },
+                ]}
+              />
+            )}
+            <Coins color="#FDE047" size={IS_NARROW_DEVICE ? 14 : 16} strokeWidth={2.5} />
+            <Text style={[styles.statPillText, IS_NARROW_DEVICE && styles.statPillTextCompact]}>
+              {coins >= 10000
+                ? `${(coins / 1000).toFixed(0)}k`
+                : coins >= 1000
+                  ? `${(coins / 1000).toFixed(1)}k`
+                  : coins}
+            </Text>
+          </LinearGradient>
+
+          <LinearGradient
+            colors={["rgba(168, 85, 247, 0.26)", "rgba(124, 58, 237, 0.1)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[
+              styles.statPill,
+              styles.levelPill,
+              IS_NARROW_DEVICE && styles.statPillCompact,
+            ]}
+          >
+            <Award color="#C084FC" size={IS_NARROW_DEVICE ? 14 : 16} strokeWidth={2.5} />
+            <Text
+              style={[
+                styles.statPillText,
+                styles.levelPillText,
+                IS_NARROW_DEVICE && styles.statPillTextCompact,
+              ]}
+            >
+              {level}
+            </Text>
+          </LinearGradient>
         </View>
-      </View>
+      </LinearGradient>
     </View>
   );
 };
-
-// 🎮 TUTORIAL DIALOG - Premium Oyun Tanıtımı
 const TutorialDialog = ({
   visible,
   onClose,
@@ -223,100 +285,92 @@ const TutorialDialog = ({
 
   const tutorialSteps = [
     {
-      icon: "👋",
-      title: "Hoş Geldin Farmer!",
+      icon: "\u{1F44B}",
+      title: "Hos Geldin Farmer!",
       description:
-        "FarmEnglish ile kelime öğrenmek çok kolay. Tohum ek, büyüt, hasat et ve kalıcı öğren.",
+        "FarmEnglish ile kelime ogrenme dongusu basit: quiz coz, tarlaya ek, calis, hasat et, envanterden tekrar tarlaya gonder.",
       color: "#22C55E",
-      tip: "🌱 Her kelime bir tohum gibi büyür.",
+      tip: "Her kelime bir tohum gibi buyur.",
     },
     {
-      icon: "📝",
-      title: "1. Quiz ile Başla",
+      icon: "\u{1F3AF}",
+      title: "1. Quiz ile Basla",
       description:
-        "Ana menüden Quiz'e gir. İngilizce kelimenin doğru Türkçe anlamını seç.\n\n✅ Doğru: Kelime tarlana güçlü başlar.\n❌ Yanlış: Kelime tohum olarak ekilir, çalışarak güçlenir.",
+        "Quiz'de dogru secersen kartin guclu baslar. Yanlis secersen tohum olarak ekilir ve calistikca gelisir.",
       color: "#A855F7",
-      tip: "💡 Bilmediğin kelimeler de tarlana eklenir.",
+      tip: "Bilmedigin kelimeler de sistemli sekilde tarlana eklenir.",
     },
     {
-      icon: "🌱",
-      title: "2. Çiftlikte Büyüt",
+      icon: "\u{1F33F}",
+      title: "2. Ciftlikte Buyut",
       description:
-        "Quiz sonrası Çiftlik'e geç.\n\n🔴 Kırmızı: Çalışılması gerekiyor\n🟡 Sarı: Gelişiyor\n🟢 Yeşil: Hasada hazır",
+        "Ciftlikte kartlar calisildikca ilerler. Kirmizi kartlar daha fazla tekrar ister, yesiller hasada daha yakindir.",
       color: "#F97316",
-      tip: "🎯 Kırmızı ve sarı kartları düzenli çalış.",
+      tip: "Kisa ama duzenli tekrar en hizli gelisimi verir.",
     },
     {
-      icon: "🌾",
+      icon: "\u{1F69C}",
       title: "3. Hasat Et",
       description:
-        "Kelimeler olgunlaşınca hasat edilir. Hasat edilen kartlar envantere gider ve öğrenme döngün güçlenir.",
+        "Olgunlasan kartlari hasat ederek envantere alirsin. Sonra tekrar tarlaya gonderip seviyeyi yukseltebilirsin.",
       color: "#22C55E",
-      tip: "📦 Envanterden tekrar tarlaya gönderip seviyeyi artırabilirsin.",
+      tip: "Dongu: buyut -> hasat et -> gelistir -> ogren.",
     },
     {
-      icon: "🔥",
-      title: "4. Combo ile Bonus",
+      icon: "\u{1F525}",
+      title: "4. Combo Bonus",
       description:
-        "Üst üste doğru cevaplar combo'yu yükseltir.\n\n🔥 3+ combo: bonus coin\n💥 5+ combo: daha yüksek bonus\n⚡ 10+ combo: güçlü ödül",
+        "Ardisik dogru cevaplar combo olusturur. Combo arttikca coin ve XP kazanci da artar.",
       color: "#EF4444",
-      tip: "🛡️ Yanlışta combo kırılmasın istiyorsan güçlendirici kullan.",
+      tip: "Yanlislar comboyu kirabilir; dikkatli ve hizli oyna.",
     },
     {
-      icon: "📦",
+      icon: "\u{1F4E6}",
       title: "5. Envanter",
       description:
-        "Hasat edilen kartlar burada birikir. Kartları tekrar tarlaya göndererek döngüyü devam ettirirsin.",
+        "Hasat edilen kartlar envanterde tutulur. Buradan tarlaya geri gondererek ogrenme surecini devam ettirirsin.",
       color: "#60A5FA",
-      tip: "🔁 Döngü: büyüt → hasat et → geliştir → öğren.",
+      tip: "Tekrar ekilen kartlar kaldigi seviyeden devam eder.",
     },
     {
-      icon: "🧩",
-      title: "6. Yapboz",
+      icon: "\u{1F9E9}",
+      title: "6. Puzzle",
       description:
-        "Cümledeki kelimeleri doğru sıraya diz. 5300+ örnek cümle ile bağlam içinde öğrenmeyi pekiştir.",
+        "Cumle parcalarini dogru siraya diz. 5300+ ornek cumleyle baglam icinde ogrenmeyi guclendir.",
       color: "#EC4899",
-      tip: "📚 Cümle içinde görmek kalıcılığı ciddi artırır.",
+      tip: "Kelimeleri cumle icinde gormek kaliciligi ciddi artirir.",
     },
     {
-      icon: "🌳",
+      icon: "\u{1F517}",
       title: "7. Phrasal Verbs",
       description:
-        "\"give up\", \"look after\" gibi yapılar için ayrı çalışma akışı vardır. Günlük İngilizce için çok kritik.",
+        "Give up, look after gibi yapilar icin ayri calisma akisi var. Gundelik Ingilizce icin kritik bir bolum.",
       color: "#10B981",
-      tip: "💬 Düzenli kısa tekrarlarla konuşma akıcılığı hızlanır.",
+      tip: "Kisa tekrarlar akiciligi hizlandirir.",
     },
     {
-      icon: "🏪",
+      icon: "\u{1F6D2}",
       title: "8. Market",
       description:
-        "Coin ile güçlendirme ve tohum alabilirsin. Quiz, hasat ve pratiklerden kazandığın coinleri burada kullan.",
+        "Coin ile guclendirme ve tohum satin alabilirsin. Kazandigin coinleri stratejik kullan.",
       color: "#FBBF24",
-      tip: "💰 Her doğru cevap küçük de olsa ekonomi üretir.",
+      tip: "Dogru cevaplar uzun vadede guclu ekonomi kurar.",
     },
     {
-      icon: "🌾",
-      title: "9. Tohum Pazarı",
+      icon: "\u{1F4A1}",
+      title: "9. Performans Ayarlari",
       description:
-        "Quiz beklemeden direkt kart eklemek için Tohum Pazarı'nı kullan.\n\nCoin harca, tohumu al, tarlaya gönder.",
-      color: "#8B5CF6",
-      tip: "⚡ Hızlı başlangıç için ideal.",
-    },
-    {
-      icon: "⚙️",
-      title: "10. Performans Ayarları",
-      description:
-        "Cihazına göre performans seviyesini ayarla.\n\n🐢 Düşük: hafif animasyon\n⚡ Orta: dengeli\n🚀 Yüksek: tam efekt",
+        "Cihazina gore efekt seviyesini ayarlayabilirsin: dusuk, orta veya yuksek.",
       color: "#64748B",
-      tip: "💡 Kasma hissedersen bir seviye düşür.",
+      tip: "Kasma hissedersen bir seviye dusur.",
     },
     {
-      icon: "🚀",
-      title: "Hazırsın!",
+      icon: "\u{1F680}",
+      title: "Hazirsin!",
       description:
-        "Şimdi Quiz'e gir ve ilk hedefini koy: 3 kartı yeşile getirip hasat et.",
+        "Simdi Quiz'e gir ve ilk hedefini koy: 3 karti yesile getirip hasat et.",
       color: "#22C55E",
-      tip: "💪 Her gün kısa, düzenli çalışma en hızlı ilerlemeyi verir.",
+      tip: "Her gun kisa ve duzenli calisma en hizli ilerlemeyi verir.",
     },
   ];
 
@@ -455,7 +509,7 @@ const TutorialDialog = ({
                   style={tutorialStyles.prevButton}
                   onPress={handlePrev}
                 >
-                  <Text style={tutorialStyles.prevButtonText}>← Geri</Text>
+                  <Text style={tutorialStyles.prevButtonText}>Geri</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
@@ -467,8 +521,8 @@ const TutorialDialog = ({
               >
                 <Text style={tutorialStyles.nextButtonText}>
                   {currentStep === tutorialSteps.length - 1
-                    ? "Başla! 🚀"
-                    : "İleri →"}
+                    ? "Basla!"
+                    : "Ileri"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -630,7 +684,7 @@ const tutorialStyles = StyleSheet.create({
   },
 });
 
-// 🔥 PREMIUM MENU CARD - Full Image Coverage + Shine + Glow + Bounce
+// Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â¥ PREMIUM MENU CARD - Full Image Coverage + Shine + Glow + Bounce
 const PremiumMenuCard = ({
   onPress,
   imageSource,
@@ -893,7 +947,7 @@ const PremiumMenuCard = ({
               />
             )}
 
-            {/* ❓ Help Icon - Top Right */}
+            {/* ÃƒÆ’Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Help Icon - Top Right */}
             {helpText && (
               <TouchableOpacity
                 style={styles.helpIconContainer}
@@ -962,13 +1016,13 @@ const PremiumGridMenu = ({
           hasBounce={true}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Quiz çözerek tarlana otomatik ekim yaparsın. Bilmediklerin tohum olarak ekilir; çalışarak büyütür ve öğrenirsin. Bildiklerin ise meyve olarak ekilir; onları da çalışıp büyütüp bildiklerini sağlamlaştırabilirsin."
+          helpText="Quiz cozdurup tarlana otomatik ekim yaparsin. Bilmediklerin tohum olur, calistikca buyur. Bildiklerin meyve olur; tekrarlarla bilgini saglamlastirirsin."
         />
         <PremiumMenuCard
           onPress={onRandomPress}
           imageSource={PRELOADED_IMAGES.soruIsareti}
           title="NASIL?"
-          subtitle="Oynanır"
+          subtitle="Oynanir"
           size="small"
           accentColor="#FBBF24"
           delay={50}
@@ -982,26 +1036,26 @@ const PremiumGridMenu = ({
           onPress={onInventoryPress}
           imageSource={PRELOADED_IMAGES.envanter}
           title="ENVANTER"
-          subtitle="Hasatların burada!"
+          subtitle="Hasat Hazir"
           size="small"
           accentColor="#60A5FA"
           delay={100}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Hasat ettiğin kelimeler burada! Tarlaya geri göndererek tekrar çalışabilirsin. Tarlaya buradan tekrar eklediğin kart seviye atlamış haliyle seni karşılar. Döngü bu şekilde büyüt-hasat et-geliştir-öğren olarak ilerler. Hasatların burada 10 ve 10'un katları olduğunda böcek saldırısına uğrar. Quiz çözerek defedebilirsin. Bu olay aralıklı tekrar yaptırarak öğrenmeni kalıcılaştırır."
+          helpText="Hasat ettigin kelimeler burada. Tekrar tarlaya gondererek seviyeyi yukseltirsin. 10 ve 10'un katlarinda bocek saldirisini quiz cozerek defedersin."
         />
         <PremiumMenuCard
           onPress={onFarmPress}
           imageSource={PRELOADED_IMAGES.farm}
-          title="ÇİFTLİK"
-          subtitle="Kelimelerini büyüt, hasat et!"
+          title="CIFTLIK"
+          subtitle="Kelimelerini buyut, hasat et!"
           size="large"
           accentColor="#22C55E"
           delay={150}
           hasBounce={true}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Kelimelerini burada büyütürsün, öğrenirsin. Görsel geri bildirimlerle öğrenmeyi kalıcılaştırırsın."
+          helpText="Kelimelerini burada buyutur, hasat eder ve gorsel geri bildirimle kalici ogrenme saglarsin."
         />
       </View>
 
@@ -1011,29 +1065,29 @@ const PremiumGridMenu = ({
           onPress={onPuzzlePress}
           imageSource={PRELOADED_IMAGES.puzzle}
           title="PUZZLE"
-          subtitle="Cümle pratiği"
+          subtitle="Cumle pratigi"
           size="medium"
           accentColor="#F97316"
           delay={200}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Cümlelerdeki kelimeleri doğru sıraya diz! 5300+ örnek cümle ile pratik yap."
+          helpText="Cumledeki kelimeleri dogru siraya diz. 5300+ ornek cumle ile pratik yap."
         />
         <PremiumMenuCard
           onPress={onPhrasalPress}
           imageSource={PRELOADED_IMAGES.phrasal}
           title="PHRASAL"
-          subtitle="Deyimleri öğren"
+          subtitle="Deyimleri ogren"
           size="medium"
           accentColor="#EC4899"
           delay={250}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="give up, look after gibi deyimsel fiilleri öğren! Ayrı tarla, ayrı quiz."
+          helpText="Give up, look after gibi deyimsel fiilleri ogren. Ayrica tarla ve quiz akisi bulunur."
         />
       </View>
 
-      {/* Row 4: BATTLE - Savaş Modu Butonu */}
+      {/* Row 4: BATTLE - SavaÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸ Modu Butonu */}
       <TouchableOpacity
         style={[styles.marketContainer, { marginBottom: SPACING.md }]}
         onPress={onBattlePress}
@@ -1055,16 +1109,16 @@ const PremiumGridMenu = ({
         {/* Content */}
         <View style={styles.marketContent}>
           <View style={styles.marketTextContainer}>
-            <Text style={styles.marketTitle}>{normalizeDisplayText("⚔️ SAVAŞ MODU")}</Text>
+            <Text style={styles.marketTitle}>SAVAS MODU</Text>
             <Text style={styles.marketSubtitle}>
-              {normalizeDisplayText("Rakiplerle yarış • Liderlik tablosu • Ödüller")}
+              Rakiplerle yaris • Liderlik tablosu • Oduller
             </Text>
           </View>
           <ChevronRight size={24} color="#c4b5fd" />
         </View>
       </TouchableOpacity>
 
-      {/* Row 5: SesYap - Konuşma Modu */}
+      {/* Row 5: SesYap - KonuÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸ma Modu */}
       <TouchableOpacity
         style={[styles.marketContainer, { marginBottom: SPACING.md }]}
         onPress={onSesYapPress}
@@ -1086,16 +1140,16 @@ const PremiumGridMenu = ({
         {/* Content */}
         <View style={styles.marketContent}>
           <View style={styles.marketTextContainer}>
-            <Text style={styles.marketTitle}>{normalizeDisplayText("🎤 SESYAP")}</Text>
+            <Text style={styles.marketTitle}>SESYAP</Text>
             <Text style={styles.marketSubtitle}>
-              {normalizeDisplayText("Konuş • Doğruluk kontrolü • Telaffuz pratik")}
+              Konus • Dogruluk kontrolu • Telaffuz pratigi
             </Text>
           </View>
           <ChevronRight size={24} color="#5EEAD4" />
         </View>
       </TouchableOpacity>
 
-      {/* Row 5: MARKET - Tam genişlikte, Premium Görünüm */}
+      {/* Row 5: MARKET - Tam geniÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸likte, Premium GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶rÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼m */}
       <TouchableOpacity
         style={styles.marketContainer}
         onPress={onMarketPress}
@@ -1120,9 +1174,9 @@ const PremiumGridMenu = ({
         {/* Content */}
         <View style={styles.marketContent}>
           <View style={styles.marketTextContainer}>
-            <Text style={styles.marketTitle}>{normalizeDisplayText("🏪 MARKET")}</Text>
+            <Text style={styles.marketTitle}>MARKET</Text>
             <Text style={styles.marketSubtitle}>
-              {normalizeDisplayText("Güçlen • Tohum Pazarı • Güç Mağazası")}
+              Guclen • Tohum Pazari • Guc Magazasi
             </Text>
           </View>
           <ChevronRight size={24} color="#a78bfa" />
@@ -1161,9 +1215,6 @@ export const HomeScreen = ({ navigation }: any) => {
   const sesyapHistory = useFarmStore((state) =>
     Array.isArray(state.sesyapHistory) ? state.sesyapHistory : [],
   );
-  const achievements = useFarmStore((state) =>
-    Array.isArray(state.achievements) ? state.achievements : [],
-  );
   const bestStreak = useFarmStore((state) => state.bestStreak);
   const streak = useFarmStore((state) => state.streak);
   const currentCombo = useFarmStore((state) => state.currentCombo);
@@ -1177,17 +1228,17 @@ export const HomeScreen = ({ navigation }: any) => {
     Array.isArray(state.activeBoosts) ? state.activeBoosts : [],
   );
   const harvestWord = useFarmStore((state) => state.harvestWord);
-  // 🎓 Tutorial
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Tutorial
   const tutorialStep = useFarmStore((state) => state.tutorialStep);
   const skipTutorial = useFarmStore((state) => state.skipTutorial);
   const tutorialInterrupted = useFarmStore((state) => state.tutorialInterrupted);
   const setTutorialInterrupted = useFarmStore((state) => state.setTutorialInterrupted);
   const showNicknameModal = useFarmStore((state) => !!state.showNicknameModal);
   
-  // 🎯 Günlük Görevler
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revler
   const checkAndResetDailyQuests = useFarmStore((state) => state.checkAndResetDailyQuests);
 
-  // 🖼️ Preload images on mount for performance
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â Preload images on mount for performance
   useEffect(() => {
     if (homeVisualsPreloaded) return;
     const preloadImages = async () => {
@@ -1216,13 +1267,13 @@ export const HomeScreen = ({ navigation }: any) => {
   // MiniQuiz State
   const [quizWordId, setQuizWordId] = useState<string | null>(null);
 
-  // 🎮 Tutorial State
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â® Tutorial State
   const [showTutorial, setShowTutorial] = useState(false);
 
-  // 🏪 Market Modal State
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Âª Market Modal State
   const [showMarket, setShowMarket] = useState(false);
   
-  // 🎯 Quest Panel State
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ Quest Panel State
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
   const [cardShopVisible, setCardShopVisible] = useState(false);
   const [helpModalVisible, setHelpModalVisible] = useState(false);
@@ -1291,6 +1342,26 @@ export const HomeScreen = ({ navigation }: any) => {
     xp,
   ]);
 
+  const cefrSignalSummary = useMemo(() => {
+    const signalRows = [
+      { label: "Kelime hakimiyeti", value: cefrEstimate.signals.lexicalMasteryPct },
+      { label: "Quiz dogrulugu", value: cefrEstimate.signals.quizAccuracyPct },
+      { label: "SesYap dogrulugu", value: cefrEstimate.signals.speechAccuracyPct },
+      { label: "Yapboz dogrulugu", value: cefrEstimate.signals.puzzleMasteryPct },
+      { label: "Kapsam", value: cefrEstimate.signals.coveragePct },
+      { label: "XP ilerlemesi", value: cefrEstimate.signals.xpProgressPct },
+    ];
+
+    const sorted = [...signalRows].sort((a, b) => b.value - a.value);
+    const topTwo = sorted.slice(0, 2);
+    const weakest = sorted[sorted.length - 1];
+
+    return {
+      topText: topTwo.map((item) => `${item.label} %${item.value}`).join(" | "),
+      weakText: `${weakest.label} %${weakest.value}`,
+    };
+  }, [cefrEstimate]);
+
   // Navigation Guard
   const isNavigating = useRef(false);
   const lastNavigationTime = useRef(0);
@@ -1300,7 +1371,7 @@ export const HomeScreen = ({ navigation }: any) => {
       isNavigating.current = false;
       lastNavigationTime.current = 0;
       
-      // 🎯 Günlük görevleri kontrol et ve yenile
+      // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revleri kontrol et ve yenile
       try {
         checkAndResetDailyQuests();
       } catch (error) {
@@ -1324,11 +1395,11 @@ export const HomeScreen = ({ navigation }: any) => {
   );
   const isTutorialActive = tutorialStep !== "NOT_STARTED" && tutorialStep !== "COMPLETED";
   const isFullScreenTutorial = tutorialDialog.fullScreen === true;
-  // 🔒 Sadece uygulama arka plana gidip dönüldüyse kilit overlay'i göster; devam et tıklanınca kalksın
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ Sadece uygulama arka plana gidip dÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼ldÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼yse kilit overlay'i gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶ster; devam et tÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±klanÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±nca kalksÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±n
   const showHomeTutorialLock = isTutorialActive && !isFullScreenTutorial && tutorialInterrupted;
   const tutorialLockMessage = useMemo(() => {
     const lineText = (tutorialDialog.lines || []).filter(Boolean).join(" ");
-    return lineText || "Eğitim devam ediyor. İlgili sekmeye geçerek adımı tamamla.";
+    return lineText || "Egitim devam ediyor. Ilgili sekmeye gecerek adimi tamamla.";
   }, [tutorialDialog.lines]);
 
   useEffect(() => {
@@ -1336,11 +1407,6 @@ export const HomeScreen = ({ navigation }: any) => {
       setTutorialInterrupted(false);
     }
   }, [tutorialStep, tutorialInterrupted, setTutorialInterrupted]);
-
-  const unlockedAchievements = useMemo(
-    () => achievements.filter((a) => a.unlocked).length,
-    [achievements],
-  );
 
   // Word categories
   const learningWords = useMemo(() => {
@@ -1363,14 +1429,14 @@ export const HomeScreen = ({ navigation }: any) => {
   }, [farm, phrasalVerbFarm]);
 
   const favoriteWords = useMemo(() => {
-    // 🎯 normalHarvested olanları filtrele (duplicate önleme)
+    // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ normalHarvested olanlarÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± filtrele (duplicate ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nleme)
     const activeFarm = [...farm, ...phrasalVerbFarm].filter(w => !(w as any).normalHarvested);
     return [...activeFarm, ...inventory, ...phrasalVerbInventory]
       .filter((w) => w.isFavorite === true)
       .slice(0, 10);
   }, [farm, inventory, phrasalVerbFarm, phrasalVerbInventory]);
 
-  // 🧩 Puzzle kelimeleri - forPuzzleOnly olanlar
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â© Puzzle kelimeleri - forPuzzleOnly olanlar
   const puzzleWords = useMemo(() => {
     return farm.filter((w) => (w as any).forPuzzleOnly === true).slice(0, 10);
   }, [farm]);
@@ -1527,7 +1593,7 @@ export const HomeScreen = ({ navigation }: any) => {
     setTimeout(() => handleNav(route), 120);
   }, [handleNav]);
 
-  // 🧩 PUZZLE -> Farm puzzle sekmesine yönlendir
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â© PUZZLE -> Farm puzzle sekmesine yÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nlendir
   const handlePuzzlePress = () => {
     handleNav("Farm", { tab: "puzzle" });
   };
@@ -1556,7 +1622,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
   const handleQuizAnswer = useCallback(
     (correct: boolean, count?: number, wordId?: string) => {
-      // 🎯 MiniQuizDialog'dan gelen wordId'yi öncelikli kullan (closure sorunu önlenir)
+      // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ MiniQuizDialog'dan gelen wordId'yi ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶ncelikli kullan (closure sorunu ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nlenir)
       const targetWordId = wordId || quizWordId;
       if (targetWordId) {
         answerMiniQuiz(targetWordId, correct, count || 1);
@@ -1574,7 +1640,7 @@ export const HomeScreen = ({ navigation }: any) => {
     [toggleFavorite],
   );
 
-  // 🌾 HASAT İŞLEMİ - Haptic, ses ve ödül gösterimi
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¾ HASAT ÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚ÂLEMÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â° - Haptic, ses ve ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶dÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼l gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶sterimi
   const handleHarvestWord = useCallback(
     (wordId: string) => {
       if (!harvestWord) return;
@@ -1582,23 +1648,23 @@ export const HomeScreen = ({ navigation }: any) => {
       // Haptic feedback
       haptic.heavy();
 
-      // Hasat işlemi
+      // Hasat iÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸lemi
       const result = harvestWord(wordId);
 
       if (result && result.success) {
-        // Başarılı hasat sesi
+        // BaÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸arÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±lÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± hasat sesi
         sound.playHarvest();
 
-        // Ödül göster
-        const coinReward = result.coins || 0;
-        const xpReward = result.xp || 0;
+        // ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“dÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼l gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶ster
+        const coinReward = Number.isFinite(result.coins) ? Math.max(0, Math.floor(result.coins)) : 0;
+        const xpReward = Number.isFinite(result.xp) ? Math.max(0, Math.floor(result.xp)) : 0;
 
-        // Toast notification'lar: önce coin, ardından XP (gecikmesiz)
+        // Toast notification'lar: ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nce coin, ardÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±ndan XP (gecikmesiz)
         if (coinReward > 0) {
-          showRewardToast('coin', coinReward);
+          try { showRewardToast('coin', coinReward); } catch {}
         }
         if (xpReward > 0) {
-          showRewardToast('xp', xpReward);
+          try { showRewardToast('xp', xpReward); } catch {}
         }
       }
     },
@@ -1658,20 +1724,20 @@ export const HomeScreen = ({ navigation }: any) => {
                 delay={0}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Quiz çözerek tarlana otomatik ekim yaparsın. Bilmediklerin tohum olarak ekilir; çalışarak büyütür ve öğrenirsin. Bildiklerin meyve olarak ekilir; onları da büyütüp sağlamlaştırırsın."
+                helpText="Quiz cozdurup tarlana otomatik ekim yaparsin. Bilmediklerin tohum olur ve calistikca buyur. Bildiklerin meyve olur; tekrarlarla bilgini saglamlastirirsin."
               />
               <PremiumMenuCard
                 onPress={() => handleNav("Farm")}
                 imageSource={PRELOADED_IMAGES.farm}
-                title="ÇİFTLİK"
-                subtitle="Büyüt, çalış, hasat et"
+                title="CIFTLIK"
+                subtitle="Buyut, calis, hasat et"
                 size="medium"
                 textAlign="center"
                 accentColor="#22C55E"
                 delay={40}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Kelimelerini burada büyütürsün, öğrenirsin. Görsel geri bildirimlerle öğrenme kalıcılaşır."
+                helpText="Kelimelerini burada buyutur, hasat eder ve gorsel geri bildirimlerle kalici hale getirirsin."
               />
             </View>
 
@@ -1679,28 +1745,28 @@ export const HomeScreen = ({ navigation }: any) => {
               <PremiumMenuCard
                 onPress={() => handleNav("BattleMenu")}
                 imageSource={PRELOADED_IMAGES.battle}
-                title="SAVAŞ"
-                subtitle="Rakiplerle yarış"
+                title="SAVAS"
+                subtitle="Rakiplerle yaris"
                 size="medium"
                 textAlign="center"
                 accentColor="#C4B5FD"
                 delay={80}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Savaş modunda rakiplerle yarışır, liderlik tablosunda yükselir ve ödüller kazanırsın."
+                helpText="Savas modunda rakiplerle yarisir, liderlik tablosunda yukselir ve oduller kazanirsin."
               />
               <PremiumMenuCard
                 onPress={() => handleNav("SesYap")}
                 imageSource={PRELOADED_IMAGES.sesyap}
                 title="SESYAP"
-                subtitle="Konuş ve doğruluk kontrol et"
+                subtitle="Konus, telaffuzunu gelistir"
                 size="medium"
                 textAlign="center"
                 accentColor="#5EEAD4"
                 delay={120}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="SesYap modunda telaffuz ve doğruluk çalışırsın. Bildiklerin meyve, bilemediklerin tohum olarak ayrılır."
+                helpText="SesYap modunda telaffuz ve dogruluk calisirsin. Bildiklerin meyve, bilemediklerin tohum olarak ayrilir."
               />
             </View>
 
@@ -1709,27 +1775,27 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={handlePuzzlePress}
                 imageSource={PRELOADED_IMAGES.puzzle}
                 title="PUZZLE"
-                subtitle="Cümle pratiği"
+                subtitle="Cumle pratigi"
                 size="medium"
                 textAlign="center"
                 accentColor="#F97316"
                 delay={160}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Cümle parçalarını doğru sıraya dizerek kalıcı pratik yaparsın."
+                helpText="Cumle parcalarini dogru siraya dizerek kalici pratik yaparsin."
               />
               <PremiumMenuCard
                 onPress={() => handleNav("PhrasalVerbsMenu")}
                 imageSource={PRELOADED_IMAGES.phrasal}
                 title="PHRASAL"
-                subtitle="Deyimleri öğren"
+                subtitle="Deyimleri ogren"
                 size="medium"
                 textAlign="center"
                 accentColor="#EC4899"
                 delay={200}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Phrasal verbs bölümünde günlük İngilizcedeki kritik kalıpları çalışırsın."
+                helpText="Phrasal verbs bolumunde gundelik Ingilizcedeki kritik kaliplari calisirsin."
               />
             </View>
 
@@ -1737,21 +1803,21 @@ export const HomeScreen = ({ navigation }: any) => {
               onPress={() => handleNav("Inventory")}
               imageSource={PRELOADED_IMAGES.envanter}
               title="ENVANTER"
-              subtitle="Hasatların burada!"
+              subtitle="Hasatlar burada"
               size="wide"
               textAlign="center"
               accentColor="#60A5FA"
               delay={240}
               hasBounce={true}
               onHelpPress={showHomeHelpModal}
-              helpText="Hasat ettiğin kartlar burada. Tarlaya tekrar gönderdiğinde kartların gelişmiş seviyesiyle devam edersin. Hasatların burada 10 ve 10'un katları olduğunda böcek saldırısına uğrar. Quiz çözerek defedebilirsin. Bu olay aralıklı tekrar yaptırarak öğrenmeni kalıcılaştırır."
+              helpText="Hasatlarin burada. Tarlaya buradan tekrar ektiginde kart seviye atlamis haliyle seni karsilar. 10 ve 10'un katlarinda bocek saldirisi gelir; quiz cozerek defedersin. Bu dongu tekrarli ogrenmeyi kalicilastirir."
             />
 
             <View style={styles.gridRow}>
               <PremiumMenuCard
                 onPress={() => handleNav("CustomWordCard")}
                 imageSource={PRELOADED_IMAGES.customWord}
-                title="KENDİ KELİME KARTI"
+                title="KENDI KELIME KARTI"
                 subtitle="Kendi tohumunu ek"
                 size="halfSquare"
                 textAlign="center"
@@ -1760,7 +1826,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 delay={280}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Kendi kelimeni, örnek cümleni ve Türkçe anlamını ekleyip oyuna dahil edebilirsin."
+                helpText="Kendi kelimeni, ornek cumleni ve opsiyonel Turkce cumle anlamini ekleyip oyuna dahil edebilirsin."
               />
 
               <PremiumMenuCard
@@ -1769,8 +1835,8 @@ export const HomeScreen = ({ navigation }: any) => {
                   setPracticeCenterVisible(true);
                 }}
                 imageSource={PRELOADED_IMAGES.pratik}
-                title="PRATİK MERKEZİ"
-                subtitle="Eşleştir, doldur, YDS"
+                title="PRATIK MERKEZI"
+                subtitle="Eslestir, doldur, YDS"
                 size="halfSquare"
                 textAlign="center"
                 imageFit="cover"
@@ -1778,32 +1844,52 @@ export const HomeScreen = ({ navigation }: any) => {
                 delay={320}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Pratik merkezinde hız, doğruluk ve sınav odaklı alıştırmaları tek yerden çözersin."
+                helpText="Pratik merkezinde hiz, dogruluk ve sinav odakli alistirmalari tek yerden cozersin."
               />
             </View>
 
-            <PremiumMenuCard
-              onPress={() => {
-                haptic.medium();
-                setShowMarket(true);
-              }}
-              imageSource={PRELOADED_IMAGES.market}
-              title="MARKET"
-              subtitle="Tohum pazarı, güç mağazası ve daha fazlası"
-              size="wide"
-              textAlign="center"
-              accentColor="#A78BFA"
-              delay={360}
-              hasBounce={true}
-              onHelpPress={showHomeHelpModal}
-              helpText="Marketten güçlendirme alır, tohum satın alır ve gelişimini hızlandırırsın."
-            />
+            <View style={styles.gridRow}>
+              <PremiumMenuCard
+                onPress={() => {
+                  haptic.medium();
+                  setShowMarket(true);
+                }}
+                imageSource={PRELOADED_IMAGES.market}
+                title="MARKET"
+                subtitle="Tohum ve guc"
+                size="halfSquare"
+                textAlign="center"
+                imageFit="cover"
+                accentColor="#A78BFA"
+                delay={360}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Marketten guclendirme alir, tohum satin alir ve gelisimini hizlandirirsin."
+              />
+              <PremiumMenuCard
+                onPress={() => {
+                  haptic.medium();
+                  setCardShopVisible(true);
+                }}
+                imageSource={PRELOADED_IMAGES.cardShop}
+                title="KART PAZARI"
+                subtitle="Tema ve kisisellestir"
+                size="halfSquare"
+                textAlign="center"
+                imageFit="cover"
+                accentColor="#C4B5FD"
+                delay={380}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Kart pazarinda kart temalarini acar ve kartlarini kisisellestirirsin."
+              />
+            </View>
           </View>
-          {/* Dashboard Sections */}
+
           <View style={styles.dashboardContainer}>
             <DashboardSection
-              title="Öğreniyorum"
-              subtitle="Çalışmaya devam!"
+              title="Ogreniyorum"
+              subtitle="Calismaya devam!"
               icon="flame"
               iconColor="#f97316"
               data={learningWords}
@@ -1820,8 +1906,8 @@ export const HomeScreen = ({ navigation }: any) => {
             />
 
             <DashboardSection
-              title="Hasat Hazır"
-              subtitle="Envantere gönderilebilir"
+              title="Hasat Hazir"
+              subtitle="Envantere gonderilebilir"
               icon="sprout"
               iconColor="#22c55e"
               data={harvestWords}
@@ -1839,7 +1925,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
             <DashboardSection
               title="Master Kartlar"
-              subtitle="Altın seviye kartlar"
+              subtitle="Altin seviye kartlar"
               icon="trophy"
               iconColor="#fbbf24"
               data={masterWords}
@@ -1857,7 +1943,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
             <DashboardSection
               title="Favorilerim"
-              subtitle="Özel kelimeler"
+              subtitle="Ozel kelimeler"
               icon="star"
               iconColor="#FFD700"
               data={favoriteWords}
@@ -1874,8 +1960,8 @@ export const HomeScreen = ({ navigation }: any) => {
             />
 
             <DashboardSection
-              title="Puzzle Kartları"
-              subtitle="Yapboz tarlasındaki kelimeler"
+              title="Puzzle Kartlari"
+              subtitle="Yapboz tarlasindaki kelimeler"
               icon="puzzle"
               iconColor="#8B5CF6"
               data={puzzleWords}
@@ -1893,66 +1979,24 @@ export const HomeScreen = ({ navigation }: any) => {
 
           <View style={styles.bottomMenuContainer}>
             <TouchableOpacity
-              style={styles.simpleMenuButton}
-              onPress={() => handleNav("Achievements")}
-              activeOpacity={0.8}
+              style={[styles.questsButton, styles.bottomQuestsButton]}
+              onPress={() => {
+                haptic.light();
+                setQuestsPanelVisible(true);
+              }}
+              activeOpacity={0.7}
             >
               <LinearGradient
-                colors={["rgba(91, 33, 182, 0.96)", "rgba(67, 56, 202, 0.96)"]}
+                colors={["#FFD700", "#FFA500"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.simpleMenuGradient}
+                style={styles.questsGradient}
               >
-                <View style={styles.simpleMenuTextWrap}>
-                  <Text style={styles.simpleMenuTitle}>BAŞARIMLAR</Text>
-                  <Text style={styles.simpleMenuSubtitle}>
-                    {`${unlockedAchievements}/${achievements.length} başarı açıldı`}
-                  </Text>
-                </View>
-                <ChevronRight size={20} color="rgba(255,255,255,0.9)" />
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.simpleMenuButton}
-              onPress={() => handleNav("Profile")}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={["rgba(180, 83, 9, 0.96)", "rgba(146, 64, 14, 0.96)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.simpleMenuGradient}
-              >
-                <View style={styles.simpleMenuTextWrap}>
-                  <Text style={styles.simpleMenuTitle}>PROFİL</Text>
-                  <Text style={styles.simpleMenuSubtitle}>
-                    İlerlemeni ve ayarlarını yönet
-                  </Text>
-                </View>
-                <ChevronRight size={20} color="rgba(255,255,255,0.9)" />
+                <Text style={styles.questsButtonIcon}>{"\u{1F3AF}"}</Text>
+                <Text style={styles.questsButtonText}>Gunluk Gorevler</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
-        
-          <TouchableOpacity
-            style={[styles.questsButton, styles.bottomQuestsButton]}
-            onPress={() => {
-              haptic.light();
-              setQuestsPanelVisible(true);
-            }}
-            activeOpacity={0.7}
-          >
-            <LinearGradient
-              colors={["#FFD700", "#FFA500"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.questsGradient}
-            >
-              <Text style={styles.questsButtonIcon}>🎯</Text>
-              <Text style={styles.questsButtonText}>Günlük Görevler</Text>
-            </LinearGradient>
-          </TouchableOpacity>
 
           <View style={styles.cefrSummaryCard}>
             <LinearGradient
@@ -1962,18 +2006,20 @@ export const HomeScreen = ({ navigation }: any) => {
               style={styles.cefrSummaryGradient}
             >
               <View style={styles.cefrSummaryHeader}>
-                <Text style={styles.cefrSummaryLabel}>TAHMİNİ CEFR</Text>
+                <Text style={styles.cefrSummaryLabel}>TAHMINI CEFR</Text>
                 <Text style={styles.cefrSummaryLevel}>{cefrEstimate.level}</Text>
               </View>
-              <Text style={styles.cefrSummaryMessage}>{cefrEstimate.message}</Text>
+              <Text style={styles.cefrSummaryMessage}>
+                {`Su an tahmini ${cefrEstimate.level} seviyesindesin.`}
+              </Text>
               <Text style={styles.cefrSummaryMeta}>
-                Güven %{cefrEstimate.confidence} • Güçlü kart {cefrEstimate.knownWordCount} • Gelişim kartı {cefrEstimate.unknownWordCount} • Eşik %{cefrEstimate.knownThreshold}
+                Bu tahmin dinamik. Quiz, SesYap, Puzzle ve Ciftlik verin guncellendikce anlik olarak degisir.
               </Text>
               <Text style={styles.cefrSummarySignals}>
-                Sinyal: Kelime %{cefrEstimate.signals.lexicalMasteryPct} • Quiz %{cefrEstimate.signals.quizAccuracyPct} • SesYap %{cefrEstimate.signals.speechAccuracyPct} • Yapboz %{cefrEstimate.signals.puzzleMasteryPct} • Kapsama %{cefrEstimate.signals.coveragePct} • XP %{cefrEstimate.signals.xpProgressPct}
+                {`Bu seviyedesin cunku en guclu sinyallerin: ${cefrSignalSummary.topText}.`}
               </Text>
               <Text style={styles.cefrSummaryWeights}>
-                Etki: Kelime %{cefrEstimate.weights.lexicalPct} • Quiz %{cefrEstimate.weights.quizPct} • SesYap %{cefrEstimate.weights.speechPct} • Yapboz %{cefrEstimate.weights.puzzlePct} • Kapsama %{cefrEstimate.weights.coveragePct} • Tutarlılık %{cefrEstimate.weights.consistencyPct} • XP %{cefrEstimate.weights.xpPct}
+                {`Gelisim onceligin: ${cefrSignalSummary.weakText}. Guven: %${cefrEstimate.confidence}.`}
               </Text>
             </LinearGradient>
           </View>
@@ -1986,11 +2032,11 @@ export const HomeScreen = ({ navigation }: any) => {
         <View style={styles.homeTutorialLock} pointerEvents="auto">
           <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
           <View style={styles.homeTutorialCard}>
-            <Text style={styles.homeTutorialTitle}>Eğitim kilidi aktif</Text>
+            <Text style={styles.homeTutorialTitle}>Egitim kilidi aktif</Text>
             <Text style={styles.homeTutorialText}>{tutorialLockMessage}</Text>
             {tutorialInterrupted && (
               <Text style={styles.homeTutorialSubtext}>
-                Uygulamadan çıkmışsın. Devam etmek veya serbest kalmak için seçim yap.
+                Uygulamadan cikmissin. Devam etmek veya serbest kalmak icin secim yap.
               </Text>
             )}
             <View style={styles.homeTutorialActions}>
@@ -1999,14 +2045,14 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={handleHomeTutorialSkip}
                 activeOpacity={0.85}
               >
-                <Text style={styles.homeTutorialSkipText}>Serbest bırak</Text>
+                <Text style={styles.homeTutorialSkipText}>Serbest birak</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.homeTutorialButton, styles.homeTutorialResume]}
                 onPress={handleHomeTutorialResume}
                 activeOpacity={0.85}
               >
-                <Text style={styles.homeTutorialResumeText}>Eğitime devam et</Text>
+                <Text style={styles.homeTutorialResumeText}>Egitime devam et</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -2024,7 +2070,7 @@ export const HomeScreen = ({ navigation }: any) => {
         />
       )}
       
-      {/* 🎯 Günlük Görevler Modal */}
+      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revler Modal */}
       <Modal
         visible={questsPanelVisible}
         transparent
@@ -2070,7 +2116,7 @@ export const HomeScreen = ({ navigation }: any) => {
         </View>
       </Modal>
 
-      {/* 🎨 Card Shop Modal */}
+      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¨ Card Shop Modal */}
       <Modal
         visible={cardShopVisible}
         animationType="slide"
@@ -2103,7 +2149,7 @@ export const HomeScreen = ({ navigation }: any) => {
             >
               <View style={styles.practiceModalHeader}>
                 <Text style={styles.practiceModalTitle}>Pratik Merkezi</Text>
-                <Text style={styles.practiceModalSubtitle}>Bir modül seç ve hemen başla.</Text>
+                <Text style={styles.practiceModalSubtitle}>Bir modul sec ve hemen basla.</Text>
               </View>
 
               <TouchableOpacity
@@ -2111,8 +2157,8 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handlePracticeNavigate("WordMatch")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.practiceModalButtonTitle}>Kelime Eşleştir</Text>
-                <Text style={styles.practiceModalButtonDesc}>Karıştır, çiftleri bul ve hız kazan.</Text>
+                <Text style={styles.practiceModalButtonTitle}>Kelime Eslestir</Text>
+                <Text style={styles.practiceModalButtonDesc}>Karistir, ciftleri bul ve hiz kazan.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2120,8 +2166,8 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handlePracticeNavigate("FillBlank")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.practiceModalButtonTitle}>Boşluk Doldur</Text>
-                <Text style={styles.practiceModalButtonDesc}>Cümlende doğru kelimeyi tamamla.</Text>
+                <Text style={styles.practiceModalButtonTitle}>Bosluk Doldur</Text>
+                <Text style={styles.practiceModalButtonDesc}>Cumlede dogru kelimeyi tamamla.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2130,7 +2176,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 activeOpacity={0.85}
               >
                 <Text style={styles.practiceModalButtonTitle}>Deyimler</Text>
-                <Text style={styles.practiceModalButtonDesc}>Gerçek kullanımlı deyimleri pekiştir.</Text>
+                <Text style={styles.practiceModalButtonDesc}>Gercek kullanimli deyimleri pekistir.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2138,8 +2184,8 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handlePracticeNavigate("YDSQuiz")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.practiceModalButtonTitle}>YDS Soruları</Text>
-                <Text style={styles.practiceModalButtonDesc}>Akademik sorularla hızlı deneme çöz.</Text>
+                <Text style={styles.practiceModalButtonTitle}>YDS Sorulari</Text>
+                <Text style={styles.practiceModalButtonDesc}>Akademik sorularla hizli deneme coz.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2147,8 +2193,8 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handlePracticeNavigate("YDSWordForms")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.practiceModalButtonTitle}>Kelime Formları</Text>
-                <Text style={styles.practiceModalButtonDesc}>Word form dönüşümlerinde refleks kazan.</Text>
+                <Text style={styles.practiceModalButtonTitle}>Kelime Formlari</Text>
+                <Text style={styles.practiceModalButtonDesc}>Word form donusumlerinde refleks kazan.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2157,7 +2203,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 activeOpacity={0.85}
               >
                 <Text style={styles.practiceModalButtonTitle}>Collocations</Text>
-                <Text style={styles.practiceModalButtonDesc}>Birlikte kullanılan kelimeleri tamamla.</Text>
+                <Text style={styles.practiceModalButtonDesc}>Birlikte kullanilan kelimeleri tamamla.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2172,7 +2218,7 @@ export const HomeScreen = ({ navigation }: any) => {
         </View>
       </Modal>
 
-      {/* 📘 Tutorial Final Quiz Dialog */}
+      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¹Ã…â€œ Tutorial Final Quiz Dialog */}
       <JuicyModal
         visible={helpModalVisible}
         onClose={() => setHelpModalVisible(false)}
@@ -2191,19 +2237,19 @@ export const HomeScreen = ({ navigation }: any) => {
       <JuicyModal
         visible={notificationPromptVisible}
         onClose={handleSkipNotifications}
-        title="Bildirim İzni"
+        title="Bildirim Izni"
         titleEmoji={'\u{1F514}'}
-        message="Tutorial tamamlandı. Günlük rutini kaçırmaman için oyun içi bildirim izni açmak ister misin?"
-        secondaryMessage="Reddetsen bile oyunu aynı şekilde kullanmaya devam edebilirsin."
+        message="Tutorial tamamlandi. Gunluk rutini kacirmaman icin oyun ici bildirim iznini acmak ister misin?"
+        secondaryMessage="Reddetsen bile oyunu ayni sekilde kullanmaya devam edebilirsin."
         type="warning"
         buttons={[
           {
-            text: "İzni Aç",
+            text: "Izni Ac",
             type: "primary",
             onPress: handleRequestNotifications,
           },
           {
-            text: "Şimdilik Geç",
+            text: "Simdilik Gec",
             type: "cancel",
             onPress: handleSkipNotifications,
           },
@@ -2213,25 +2259,25 @@ export const HomeScreen = ({ navigation }: any) => {
         visible={tutorialStep === "STEP_18_PERFECT_DONE"}
       />
 
-      {/* 🎯 Tutorial Final Quiz Premium - STEP_19 */}
+      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ Tutorial Final Quiz Premium - STEP_19 */}
       <TutorialFinalQuizPremium
         visible={tutorialStep === "STEP_19_FINAL_QUIZ"}
         onComplete={() => {
-          // Final quiz tamamlandı
+          // Final quiz tamamlandÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±
         }}
       />
 
-      {/* 👤 Nickname Modal - Tutorial sonrası isim isteme */}
+      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“Ãƒâ€šÃ‚Â¤ Nickname Modal - Tutorial sonrasÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± isim isteme */}
       <NicknameModal />
 
-      {/* 🎮 Tutorial Dialog */}
+      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â® Tutorial Dialog */}
       <TutorialDialog
         visible={showTutorial}
         onClose={() => setShowTutorial(false)}
       />
 
 
-      {/* 🏪 Market Modal - Premium 3-Card Layout */}
+      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Âª Market Modal - Premium 3-Card Layout */}
       <Modal
         visible={showMarket}
         animationType="slide"
@@ -2247,10 +2293,8 @@ export const HomeScreen = ({ navigation }: any) => {
               {/* Header */}
               <View style={styles.marketModalHeader}>
                 <View style={styles.marketModalHeaderLeft}>
-                  <Text style={styles.marketModalTitle}>🏪 Market</Text>
-                  <Text style={styles.marketModalSubtitle}>
-                    Güçlen, Geliş, Kazan!
-                  </Text>
+                  <Text style={styles.marketModalTitle}>Market</Text>
+                  <Text style={styles.marketModalSubtitle}>Guclen, Gelis, Kazan!</Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => setShowMarket(false)}
@@ -2262,7 +2306,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
               {/* Premium Market Cards */}
               <View style={styles.marketCardsContainer}>
-                {/* ⚡ Güç Mağazası */}
+                {/* ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡Ãƒâ€šÃ‚Â¡ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ MaÃƒÆ’Ã¢â‚¬ÂÃƒâ€¦Ã‚Â¸azasÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± */}
                 <TouchableOpacity
                   style={styles.marketPremiumCard}
                   onPress={() => {
@@ -2287,9 +2331,7 @@ export const HomeScreen = ({ navigation }: any) => {
                       style={styles.marketImageOverlay}
                     />
                     <View style={styles.marketCardTextOverlay}>
-                      <Text style={styles.marketPremiumTitle}>
-                        ⚡ Güç Mağazası
-                      </Text>
+                      <Text style={styles.marketPremiumTitle}>Guc Magazasi</Text>
                       <Text style={styles.marketPremiumSubtitle}>
                         Boost'lar, Hint'ler ve Paketler
                       </Text>
@@ -2300,7 +2342,7 @@ export const HomeScreen = ({ navigation }: any) => {
                   </View>
                 </TouchableOpacity>
 
-                {/* 🌱 Tohum Pazarı */}
+                {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â± Tohum PazarÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± */}
                 <TouchableOpacity
                   style={styles.marketPremiumCard}
                   onPress={() => {
@@ -2325,9 +2367,7 @@ export const HomeScreen = ({ navigation }: any) => {
                       style={styles.marketImageOverlay}
                     />
                     <View style={styles.marketCardTextOverlay}>
-                      <Text style={styles.marketPremiumTitle}>
-                        🌱 Tohum Pazarı
-                      </Text>
+                      <Text style={styles.marketPremiumTitle}>Tohum Pazari</Text>
                       <Text style={styles.marketPremiumSubtitle}>
                         4000+ premium kelime tohumu
                       </Text>
@@ -2338,7 +2378,7 @@ export const HomeScreen = ({ navigation }: any) => {
                   </View>
                 </TouchableOpacity>
 
-                {/* 📚 Phrasal Verbs */}
+                {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¦Ã‚Â¡ Phrasal Verbs */}
                 <TouchableOpacity
                   style={styles.marketPremiumCard}
                   onPress={() => {
@@ -2363,12 +2403,9 @@ export const HomeScreen = ({ navigation }: any) => {
                       style={styles.marketImageOverlay}
                     />
                     <View style={styles.marketCardTextOverlay}>
-                      <Text style={styles.marketPremiumTitle}>
-                        📚 Phrasal Verbs
-                      </Text>
+                      <Text style={styles.marketPremiumTitle}>Phrasal Verbs</Text>
                       <Text style={styles.marketPremiumSubtitle}>
-                        200+ phrasal verb ustası ol!
-                      </Text>
+                        200+ phrasal verb ustasi ol!</Text>
                     </View>
                     <View style={styles.marketPremiumArrow}>
                       <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
@@ -2402,16 +2439,55 @@ const styles = StyleSheet.create({
 
   // Premium Header Styles
   premiumHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: SPACING.xl,
-    paddingVertical: SPACING.xs,
+  },
+  headerFrame: {
+    borderRadius: 22,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    borderWidth: 1,
+    borderColor: "rgba(71, 85, 105, 0.42)",
+    overflow: "hidden",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#01040A",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.42,
+    shadowRadius: 22,
+    elevation: 10,
+  },
+  headerFrameCompact: {
+    paddingHorizontal: 9,
+    paddingVertical: 9,
+  },
+  headerFrameGlow: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.9,
   },
   headerLeftSection: {
+    flex: 1,
+    flexGrow: 1,
+    marginRight: SPACING.sm,
+    minWidth: 0,
+    flexBasis: 0,
+  },
+  headerLeftSectionCompact: {
+    marginRight: 4,
+  },
+  brandChip: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(100, 116, 139, 0.45)",
     flexDirection: "row",
     alignItems: "center",
-    gap: SPACING.md,
+    paddingVertical: 5,
+    paddingHorizontal: 6,
+    minWidth: 0,
+  },
+  brandChipCompact: {
+    paddingVertical: 5,
+    paddingHorizontal: 5,
   },
   logoWrapper: {
     position: "relative",
@@ -2422,78 +2498,120 @@ const styles = StyleSheet.create({
     left: -6,
     right: -6,
     bottom: -6,
-    borderRadius: 20,
-    backgroundColor: "#EF4444",
-    shadowColor: "#EF4444",
+    borderRadius: 18,
+    backgroundColor: "#3b82f6",
+    shadowColor: "#3b82f6",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 16,
-    elevation: 12,
+    shadowOpacity: 0.45,
+    shadowRadius: 12,
+    elevation: 10,
   },
   logoContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "rgba(34, 197, 94, 0.8)",
-    backgroundColor: "#0A0A0F",
+    borderColor: "rgba(147, 197, 253, 0.7)",
+    backgroundColor: "#0B1222",
+  },
+  logoContainerCompact: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
   },
   logoImage: {
-    width: "260%",
-    height: "260%",
-    marginLeft: "-80%",
-    marginTop: "-80%",
+    width: "100%",
+    height: "100%",
   },
   headerTitleContainer: {
     justifyContent: "center",
+    marginLeft: 10,
+    flex: 1,
+    minWidth: 0,
+  },
+  headerTitleContainerCompact: {
+    marginLeft: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: IS_TABLET_DEVICE ? 21 : 16,
     fontWeight: "900",
     color: "#FFFFFF",
-    letterSpacing: 1,
+    letterSpacing: 0.45,
+    flexShrink: 1,
+    textShadowColor: "rgba(0, 0, 0, 0.6)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  headerTitleCompact: {
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
   headerSubtitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "rgba(255, 255, 255, 0.6)",
-    marginTop: 2,
-    letterSpacing: 0.3,
+    fontSize: IS_TABLET_DEVICE ? 13 : 10.5,
+    fontWeight: "700",
+    color: "rgba(191, 219, 254, 0.84)",
+    marginTop: 1,
+    letterSpacing: 0.25,
+  },
+  headerSubtitleCompact: {
+    fontSize: 9.5,
   },
   headerRightSection: {
     flexDirection: "row",
-    gap: SPACING.sm,
+    gap: 6,
+    flexShrink: 1,
+    maxWidth: "42%",
+    marginLeft: 6,
+    justifyContent: "flex-end",
+  },
+  headerRightSectionCompact: {
+    gap: 4,
   },
   statPill: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 8,
-    backgroundColor: "rgba(255, 215, 0, 0.1)",
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 215, 0, 0.25)",
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+    borderRadius: 18,
+    borderWidth: 1,
     overflow: "hidden",
-    gap: 5,
+    gap: 4,
+    minWidth: 0,
+  },
+  statPillCompact: {
+    paddingHorizontal: 7,
+    paddingVertical: 6,
+    borderRadius: 14,
+    gap: 3,
+  },
+  coinPill: {
+    borderColor: "rgba(250, 204, 21, 0.55)",
   },
   levelPill: {
-    backgroundColor: "rgba(168, 85, 247, 0.1)",
-    borderColor: "rgba(168, 85, 247, 0.25)",
+    borderColor: "rgba(192, 132, 252, 0.5)",
   },
   pillShimmer: {
     position: "absolute",
     top: 0,
-    left: 0,
-    width: 50,
+    left: -8,
+    width: 52,
     height: "100%",
     backgroundColor: "rgba(255, 255, 255, 0.15)",
     transform: [{ skewX: "-20deg" }],
   },
   statPillText: {
     fontSize: 14,
-    fontWeight: "700",
-    color: "#FFD700",
+    fontWeight: "900",
+    color: "#FDE047",
+    letterSpacing: 0.3,
+  },
+  statPillTextCompact: {
+    fontSize: 12,
+    letterSpacing: 0.2,
+  },
+  levelPillText: {
+    color: "#C084FC",
   },
 
   // Grid Container
@@ -2806,7 +2924,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // 🏪 Market Container - Ana sayfa butonu (Premium Full Image)
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Âª Market Container - Ana sayfa butonu (Premium Full Image)
   marketContainer: {
     marginTop: GRID_GAP,
     borderRadius: CARD_BORDER_RADIUS,
@@ -2860,7 +2978,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
 
-  // 🏪 Market Modal Styles - Premium 3-Card Layout
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Âª Market Modal Styles - Premium 3-Card Layout
   marketModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.9)",
@@ -3032,7 +3150,7 @@ const styles = StyleSheet.create({
     color: "#3B82F6",
     letterSpacing: 0.5,
   },
-  // 🎓 Tutorial güvenlik kilidi (Home)
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Tutorial gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼venlik kilidi (Home)
   homeTutorialLock: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
@@ -3096,7 +3214,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   
-  // 🎯 Günlük Görevler Buton
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revler Buton
   questsButton: {
     marginBottom: SPACING.lg,
     borderRadius: 16,
@@ -3185,7 +3303,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   
-  // 🎯 Günlük Görevler Modal
+  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revler Modal
   questsModalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -3199,7 +3317,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 8,
-    paddingBottom: 34, // Safe area için
+    paddingBottom: 34, // Safe area iÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§in
     maxHeight: '90%',
   },
   questsCloseButton: {
@@ -3366,3 +3484,6 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+
+
+

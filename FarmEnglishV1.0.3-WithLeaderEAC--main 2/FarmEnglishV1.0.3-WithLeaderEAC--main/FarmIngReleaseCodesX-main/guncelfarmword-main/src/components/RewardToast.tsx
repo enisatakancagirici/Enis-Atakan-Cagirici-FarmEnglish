@@ -29,14 +29,28 @@ interface RewardToastStore {
   removeToast: (id: string) => void;
 }
 
+const MAX_ACTIVE_TOASTS = 4;
+
 export const useRewardToastStore = create<RewardToastStore>((set) => ({
   toasts: [],
   addToast: (toast) => {
+    const safeType: RewardToast['type'] =
+      toast.type === 'xp' ||
+      toast.type === 'coin' ||
+      toast.type === 'level' ||
+      toast.type === 'combo' ||
+      toast.type === 'harvest' ||
+      toast.type === 'quest'
+        ? toast.type
+        : 'quest';
+    const safeValue = Number.isFinite(toast.value) ? Math.max(0, Math.floor(toast.value)) : 0;
+    const safeMessage = typeof toast.message === 'string' ? toast.message : undefined;
+
     const id = `${Date.now()}-${Math.random()}`;
     set((state) => ({
-      toasts: [...state.toasts, { ...toast, id }],
+      toasts: [...state.toasts, { type: safeType, value: safeValue, message: safeMessage, id }].slice(-MAX_ACTIVE_TOASTS),
     }));
-    // SE: Daha hızlı kaybol
+
     const timeout = isSmallScreen ? 1500 : 2000;
     setTimeout(() => {
       set((state) => ({

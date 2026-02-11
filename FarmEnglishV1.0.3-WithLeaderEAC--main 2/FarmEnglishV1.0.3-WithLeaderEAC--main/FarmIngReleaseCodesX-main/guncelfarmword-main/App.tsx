@@ -48,6 +48,7 @@ import YDSWordFormsScreen from './src/screens/YDSWordFormsScreen';
 import CustomWordCardScreen from './src/screens/CustomWordCardScreen';
 import { RewardToastContainer, showRewardToast } from './src/components/RewardToast';
 import DailyStreakModal from './src/components/DailyStreakModal';
+import AppErrorBoundary from './src/components/AppErrorBoundary';
 import { useFarmStore } from './src/store/farmStore';
 import { usePerformanceStore, initAutoPerformance } from './src/store/performanceStore';
 import { loadWordsFromJSON } from './src/utils/loadWords';
@@ -227,6 +228,38 @@ export default function App() {
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
   useEffect(() => {
+    const errorUtils = (global as any)?.ErrorUtils;
+    if (!errorUtils?.getGlobalHandler || !errorUtils?.setGlobalHandler) return;
+
+    const defaultHandler = errorUtils.getGlobalHandler();
+    const handler = (error: any, isFatal?: boolean) => {
+      try {
+        console.error('[GlobalJS]', error);
+      } catch {}
+
+      if (__DEV__) {
+        try { defaultHandler?.(error, !!isFatal); } catch {}
+        return;
+      }
+
+      // Production: swallow fatal rethrow to avoid hard restart loop
+      try {
+        showRewardToast('quest', 1, 'Bir hata yakalandi. Devam ediliyor.');
+      } catch {}
+    };
+
+    try {
+      errorUtils.setGlobalHandler(handler);
+    } catch {}
+
+    return () => {
+      try {
+        errorUtils.setGlobalHandler(defaultHandler);
+      } catch {}
+    };
+  }, []);
+
+  useEffect(() => {
     const initialize = async () => {
       try {
         //  Cihaza göre otomatik performans ayarı (ilk açılışta)
@@ -330,6 +363,7 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <StatusBar style="light" />
+        <AppErrorBoundary>
         <NavigationContainer ref={navigationRef} onStateChange={onStateChange}>
           <Stack.Navigator screenOptions={{
             headerShown: false,
@@ -390,6 +424,7 @@ export default function App() {
             reward={streakData.reward}
           />
         </NavigationContainer>
+        </AppErrorBoundary>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

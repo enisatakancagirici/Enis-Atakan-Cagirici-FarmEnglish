@@ -1525,6 +1525,7 @@ const PRACTICE_SCORE_FIELDS: Record<PracticeType, string> = {
 };
 
 const MAX_PRACTICE_SCORE_INCREMENT = 100000;
+const PRACTICE_LEADERBOARD_MULTIPLIER = 0.25;
 
 /**
  * Pratik Merkezi skorunu güncelle
@@ -1555,6 +1556,10 @@ export async function updatePracticeScore(
             return { success: true };
         }
         const safeScore = Math.min(numericScore, MAX_PRACTICE_SCORE_INCREMENT);
+        const leaderboardScoreDelta = Math.max(
+            1,
+            Math.round(safeScore * PRACTICE_LEADERBOARD_MULTIPLIER)
+        );
 
         const userRef = doc(db, 'users', safeOdId);
         const userDoc = await getDoc(userRef);
@@ -1565,8 +1570,8 @@ export async function updatePracticeScore(
 
         // Hem ilgili pratik skorunu hem de toplam pratik skorunu guncelle
         await updateDoc(userRef, {
-            [field]: increment(safeScore),
-            totalPracticeScore: increment(safeScore),
+            [field]: increment(leaderboardScoreDelta),
+            totalPracticeScore: increment(leaderboardScoreDelta),
             lastActiveAt: serverTimestamp(),
         });
 

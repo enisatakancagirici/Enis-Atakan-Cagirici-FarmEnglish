@@ -1014,6 +1014,11 @@ export function FarmScreen() {
   const [isSeedMarketDisabled, setIsSeedMarketDisabled] = useState(false);
   const seedMarketScale = useRef(new Animated.Value(1)).current;
   const seedMarketShimmer = useRef(new Animated.Value(0)).current; // Shimmer for seed market
+  const [isTopTabVisible, setIsTopTabVisible] = useState(true);
+  const topTabVisibleRef = useRef(true);
+  const lastScrollOffsetRef = useRef(0);
+  const lastTopTabToggleAtRef = useRef(0);
+  const topTabAnim = useRef(new Animated.Value(1)).current;
 
   // ?? FOCUS EFFECT - Reset seed market guard
   useFocusEffect(
@@ -1053,6 +1058,50 @@ export function FarmScreen() {
     inputRange: [0, 1],
     outputRange: [-100, 100],
   });
+
+  const setTopTabVisibility = useCallback((visible: boolean, force = false) => {
+    const now = Date.now();
+    if (!force && now - lastTopTabToggleAtRef.current < 140) return;
+    if (!force && topTabVisibleRef.current === visible) return;
+
+    lastTopTabToggleAtRef.current = now;
+    topTabVisibleRef.current = visible;
+    setIsTopTabVisible(visible);
+    Animated.spring(topTabAnim, {
+      toValue: visible ? 1 : 0,
+      useNativeDriver: false,
+      damping: 22,
+      stiffness: 240,
+      mass: 0.45,
+      overshootClamping: true,
+    }).start();
+  }, [topTabAnim]);
+
+  const handleFarmContentScroll = useCallback((event: any) => {
+    const rawY = Number(event?.nativeEvent?.contentOffset?.y ?? 0);
+    const y = Number.isFinite(rawY) ? Math.max(0, rawY) : 0;
+    const prevY = lastScrollOffsetRef.current;
+    const delta = y - prevY;
+
+    if (y <= 24) {
+      setTopTabVisibility(true);
+      lastScrollOffsetRef.current = y;
+      return;
+    }
+
+    if (y > 140 && delta > 10) {
+      setTopTabVisibility(false);
+    } else if (delta < -8) {
+      setTopTabVisibility(true);
+    }
+
+    lastScrollOffsetRef.current = y;
+  }, [setTopTabVisibility]);
+
+  useEffect(() => {
+    setTopTabVisibility(true, true);
+    lastScrollOffsetRef.current = 0;
+  }, [activeTab, setTopTabVisibility]);
 
   useEffect(() => {
     // Veri y�klenince loading'i kapat - INSTANT
@@ -1657,6 +1706,31 @@ export function FarmScreen() {
       />
 
       {/* � APPLE SEGMENT CONTROL - Premium Tab Bar */}
+      <Animated.View
+        style={[
+          styles.topTabsAnimatedContainer,
+          {
+            opacity: topTabAnim,
+            maxHeight: topTabAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 180],
+            }),
+            transform: [
+              {
+                translateY: topTabAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-14, 0],
+                }),
+              },
+            ],
+            marginBottom: topTabAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 8],
+            }),
+          },
+        ]}
+        pointerEvents={isTopTabVisible ? 'auto' : 'none'}
+      >
       <View style={styles.segmentContainer}>
         <View style={styles.segmentTrack}>
           {/* 🌾 Kelimeler Tab */}
@@ -1769,6 +1843,7 @@ export function FarmScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+      </Animated.View>
 
       {/* ?? TAB CONTENT */}
       {activeTab === 'words' ? (
@@ -1866,6 +1941,7 @@ export function FarmScreen() {
                 contentContainerStyle={styles.flashListContent}
                 showsVerticalScrollIndicator={false}
                 scrollEventThrottle={16}
+                onScroll={handleFarmContentScroll}
                 drawDistance={250}
                 removeClippedSubviews={true}
               />
@@ -2012,6 +2088,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+
+  topTabsAnimatedContainer: {
+    overflow: 'hidden',
   },
 
   // � APPLE SEGMENT CONTROL STYLES - iOS Native Feel
