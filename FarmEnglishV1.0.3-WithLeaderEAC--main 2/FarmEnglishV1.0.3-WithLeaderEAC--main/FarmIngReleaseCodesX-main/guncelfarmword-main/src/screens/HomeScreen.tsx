@@ -98,13 +98,17 @@ const SPACING = {
 // 🖼️ PRELOAD ALL IMAGES - Optimized webp format for fast loading
 const PRELOADED_IMAGES = {
   logo: require("../../assets/logo.webp"),
-  quiz: require("../../assets/images/maskot/quiz.webp"),
-  farm: require("../../assets/images/maskot/farm.webp"),
-  envanter: require("../../assets/images/maskot/envanter.webp"),
+  quiz: require("../../assets/images/maskot/yeniTasarımlar/Quiz.png"),
+  farm: require("../../assets/images/maskot/yeniTasarımlar/Ciftlik.png"),
+  envanter: require("../../assets/images/maskot/yeniTasarımlar/Envanter.png"),
   puzzle: require("../../assets/images/maskot/puzzle.webp"),
   phrasal: require("../../assets/images/maskot/phrasal.webp"),
-  soruIsareti: require("../../assets/images/maskot/soru_isareti.webp"),
-  market: require("../../assets/images/maskot/market_anasayfa.webp"),
+  soruIsareti: require("../../assets/images/maskot/yeniTasarımlar/1.png"),
+  market: require("../../assets/images/maskot/yeniTasarımlar/KartPazari.png"),
+  battle: require("../../assets/images/maskot/yeniTasarımlar/Savas.png"),
+  sesyap: require("../../assets/images/maskot/yeniTasarımlar/Sesyap.png"),
+  pratik: require("../../assets/images/maskot/yeniTasarımlar/pratik.png"),
+  customWord: require("../../assets/images/maskot/yeniTasarımlar/KendiKartım.png"),
   // Market Modal Resimleri
   marketGuc: require("../../assets/images/maskot/guc_magazasi.webp"),
   marketTohum: require("../../assets/images/maskot/tohum_pazarı.webp"),
@@ -979,11 +983,17 @@ const PremiumGridMenu = ({
         onPress={onBattlePress}
         activeOpacity={0.9}
       >
-        <LinearGradient
-          colors={['#8b5cf6', '#6d28d9', '#4c1d95']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+        <Image
+          source={PRELOADED_IMAGES.battle}
           style={styles.marketFullImage}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          priority="high"
+          transition={0}
+        />
+        <LinearGradient
+          colors={["rgba(0,0,0,0.15)", "rgba(0,0,0,0.35)", "rgba(0,0,0,0.65)"]}
+          style={styles.marketOverlay}
         />
 
         {/* Content */}
@@ -1004,11 +1014,17 @@ const PremiumGridMenu = ({
         onPress={onSesYapPress}
         activeOpacity={0.9}
       >
-        <LinearGradient
-          colors={['#14B8A6', '#0D9488', '#0F766E']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+        <Image
+          source={PRELOADED_IMAGES.sesyap}
           style={styles.marketFullImage}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          priority="high"
+          transition={0}
+        />
+        <LinearGradient
+          colors={["rgba(0,0,0,0.15)", "rgba(0,0,0,0.35)", "rgba(0,0,0,0.65)"]}
+          style={styles.marketOverlay}
         />
 
         {/* Content */}
@@ -1108,6 +1124,10 @@ export const HomeScreen = ({ navigation }: any) => {
           Asset.loadAsync(PRELOADED_IMAGES.phrasal),
           Asset.loadAsync(PRELOADED_IMAGES.soruIsareti),
           Asset.loadAsync(PRELOADED_IMAGES.market),
+          Asset.loadAsync(PRELOADED_IMAGES.battle),
+          Asset.loadAsync(PRELOADED_IMAGES.sesyap),
+          Asset.loadAsync(PRELOADED_IMAGES.pratik),
+          Asset.loadAsync(PRELOADED_IMAGES.customWord),
         ]);
       } catch (e) {
         // Fail silently
@@ -1522,6 +1542,20 @@ export const HomeScreen = ({ navigation }: any) => {
 
           {/* 📚 Pratik Merkezi - Yeni Öğrenme Modülleri */}
           <View style={styles.pratikMerkeziContainer}>
+            <View style={styles.pratikHeroCard}>
+              <Image
+                source={PRELOADED_IMAGES.pratik}
+                style={styles.pratikHeroImage}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                priority="high"
+                transition={0}
+              />
+              <LinearGradient
+                colors={["rgba(0,0,0,0.1)", "rgba(0,0,0,0.35)", "rgba(0,0,0,0.65)"]}
+                style={styles.pratikHeroOverlay}
+              />
+            </View>
             <View style={styles.pratikMerkeziHeader}>
               <Text style={styles.pratikMerkeziTitle}>📚 Pratik Merkezi</Text>
               <Text style={styles.pratikMerkeziSubtitle}>Dilbilgisi ve kelime pratiği</Text>
@@ -1633,8 +1667,16 @@ export const HomeScreen = ({ navigation }: any) => {
             onPress={() => handleNav("CustomWordCard")}
             activeOpacity={0.85}
           >
+            <Image
+              source={PRELOADED_IMAGES.customWord}
+              style={styles.customWordBgImage}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              priority="high"
+              transition={0}
+            />
             <LinearGradient
-              colors={['rgba(34, 197, 94, 0.2)', 'rgba(16, 185, 129, 0.08)', 'rgba(34, 197, 94, 0.15)']}
+              colors={['rgba(0, 0, 0, 0.1)', 'rgba(0, 0, 0, 0.45)', 'rgba(0, 0, 0, 0.72)']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -2904,6 +2946,22 @@ const styles = StyleSheet.create({
     marginTop: SPACING.xl,
     marginBottom: SPACING.md,
   },
+  pratikHeroCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    height: 96,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  pratikHeroImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  pratikHeroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
   pratikMerkeziHeader: {
     marginBottom: SPACING.md,
   },
@@ -2949,6 +3007,11 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.5)',
     textAlign: 'center',
     marginTop: 2,
+  },
+  customWordBgImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
 });
 
