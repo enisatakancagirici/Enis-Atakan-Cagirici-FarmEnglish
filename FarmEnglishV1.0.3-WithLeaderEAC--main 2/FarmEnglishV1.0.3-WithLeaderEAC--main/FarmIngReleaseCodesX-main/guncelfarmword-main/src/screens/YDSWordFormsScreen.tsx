@@ -129,6 +129,58 @@ function getAllQuestions(): WordFormQuestion[] {
     });
 }
 
+function decodeMojibake(text: string): string {
+    try {
+        return decodeURIComponent(escape(text));
+    } catch {
+        return text;
+    }
+}
+
+function inferWordFormStrategy(question: WordFormQuestion): string {
+    const answer = question.answer.toLowerCase();
+
+    if (answer.endsWith('ly')) {
+        return 'Bu bosluk buyuk olasilikla zarf ister; -ly son eki dogru sinyaldir.';
+    }
+    if (answer.endsWith('tion') || answer.endsWith('sion') || answer.endsWith('ment') || answer.endsWith('ness')) {
+        return 'Cumlede isim pozisyonu var; noun yapan son ekleri kontrol et.';
+    }
+    if (answer.endsWith('ive') || answer.endsWith('al') || answer.endsWith('ous') || answer.endsWith('able') || answer.endsWith('ic')) {
+        return 'Cumle bir niteleme bekliyor; adjective form secimi daha guclu.';
+    }
+    if (answer.startsWith('un') || answer.startsWith('in') || answer.startsWith('im') || answer.startsWith('ir') || answer.startsWith('dis')) {
+        return 'Anlam olumsuz yone kayiyor; negatif on ek (un-/in-/dis-) kontrolu yap.';
+    }
+    if (question.category === 'complex_transformation') {
+        return 'Kompleks donusum sorusu: once kelime turunu, sonra anlam yonunu dogrula.';
+    }
+
+    return 'Kok kelimeyi bul, cumledeki pozisyona gore kelime turunu sec, sonra anlam uygunlugunu test et.';
+}
+
+function buildWordFormExplanation(
+    question: WordFormQuestion,
+    selectedOption: string | null,
+    isCorrect: boolean | null
+): string {
+    const selectionLine = isCorrect
+        ? `Secimin dogru: "${question.answer}".`
+        : selectedOption
+            ? `Dogru cevap "${question.answer}". Sen "${selectedOption}" sectin.`
+            : `Dogru cevap "${question.answer}".`;
+
+    const sourceExplanation = decodeMojibake(question.explanation || '').trim();
+    const categoryLabel = CATEGORY_LABELS[question.category] || question.category;
+
+    return [
+        selectionLine,
+        `Kategori: ${categoryLabel} | Kok: ${question.root_word}`,
+        `Sinav ipucu: ${inferWordFormStrategy(question)}`,
+        sourceExplanation ? `Detay: ${sourceExplanation}` : '',
+    ].filter(Boolean).join('\n');
+}
+
 // 🔘 Seçenek Butonu
 interface OptionButtonProps {
     option: string;
@@ -723,17 +775,17 @@ export default function YDSWordFormsScreen() {
                                             styles.explanationTitle,
                                             { color: isCorrect ? COLORS.success : COLORS.warning }
                                         ]}>
-                                            {isCorrect ? 'Mükemmel!' : 'Açıklama'}
+                                            {isCorrect ? 'Mukemmel!' : 'Cozum'}
                                         </Text>
                                     </View>
                                     <Text style={styles.explanationText}>
-                                        {currentQuestion.explanation}
+                                        {buildWordFormExplanation(currentQuestion, selectedOption, isCorrect)}
                                     </Text>
                                     {!isCorrect && (
                                         <View style={styles.correctAnswerRow}>
                                             <Check size={16} color={COLORS.success} />
                                             <Text style={styles.correctAnswerText}>
-                                                Doğru cevap: <Text style={{ fontWeight: '700' }}>{currentQuestion.answer}</Text>
+                                                Dogru cevap: <Text style={{ fontWeight: '700' }}>{currentQuestion.answer}</Text>
                                             </Text>
                                         </View>
                                     )}

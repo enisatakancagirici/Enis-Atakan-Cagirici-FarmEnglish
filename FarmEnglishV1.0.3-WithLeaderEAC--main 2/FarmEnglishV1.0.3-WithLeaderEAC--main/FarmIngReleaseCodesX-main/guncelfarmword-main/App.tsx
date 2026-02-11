@@ -618,10 +618,12 @@ import { TUTORIAL_NAV_LOCKS, LOCK_TOOLTIPS, TutorialOverlay, useTutorialInit, ge
 import type { TutorialStep } from './src/store/farmStore';
 
 // 🛍️ Pazarlar Menü Popover (Updated: Compact Horizontal Bar)
-const MarketsPopover = memo(({ visible, onClose, onPhrasalPress, onPuzzlePress, onSeedMarketPress, onPowerStorePress }: any) => {
+const MarketsPopover = memo(({ visible, onClose, onPhrasalPress, onPuzzlePress, onSeedMarketPress, onPowerStorePress, onSesYapPress, onBattlePress }: any) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const itemAnims = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
     new Animated.Value(0),
     new Animated.Value(0),
     new Animated.Value(0),
@@ -676,6 +678,8 @@ const MarketsPopover = memo(({ visible, onClose, onPhrasalPress, onPuzzlePress, 
             {renderItem("⚡", onPowerStorePress, "#fbbf24", 1)}
             {renderItem("📚", onPhrasalPress, "#ec4899", 2)}
             {renderItem("🧩", onPuzzlePress, "#f97316", 3)}
+            {renderItem("🎤", onSesYapPress, "#06b6d4", 4)}
+            {renderItem("⚔️", onBattlePress, "#ef4444", 5)}
           </LinearGradient>
 
           {/* Arrow/Triangle pointing down */}
@@ -786,6 +790,8 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
   const handleNavPhrasal = useCallback(() => guardedNavigate('PhrasalVerbsMenu', 'phrasal'), [guardedNavigate]);
   const handleNavSeedMarket = useCallback(() => guardedNavigate('SeedMarket', 'home'), [guardedNavigate]);
   const handleNavPowerStore = useCallback(() => guardedNavigate('Store', 'home'), [guardedNavigate]);
+  const handleNavSesYap = useCallback(() => guardedNavigate('SesYap', 'home'), [guardedNavigate]);
+  const handleNavBattle = useCallback(() => guardedNavigate('BattleMenu', 'home'), [guardedNavigate]);
   const handleNavMarketTab = useCallback(() => guardedNavigate('Market', 'home'), [guardedNavigate]);
 
   return (
@@ -864,6 +870,8 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
         onPuzzlePress={handleNavPuzzle}
         onSeedMarketPress={handleNavSeedMarket}
         onPowerStorePress={handleNavPowerStore}
+        onSesYapPress={handleNavSesYap}
+        onBattlePress={handleNavBattle}
       />
 
       {/* 🔒 Lock Tooltip */}
@@ -1334,11 +1342,11 @@ const styles = StyleSheet.create({
   },
   popoverGradient: {
     flexDirection: 'row',
-    padding: 12,
+    padding: 10,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.15)',
-    gap: 12,
+    gap: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.5,
@@ -1350,8 +1358,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   popoverIconBox: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',

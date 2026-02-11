@@ -113,7 +113,7 @@ type PuzzleTheme = {
 
 const getCardSizeMultiplier = (compactMode: boolean, largeMode: boolean): number => {
   if (largeMode) return 1.16;
-  if (compactMode) return 0.82;
+  if (compactMode) return 0.92;
   return 1;
 };
 
@@ -156,19 +156,19 @@ const applyPuzzleThemeCustomization = (
     glow: '#6d4c41',
     textMain: '#f7efe4',
     textSecondary: '#ddc7ae',
-    emoji: 'ğŸŒ¾',
+    emoji: '\u{1F33E}',
     label: 'TOPRAK',
   };
 };
 
 const getPuzzleTheme = (puzzleSessions: number, masterLevel: number = 0): PuzzleTheme => {
-  if (masterLevel >= 3) return { gradient: ['#500724', '#831843', '#500724'] as const, border: '#f472b6', accent: '#f9a8d4', glow: '#f472b6', emoji: 'ğŸ‘‘', label: 'KRALÄ°YET', textMain: '#fce7f3', textSecondary: '#fbcfe8' };
-  if (masterLevel >= 2) return { gradient: ['#1e1b4b', '#312e81', '#1e1b4b'] as const, border: '#a78bfa', accent: '#c4b5fd', glow: '#a78bfa', emoji: 'ğŸ’', label: 'ELMAS', textMain: '#e0e7ff', textSecondary: '#c7d2fe' };
-  if (masterLevel >= 1) return { gradient: ['#78350f', '#92400e', '#78350f'] as const, border: '#fbbf24', accent: '#fcd34d', glow: '#fbbf24', emoji: 'ğŸ†', label: 'ALTIN', textMain: '#fef3c7', textSecondary: '#fde68a' };
-  if (puzzleSessions >= 3) return { gradient: ['#14532d', '#166534', '#14532d'] as const, border: '#22c55e', accent: '#4ade80', glow: '#22c55e', emoji: 'ğŸŒ¿', label: 'YEÅÄ°L', textMain: '#bbf7d0', textSecondary: '#86efac' };
-  if (puzzleSessions >= 2) return { gradient: ['#713f12', '#854d0e', '#713f12'] as const, border: '#eab308', accent: '#fde047', glow: '#eab308', emoji: 'ğŸŸ¡', label: 'SARI', textMain: '#fef9c3', textSecondary: '#fef08a' };
-  if (puzzleSessions >= 1) return { gradient: ['#7c2d12', '#9a3412', '#7c2d12'] as const, border: '#f97316', accent: '#fb923c', glow: '#f97316', emoji: 'ğŸŸ ', label: 'TURUNCU', textMain: '#ffedd5', textSecondary: '#fed7aa' };
-  return { gradient: ['#7f1d1d', '#991b1b', '#7f1d1d'] as const, border: '#ef4444', accent: '#f87171', glow: '#ef4444', emoji: 'ğŸ”´', label: 'KIRMIZI', textMain: '#fecaca', textSecondary: '#fca5a5' };
+  if (masterLevel >= 3) return { gradient: ['#500724', '#831843', '#500724'] as const, border: '#f472b6', accent: '#f9a8d4', glow: '#f472b6', emoji: '\u{1F451}', label: 'KRALIYET', textMain: '#fce7f3', textSecondary: '#fbcfe8' };
+  if (masterLevel >= 2) return { gradient: ['#1e1b4b', '#312e81', '#1e1b4b'] as const, border: '#a78bfa', accent: '#c4b5fd', glow: '#a78bfa', emoji: '\u{1F48E}', label: 'ELMAS', textMain: '#e0e7ff', textSecondary: '#c7d2fe' };
+  if (masterLevel >= 1) return { gradient: ['#78350f', '#92400e', '#78350f'] as const, border: '#fbbf24', accent: '#fcd34d', glow: '#fbbf24', emoji: '\u{1F3C6}', label: 'ALTIN', textMain: '#fef3c7', textSecondary: '#fde68a' };
+  if (puzzleSessions >= 3) return { gradient: ['#14532d', '#166534', '#14532d'] as const, border: '#22c55e', accent: '#4ade80', glow: '#22c55e', emoji: '\u{1F7E2}', label: 'YESIL', textMain: '#bbf7d0', textSecondary: '#86efac' };
+  if (puzzleSessions >= 2) return { gradient: ['#713f12', '#854d0e', '#713f12'] as const, border: '#eab308', accent: '#fde047', glow: '#eab308', emoji: '\u{1F7E1}', label: 'SARI', textMain: '#fef9c3', textSecondary: '#fef08a' };
+  if (puzzleSessions >= 1) return { gradient: ['#7c2d12', '#9a3412', '#7c2d12'] as const, border: '#f97316', accent: '#fb923c', glow: '#f97316', emoji: '\u{1F7E0}', label: 'TURUNCU', textMain: '#ffedd5', textSecondary: '#fed7aa' };
+  return { gradient: ['#7f1d1d', '#991b1b', '#7f1d1d'] as const, border: '#ef4444', accent: '#f87171', glow: '#ef4444', emoji: '\u{1F534}', label: 'KIRMIZI', textMain: '#fecaca', textSecondary: '#fca5a5' };
 };
 
 // ğŸ“Š Oturum GÃ¶sterimi: x/y formatÄ±
@@ -178,9 +178,9 @@ const getPuzzleTheme = (puzzleSessions: number, masterLevel: number = 0): Puzzle
 // - Ultra (Level 2): 2 session = Perfect hasat
 // - Perfect (Level 3): 3 session (ilk) veya 1 session (Ã¶dÃ¼l alÄ±ndÄ±ktan sonra)
 const getSessionDisplay = (puzzleSessions: number, puzzleMasterLevel: number = 0, readyForPuzzleHarvest: boolean = false, puzzleRewardClaimedPerfect: boolean = false): string => {
-  // ğŸŒ¾ Hasat hazÄ±rsa "âœ“" gÃ¶ster
+  // ğŸŒ¾ Hasat hazÄ±rsa "✓" gÃ¶ster
   if (readyForPuzzleHarvest) {
-    return 'âœ“';
+    return '✓';
   }
 
   if (puzzleMasterLevel === 0) {
@@ -416,10 +416,10 @@ const PuzzleGridCard: React.FC<{
           <LinearGradient colors={theme.gradient} style={StyleSheet.absoluteFill} />
           {(isMaster || readyForPuzzleHarvest) && config.enableShimmer && <Animated.View style={[gridCardStyles.shimmerEffect, { transform: [{ translateX: shimmerTranslate }], opacity: config.enableGlow ? glowAnim : 0.6 }]} />}
 
-          {/* ğŸ’§ FEEDBACK ANÄ°MASYONU - "BÃœYÃœYOR!" + damla efekti */}
+          {/* ğŸ’§ FEEDBACK ANÄ°MASYONU - "BÜYÜYOR!" + damla efekti */}
           {showFeedback === 'levelUp' && config.enableCardFeedbackText && (
             <Animated.View style={[gridCardStyles.feedbackOverlay, { opacity: feedbackAnim }]}>
-              <Text style={gridCardStyles.feedbackText}>ğŸ’§ BÃœYÃœYOR!</Text>
+              <Text style={gridCardStyles.feedbackText}>BUYUYOR!</Text>
             </Animated.View>
           )}
 
@@ -461,7 +461,7 @@ const PuzzleGridCard: React.FC<{
             <View style={[gridCardStyles.sessionCounter, { backgroundColor: `${theme.accent}25`, borderColor: theme.border }]}>
               <Puzzle size={14} color={theme.accent} />
               <Text style={[gridCardStyles.sessionText, { color: theme.textMain }, fontStyleOverride]}>{getSessionDisplay(puzzleSessions, puzzleMasterLevel, readyForPuzzleHarvest, puzzleRewardClaimedPerfect)}</Text>
-              {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && <Text style={gridCardStyles.masterIcon}>â­</Text>}
+              {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && <Text style={gridCardStyles.masterIcon}>{'\u2B50'}</Text>}
             </View>
           )}
 
@@ -469,13 +469,13 @@ const PuzzleGridCard: React.FC<{
           {readyForPuzzleHarvest ? (
             <TouchableOpacity onPress={handleHarvest} activeOpacity={0.85}>
               <LinearGradient colors={['#22c55e', '#16a34a']} style={gridCardStyles.button}>
-                <Text style={[gridCardStyles.buttonText, fontStyleOverride]}>{safeCustomization.showEmoji ? 'ğŸŒ¾ HASAT ET' : 'HASAT ET'}</Text>
+                <Text style={[gridCardStyles.buttonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🌾 HASAT ET' : 'HASAT ET'}</Text>
               </LinearGradient>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity onPress={onQuizPress} activeOpacity={0.85}>
               <LinearGradient colors={[theme.accent, theme.border]} style={gridCardStyles.button}>
-                <Text style={[gridCardStyles.buttonText, fontStyleOverride]}>{safeCustomization.showEmoji ? 'ğŸ§© YAPBOZ' : 'YAPBOZ'}</Text>
+                <Text style={[gridCardStyles.buttonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🧩 YAPBOZ' : 'YAPBOZ'}</Text>
               </LinearGradient>
             </TouchableOpacity>
           )}
@@ -486,7 +486,7 @@ const PuzzleGridCard: React.FC<{
 });
 
 const gridCardStyles = StyleSheet.create({
-  wrapper: { marginBottom: 8, marginHorizontal: 4, flex: 1 },
+  wrapper: { marginBottom: 8, marginHorizontal: 4 },
   card: { borderRadius: 16, borderWidth: 1.5, padding: 12, minHeight: 180, overflow: 'hidden', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 8 },
   shimmerEffect: { position: 'absolute', top: 0, bottom: 0, width: 40, backgroundColor: 'rgba(255, 255, 255, 0.15)', transform: [{ skewX: '-20deg' }] },
   favorite: { position: 'absolute', top: 8, right: 8, zIndex: 10 },
@@ -543,7 +543,7 @@ const PuzzleFeedCard: React.FC<{
     glow: '#525252',
     textMain: '#e5e5e5',
     textSecondary: '#a3a3a3',
-    emoji: 'ğŸ“¦',
+    emoji: '\u{1F4E6}',
     label: 'Envanterde'
   };
 
@@ -608,10 +608,10 @@ const PuzzleFeedCard: React.FC<{
           {safeCustomization.showEmoji && <Text style={styles.appleBadgeEmoji}>{theme.emoji}</Text>}
           <Text style={[styles.appleBadgeText, { color: theme.textSecondary }, fontStyleOverride]}>{theme.label}</Text>
           {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && !justHarvested && <Text style={{ fontSize: 10 }}>â­</Text>}
-          {(word as any).isCustom && <Text style={{ fontSize: 10 }}>âœï¸</Text>}
+          {(word as any).isCustom && <Text style={{ fontSize: 10 }}>{'\u270F\uFE0F'}</Text>}
         </View>
         <Text style={[styles.appleWord, { color: theme.textMain }, fontStyleOverride]}>{word.text}</Text>
-        <Text style={[styles.appleMeaning, { color: theme.textSecondary }, fontStyleOverride]}>{turkishMeaning || word.meaning || 'Anlam yÃ¼kleniyor...'}</Text>
+        <Text style={[styles.appleMeaning, { color: theme.textSecondary }, fontStyleOverride]}>{turkishMeaning || word.meaning || 'Anlam yukleniyor...'}</Text>
         {turkishExample && <Text style={[styles.appleExample, { color: `${theme.textSecondary}cc` }, fontStyleOverride]} numberOfLines={3}>"{turkishExample}"</Text>}
         {!turkishExample && word.example && <Text style={[styles.appleExample, { color: `${theme.textSecondary}cc`, opacity: 0.7 }, fontStyleOverride]} numberOfLines={3}>"{word.example}"</Text>}
         {/* ğŸ“¦ Envanterde (justHarvested) iken session gÃ¶sterme */}
@@ -627,7 +627,7 @@ const PuzzleFeedCard: React.FC<{
           <View style={styles.appleStats}>
             <View style={styles.appleStat}>
               <Text style={[styles.appleStatNum, { color: '#22c55e' }, fontStyleOverride]}>{puzzleStats.totalCorrect || 0}</Text>
-              <Text style={[styles.appleStatLabel, { color: theme.textSecondary }, fontStyleOverride]}>doÄŸru</Text>
+              <Text style={[styles.appleStatLabel, { color: theme.textSecondary }, fontStyleOverride]}>dogru</Text>
             </View>
           </View>
         )}
@@ -635,15 +635,15 @@ const PuzzleFeedCard: React.FC<{
         {/* ğŸŒ¾ Hasat hazÄ±rsa Hasat Et, envanterde ise Tekrar Ek, deÄŸilse Yapboz */}
         {readyForPuzzleHarvest ? (
           <TouchableOpacity style={[styles.appleButton, { backgroundColor: '#22c55e' }]} activeOpacity={0.8} onPress={() => { haptic.harvestCelebration ? haptic.harvestCelebration() : haptic.heavy(); onHarvest(word); }}>
-            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? 'ğŸŒ¾ Hasat Et' : 'Hasat Et'}</Text>
+            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🌾 Hasat Et' : 'Hasat Et'}</Text>
           </TouchableOpacity>
         ) : justHarvested && onReplant ? (
           <TouchableOpacity style={[styles.appleButton, { backgroundColor: '#8b5cf6' }]} activeOpacity={0.8} onPress={() => { haptic.medium(); onReplant(word); }}>
-            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? 'ğŸŒ± Tekrar Ek' : 'Tekrar Ek'}</Text>
+            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🌱 Tekrar Ek' : 'Tekrar Ek'}</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={[styles.appleButton, { backgroundColor: theme.accent }]} activeOpacity={0.8} onPress={() => { haptic.medium(); onQuizStart(word); }}>
-            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? 'ğŸ§© Yapboz' : 'Yapboz'}</Text>
+            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🧩 Yapboz' : 'Yapboz'}</Text>
           </TouchableOpacity>
         )}
       </Animated.View>
@@ -673,8 +673,8 @@ export default function WordPuzzleScreen({
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const isLandscape = windowWidth > windowHeight;
-  const CARD_PADDING = isLandscape ? 16 : 12;
   const GRID_PADDING = isLandscape ? 20 : 12;
+  const CARD_OUTER_MARGIN = 8;
 
   useLayoutEffect(() => {
     if (!embedded) navigation.setOptions({ gestureEnabled: false });
@@ -693,13 +693,14 @@ export default function WordPuzzleScreen({
   const cardCustomization = useFarmStore((state) => state.cardCustomization);
   const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
   const cardScaleMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
-  const gridColumns = safeCustomization.largeMode ? 1 : 2;
+  const gridColumns = safeCustomization.largeMode ? 1 : safeCustomization.compactMode ? 3 : 2;
   const CALCULATED_CARD_WIDTH = useMemo(() => {
-    const horizontalSpace = windowWidth - GRID_PADDING * 2;
+    const horizontalSpace = windowWidth - GRID_PADDING * 2 - gridColumns * CARD_OUTER_MARGIN;
     if (gridColumns === 1) return Math.max(160, horizontalSpace);
-    const baseWidth = (horizontalSpace - CARD_PADDING) / 2;
+    const baseWidth = horizontalSpace / gridColumns;
+    if (gridColumns === 3) return Math.max(96, baseWidth);
     return Math.max(132, baseWidth * cardScaleMultiplier);
-  }, [windowWidth, GRID_PADDING, CARD_PADDING, gridColumns, cardScaleMultiplier]);
+  }, [windowWidth, GRID_PADDING, CARD_OUTER_MARGIN, gridColumns, cardScaleMultiplier]);
 
   // State - embedded modda dÄ±ÅŸarÄ±dan gelen searchVisible kullan
   const [internalSearchVisible, setInternalSearchVisible] = useState(false);
@@ -840,7 +841,7 @@ export default function WordPuzzleScreen({
     setFeedVisible(false);
     setFeedQuizWordId(null);
 
-    // ğŸ¯ Feed'den Ã§Ä±kÄ±nca grid'de tÄ±klanan karta scroll et
+    // ğŸ¯ Feed'den çıkınca grid'de tÄ±klanan karta scroll et
     if (lastViewedWordId && gridListRef.current) {
       const wordIndex = puzzleWords_filtered.findIndex(w => w.id === lastViewedWordId);
       if (wordIndex >= 0) {
@@ -868,28 +869,28 @@ export default function WordPuzzleScreen({
     if (result?.success) {
       // ğŸŒ± Hasat baÅŸarÄ±lÄ± - envantere gitti
       setLastHarvestedWordId(word.id);
-      // ğŸ¯ Feed'de siyah tema iÃ§in harvestedWordIds'e ekle!
+      // ğŸ¯ Feed'de siyah tema için harvestedWordIds'e ekle!
       setHarvestedWordIds(prev => new Set([...prev, word.id]));
 
       // ğŸ’° Toast gÃ¶ster - Coin veya XP varsa gÃ¶ster, ikisi de 0 sa default mesaj gÃ¶ster
       const hasCoinOrXp = (result.coins ?? 0) > 0 || (result.xp ?? 0) > 0;
 
       if (result.coins > 0) {
-        showRewardToast('coin', result.coins, `ğŸŒ¾ Hasat! +${result.coins} coin`);
+        showRewardToast('coin', result.coins, `🌾 Hasat! +${result.coins} coin`);
         setTimeout(() => {
-          showRewardToast('coin', result.coins, `ğŸŒ¾ Hasat! +${result.coins} coin`);
+          showRewardToast('coin', result.coins, `🌾 Hasat! +${result.coins} coin`);
         }, 100);
       }
       if (result.xp > 0) {
-        showRewardToast('xp', result.xp, `ğŸ“š +${result.xp} XP`);
+        showRewardToast('xp', result.xp, `📚 +${result.xp} XP`);
         setTimeout(() => {
-          showRewardToast('xp', result.xp, `ğŸ“š +${result.xp} XP`);
+          showRewardToast('xp', result.xp, `📚 +${result.xp} XP`);
         }, 150);
       }
 
       // EÄŸer ne coin ne xp yoksa, baÅŸarÄ± mesajÄ± gÃ¶ster
       if (!hasCoinOrXp) {
-        showRewardToast('harvest', 1, 'ğŸŒ¾ Hasat tamamlandÄ±!');
+        showRewardToast('harvest', 1, '🌾 Hasat tamamlandi!');
       }
 
       setShowReplantToast(true);
@@ -1033,8 +1034,8 @@ export default function WordPuzzleScreen({
             <View style={styles.inlineSearchWrapper}>
               <Search size={16} color="rgba(255,255,255,0.5)" style={{ marginRight: 8 }} />
               <TextInput style={styles.inlineSearchInput} placeholder="Kelime ara..." placeholderTextColor="rgba(255,255,255,0.3)" value={searchQuery} onChangeText={setSearchQuery} autoFocus selectionColor="#a855f7" />
-              {searchQuery.length > 0 && <TouchableOpacity style={styles.inlineSearchClear} onPress={() => setSearchQuery('')}><Text style={styles.inlineSearchClearIcon}>âœ•</Text></TouchableOpacity>}
-              <TouchableOpacity style={styles.inlineSearchClose} onPress={() => { setSearchVisible(false); setSearchQuery(''); }}><Text style={styles.inlineSearchCloseIcon}>âœ•</Text></TouchableOpacity>
+              {searchQuery.length > 0 && <TouchableOpacity style={styles.inlineSearchClear} onPress={() => setSearchQuery('')}><Text style={styles.inlineSearchClearIcon}>✕</Text></TouchableOpacity>}
+              <TouchableOpacity style={styles.inlineSearchClose} onPress={() => { setSearchVisible(false); setSearchQuery(''); }}><Text style={styles.inlineSearchCloseIcon}>✕</Text></TouchableOpacity>
             </View>
           </View>
         )}
@@ -1043,8 +1044,8 @@ export default function WordPuzzleScreen({
         {puzzleWords_filtered.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Puzzle size={64} color={COLORS.textMuted} />
-            <Text style={styles.emptyTitle}>{puzzleWords_all.length === 0 ? 'Yapboz Ä°Ã§in Kelime Yok' : 'Bu filtrede kelime yok'}</Text>
-            <Text style={styles.emptySubtitle}>{puzzleWords_all.length === 0 ? 'Tarlana Ã¶rnek cÃ¼mleli kelimeler eklemelisin' : 'BaÅŸka bir filtre deneyin'}</Text>
+            <Text style={styles.emptyTitle}>{puzzleWords_all.length === 0 ? 'Yapboz Icin Kelime Yok' : 'Bu filtrede kelime yok'}</Text>
+            <Text style={styles.emptySubtitle}>{puzzleWords_all.length === 0 ? 'Tarlana ornek cumleli kelimeler eklemelisin' : 'Baska bir filtre deneyin'}</Text>
           </View>
         ) : (
           <FlashList
@@ -1120,14 +1121,14 @@ export default function WordPuzzleScreen({
         </ScrollView>
       </View>
 
-      {showHint && <View style={styles.hintBanner}><Text style={styles.hintText}>ğŸ’¡ Karta tÄ±kla â†’ Detay gÃ¶r | SaÄŸa kaydÄ±r â†’ Yapboz Ã§Ã¶z</Text></View>}
+      {showHint && <View style={styles.hintBanner}><Text style={styles.hintText}>Karta tikla, detay gor | Saga kaydir, yapboz coz</Text></View>}
 
       {puzzleWords_filtered.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Puzzle size={64} color={COLORS.textMuted} />
-          <Text style={styles.emptyTitle}>{filter === 'all' ? 'Yapboz Ä°Ã§in Kelime Yok' : 'Bu filtrede kelime yok'}</Text>
-          <Text style={styles.emptySubtitle}>{filter === 'all' ? 'Tarlana Ã¶rnek cÃ¼mleli kelimeler eklemelisin' : 'BaÅŸka bir filtre deneyin'}</Text>
-          {filter !== 'all' && <TouchableOpacity style={styles.resetFilterBtn} onPress={() => setFilter('all')}><RotateCcw size={16} color="#fff" /><Text style={styles.resetFilterText}>Filtreyi SÄ±fÄ±rla</Text></TouchableOpacity>}
+          <Text style={styles.emptyTitle}>{filter === 'all' ? 'Yapboz Icin Kelime Yok' : 'Bu filtrede kelime yok'}</Text>
+          <Text style={styles.emptySubtitle}>{filter === 'all' ? 'Tarlana ornek cumleli kelimeler eklemelisin' : 'Baska bir filtre deneyin'}</Text>
+          {filter !== 'all' && <TouchableOpacity style={styles.resetFilterBtn} onPress={() => setFilter('all')}><RotateCcw size={16} color="#fff" /><Text style={styles.resetFilterText}>Filtreyi Sifirla</Text></TouchableOpacity>}
         </View>
       ) : (
         <FlashList

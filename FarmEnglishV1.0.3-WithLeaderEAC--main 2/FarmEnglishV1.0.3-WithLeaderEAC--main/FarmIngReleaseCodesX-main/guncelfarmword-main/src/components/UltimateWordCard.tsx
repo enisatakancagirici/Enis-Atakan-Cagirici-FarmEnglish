@@ -59,7 +59,7 @@ const THEMES = {
     barBorder: 'rgba(239, 68, 68, 0.5)',
     barFill: ['#ef4444', '#dc2626'] as const,
     btnGradient: ['#dc2626', '#b91c1c'] as const,
-    emoji: 'ğŸ”´',
+    emoji: '\u{1F534}',
     label: 'KIRMIZI',
     streakNeeded: 1,
     nextColor: 'TURUNCU',
@@ -78,7 +78,7 @@ const THEMES = {
     barBorder: 'rgba(249, 115, 22, 0.5)',
     barFill: ['#f97316', '#ea580c'] as const,
     btnGradient: ['#ea580c', '#c2410c'] as const,
-    emoji: 'ğŸŸ ',
+    emoji: '\u{1F7E0}',
     label: 'TURUNCU',
     streakNeeded: 1,
     nextColor: 'SARI',
@@ -97,10 +97,10 @@ const THEMES = {
     barBorder: 'rgba(234, 179, 8, 0.5)',
     barFill: ['#eab308', '#ca8a04'] as const,
     btnGradient: ['#ca8a04', '#a16207'] as const,
-    emoji: 'ğŸŸ¡',
+    emoji: '\u{1F7E1}',
     label: 'SARI',
     streakNeeded: 1,
-    nextColor: 'YEÅÄ°L',
+    nextColor: 'YESIL',
   },
   // YeÅŸil: wrongCount 0 (hasat edilebilir - hiÃ§ yanlÄ±ÅŸ yok)
   green: {
@@ -116,8 +116,8 @@ const THEMES = {
     barBorder: 'rgba(34, 197, 94, 0.5)',
     barFill: ['#22c55e', '#10b981'] as const,
     btnGradient: ['#16a34a', '#059669'] as const,
-    emoji: 'ğŸŸ¢',
-    label: 'YEÅÄ°L',
+    emoji: '\u{1F7E2}',
+    label: 'YESIL',
     streakNeeded: 3,
     nextColor: 'ENVANTER',
   },
@@ -135,7 +135,7 @@ const THEMES = {
     barBorder: 'rgba(250, 204, 21, 0.6)',
     barFill: ['#facc15', '#eab308'] as const,
     btnGradient: ['#eab308', '#ca8a04'] as const,
-    emoji: 'ğŸ†',
+    emoji: '\u{1F3C6}',
     label: 'ALTIN',
     streakNeeded: 3,
   },
@@ -152,7 +152,7 @@ const THEMES = {
     barBorder: 'rgba(34, 211, 238, 0.6)',
     barFill: ['#22d3ee', '#06b6d4', '#0891b2'] as const,
     btnGradient: ['#06b6d4', '#0891b2'] as const,
-    emoji: 'ğŸ’',
+    emoji: '\u{1F48E}',
     label: 'ELMAS',
     streakNeeded: 3,
   },
@@ -169,8 +169,8 @@ const THEMES = {
     barBorder: 'rgba(192, 132, 252, 0.7)',
     barFill: ['#c084fc', '#a855f7', '#9333ea'] as const,
     btnGradient: ['#a855f7', '#9333ea'] as const,
-    emoji: 'ğŸ‘‘',
-    label: 'KRALÄ°YET',
+    emoji: '\u{1F451}',
+    label: 'KRALIYET',
     streakNeeded: 3,
   },
 };
@@ -192,7 +192,7 @@ const SOIL_DOT_LAYOUT = [
 
 function getCardSizeMultiplier(compactMode: boolean, largeMode: boolean): number {
   if (largeMode) return 1.16;
-  if (compactMode) return 0.8;
+  if (compactMode) return 0.92;
   return 1;
 }
 
@@ -308,7 +308,7 @@ const CardWaterDrops = React.memo<{
       );
     }
 
-    // ğŸŒ± "BÃœYÃœYOR!" yazÄ±sÄ± animasyonu - showText true ise
+    // ğŸŒ± "BÜYÜYOR!" yazÄ±sÄ± animasyonu - showText true ise
     if (showText) {
       const textHoldDuration = Math.max(400, duration - 300); // Min 400ms gÃ¶rÃ¼nÃ¼r kal
       animations.push(
@@ -337,7 +337,7 @@ const CardWaterDrops = React.memo<{
 
   return (
     <View style={cardAnimStyles.waterContainer} pointerEvents="none">
-      {/* ğŸŒ± "BÃœYÃœYOR!" veya ğŸ›¡ï¸ "BÃ¶ceklerden korundu!" yazÄ±sÄ± - sadece showText true ise */}
+      {/* ğŸŒ± "BÜYÜYOR!" veya ğŸ›¡ï¸ "Böceklerden korundu!" yazÄ±sÄ± - sadece showText true ise */}
       {showText && (
         <Animated.View
           style={[
@@ -350,9 +350,9 @@ const CardWaterDrops = React.memo<{
             },
           ]}
         >
-          <Text style={cardAnimStyles.growTextEmoji}>{isProtected ? 'ğŸ›¡ï¸' : 'ğŸ’§'}</Text>
+          <Text style={cardAnimStyles.growTextEmoji}>{isProtected ? '\u{1F6E1}\uFE0F' : '\u{1F4A7}'}</Text>
           <Text style={[cardAnimStyles.growText, isProtected && { color: '#fbbf24' }]}>
-            {isProtected ? 'Korundu!' : 'BÃœYÃœYOR!'}
+            {isProtected ? 'Korundu!' : 'BUYUYOR!'}
           </Text>
         </Animated.View>
       )}
@@ -385,7 +385,7 @@ const CardWaterDrops = React.memo<{
               },
             ]}
           >
-            ğŸ’§
+            {'\u{1F4A7}'}
           </Animated.Text>
         );
       })}
@@ -404,7 +404,7 @@ const CardWaterDrops = React.memo<{
             },
           ]}
         >
-          <Text style={cardAnimStyles.splashText}>ğŸŒŠ</Text>
+          <Text style={cardAnimStyles.splashText}>{'\u{1F30A}'}</Text>
         </Animated.View>
       )}
 
@@ -421,7 +421,7 @@ const CardWaterDrops = React.memo<{
               },
             ]}
           >
-            âœ¨
+            {'\u2728'}
           </Animated.Text>
           <Animated.Text
             style={[
@@ -431,7 +431,7 @@ const CardWaterDrops = React.memo<{
                 opacity: glowAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.5] }) },
             ]}
           >
-            âœ¨
+            {'\u2728'}
           </Animated.Text>
         </>
       )}
@@ -475,7 +475,7 @@ const CardBugCrawl = React.memo<{
       endX: 20 + Math.random() * 60,
       y: 15 + i * 12,
       delay: i * 120,
-      emoji: ['ğŸ›', 'ğŸª²', 'ğŸœ', 'ğŸ•·ï¸', 'ğŸ¦—', 'ğŸª³'][i % 6],
+      emoji: ['\u{1F41B}', '\u{1FAB2}', '\u{1F41C}', '\u{1F577}\uFE0F', '\u{1F997}', '\u{1FAB3}'][i % 6],
     }))
   ).current;
 
@@ -538,7 +538,7 @@ const CardBugCrawl = React.memo<{
       animations.push(...bugAnimations);
     }
 
-    // ğŸ“ "bÃ¶ceklendi" yazÄ±sÄ± animasyonu - showText true ise
+    // ğŸ“ "böceklendi" yazÄ±sÄ± animasyonu - showText true ise
     if (showText) {
       const textHoldDuration = Math.max(400, duration - 300); // Min 400ms gÃ¶rÃ¼nÃ¼r kal
       animations.push(
@@ -616,11 +616,11 @@ const CardBugCrawl = React.memo<{
             },
           ]}
         >
-          ğŸ˜°
+          {'\u{1F630}'}
         </Animated.Text>
       )}
 
-      {/* ğŸ› "bÃ¶ceklendi" yazÄ±sÄ± - sadece showText true ise */}
+      {/* ğŸ› "böceklendi" yazÄ±sÄ± - sadece showText true ise */}
       {showText && (
         <Animated.View
           style={[
@@ -633,8 +633,8 @@ const CardBugCrawl = React.memo<{
             },
           ]}
         >
-          <Text style={cardAnimStyles.bugTextEmoji}>ğŸ›</Text>
-          <Text style={cardAnimStyles.bugText}>bÃ¶ceklendi!</Text>
+          <Text style={cardAnimStyles.bugTextEmoji}>{'\u{1F41B}'}</Text>
+          <Text style={cardAnimStyles.bugText}>boceklendi!</Text>
         </Animated.View>
       )}
     </View>
@@ -762,9 +762,6 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   const isTabletLandscape = windowDims.width > 700 && windowDims.height < 550;
   const isTabletPortrait = windowDims.width < 550 && windowDims.height > 700;
 
-  const HORIZONTAL_PADDING = isTabletLandscape ? rs(24) : isSmallScreen ? rs(20) : rs(32);
-  const CARD_WIDTH = (windowDims.width - HORIZONTAL_PADDING - CARD_MARGIN) / 2;
-
   // ğŸ¯ Store actions
   const toggleFavorite = useFarmStore(s => s.toggleFavorite);
   const harvestWord = useFarmStore(s => s.harvestWord);
@@ -789,7 +786,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   // ğŸ® Animasyon sÃ¼resini config'den al (veya default)
   const ANIMATION_DURATION_MS = config.cardFeedbackDuration || 1500;
 
-  // ğŸ’§ğŸ› Store'dan feedback geldiÄŸinde LOCAL STATE'e aktar
+  // ğŸ’§ğŸ› Store'dan feedback geldiğinde LOCAL STATE'e aktar
   // NOT: Feedback artÄ±k MiniQuiz kapandÄ±ktan SONRA geliyor (performans iÃ§in)
   useEffect(() => {
     // ğŸ® Performans ayarÄ±na gÃ¶re animasyonu atla
@@ -883,9 +880,16 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   const shouldShowStatusEmojiBadge =
     !!safeCustomization.showEmoji && (!isDefaultCustomization || activeThemeId !== 'default');
   const cardSizeMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
+  const gridColumns = safeCustomization.largeMode ? 1 : safeCustomization.compactMode ? 3 : 2;
+  const gridSidePadding = rs(8);
+  const totalHorizontalMargins = gridColumns * CARD_MARGIN;
+  const baseGridCardWidth = Math.max(
+    rs(94),
+    (windowDims.width - gridSidePadding * 2 - totalHorizontalMargins) / gridColumns
+  );
   const dynamicCardWidth = safeCustomization.largeMode
-    ? Math.min(SCREEN_WIDTH - rs(24), rs(560))
-    : CARD_WIDTH * cardSizeMultiplier;
+    ? Math.min(Math.max(rs(220), baseGridCardWidth), rs(560))
+    : baseGridCardWidth;
   const dynamicCardPadding = (IS_TINY_SCREEN ? rs(12) : IS_SMALL_SCREEN ? rs(14) : rs(16)) * cardSizeMultiplier;
   const dynamicCardMinHeight = (IS_TINY_SCREEN ? rs(150) : IS_SMALL_SCREEN ? rs(165) : IS_MEDIUM_SCREEN ? rs(180) : rs(195)) * cardSizeMultiplier;
   const borderPreset = BORDER_STYLES[safeCustomization.borderStyle || 'default'] || BORDER_STYLES.default;
@@ -998,8 +1002,8 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     } : mergedTheme;
 
     const progress = showInfinity ? 100 : (streakNeeded > 0 ? Math.min((displayStreak / streakNeeded) * 100, 100) : 100);
-    // isReady: Session tamamlandÄ± mÄ±? (ama isHarvestReady olmadan "TamamlanÄ±yor" yazÄ±lmasÄ±n - direkt HASAT bekliyoruz)
-    // Perfect kartlar iÃ§in: isHarvestReady true olduÄŸunda hasat butonu gÃ¶ster, diÄŸer tÃ¼rlÃ¼ "Ã‡alÄ±ÅŸ" kalsÄ±n
+    // isReady: Session tamamlandÄ± mÄ±? (ama isHarvestReady olmadan "Tamamlanıyor" yazÄ±lmasÄ±n - direkt HASAT bekliyoruz)
+    // Perfect kartlar iÃ§in: isHarvestReady true olduÄŸunda hasat butonu gÃ¶ster, diÄŸer tÃ¼rlÃ¼ "Çalış" kalsÄ±n
     const isReady = isHarvestReady; // Sadece hasat hazÄ±rsa "ready" say
     const isMaster = masterLevel > 0;
 
@@ -1007,21 +1011,21 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     const cappedDisplayStreak = showInfinity ? displayStreak : Math.min(displayStreak, streakNeeded);
 
     // ğŸ HASAT BUTONU - Sadece isHarvestReady true ise gÃ¶ster
-    let buttonText = 'ğŸ“– Ã‡ALIÅ';
+    let buttonText = 'CALIS';
     let showHarvestButton = false;
 
     if (isHarvestReady) {
       showHarvestButton = true;
       if (masterLevel === 3) {
         // Perfect kart - Ã¶dÃ¼l alÄ±nmÄ±ÅŸ mÄ± kontrol et
-        buttonText = rewardClaimedPerfect ? 'ğŸ‘‰ SaÄŸa KaydÄ±r - Hasat' : 'ğŸ‘‰ SaÄŸa KaydÄ±r - Hasat(ğŸ‘‘)';
+        buttonText = rewardClaimedPerfect ? 'Saga Kaydir - Hasat' : 'Saga Kaydir - Hasat (Kraliyet)';
       } else {
         const nextTierName = getTierName(masterLevel + 1);
-        buttonText = `ğŸ‘‰ SaÄŸa KaydÄ±r - Hasat(${nextTierName})`;
+        buttonText = `Saga Kaydir - Hasat (${nextTierName})`;
       }
     } else if (isReady && !isHarvestReady) {
       // Session tamamlandÄ± ama hasat henÃ¼z hazÄ±r deÄŸil
-      buttonText = 'â³ TamamlanÄ±yor...';
+      buttonText = 'Tamamlaniyor...';
     }
 
     // ğŸ’° Hasat Ã¶dÃ¼lÃ¼ hesapla (master kartlar iÃ§in)
@@ -1147,7 +1151,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   // Shimmer interpolation (master only)
   const shimmerTranslate = shimmerAnim.interpolate({
     inputRange: [-1, 1],
-    outputRange: [-CARD_WIDTH * 2, CARD_WIDTH * 2],
+    outputRange: [-dynamicCardWidth * 2, dynamicCardWidth * 2],
   });
 
   // ğŸ MEYVE BÃœYÃœME ANÄ°MASYONU - Session tamamlandÄ±ÄŸÄ±nda
@@ -1622,10 +1626,10 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
                     { color: theme.textSecondary },
                     fontStyleOverride,
                   ]}>
-                    /{showInfinity ? 'âˆ' : streakNeeded}
+                    /{showInfinity ? '∞' : streakNeeded}
                   </Text>
-                  {safeCustomization.showEmoji && showInfinity && <Text style={styles.readyEmoji}>ğŸ‘‘</Text>}
-                  {safeCustomization.showEmoji && isReady && !showInfinity && <Text style={styles.readyEmoji}>âœ¨</Text>}
+                  {safeCustomization.showEmoji && showInfinity && <Text style={styles.readyEmoji}>{'\u{1F451}'}</Text>}
+                  {safeCustomization.showEmoji && isReady && !showInfinity && <Text style={styles.readyEmoji}>{'\u2728'}</Text>}
                 </View>
               )}
 
@@ -1669,7 +1673,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
                   {harvestReward && (
                     <View style={styles.harvestRewardContainer}>
                       <Text style={styles.harvestRewardText}>
-                        ğŸ’° {harvestReward.coins} â€¢ â­ {harvestReward.xp} XP
+                        {'\u{1F4B0}'} {harvestReward.coins} {'\u2022'} {'\u2B50'} {harvestReward.xp} XP
                       </Text>
                     </View>
                   )}
@@ -1700,7 +1704,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
                       isButtonLocked && { color: '#999' },
                       fontStyleOverride,
                     ]}>
-                      {isButtonLocked ? 'ğŸ”’ KÄ°LÄ°TLÄ°' : buttonText}
+                      {isButtonLocked ? 'KILITLI' : buttonText}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>

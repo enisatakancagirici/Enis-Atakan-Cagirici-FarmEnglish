@@ -522,6 +522,7 @@ const FeedCard: React.FC<{
 const SwipeableCard = memo(({ 
   word, 
   index, 
+  cardWidth,
   onSwipeComplete,
   onReview,
   onPreview,
@@ -530,6 +531,7 @@ const SwipeableCard = memo(({
 }: { 
   word: WordModel; 
   index: number; 
+  cardWidth: number;
   onSwipeComplete: (word: WordModel) => void;
   onReview: (word: WordModel) => void;
   onPreview: (word: WordModel) => void;
@@ -627,6 +629,7 @@ const SwipeableCard = memo(({
         <WordCardRN
           w={word as any}
           index={index}
+          cardWidth={Math.max(92, cardWidth - RS.wrapper.padding * 2)}
           globalStreak={globalStreak}
           ctaText="TARLAYA GÖNDER 🌱"
           onHarvest={(id) => {
@@ -746,12 +749,13 @@ export default function InventoryScreenNew() {
   // 📱 RESPONSIVE LAYOUT - Dinamik sütun sayısı ve kart genişliği
   const numColumns = useMemo(() => {
     if (cardCustomization?.largeMode) return 1;
+    if (cardCustomization?.compactMode) return 3;
     const screenWidth = windowDims.width;
     if (screenWidth > 900) return 4; // Tablet landscape - çok geniş
     if (screenWidth > 700) return 3; // Tablet portrait veya büyük telefon landscape
     if (screenWidth > 500) return 3; // Telefon landscape
     return 2; // Telefon portrait
-  }, [windowDims.width, cardCustomization?.largeMode]);
+  }, [windowDims.width, cardCustomization?.largeMode, cardCustomization?.compactMode]);
   
   const cardWidth = useMemo(() => {
     const screenWidth = windowDims.width;
@@ -1267,6 +1271,7 @@ export default function InventoryScreenNew() {
         <SwipeableCard
           word={item}
           index={index}
+          cardWidth={cardWidth}
           onSwipeComplete={handleSwipeComplete}
           onReview={handleReview}
           onPreview={handlePreview}

@@ -10,7 +10,6 @@ import {
   Animated,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +18,7 @@ import { Sprout, ArrowLeft } from 'lucide-react-native';
 import { useFarmStore } from '../store/farmStore';
 import { haptic, sound } from '../utils/sound';
 import { showRewardToast } from '../components/RewardToast';
+import JuicyModal from '../components/JuicyModal';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const IS_SMALL = SCREEN_HEIGHT < 700;
@@ -48,12 +48,31 @@ const CreateTab: React.FC<{
   const [exampleText, setExampleText] = useState('');
   const [selectedCefr, setSelectedCefr] = useState<string>('B1');
   const [isCreating, setIsCreating] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    titleEmoji?: string;
+    message: string;
+    type: 'info' | 'success' | 'warning' | 'error' | 'purchase';
+    buttonText?: string;
+  } | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const successAnim = useRef(new Animated.Value(0)).current;
 
   const addCustomWord = useFarmStore(s => s.addCustomWord);
   const canAfford = coins >= CUSTOM_WORD_PRICE;
+
+  const showGameAlert = useCallback((
+    title: string,
+    message: string,
+    type: 'info' | 'success' | 'warning' | 'error' | 'purchase',
+    titleEmoji?: string,
+    buttonText?: string,
+  ) => {
+    setModalConfig({ title, message, type, titleEmoji, buttonText });
+    setModalVisible(true);
+  }, []);
 
   useEffect(() => {
     // Pulse animation for create button
@@ -80,12 +99,24 @@ const CreateTab: React.FC<{
     }
     if (!meaningText.trim()) {
       haptic.warning();
-      Alert.alert('⚠️ Eksik', 'Kelimenin Türkçe anlamını yaz.');
+      showGameAlert(
+        'Eksik Bilgi',
+        'Kelimenin Turkce anlamini yazman gerekiyor.',
+        'warning',
+        '\u26A0\uFE0F',
+        'Tamam'
+      );
       return;
     }
     if (!canAfford) {
       haptic.error();
-      Alert.alert('💰 Yetersiz Coin', `Bu işlem ${CUSTOM_WORD_PRICE} coin. Şu an ${coins} coinin var.`);
+      showGameAlert(
+        'Yetersiz Coin',
+        `Bu islem ${CUSTOM_WORD_PRICE} coin. Su an ${coins} coinin var.`,
+        'error',
+        '\u{1F4B0}',
+        'Tamam'
+      );
       return;
     }
 
@@ -121,21 +152,34 @@ const CreateTab: React.FC<{
         onWordCreated();
       }, 600);
 
-      Alert.alert('🌱 Tohum Eklendi!', result.message);
+      showGameAlert(
+        'Tohum Eklendi',
+        result.message,
+        'success',
+        '\u{1F331}',
+        'Harika'
+      );
     } else {
       haptic.wrongAnswer();
       sound.playWrong();
       setIsCreating(false);
-      Alert.alert('⚠️ Eklenemedi', result.message);
+      showGameAlert(
+        'Eklenemedi',
+        result.message,
+        'error',
+        '\u26A0\uFE0F',
+        'Tamam'
+      );
     }
-  }, [wordText, meaningText, exampleText, selectedCefr, canAfford, coins, isCreating, addCustomWord, onWordCreated]);
+  }, [wordText, meaningText, exampleText, selectedCefr, canAfford, coins, isCreating, addCustomWord, onWordCreated, showGameAlert]);
 
   return (
-    <ScrollView
-      style={styles.tabContent}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
+    <>
+      <ScrollView
+        style={styles.tabContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
       {/* 💰 Fiyat Bilgisi */}
       <View style={styles.priceCard}>
         <LinearGradient
@@ -271,8 +315,27 @@ const CreateTab: React.FC<{
         <Text style={styles.successText}>🌱 Tohum Eklendi!</Text>
       </Animated.View>
 
-      <View style={{ height: 60 }} />
-    </ScrollView>
+        <View style={{ height: 60 }} />
+      </ScrollView>
+
+      {modalConfig && (
+        <JuicyModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          title={modalConfig.title}
+          titleEmoji={modalConfig.titleEmoji}
+          message={modalConfig.message}
+          type={modalConfig.type}
+          buttons={[
+            {
+              text: modalConfig.buttonText || 'Tamam',
+              type: 'primary',
+              onPress: () => setModalVisible(false),
+            },
+          ]}
+        />
+      )}
+    </>
   );
 };
 

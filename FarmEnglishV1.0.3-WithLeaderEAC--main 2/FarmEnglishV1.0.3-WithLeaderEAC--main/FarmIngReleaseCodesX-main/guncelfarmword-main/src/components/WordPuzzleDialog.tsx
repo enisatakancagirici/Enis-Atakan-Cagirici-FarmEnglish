@@ -38,13 +38,13 @@ const IS_SMALL_SCREEN = SCREEN_HEIGHT < 750;
 
 // ğŸ¯ COMBO MESSAGES - Apple/TikTok style minimal dopamine hits
 const COMBO_MESSAGES = [
-  { min: 1, emoji: 'âœ¨', text: 'GÃ¼zeeeel!', color: '#22c55e' },
-  { min: 2, emoji: 'âš¡', text: 'Harikaa!', color: '#3b82f6' },
-  { min: 3, emoji: 'ğŸ”¥', text: 'YanÄ±yooor!', color: '#f97316' },
-  { min: 5, emoji: 'ğŸ’œ', text: 'Efsaneee!', color: '#a855f7' },
-  { min: 8, emoji: 'ğŸ‘‘', text: 'KralllÄ±k!', color: '#fbbf24' },
-  { min: 10, emoji: 'ğŸ’', text: 'MÃ¼kemmeeel!', color: '#06b6d4' },
-  { min: 15, emoji: 'ğŸ¦„', text: 'Efsanevi!', color: '#ec4899' },
+  { min: 1, emoji: '✨', text: 'Güzeeeel!', color: '#22c55e' },
+  { min: 2, emoji: '⚡', text: 'Harikaa!', color: '#3b82f6' },
+  { min: 3, emoji: '🔥', text: 'Yanıyooor!', color: '#f97316' },
+  { min: 5, emoji: '💜', text: 'Efsaneee!', color: '#a855f7' },
+  { min: 8, emoji: '👑', text: 'Kralllık!', color: '#fbbf24' },
+  { min: 10, emoji: '\u{1F48E}', text: 'Mukemmeeel!', color: '#06b6d4' },
+  { min: 15, emoji: '🦄', text: 'Efsanevi!', color: '#ec4899' },
 ];
 
 const getComboMessage = (streak: number) => {
@@ -65,7 +65,7 @@ const CATEGORY_COLORS = {
     badgeBg: 'rgba(239, 68, 68, 0.3)',
     text: '#fecaca',
     label: 'KIRMIZI',
-    emoji: 'ğŸ”´',
+    emoji: '🔴',
     glow: '#ff6b6b',
   },
   orange: {
@@ -75,7 +75,7 @@ const CATEGORY_COLORS = {
     badgeBg: 'rgba(249, 115, 22, 0.3)',
     text: '#fed7aa',
     label: 'TURUNCU',
-    emoji: 'ğŸŸ ',
+    emoji: '🟠',
     glow: '#ff9f43',
   },
   yellow: {
@@ -85,7 +85,7 @@ const CATEGORY_COLORS = {
     badgeBg: 'rgba(234, 179, 8, 0.3)',
     text: '#fef08a',
     label: 'SARI',
-    emoji: 'ğŸŸ¡',
+    emoji: '🟡',
     glow: '#feca57',
   },
   green: {
@@ -94,8 +94,8 @@ const CATEGORY_COLORS = {
     badge: '#22c55e',
     badgeBg: 'rgba(34, 197, 94, 0.3)',
     text: '#bbf7d0',
-    label: 'YEÅÄ°L',
-    emoji: 'âœ…',
+    label: 'YEŞİL',
+    emoji: '✅',
     glow: '#2ed573',
   },
   master: {
@@ -105,7 +105,7 @@ const CATEGORY_COLORS = {
     badgeBg: 'rgba(251, 191, 36, 0.3)',
     text: '#fef3c7',
     label: 'ALTIN',
-    emoji: 'ğŸ†',
+    emoji: '\u{1F3C6}',
     glow: '#ffd700',
   },
   ultra: {
@@ -115,7 +115,7 @@ const CATEGORY_COLORS = {
     badgeBg: 'rgba(167, 139, 250, 0.3)',
     text: '#e0e7ff',
     label: 'ELMAS',
-    emoji: 'ğŸ’',
+    emoji: '\u{1F48E}',
     glow: '#a78bfa',
   },
   perfect: {
@@ -124,8 +124,8 @@ const CATEGORY_COLORS = {
     badge: '#f472b6',
     badgeBg: 'rgba(244, 114, 182, 0.3)',
     text: '#fce7f3',
-    label: 'KRALÄ°YET',
-    emoji: 'ğŸ‘‘',
+    label: 'KRALİYET',
+    emoji: '👑',
     glow: '#f472b6',
   },
 };
@@ -149,7 +149,7 @@ const getFontStyle = (fontStyle: CardFontStyle) => {
 };
 
 const getCategoryFromWord = (word: WordModel): CategoryType => {
-  // ğŸ§© PUZZLE RENK SÄ°STEMÄ° - puzzleStats'a gÃ¶re (TARLA'DAN BAÄIMSIZ!)
+  // ğŸ§© PUZZLE RENK SÄ°STEMÄ° - puzzleStats'a göre (TARLA'DAN BAÄIMSIZ!)
   const puzzleStats = (word as any).puzzleStats || { sessions: 0, puzzleMasterLevel: 0 };
   const puzzleSessions = puzzleStats.sessions || 0;
   const puzzleMasterLevel = puzzleStats.puzzleMasterLevel || 0; // Tarla masterLevel DEÄÄ°L!
@@ -202,13 +202,13 @@ const getPuzzleReward = (category: CategoryType, cefrLevel?: string): { coin: nu
 const getNextCategory = (cat: CategoryType): string => {
   switch (cat) {
     case 'red': return 'Turuncu';
-    case 'orange': return 'SarÄ±';
-    case 'yellow': return 'YeÅŸil';
-    case 'green': return 'AltÄ±n';
+    case 'orange': return 'Sarı';
+    case 'yellow': return 'Yeşil';
+    case 'green': return 'Altın';
     case 'master': return 'Elmas';
     case 'ultra': return 'Kraliyet';
     case 'perfect': return 'MAX';
-    default: return 'Ä°leri';
+    default: return 'İleri';
   }
 };
 
@@ -263,7 +263,7 @@ const PuzzleCardWaterDrops = memo<{
       }),
     ]);
 
-    // ğŸŒ± "BÃœYÃœYOR!" yazÄ±sÄ± animasyonu
+    // ğŸŒ± "BÜYÜYOR!" yazÄ±sÄ± animasyonu
     const textAnimation = Animated.sequence([
       Animated.timing(growTextAnim, {
         toValue: 1,
@@ -283,7 +283,7 @@ const PuzzleCardWaterDrops = memo<{
 
   return (
     <View style={puzzleCardAnimStyles.waterContainer} pointerEvents="none">
-      {/* ğŸŒ± "BÃœYÃœYOR!" yazÄ±sÄ± */}
+      {/* ğŸŒ± "BÜYÜYOR!" yazÄ±sÄ± */}
       <Animated.View
         style={[
           puzzleCardAnimStyles.growTextContainer,
@@ -295,8 +295,8 @@ const PuzzleCardWaterDrops = memo<{
           },
         ]}
       >
-        <Text style={puzzleCardAnimStyles.growTextEmoji}>ğŸŒ±</Text>
-        <Text style={puzzleCardAnimStyles.growText}>BÃœYÃœYOR!</Text>
+        <Text style={puzzleCardAnimStyles.growTextEmoji}>{'\u{1F331}'}</Text>
+        <Text style={puzzleCardAnimStyles.growText}>BUYUYOR!</Text>
       </Animated.View>
 
       {/* Su damlacÄ±klarÄ± */}
@@ -327,7 +327,7 @@ const PuzzleCardWaterDrops = memo<{
               },
             ]}
           >
-            ğŸ’§
+            {'\u{1F4A7}'}
           </Animated.Text>
         );
       })}
@@ -345,7 +345,7 @@ const PuzzleCardWaterDrops = memo<{
           },
         ]}
       >
-        <Text style={puzzleCardAnimStyles.splashText}>ğŸŒŠ</Text>
+        <Text style={puzzleCardAnimStyles.splashText}>{'\u{1F30A}'}</Text>
       </Animated.View>
 
       {/* ParlaklÄ±k efekti */}
@@ -358,7 +358,7 @@ const PuzzleCardWaterDrops = memo<{
           },
         ]}
       >
-        âœ¨
+        {'\u2728'}
       </Animated.Text>
     </View>
   );
@@ -379,7 +379,7 @@ const PuzzleCardBugCrawl = memo<{
       endX: 20 + Math.random() * 60,
       y: 20 + i * 15,
       delay: i * 150,
-      emoji: ['ğŸ›', 'ğŸª²', 'ğŸœ', 'ğŸ•·ï¸', 'ğŸ¦—'][i % 5],
+      emoji: ['\u{1F41B}', '\u{1FAB2}', '\u{1F41C}', '\u{1F577}\uFE0F', '\u{1F997}'][i % 5],
     }))
   ).current;
 
@@ -642,10 +642,10 @@ const PuzzleRewardToast = memo<{
         style={puzzleRewardToastStyles.gradient}
       >
         <View style={puzzleRewardToastStyles.content}>
-          <Text style={puzzleRewardToastStyles.emoji}>ğŸ’°</Text>
+          <Text style={puzzleRewardToastStyles.emoji}>{'\u{1F4B0}'}</Text>
           <Text style={[puzzleRewardToastStyles.text, { color: '#fbbf24' }]}>+{coin}</Text>
-          <Text style={puzzleRewardToastStyles.separator}>â€¢</Text>
-          <Text style={puzzleRewardToastStyles.emoji}>âš¡</Text>
+          <Text style={puzzleRewardToastStyles.separator}>{'\u2022'}</Text>
+          <Text style={puzzleRewardToastStyles.emoji}>{'\u26A1'}</Text>
           <Text style={[puzzleRewardToastStyles.text, { color: '#a78bfa' }]}>+{xp} XP</Text>
         </View>
       </LinearGradient>
@@ -1023,7 +1023,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
       badgeBg: 'rgba(93, 64, 55, 0.55)',
       text: '#f7efe4',
       glow: '#6d4c41',
-      emoji: 'ğŸŒ¾',
+      emoji: '🌾',
       label: 'TOPRAK',
     };
   }, [category, overlayTheme, isSoilBackground]);
@@ -1238,7 +1238,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
       // ğŸ† Minimal particles - sadece combo 3+ iÃ§in ve performans ayarÄ±na gÃ¶re
       const { config, getParticleCount } = usePerformanceStore.getState();
       if (newCombo >= 3 && config.particleCount > 0) {
-        const minimalEmojis = ['âœ¨', 'ğŸ’«'];
+        const minimalEmojis = ['✨', '💫'];
         const baseCount = Math.min(3, Math.floor(newCombo / 3));
         const particleCount = getParticleCount(baseCount);
         if (particleCount > 0) {
@@ -1406,8 +1406,8 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
   // ğŸ“Š SonuÃ§ hesaplarÄ±
   const totalAnswered = totalCorrect + totalWrong;
   const accuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
-  const resultEmoji = accuracy >= 90 ? 'ğŸ†' : accuracy >= 70 ? 'ğŸŒŸ' : accuracy >= 50 ? 'ğŸ’ª' : 'ğŸ“š';
-  const resultTitle = accuracy >= 90 ? 'MUHTEÅEM!' : accuracy >= 70 ? 'HARÄ°KA!' : accuracy >= 50 ? 'Ä°YÄ°!' : 'DEVAM ET!';
+  const resultEmoji = accuracy >= 90 ? '\u{1F3C6}' : accuracy >= 70 ? '\u{1F31F}' : accuracy >= 50 ? '\u{1F4AA}' : '\u{1F4DA}';
+  const resultTitle = accuracy >= 90 ? 'MUHTEŞEM!' : accuracy >= 70 ? 'HARİKA!' : accuracy >= 50 ? 'İYİ!' : 'DEVAM ET!';
   const resultColor = accuracy >= 90 ? '#fbbf24' : accuracy >= 70 ? '#22c55e' : accuracy >= 50 ? '#3b82f6' : '#f97316';
   const resultGradient = accuracy >= 90
     ? ['#fbbf24', '#f59e0b', '#d97706'] as const
@@ -1437,23 +1437,23 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
               <View style={styles.compactStatsRow}>
                 <View style={styles.compactStatItem}>
                   <Text style={[styles.compactStatNum, { color: '#4ade80' }]}>{totalCorrect}</Text>
-                  <Text style={styles.compactStatLabel}>âœ“ DoÄŸru</Text>
+                  <Text style={styles.compactStatLabel}>{'\u2713'} Dogru</Text>
                 </View>
                 <View style={styles.compactStatDivider} />
                 <View style={styles.compactStatItem}>
                   <Text style={[styles.compactStatNum, { color: '#f87171' }]}>{totalWrong}</Text>
-                  <Text style={styles.compactStatLabel}>âœ— YanlÄ±ÅŸ</Text>
+                  <Text style={styles.compactStatLabel}>{'\u2717'} Yanlis</Text>
                 </View>
                 <View style={styles.compactStatDivider} />
                 <View style={styles.compactStatItem}>
                   <Text style={[styles.compactStatNum, { color: '#c084fc' }]}>{maxCombo}x</Text>
-                  <Text style={styles.compactStatLabel}>ğŸ”¥ Combo</Text>
+                  <Text style={styles.compactStatLabel}>{'\u{1F525}'} Combo</Text>
                 </View>
               </View>
 
               {/* ğŸ“Š Accuracy Bar */}
               <View style={styles.compactAccuracyWrap}>
-                <Text style={[styles.compactAccuracyText, { color: resultColor }]}>%{accuracy} BaÅŸarÄ±</Text>
+                <Text style={[styles.compactAccuracyText, { color: resultColor }]}>%{accuracy} Basari</Text>
                 <View style={styles.compactAccuracyBar}>
                   <View style={[styles.compactAccuracyFill, { width: `${accuracy}%`, backgroundColor: resultColor }]} />
                 </View>
@@ -1474,7 +1474,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
                   }}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.compactSecondaryText}>ğŸ”„ Tekrar</Text>
+                  <Text style={styles.compactSecondaryText}>{'\u{1F504}'} Tekrar</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -1486,7 +1486,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
                   activeOpacity={0.8}
                 >
                   <LinearGradient colors={resultGradient} style={styles.compactPrimaryGradient}>
-                    <Text style={styles.compactPrimaryText}>âœ“ Tamamla</Text>
+                    <Text style={styles.compactPrimaryText}>{'\u2713'} Tamamla</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -1776,7 +1776,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
                     {comboMessage.text}
                   </Text>
                   <View style={styles.comboStreakBadge}>
-                    <Text style={styles.comboStreakX}>Ã—</Text>
+                    <Text style={styles.comboStreakX}>{'\u00D7'}</Text>
                     <Text style={styles.comboStreakNumber}>{combo}</Text>
                   </View>
                 </LinearGradient>

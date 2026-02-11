@@ -57,6 +57,7 @@ import { DashboardSection } from "../components/DashboardSection";
 import { MiniQuizDialog } from "../components/MiniQuizDialog";
 import { DailyQuestsPanel } from "../components/DailyQuestsPanel";
 import { CardShopPanel } from "../components/CardShopPanel";
+import JuicyModal from "../components/JuicyModal";
 import {
   TutorialFinalQuizDialog,
   NicknameModal,
@@ -218,7 +219,7 @@ const TutorialDialog = ({
 
   const tutorialSteps = [
     {
-      icon: "�",
+      icon: "👋",
       title: "Hoş Geldin Farmer!",
       description:
         "FarmEnglish ile kelime öğrenmek çok kolay! Sana adım adım anlatayım. Bu tarla gibi - tohum ek, büyüt, hasat et!",
@@ -636,6 +637,7 @@ const PremiumMenuCard = ({
   delay = 0,
   hasBounce = false,
   helpText,
+  onHelpPress,
 }: any) => {
   const config = usePerformanceStore(s => s.config);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -839,7 +841,11 @@ const PremiumMenuCard = ({
                 onPress={(e) => {
                   e.stopPropagation?.();
                   haptic.light();
-                  Alert.alert(title || "Bilgi", helpText);
+                  if (typeof onHelpPress === "function") {
+                    onHelpPress(title || "Bilgi", helpText);
+                  } else {
+                    Alert.alert(title || "Bilgi", helpText);
+                  }
                 }}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
@@ -878,6 +884,7 @@ const PremiumGridMenu = ({
   onMarketPress,
   onBattlePress,
   onSesYapPress,
+  onHelpPress,
 }: any) => {
   return (
     <View style={styles.gridContainer}>
@@ -892,6 +899,7 @@ const PremiumGridMenu = ({
           accentColor="#A855F7"
           delay={0}
           hasBounce={true}
+          onHelpPress={onHelpPress}
           helpText="Kelime quizü çöz, doğru bil tarlana tohum ek! Yanlış bilsen bile kelime tarlana eklenir."
         />
         <PremiumMenuCard
@@ -915,6 +923,7 @@ const PremiumGridMenu = ({
           size="small"
           accentColor="#60A5FA"
           delay={100}
+          onHelpPress={onHelpPress}
           helpText="Hasat ettiğin kelimeler burada! Tarlaya geri göndererek tekrar çalışabilirsin."
         />
         <PremiumMenuCard
@@ -926,6 +935,7 @@ const PremiumGridMenu = ({
           accentColor="#22C55E"
           delay={150}
           hasBounce={true}
+          onHelpPress={onHelpPress}
           helpText="Kelimelerini burada büyüt! Quiz çöz, yeşille, hasat et. Hasat = Öğrendin!"
         />
       </View>
@@ -940,6 +950,7 @@ const PremiumGridMenu = ({
           size="medium"
           accentColor="#F97316"
           delay={200}
+          onHelpPress={onHelpPress}
           helpText="Cümlelerdeki kelimeleri doğru sıraya diz! 4300+ örnek cümle ile pratik yap."
         />
         <PremiumMenuCard
@@ -950,6 +961,7 @@ const PremiumGridMenu = ({
           size="medium"
           accentColor="#EC4899"
           delay={250}
+          onHelpPress={onHelpPress}
           helpText="give up, look after gibi deyimsel fiilleri öğren! Ayrı tarla, ayrı quiz."
         />
       </View>
@@ -1109,6 +1121,15 @@ export const HomeScreen = ({ navigation }: any) => {
   // 🎯 Quest Panel State
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
   const [cardShopVisible, setCardShopVisible] = useState(false);
+  const [helpModalVisible, setHelpModalVisible] = useState(false);
+  const [helpModalTitle, setHelpModalTitle] = useState("Bilgi");
+  const [helpModalMessage, setHelpModalMessage] = useState("");
+
+  const showHomeHelpModal = useCallback((title: string, message: string) => {
+    setHelpModalTitle(title || "Bilgi");
+    setHelpModalMessage(message || "");
+    setHelpModalVisible(true);
+  }, []);
 
   const quizWord = useMemo(() => {
     if (!quizWordId) return null;
@@ -1354,8 +1375,8 @@ export const HomeScreen = ({ navigation }: any) => {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* 🎨 Kart Mağazası Butonu - GEÇİCİ OLARAK DEVRE DIŞI */}
-          {/* <TouchableOpacity
+          {/* 🎨 Kart Mağazası Butonu */}
+          <TouchableOpacity
             style={styles.questsButton}
             onPress={() => {
               haptic.light();
@@ -1372,7 +1393,7 @@ export const HomeScreen = ({ navigation }: any) => {
               <Text style={styles.questsButtonIcon}>🎨</Text>
               <Text style={styles.questsButtonText}>Kart Mağazası</Text>
             </LinearGradient>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
           {/* Premium Grid Menu */}
           <PremiumGridMenu
@@ -1391,6 +1412,7 @@ export const HomeScreen = ({ navigation }: any) => {
             }}
             onBattlePress={() => handleNav("BattleMenu")}
             onSesYapPress={() => handleNav("SesYap")}
+            onHelpPress={showHomeHelpModal}
           />
 
           {/* 📚 Pratik Merkezi - Yeni Öğrenme Modülleri */}
@@ -1840,39 +1862,35 @@ export const HomeScreen = ({ navigation }: any) => {
         </View>
       </Modal>
 
-      {/* 🎨 Card Shop Modal - GEÇİCİ OLARAK DEVRE DIŞI */}
-      {/* <Modal
+      {/* 🎨 Card Shop Modal */}
+      <Modal
         visible={cardShopVisible}
         animationType="slide"
-        transparent
+        transparent={false}
+        presentationStyle="fullScreen"
         onRequestClose={() => setCardShopVisible(false)}
       >
-        <View style={styles.questsModalContainer}>
-          <TouchableOpacity
-            style={styles.questsModalOverlay}
-            activeOpacity={1}
-            onPress={() => {
-              haptic.light();
-              setCardShopVisible(false);
-            }}
-          />
-          <View style={styles.questsModalContent}>
-            <CardShopPanel onClose={() => setCardShopVisible(false)} />
-            <TouchableOpacity
-              style={styles.questsCloseButton}
-              onPress={() => {
-                haptic.light();
-                setCardShopVisible(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.questsCloseButtonText}>Kapat</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.cardShopFullScreen}>
+          <CardShopPanel onClose={() => setCardShopVisible(false)} />
         </View>
-      </Modal> */}
+      </Modal>
 
       {/* 📘 Tutorial Final Quiz Dialog */}
+      <JuicyModal
+        visible={helpModalVisible}
+        onClose={() => setHelpModalVisible(false)}
+        title={helpModalTitle}
+        titleEmoji={'\u2753'}
+        message={helpModalMessage}
+        type="info"
+        buttons={[
+          {
+            text: "Tamam",
+            type: "primary",
+            onPress: () => setHelpModalVisible(false),
+          },
+        ]}
+      />
       <TutorialFinalQuizDialog
         visible={tutorialStep === "STEP_18_PERFECT_DONE"}
       />
@@ -2728,6 +2746,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
+  cardShopFullScreen: {
+    flex: 1,
+    backgroundColor: '#101418',
+  },
 
   // 📚 Pratik Merkezi Styles
   pratikMerkeziContainer: {
@@ -2783,3 +2805,4 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+

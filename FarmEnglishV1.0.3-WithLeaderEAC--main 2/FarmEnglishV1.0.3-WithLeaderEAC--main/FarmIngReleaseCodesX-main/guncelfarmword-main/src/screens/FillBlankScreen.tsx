@@ -15,7 +15,6 @@ import {
     Dimensions,
     ScrollView,
     Platform,
-    Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -34,6 +33,7 @@ import { useNavigation } from '@react-navigation/native';
 import { haptic, sound } from '../utils/sound';
 import { useFarmStore } from '../store/farmStore';
 import { updatePracticeScore } from '../utils/firebaseBattle';
+import JuicyModal from '../components/JuicyModal';
 
 // Veri kaynağı
 import prepositionsData from '../../assets/data/prepositions.json';
@@ -66,6 +66,19 @@ interface Question {
     usage: string;
 }
 
+interface PracticeModalConfig {
+    title: string;
+    titleEmoji?: string;
+    message: string;
+    type: 'info' | 'success' | 'warning' | 'error' | 'purchase';
+    buttons: Array<{
+        text: string;
+        onPress: () => void;
+        type?: 'default' | 'primary' | 'danger' | 'cancel';
+        emoji?: string;
+    }>;
+}
+
 // Tüm soruları hazırla
 function getAllQuestions(): Question[] {
     const questions: Question[] = [];
@@ -93,6 +106,64 @@ function shuffleArray<T>(array: T[]): T[] {
         [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
+}
+
+function decodeMojibake(text: string): string {
+    try {
+        return decodeURIComponent(escape(text));
+    } catch {
+        return text;
+    }
+}
+
+const CATEGORY_RULES: Record<string, string> = {
+    time: 'Zaman sorularinda kaliba bak: at saat, on gun/tarih, in ay-yil-donem.',
+    place: 'Yer sorularinda fiziksel konum iliskisini kontrol et: in/inside, on/surface, at/nokta.',
+    direction: 'Hareket yonunu veren fiillerde to, into, onto gibi yon bildiren kaliplari ara.',
+    purpose: 'Amac bildiren yapilarda for + noun / to + verb ayrimina dikkat et.',
+    origin: 'Kaynak cikis anlaminda from kalibi baskindir.',
+    accompaniment: 'Birliktelik anlatiminda with kalibi en guclu adaydir.',
+    means: 'Arac-yontem sorularinda by + method kalibina odaklan.',
+    topic: 'Konu bildirirken about/on gibi konu edatlari beklenir.',
+    position: 'Sabit konumda under/over/between gibi uzamsal iliskiyi dogrula.',
+    absence: 'Yokluk anlaminda without kalibi aranir.',
+};
+
+const PREPOSITION_RULES: Record<string, string> = {
+    at: 'Kisa ve net bir nokta/saat odagi var.',
+    in: 'Kapali alan, donem veya daha genis bir cerceve anlami tasiyor.',
+    on: 'Yuzey, gun veya temas eden bir konum var.',
+    to: 'Bir hedefe yonelim bildiriliyor.',
+    for: 'Amac, sure veya hedef kisi/nesne baglami kuruluyor.',
+    from: 'Baslangic/kaynak noktasi vurgulaniyor.',
+    with: 'Birliktelik veya arac iliskisi kuruluyor.',
+    by: 'Yontem/vasita iliskisi anlatiliyor.',
+    about: 'Bir konu hakkinda olma anlami var.',
+    without: 'Eksiklik veya yokluk anlami var.',
+};
+
+function buildFillBlankExplanation(
+    question: Question,
+    selectedOption: string | null,
+    isCorrect: boolean | null
+): string {
+    const correctWord = question.correct;
+    const selectionSummary = isCorrect
+        ? `Secimin dogru: "${correctWord}".`
+        : selectedOption
+            ? `Dogru cevap "${correctWord}". Sen "${selectedOption}" sectin.`
+            : `Dogru cevap "${correctWord}".`;
+
+    const prepositionRule = PREPOSITION_RULES[correctWord.toLowerCase()] || `"${correctWord}" bu baglamla en uyumlu secenektir.`;
+    const categoryRule = CATEGORY_RULES[question.category] || 'Boslugun sagi-solu ve cumlenin genel anlamina odaklan.';
+    const sourceUsage = decodeMojibake(question.usage || '').trim();
+
+    return [
+        selectionSummary,
+        `Neden: ${prepositionRule}`,
+        `Kural: ${categoryRule}`,
+        sourceUsage ? `Detay: ${sourceUsage}` : '',
+    ].filter(Boolean).join('\n');
 }
 
 // 🔘 Seçenek Butonu
@@ -180,6 +251,8 @@ export default function FillBlankScreen() {
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [totalCorrect, setTotalCorrect] = useState(0);
     const [showExplanation, setShowExplanation] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalConfig, setModalConfig] = useState<PracticeModalConfig | null>(null);
     const allQuestionsRef = useRef<Question[]>([]);
     const sessionStartRef = useRef(0);
 
@@ -282,15 +355,32 @@ export default function FillBlankScreen() {
             // Quiz bitti - MEGA KUTLAMA!
             haptic.masterCelebration();
             sound.playHarvest();
-
-            Alert.alert(
-                '5 Soru Bitti',
-                'Ne yapmak istersin?',
-                [
-                    { text: 'Tekrar Dene', onPress: () => handleRestart() },
-                    { text: 'Devam Et', onPress: () => handleContinue() },
+            setModalConfig({
+                title: 'Tur Tamamlandi',
+                titleEmoji: '\u{1F389}',
+                message: '5 soru bitti. Sonraki adimi sec.',
+                type: 'success',
+                buttons: [
+                    {
+                        text: 'Tekrar Dene',
+                        type: 'cancel',
+                        onPress: () => {
+                            setModalVisible(false);
+                            handleRestart();
+                        },
+                    },
+                    {
+                        text: 'Devam Et',
+                        type: 'primary',
+                        emoji: '\u27A1\uFE0F',
+                        onPress: () => {
+                            setModalVisible(false);
+                            handleContinue();
+                        },
+                    },
                 ],
-            );
+            });
+            setModalVisible(true);
         }
     }, [currentIndex, questions.length]);
 
@@ -453,7 +543,7 @@ export default function FillBlankScreen() {
 
                             {/* Türkçe Çeviri */}
                             <Text style={styles.translationText}>
-                                💡 {currentQuestion.tr}
+                                💡 {decodeMojibake(currentQuestion.tr)}
                             </Text>
 
                             {/* Seçenekler */}
@@ -478,10 +568,10 @@ export default function FillBlankScreen() {
                                     { borderColor: isCorrect ? COLORS.success : COLORS.warning }
                                 ]}>
                                     <Text style={styles.explanationTitle}>
-                                        {isCorrect ? '✅ Doğru!' : '💡 Doğru cevap: ' + currentQuestion.correct}
+                                        {isCorrect ? 'Dogru cevap!' : `Dogru cevap: ${currentQuestion.correct}`}
                                     </Text>
                                     <Text style={styles.explanationText}>
-                                        {currentQuestion.usage}
+                                        {buildFillBlankExplanation(currentQuestion, selectedOption, isCorrect)}
                                     </Text>
                                 </View>
                             )}
@@ -515,6 +605,18 @@ export default function FillBlankScreen() {
                         )}
                     </View>
                 </SafeAreaView>
+
+                {modalConfig && (
+                    <JuicyModal
+                        visible={modalVisible}
+                        onClose={() => setModalVisible(false)}
+                        title={modalConfig.title}
+                        titleEmoji={modalConfig.titleEmoji}
+                        message={modalConfig.message}
+                        type={modalConfig.type}
+                        buttons={modalConfig.buttons}
+                    />
+                )}
             </LinearGradient>
         </View>
     );
@@ -742,3 +844,5 @@ const styles = StyleSheet.create({
         color: COLORS.textMuted,
     },
 });
+
+

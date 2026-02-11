@@ -98,6 +98,68 @@ function getAllQuestions(): YDSQuestion[] {
     });
 }
 
+function decodeMojibake(text: string): string {
+    try {
+        return decodeURIComponent(escape(text));
+    } catch {
+        return text;
+    }
+}
+
+function buildContextHint(questionText: string): string {
+    const parts = questionText.split('________');
+    if (parts.length !== 2) {
+        return 'Boslugun etrafindaki anlam butunlugunu kontrol et.';
+    }
+
+    const left = parts[0].trim().split(/\s+/).slice(-3).join(' ');
+    const right = parts[1].trim().split(/\s+/).slice(0, 3).join(' ');
+    return `Baglam: "${left} ___ ${right}".`;
+}
+
+function inferYdsStrategy(answer: string, questionText: string): string {
+    const lowerAnswer = answer.toLowerCase();
+    const lowerQuestion = questionText.toLowerCase();
+
+    if (['however', 'therefore', 'moreover', 'nevertheless', 'despite', 'although', 'whereas'].includes(lowerAnswer)) {
+        return 'Baglac sorusu: once cumleler arasi iliskiyi (zitlik, neden-sonuc, ekleme) tespit et.';
+    }
+    if (['in', 'on', 'at', 'to', 'for', 'with', 'from', 'by', 'of'].includes(lowerAnswer)) {
+        return 'Edat sorusu: boslugun solundaki fiil/isim ile sabit kalibi kontrol et.';
+    }
+    if (lowerAnswer.endsWith('ly')) {
+        return 'Zarf adayi: fiili veya tum cumleyi nasil oldugunu anlatarak tamamlar.';
+    }
+    if (/(has|have|had)\s+________/.test(lowerQuestion)) {
+        return 'Perfect yapiya dikkat et: genelde V3 veya uygun isim/ifade beklenir.';
+    }
+    if (/(is|are|was|were|be)\s+________/.test(lowerQuestion)) {
+        return 'Be fiilinden sonra gelen kelimenin turunu (sifat/isim/participle) kontrol et.';
+    }
+    return 'Secenekleri eleyerek ilerle: once gramer uyumu, sonra anlam uyumu, en son collocation kontrolu.';
+}
+
+function buildYdsExplanation(
+    question: YDSQuestion,
+    selectedOption: string | null,
+    isCorrect: boolean | null
+): string {
+    const selectionLine = isCorrect
+        ? `Secimin dogru: "${question.answer}".`
+        : selectedOption
+            ? `Dogru cevap "${question.answer}". Sen "${selectedOption}" sectin.`
+            : `Dogru cevap "${question.answer}".`;
+
+    const sourceExplanation = decodeMojibake(question.explanation || '').trim();
+
+    return [
+        selectionLine,
+        buildContextHint(question.question),
+        `Sinav ipucu: ${inferYdsStrategy(question.answer, question.question)}`,
+        sourceExplanation ? `Detay: ${sourceExplanation}` : '',
+    ].filter(Boolean).join('\n');
+}
+
 // 🔘 Seçenek Butonu
 interface OptionButtonProps {
     option: string;
@@ -562,15 +624,15 @@ export default function YDSQuizScreen() {
                                             styles.explanationTitle,
                                             { color: isCorrect ? COLORS.success : COLORS.warning }
                                         ]}>
-                                            {isCorrect ? 'Doğru!' : 'Açıklama'}
+                                            {isCorrect ? 'Dogru!' : 'Cozum'}
                                         </Text>
                                     </View>
                                     <Text style={styles.explanationText}>
-                                        {currentQuestion.explanation}
+                                        {buildYdsExplanation(currentQuestion, selectedOption, isCorrect)}
                                     </Text>
                                     {!isCorrect && (
                                         <Text style={styles.correctAnswerText}>
-                                            ✓ Doğru cevap: <Text style={{ fontWeight: '700' }}>{currentQuestion.answer}</Text>
+                                            {'\u2713'} Dogru cevap: <Text style={{ fontWeight: '700' }}>{currentQuestion.answer}</Text>
                                         </Text>
                                     )}
                                 </View>

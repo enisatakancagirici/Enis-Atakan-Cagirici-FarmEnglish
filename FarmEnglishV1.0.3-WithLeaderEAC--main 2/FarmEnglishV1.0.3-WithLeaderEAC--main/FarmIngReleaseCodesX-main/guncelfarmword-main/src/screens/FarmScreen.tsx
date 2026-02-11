@@ -48,7 +48,7 @@ const IS_SMALL_SCREEN = SCREEN_HEIGHT < 700;
 const IS_TABLET = SCREEN_WIDTH > 768;
 const FEED_CARD_MAX_WIDTH = IS_TABLET ? 500 : SCREEN_WIDTH - 40;
 
-// ??? �iftlik Tab Resimleri (yeni)
+// ? �iftlik Tab Resimleri (yeni)
 const TAB_IMAGES = {
   words: require('../../assets/images/maskot/kelimeler_ciftlik_tab_yeni.webp'),
   phrasal: require('../../assets/images/maskot/pharasal_ciftlik_tab_yeni.webp'),
@@ -420,11 +420,11 @@ const FeedCard: React.FC<{
           )}
         </TouchableOpacity>
 
-        {/* ??? Badge - �st sa� */}
+        {/* ? Badge - �st sa� */}
         <View style={[styles.appleBadge, { backgroundColor: `${theme.accent}25` }]}>
-          <Text style={styles.appleBadgeEmoji}>{(justHarvested || isInInventory) ? '🌱' : theme.emoji}</Text>
+          <Text style={styles.appleBadgeEmoji}>{(justHarvested || isInInventory) ? '\u{1F331}' : theme.emoji}</Text>
           <Text style={[styles.appleBadgeText, { color: theme.textSecondary }]}>
-            {justHarvested ? 'Envanterde' : isInInventory ? 'Envanter' : masterLevel >= 3 ? 'Kraliyet' : masterLevel === 2 ? 'Elmas' : masterLevel === 1 ? 'Usta' : (word.wrongCount || 0) >= 2 ? 'Yeşil' : (word.wrongCount || 0) >= 1 ? 'Sarı' : 'Kırmızı'}
+            {justHarvested ? 'Envanterde' : isInInventory ? 'Envanter' : masterLevel >= 3 ? 'Kraliyet' : masterLevel === 2 ? 'Elmas' : masterLevel === 1 ? 'Usta' : (word.wrongCount || 0) >= 2 ? 'Yesil' : (word.wrongCount || 0) >= 1 ? 'Sari' : 'Kirmizi'}
           </Text>
         </View>
 
@@ -441,13 +441,13 @@ const FeedCard: React.FC<{
         {/* ?? Mini stats - Quiz istatistikleri */}
         <View style={styles.appleStats}>
           <View style={styles.appleStat}>
-            <Text style={[styles.appleStatNum, { color: '#22c55e' }]}>✓{word.quizCorrect || 0}</Text>
-            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>doğru</Text>
+            <Text style={[styles.appleStatNum, { color: '#22c55e' }]}>{'✓'}{word.quizCorrect || 0}</Text>
+            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>dogru</Text>
           </View>
           <View style={[styles.appleStatDivider, { backgroundColor: theme.accent }]} />
           <View style={styles.appleStat}>
-            <Text style={[styles.appleStatNum, { color: '#ef4444' }]}>✗{word.quizWrong || 0}</Text>
-            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>yanlış</Text>
+            <Text style={[styles.appleStatNum, { color: '#ef4444' }]}>{'✗'}{word.quizWrong || 0}</Text>
+            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>yanlis</Text>
           </View>
           <View style={[styles.appleStatDivider, { backgroundColor: theme.accent }]} />
           <View style={styles.appleStat}>
@@ -456,7 +456,7 @@ const FeedCard: React.FC<{
                 ? Math.round(((word.quizCorrect || 0) / ((word.quizCorrect || 0) + (word.quizWrong || 0))) * 100)
                 : 0
             }</Text>
-            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>başarı</Text>
+            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>basari</Text>
           </View>
         </View>
 
@@ -486,7 +486,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#10b981', fontWeight: '700' }]}>Tarlaya Geri Ek</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(16, 185, 129, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(16, 185, 129, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
             </TouchableOpacity>
           ) : word.isHarvestReady && !isInInventory ? (
             // ?? HASAT ET BUTONU - Alt�n premium
@@ -512,7 +512,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#f59e0b', fontWeight: '700' }]}>Hasat Et</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(245, 158, 11, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(245, 158, 11, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
             </TouchableOpacity>
           ) : isInInventory ? (
             // ?? ENVANTER � TARLAYA EKLE BUTONU
@@ -538,7 +538,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#22c55e', fontWeight: '700' }]}>Tarlaya Ekle</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(34, 197, 94, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(34, 197, 94, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
             </TouchableOpacity>
           ) : (
             // ?? �ALI� BUTONU - Normal kart
@@ -551,7 +551,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={styles.appleButtonText}>Çalış</Text>
-              <Text style={styles.appleButtonHint}>kaydır veya dokun</Text>
+              <Text style={styles.appleButtonHint}>kaydir veya dokun</Text>
             </TouchableOpacity>
           )
         )}
@@ -619,7 +619,7 @@ const GridSwipeWrapper: React.FC<{
             isProcessingRef.current = true;
             haptic.heavy();
 
-            // ??? Async olarak �al��t�r - UI donmas�n� �nle
+            // ? Async olarak �al��t�r - UI donmas�n� �nle
             InteractionManager.runAfterInteractions(() => {
               try {
                 onSwipeRight();
@@ -769,7 +769,7 @@ const StatsHeader: React.FC<{
         {/* Divider */}
         <View style={styles.premiumFilterDivider} />
 
-        {/* ??? Seed Market (only words tab) */}
+        {/* ? Seed Market (only words tab) */}
         {activeTab === 'words' && onPressSeedMarket && (
           <TouchableOpacity
             style={[styles.premiumFilterBtn, isFilterLocked && { opacity: 0.3 }]}
@@ -839,7 +839,7 @@ const StatsHeader: React.FC<{
   );
 };
 
-// ??? Filter Tab Component - OPTIMIZED (no idle loops)
+// ? Filter Tab Component - OPTIMIZED (no idle loops)
 const FilterTab: React.FC<{
   label: string;
   active: boolean;
@@ -960,7 +960,7 @@ export function FarmScreen() {
   const [filter, setFilter] = useState<'all' | 'ready' | 'study' | 'master' | 'favorites' | 'custom'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
-  const gridColumns = cardCustomization?.largeMode ? 1 : 2;
+  const gridColumns = cardCustomization?.largeMode ? 1 : cardCustomization?.compactMode ? 3 : 2;
 
   // 🎯 GÜNLÜK GÖREVLER PANEL
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
@@ -1007,7 +1007,7 @@ export function FarmScreen() {
     }, [])
   );
 
-  // ??? PRELOAD TAB IMAGES - Avoid reload on tab switch
+  // ? PRELOAD TAB IMAGES - Avoid reload on tab switch
   useEffect(() => {
     Asset.loadAsync([
       TAB_IMAGES.words,
@@ -2228,7 +2228,7 @@ const styles = StyleSheet.create({
   flashListContent: {
     paddingTop: SCREEN_WIDTH < 375 ? 12 : 16,
     paddingBottom: SCREEN_WIDTH < 375 ? 80 : 100,
-    paddingHorizontal: SCREEN_WIDTH < 375 ? 10 : 12,
+    paddingHorizontal: 8,
   },
 
   // Empty State - Premium Design

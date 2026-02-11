@@ -819,7 +819,10 @@ export default function WordMatchScreen() {
                     {!showResult && (
                         <View style={[
                             styles.bottomBar,
-                            { paddingBottom: Math.max(insets.bottom + 16, IS_SMALL_DEVICE ? 28 : 32), marginBottom: 0 }
+                            {
+                                paddingBottom: Math.max(insets.bottom + 12, IS_SMALL_DEVICE ? 24 : 28),
+                                marginBottom: IS_SMALL_DEVICE ? 66 : 78,
+                            }
                         ]}>
                             <TouchableOpacity 
                                 style={styles.resetButton}

@@ -52,6 +52,7 @@ export interface WordModel {
 
 export interface WordCardRNProps {
   w: WordModel;
+  cardWidth?: number;
   onHarvest?: (id: string) => void;
   onToggleFavorite?: (id: string) => void;
   onPreview?: (word: WordModel) => void;
@@ -264,7 +265,7 @@ const SOIL_DOT_LAYOUT = [
 
 const getCardSizeMultiplier = (compactMode: boolean, largeMode: boolean): number => {
   if (largeMode) return 1.16;
-  if (compactMode) return 0.8;
+  if (compactMode) return 0.92;
   return 1;
 };
 
@@ -285,6 +286,7 @@ const getFontStyle = (fontStyle: CardFontStyle) => {
  */
 export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
   w,
+  cardWidth,
   onHarvest,
   onToggleFavorite,
   onPreview,
@@ -296,7 +298,6 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
 }) => {
   const rs = useResponsiveStyles();
   const { width: screenWidth } = useWindowDimensions();
-  const baseHalfCardWidth = (screenWidth - 48 - rs.cardMargin) / 2;
 
   const masterLevel = w.masterLevel ?? 0;
   
@@ -337,9 +338,12 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
   const cardCustomization = useFarmStore(s => s.cardCustomization);
   const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
   const cardSizeMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
-  const dynamicCardWidth = safeCustomization.largeMode
+  const activeGridColumns = safeCustomization.largeMode ? 1 : safeCustomization.compactMode ? 3 : 2;
+  const baseGridCardWidth = (screenWidth - 48 - rs.cardMargin * activeGridColumns) / activeGridColumns;
+  const computedCardWidth = safeCustomization.largeMode
     ? screenWidth - (rs.isTiny ? 20 : 24)
-    : baseHalfCardWidth * cardSizeMultiplier;
+    : baseGridCardWidth;
+  const dynamicCardWidth = cardWidth ?? computedCardWidth;
   const dynamicCardPadding = rs.cardPadding * cardSizeMultiplier;
   const dynamicCardMinHeight = rs.cardMinHeight * cardSizeMultiplier;
   const borderPreset = BORDER_STYLES[safeCustomization.borderStyle || 'default'] || BORDER_STYLES.default;

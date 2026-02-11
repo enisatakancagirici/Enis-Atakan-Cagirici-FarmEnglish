@@ -584,7 +584,7 @@ export default function PhrasalVerbFarmScreenNew({
   const [feedQuizWordId, setFeedQuizWordId] = useState<string | null>(null);
   const [feedScrollEnabled, setFeedScrollEnabled] = useState(true);
   const [lastViewedWordId, setLastViewedWordId] = useState<string | null>(null);
-  const gridColumns = cardCustomization?.largeMode ? 1 : 2;
+  const gridColumns = cardCustomization?.largeMode ? 1 : cardCustomization?.compactMode ? 3 : 2;
   
   // 🌾 HASAT SONRASI "TEKRAR EK" STATE
   const [harvestedWordIds, setHarvestedWordIds] = useState<Set<string>>(new Set());
