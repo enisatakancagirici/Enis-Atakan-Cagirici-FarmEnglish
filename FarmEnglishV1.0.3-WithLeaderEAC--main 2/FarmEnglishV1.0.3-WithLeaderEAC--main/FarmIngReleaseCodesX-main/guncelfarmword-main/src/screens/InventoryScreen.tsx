@@ -489,6 +489,7 @@ export default function InventoryScreen() {
         </LinearGradient>
         </TouchableOpacity>
       </View>
+    );
   };
 
   // 📖 Feed Mode

@@ -29,23 +29,9 @@ import { useNavigation, useFocusEffect, CommonActions } from "@react-navigation/
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import {
-  Sprout,
-  BookOpen,
-  Package,
   Coins,
   Award,
-  TrendingUp,
-  Zap,
-  AlertCircle,
-  Home,
-  RotateCcw,
-  Trophy,
-  Sparkles,
-  User,
-  RefreshCw,
   ChevronRight,
-  Settings,
-  Bell,
 } from "lucide-react-native";
 import { Asset } from "expo-asset";
 import { useFarmStore } from "../store/farmStore";
@@ -651,6 +637,9 @@ const PremiumMenuCard = ({
   title,
   subtitle,
   size = "medium",
+  textAlign = "left",
+  imageFit = "cover",
+  hideImage = false,
   accentColor = "#FFFFFF",
   delay = 0,
   hasBounce = false,
@@ -763,6 +752,24 @@ const PremiumMenuCard = ({
   };
 
   const cardHeight = (() => {
+    if (size === "wideXXL") {
+      const horizontalInset = IS_TABLET_DEVICE ? 44 : 24;
+      const availableWidth = SCREEN_WIDTH - horizontalInset;
+      const responsiveHeight = Math.round(availableWidth * (IS_TABLET_DEVICE ? 0.46 : 0.52));
+      if (IS_LARGE_TABLET) return Math.max(252, Math.min(320, responsiveHeight));
+      if (IS_TABLET_DEVICE) return Math.max(220, Math.min(276, responsiveHeight));
+      return IS_SMALL_DEVICE ? Math.max(178, Math.min(214, responsiveHeight)) : Math.max(194, Math.min(234, responsiveHeight));
+    }
+    if (size === "wideXL") {
+      if (IS_LARGE_TABLET) return 264;
+      if (IS_TABLET_DEVICE) return 236;
+      return IS_SMALL_DEVICE ? 184 : 208;
+    }
+    if (size === "wide") {
+      if (IS_LARGE_TABLET) return 236;
+      if (IS_TABLET_DEVICE) return 214;
+      return IS_SMALL_DEVICE ? 166 : 188;
+    }
     if (IS_LARGE_TABLET) {
       return size === "medium" ? 300 : 340;
     }
@@ -778,12 +785,23 @@ const PremiumMenuCard = ({
   const wrapperStyle =
     size === "large"
       ? styles.cardWrapperLarge
+      : size === "wideXXL"
+        ? styles.cardWrapperWide
+      : size === "wideXL"
+        ? styles.cardWrapperWide
+      : size === "wide"
+        ? styles.cardWrapperWide
       : size === "small"
         ? styles.cardWrapperSmall
         : styles.cardWrapperMedium;
   const safeTitle = normalizeDisplayText(title);
   const safeSubtitle = normalizeDisplayText(subtitle);
   const safeHelpText = normalizeDisplayText(helpText);
+  const contentContainerStyle = hideImage
+    ? styles.cardTextContainerCenteredFill
+    : textAlign === "center"
+      ? styles.cardTextContainerCentered
+      : styles.cardTextContainer;
 
   return (
     <Animated.View
@@ -825,18 +843,43 @@ const PremiumMenuCard = ({
           {/* Inner Card */}
           <View style={styles.innerCard}>
             {/* Background Image - FULL COVERAGE */}
-            <Image
-              source={imageSource}
-              style={styles.fullImageCover}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-              priority="high"
-              transition={0}
-            />
+            {!hideImage && imageSource ? (
+              <>
+                {imageFit === "contain" && (
+                  <Image
+                    source={imageSource}
+                    style={styles.containBackdropImage}
+                    contentFit="cover"
+                    contentPosition="center"
+                    cachePolicy="memory-disk"
+                    priority="high"
+                    transition={0}
+                  />
+                )}
+                <Image
+                  source={imageSource}
+                  style={styles.fullImageCover}
+                  contentFit={imageFit}
+                  contentPosition="center"
+                  cachePolicy="memory-disk"
+                  priority="high"
+                  transition={0}
+                />
+              </>
+            ) : (
+              <LinearGradient
+                colors={[`${accentColor}66`, `${accentColor}26`, "rgba(15, 23, 42, 0.95)"]}
+                style={styles.fullImageCover}
+              />
+            )}
 
             {/* Gradient Overlay for Text Readability */}
             <LinearGradient
-              colors={["transparent", "rgba(0,0,0,0.5)", "rgba(0,0,0,0.8)"]}
+              colors={
+                hideImage
+                  ? ["rgba(0,0,0,0.05)", "rgba(0,0,0,0.18)", "rgba(0,0,0,0.35)"]
+                  : ["transparent", "rgba(0,0,0,0.5)", "rgba(0,0,0,0.8)"]
+              }
               style={styles.imageOverlay}
             />
 
@@ -871,20 +914,20 @@ const PremiumMenuCard = ({
                 }}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Text style={styles.helpIconText}>❓</Text>
+                <Text style={styles.helpIconText}>?</Text>
               </TouchableOpacity>
             )}
 
             {/* Content */}
             {(safeTitle || safeSubtitle) && (
-              <View style={styles.cardTextContainer}>
+              <View style={contentContainerStyle}>
                 {safeTitle && (
-                  <Text style={[styles.cardTitle, { color: accentColor }]}>
+                  <Text style={[styles.cardTitle, textAlign === "center" && styles.cardTitleCentered, hideImage && styles.cardTitleHero, { color: accentColor }]}>
                     {safeTitle}
                   </Text>
                 )}
                 {safeSubtitle && (
-                  <Text style={styles.cardSubtitle}>{safeSubtitle}</Text>
+                  <Text style={[styles.cardSubtitle, textAlign === "center" && styles.cardSubtitleCentered, hideImage && styles.cardSubtitleHero]}>{safeSubtitle}</Text>
                 )}
               </View>
             )}
@@ -950,7 +993,7 @@ const PremiumGridMenu = ({
           delay={100}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Hasat ettiğin kelimeler burada! Tarlaya geri göndererek tekrar çalışabilirsin. Tarlaya buradan tekrar eklediğin kart seviye atlamış haliyle seni karşılar. Döngü bu şekilde büyüt-hasat et-geliştir-öğren olarak ilerler."
+          helpText="Hasat ettiğin kelimeler burada! Tarlaya geri göndererek tekrar çalışabilirsin. Tarlaya buradan tekrar eklediğin kart seviye atlamış haliyle seni karşılar. Döngü bu şekilde büyüt-hasat et-geliştir-öğren olarak ilerler. Hasatların burada 10 ve 10'un katları olduğunda böcek saldırısına uğrar. Quiz çözerek defedebilirsin. Bu olay aralıklı tekrar yaptırarak öğrenmeni kalıcılaştırır."
         />
         <PremiumMenuCard
           onPress={onFarmPress}
@@ -1141,7 +1184,6 @@ export const HomeScreen = ({ navigation }: any) => {
   const harvestWord = useFarmStore((state) => state.harvestWord);
   // 🎓 Tutorial
   const tutorialStep = useFarmStore((state) => state.tutorialStep);
-  const resetTutorial = useFarmStore((state) => state.resetTutorial);
   const skipTutorial = useFarmStore((state) => state.skipTutorial);
   const tutorialInterrupted = useFarmStore((state) => state.tutorialInterrupted);
   const setTutorialInterrupted = useFarmStore((state) => state.setTutorialInterrupted);
@@ -1348,10 +1390,8 @@ export const HomeScreen = ({ navigation }: any) => {
     lastNavigationTime.current = now;
 
     haptic.medium();
-
-    InteractionManager.runAfterInteractions(() => {
-      navigation.navigate(route, params);
-    });
+    // Avoid InteractionManager deadlocks when continuous card animations are active.
+    navigation.navigate(route, params);
 
     setTimeout(() => {
       isNavigating.current = false;
@@ -1361,6 +1401,8 @@ export const HomeScreen = ({ navigation }: any) => {
   useEffect(() => {
     if (tutorialStep !== "COMPLETED") return;
     if (showNicknameModal) return;
+    if (showHomeTutorialLock) return;
+    if (helpModalVisible || questsPanelVisible || practiceCenterVisible || showMarket) return;
     if (notificationPromptCheckedRef.current) return;
     notificationPromptCheckedRef.current = true;
 
@@ -1385,7 +1427,15 @@ export const HomeScreen = ({ navigation }: any) => {
       mounted = false;
       clearTimeout(timer);
     };
-  }, [tutorialStep, showNicknameModal]);
+  }, [
+    tutorialStep,
+    showNicknameModal,
+    showHomeTutorialLock,
+    helpModalVisible,
+    questsPanelVisible,
+    practiceCenterVisible,
+    showMarket,
+  ]);
 
   const handleRequestNotifications = useCallback(async () => {
     if (notificationRequestInFlightRef.current) return;
@@ -1456,6 +1506,16 @@ export const HomeScreen = ({ navigation }: any) => {
       // no-op
     }
   }, []);
+
+  useEffect(() => {
+    // Safety net: if permission flow gets stuck, auto-release interaction lock.
+    if (!notificationPromptVisible && !notificationRequestInFlightRef.current) return;
+    const guardTimer = setTimeout(() => {
+      notificationRequestInFlightRef.current = false;
+      setNotificationPromptVisible(false);
+    }, 15000);
+    return () => clearTimeout(guardTimer);
+  }, [notificationPromptVisible]);
 
   const handleNotificationPreview = useCallback(async () => {
     const ok = await scheduleNotificationPreview(5);
@@ -1590,236 +1650,158 @@ export const HomeScreen = ({ navigation }: any) => {
             onProfilePress={() => handleNav("Profile")}
           />
           
-          {/* 🎯 Günlük Görevler Butonu */}
-          <TouchableOpacity
-            style={styles.questsButton}
-            onPress={() => {
-              haptic.light();
-              setQuestsPanelVisible(true);
-            }}
-            activeOpacity={0.7}
-          >
-            <LinearGradient
-              colors={['#FFD700', '#FFA500']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.questsGradient}
-            >
-              <Text style={styles.questsButtonIcon}>🎯</Text>
-              <Text style={styles.questsButtonText}>Günlük Görevler</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <View style={styles.cefrSummaryCard}>
-            <LinearGradient
-              colors={["rgba(55, 48, 163, 0.88)", "rgba(49, 46, 129, 0.92)", "rgba(30, 41, 59, 0.94)"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.cefrSummaryGradient}
-            >
-              <View style={styles.cefrSummaryHeader}>
-                <Text style={styles.cefrSummaryLabel}>TAHMİNİ CEFR</Text>
-                <Text style={styles.cefrSummaryLevel}>{cefrEstimate.level}</Text>
-              </View>
-              <Text style={styles.cefrSummaryMessage}>{cefrEstimate.message}</Text>
-              <Text style={styles.cefrSummaryMeta}>
-                Güven %{cefrEstimate.confidence} • Güçlü kart {cefrEstimate.knownWordCount} • Gelişim kartı {cefrEstimate.unknownWordCount} • Eşik %{cefrEstimate.knownThreshold}
-              </Text>
-              <Text style={styles.cefrSummarySignals}>
-                Sinyal: Kelime %{cefrEstimate.signals.lexicalMasteryPct} • Quiz %{cefrEstimate.signals.quizAccuracyPct} • SesYap %{cefrEstimate.signals.speechAccuracyPct} • Yapboz %{cefrEstimate.signals.puzzleMasteryPct} • Kapsama %{cefrEstimate.signals.coveragePct} • XP %{cefrEstimate.signals.xpProgressPct}
-              </Text>
-              <Text style={styles.cefrSummaryWeights}>
-                Etki: Kelime %{cefrEstimate.weights.lexicalPct} • Quiz %{cefrEstimate.weights.quizPct} • SesYap %{cefrEstimate.weights.speechPct} • Yapboz %{cefrEstimate.weights.puzzlePct} • Kapsama %{cefrEstimate.weights.coveragePct} • Tutarlılık %{cefrEstimate.weights.consistencyPct} • XP %{cefrEstimate.weights.xpPct}
-              </Text>
-            </LinearGradient>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.marketContainer, styles.cardShopHero]}
-            onPress={() => {
-              haptic.light();
-              setCardShopVisible(true);
-            }}
-            activeOpacity={0.9}
-          >
-            <Image
-              source={PRELOADED_IMAGES.cardShop}
-              style={styles.marketFullImage}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-              priority="high"
-              transition={0}
-            />
-            <LinearGradient
-              colors={["rgba(0,0,0,0.16)", "rgba(0,0,0,0.34)", "rgba(0,0,0,0.68)"]}
-              style={styles.marketOverlay}
-            />
-            <View style={styles.marketContent}>
-              <View style={styles.marketTextContainer}>
-                <Text style={styles.marketTitle}>KART MAĞAZASI</Text>
-                <Text style={styles.marketSubtitle}>
-                  Tema al • Koleksiyon tamamla • Kartlarını kişiselleştir
-                </Text>
-              </View>
-              <ChevronRight size={24} color="#DDD6FE" />
+          <View style={styles.gridContainer}>
+            <View style={styles.gridRow}>
+              <PremiumMenuCard
+                onPress={() => handleNav("Quiz")}
+                imageSource={PRELOADED_IMAGES.quiz}
+                title="QUIZ"
+                subtitle="Kelime topla, tarlana ek"
+                size="medium"
+                textAlign="center"
+                accentColor="#A855F7"
+                delay={0}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Quiz çözerek tarlana otomatik ekim yaparsın. Bilmediklerin tohum olarak ekilir; çalışarak büyütür ve öğrenirsin. Bildiklerin meyve olarak ekilir; onları da büyütüp sağlamlaştırırsın."
+              />
+              <PremiumMenuCard
+                onPress={() => handleNav("Farm")}
+                imageSource={PRELOADED_IMAGES.farm}
+                title="ÇİFTLİK"
+                subtitle="Büyüt, çalış, hasat et"
+                size="medium"
+                textAlign="center"
+                accentColor="#22C55E"
+                delay={40}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Kelimelerini burada büyütürsün, öğrenirsin. Görsel geri bildirimlerle öğrenme kalıcılaşır."
+              />
             </View>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.questsButton}
-            onPress={() => {
-              haptic.light();
-              handleNotificationPreview();
-            }}
-            activeOpacity={0.7}
-          >
-            <LinearGradient
-              colors={["#0F172A", "#1E293B"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.questsGradient}
-            >
-              <Bell size={20} color="#E2E8F0" />
-              <Text style={styles.questsButtonText}>Bildirim Testi (5sn)</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          {/* Premium Grid Menu */}
-          <PremiumGridMenu
-            onQuizPress={() => handleNav("Quiz")}
-            onFarmPress={() => handleNav("Farm")}
-            onInventoryPress={() => handleNav("Inventory")}
-            onPuzzlePress={handlePuzzlePress}
-            onPhrasalPress={() => handleNav("PhrasalVerbsMenu")}
-            onRandomPress={() => {
-              haptic.medium();
-              setShowTutorial(true);
-            }}
-            onMarketPress={() => {
-              haptic.medium();
-              setShowMarket(true);
-            }}
-            onBattlePress={() => handleNav("BattleMenu")}
-            onSesYapPress={() => handleNav("SesYap")}
-            onHelpPress={showHomeHelpModal}
-            disableEffects={false}
-          />
-
-          <TouchableOpacity
-            style={[styles.marketContainer, styles.practiceHubCard]}
-            onPress={() => {
-              haptic.light();
-              setPracticeCenterVisible(true);
-            }}
-            activeOpacity={0.9}
-          >
-          <Image
-            source={PRELOADED_IMAGES.pratik}
-            style={styles.practiceHubImage}
-            contentFit="cover"
-            cachePolicy="memory-disk"
-            priority="high"
-            transition={0}
-          />
-            <LinearGradient
-              colors={["rgba(0,0,0,0.18)", "rgba(0,0,0,0.55)", "rgba(0,0,0,0.78)"]}
-              style={styles.practiceHubOverlay}
-            />
-            <View style={styles.practiceHubContent}>
-              <View style={styles.practiceHubBadge}>
-                <Text style={styles.practiceHubBadgeText}>PRATİK</Text>
-              </View>
-              <Text style={styles.practiceHubTitle}>Pratik Merkezi</Text>
-              <Text style={styles.practiceHubSubtitle}>
-                Kelime eşleştir, boşluk doldur, deyimler ve YDS antrenmanı tek menüde.
-              </Text>
+            <View style={styles.gridRow}>
+              <PremiumMenuCard
+                onPress={() => handleNav("BattleMenu")}
+                imageSource={PRELOADED_IMAGES.battle}
+                title="SAVAŞ"
+                subtitle="Rakiplerle yarış"
+                size="medium"
+                textAlign="center"
+                accentColor="#C4B5FD"
+                delay={80}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Savaş modunda rakiplerle yarışır, liderlik tablosunda yükselir ve ödüller kazanırsın."
+              />
+              <PremiumMenuCard
+                onPress={() => handleNav("SesYap")}
+                imageSource={PRELOADED_IMAGES.sesyap}
+                title="SESYAP"
+                subtitle="Konuş ve doğruluk kontrol et"
+                size="medium"
+                textAlign="center"
+                accentColor="#5EEAD4"
+                delay={120}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="SesYap modunda telaffuz ve doğruluk çalışırsın. Bildiklerin meyve, bilemediklerin tohum olarak ayrılır."
+              />
             </View>
-            <View style={styles.practiceHubArrow}>
-              <ChevronRight size={26} color="#C4B5FD" />
-            </View>
-          </TouchableOpacity>
 
-          {/* 🌱 Kendi Kelime Kartı */}
-          <TouchableOpacity
-            style={{
-              marginHorizontal: 16,
-              marginTop: 20,
-              marginBottom: 8,
-              borderRadius: 18,
-              overflow: 'hidden',
-              borderWidth: 1.5,
-              borderColor: 'rgba(34, 197, 94, 0.35)',
-              shadowColor: '#22C55E',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 12,
-              elevation: 6,
-              minHeight: IS_TABLET_DEVICE ? 226 : IS_SMALL_DEVICE ? 186 : 212,
-            }}
-            onPress={() => handleNav("CustomWordCard")}
-            activeOpacity={0.85}
-          >
-            <Image
-              source={PRELOADED_IMAGES.customWord}
-              style={styles.customWordBgImage}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-              priority="high"
-              transition={0}
+            <View style={styles.gridRow}>
+              <PremiumMenuCard
+                onPress={handlePuzzlePress}
+                imageSource={PRELOADED_IMAGES.puzzle}
+                title="PUZZLE"
+                subtitle="Cümle pratiği"
+                size="medium"
+                textAlign="center"
+                accentColor="#F97316"
+                delay={160}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Cümle parçalarını doğru sıraya dizerek kalıcı pratik yaparsın."
+              />
+              <PremiumMenuCard
+                onPress={() => handleNav("PhrasalVerbsMenu")}
+                imageSource={PRELOADED_IMAGES.phrasal}
+                title="PHRASAL"
+                subtitle="Deyimleri öğren"
+                size="medium"
+                textAlign="center"
+                accentColor="#EC4899"
+                delay={200}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Phrasal verbs bölümünde günlük İngilizcedeki kritik kalıpları çalışırsın."
+              />
+            </View>
+
+            <PremiumMenuCard
+              onPress={() => handleNav("Inventory")}
+              imageSource={PRELOADED_IMAGES.envanter}
+              title="ENVANTER"
+              subtitle="Hasatların burada!"
+              size="wide"
+              textAlign="center"
+              accentColor="#60A5FA"
+              delay={240}
+              hasBounce={true}
+              onHelpPress={showHomeHelpModal}
+              helpText="Hasat ettiğin kartlar burada. Tarlaya tekrar gönderdiğinde kartların gelişmiş seviyesiyle devam edersin. Hasatların burada 10 ve 10'un katları olduğunda böcek saldırısına uğrar. Quiz çözerek defedebilirsin. Bu olay aralıklı tekrar yaptırarak öğrenmeni kalıcılaştırır."
             />
-            <LinearGradient
-              colors={['rgba(0, 0, 0, 0.1)', 'rgba(0, 0, 0, 0.45)', 'rgba(0, 0, 0, 0.72)']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 20,
-                paddingVertical: 18,
-                gap: 14,
+
+            <PremiumMenuCard
+              onPress={() => handleNav("CustomWordCard")}
+              imageSource={PRELOADED_IMAGES.customWord}
+              title="KENDİ KELİME KARTINI OLUŞTUR"
+              subtitle="Kendi tohumunu ek, büyüt, geliştir"
+              size="wideXXL"
+              textAlign="center"
+              imageFit="contain"
+              accentColor="#22C55E"
+              delay={280}
+              hasBounce={true}
+              onHelpPress={showHomeHelpModal}
+              helpText="Kendi kelimeni, örnek cümleni ve Türkçe anlamını ekleyip oyuna dahil edebilirsin."
+            />
+
+            <PremiumMenuCard
+              onPress={() => {
+                haptic.light();
+                setPracticeCenterVisible(true);
               }}
-            >
-              <View style={{
-                width: 48,
-                height: 48,
-                borderRadius: 14,
-                backgroundColor: 'rgba(34, 197, 94, 0.2)',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <Text style={{ fontSize: 26 }}>🌱</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{
-                  fontSize: 16,
-                  fontWeight: '800',
-                  color: '#fff',
-                  letterSpacing: 0.3,
-                }}>
-                  {normalizeDisplayText("Kendi Kelime Kartını Oluştur")}
-                </Text>
-                <Text style={{
-                  fontSize: 12,
-                  color: 'rgba(255,255,255,0.55)',
-                  marginTop: 3,
-                }}>
-                  {normalizeDisplayText("Kendi tohumlarını ek, büyüt, hasat et 🌾")}
-                </Text>
-              </View>
-              <View style={{
-                backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                paddingHorizontal: 8,
-                paddingVertical: 4,
-                borderRadius: 8,
-                borderWidth: 1,
-                borderColor: 'rgba(255, 215, 0, 0.25)',
-              }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFD700' }}>💰 2800</Text>
-              </View>
-              <ChevronRight size={20} color="rgba(34, 197, 94, 0.7)" />
-            </LinearGradient>
-          </TouchableOpacity>
+              imageSource={PRELOADED_IMAGES.pratik}
+              title="PRATİK MERKEZİ"
+              subtitle="Kelime eşleştir, boşluk doldur, YDS ve deyimler"
+              size="wideXXL"
+              textAlign="center"
+              imageFit="contain"
+              accentColor="#38BDF8"
+              delay={320}
+              hasBounce={true}
+              onHelpPress={showHomeHelpModal}
+              helpText="Pratik merkezinde hız, doğruluk ve sınav odaklı alıştırmaları tek yerden çözersin."
+            />
 
+            <PremiumMenuCard
+              onPress={() => {
+                haptic.medium();
+                setShowMarket(true);
+              }}
+              imageSource={PRELOADED_IMAGES.market}
+              title="MARKET"
+              subtitle="Tohum pazarı, güç mağazası ve daha fazlası"
+              size="wide"
+              textAlign="center"
+              accentColor="#A78BFA"
+              delay={360}
+              hasBounce={true}
+              onHelpPress={showHomeHelpModal}
+              helpText="Marketten güçlendirme alır, tohum satın alır ve gelişimini hızlandırırsın."
+            />
+          </View>
           {/* Dashboard Sections */}
           <View style={styles.dashboardContainer}>
             <DashboardSection
@@ -1895,7 +1877,7 @@ export const HomeScreen = ({ navigation }: any) => {
             />
 
             <DashboardSection
-              title="🧩 Puzzle Kartları"
+              title="Puzzle Kartları"
               subtitle="Yapboz tarlasındaki kelimeler"
               icon="puzzle"
               iconColor="#8B5CF6"
@@ -1910,106 +1892,93 @@ export const HomeScreen = ({ navigation }: any) => {
               }}
               onCardPress={handleStudyWord}
             />
+          </View>
 
-            {/* 🏆 Başarımlarım Bölümü */}
+          <View style={styles.bottomMenuContainer}>
             <TouchableOpacity
-              style={styles.achievementsSection}
-              activeOpacity={0.85}
-              onPress={() => {
-                haptic.light();
-                navigation.navigate("Achievements" as never);
-              }}
+              style={styles.simpleMenuButton}
+              onPress={() => handleNav("Achievements")}
+              activeOpacity={0.8}
             >
               <LinearGradient
-                colors={["rgba(124, 58, 237, 0.2)", "rgba(34, 197, 94, 0.15)"]}
+                colors={["rgba(91, 33, 182, 0.96)", "rgba(67, 56, 202, 0.96)"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.achievementsCard}
+                style={styles.simpleMenuGradient}
               >
-                <View style={styles.achievementsLeft}>
-                  <View style={styles.achievementsIconWrap}>
-                    <Trophy size={28} color="#fbbf24" />
-                  </View>
-                  <View>
-                    <Text style={styles.achievementsTitle}>
-                      🏆 Başarımlarım
-                    </Text>
-                    <Text style={styles.achievementsSubtitle}>
-                      {unlockedAchievements}/{achievements.length} başarım
-                      açıldı
-                    </Text>
-                  </View>
+                <View style={styles.simpleMenuTextWrap}>
+                  <Text style={styles.simpleMenuTitle}>BAŞARIMLAR</Text>
+                  <Text style={styles.simpleMenuSubtitle}>
+                    {`${unlockedAchievements}/${achievements.length} başarı açıldı`}
+                  </Text>
                 </View>
-                <ChevronRight size={24} color="rgba(255,255,255,0.5)" />
+                <ChevronRight size={20} color="rgba(255,255,255,0.9)" />
               </LinearGradient>
             </TouchableOpacity>
 
-            {/* Tutorial Debug Section */}
-            <View style={{ marginTop: SPACING.xl, gap: SPACING.md }}>
-              <TouchableOpacity
-                style={styles.tutorialResetButton}
-                onPress={() => {
-                  haptic.medium();
-                  Alert.alert(
-                    "🎓 Tutorial'ı Baştan Başlat",
-                    "Tutorial baştan başlayacak. Devam etmek istiyor musunuz?",
-                    [
-                      { text: "İptal", style: "cancel" },
-                      {
-                        text: "Başlat",
-                        style: "default",
-                        onPress: () => {
-                          haptic.heavy();
-                          resetTutorial();
-                          Alert.alert(
-                            "✅ Tutorial Sıfırlandı",
-                            "Tutorial baştan başlayacak."
-                          );
-                        },
-                      },
-                    ]
-                  );
-                }}
+            <TouchableOpacity
+              style={styles.simpleMenuButton}
+              onPress={() => handleNav("Profile")}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={["rgba(180, 83, 9, 0.96)", "rgba(146, 64, 14, 0.96)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.simpleMenuGradient}
               >
-                <LinearGradient
-                  colors={[
-                    "rgba(59, 130, 246, 0.2)",
-                    "rgba(37, 99, 235, 0.2)",
-                  ]}
-                  style={styles.tutorialResetGradient}
-                >
-                  <Sparkles color="#3B82F6" size={20} />
-                  <Text style={styles.tutorialResetText}>
-                    Tutorial'ı Baştan Başlat
+                <View style={styles.simpleMenuTextWrap}>
+                  <Text style={styles.simpleMenuTitle}>PROFİL</Text>
+                  <Text style={styles.simpleMenuSubtitle}>
+                    İlerlemeni ve ayarlarını yönet
                   </Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                </View>
+                <ChevronRight size={20} color="rgba(255,255,255,0.9)" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        
+          <TouchableOpacity
+            style={[styles.questsButton, styles.bottomQuestsButton]}
+            onPress={() => {
+              haptic.light();
+              setQuestsPanelVisible(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <LinearGradient
+              colors={["#FFD700", "#FFA500"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.questsGradient}
+            >
+              <Text style={styles.questsButtonIcon}>🎯</Text>
+              <Text style={styles.questsButtonText}>Günlük Görevler</Text>
+            </LinearGradient>
+          </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.tutorialResetButton}
-                onPress={() => {
-                  haptic.light();
-                  Alert.alert(
-                    "🐛 Tutorial Debug",
-                    `Mevcut Tutorial Adımı: ${tutorialStep}\n\nTutorial Durumunu Görmek için OK'a tıklayın.`,
-                    [{ text: "OK", style: "default" }]
-                  );
-                }}
-              >
-                <LinearGradient
-                  colors={[
-                    "rgba(168, 85, 247, 0.2)",
-                    "rgba(147, 51, 234, 0.2)",
-                  ]}
-                  style={styles.tutorialResetGradient}
-                >
-                  <Settings color="#A855F7" size={20} />
-                  <Text style={[styles.tutorialResetText, { color: "#A855F7" }]}>
-                    Tutorial Debug
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.cefrSummaryCard}>
+            <LinearGradient
+              colors={["rgba(55, 48, 163, 0.88)", "rgba(49, 46, 129, 0.92)", "rgba(30, 41, 59, 0.94)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.cefrSummaryGradient}
+            >
+              <View style={styles.cefrSummaryHeader}>
+                <Text style={styles.cefrSummaryLabel}>TAHMİNİ CEFR</Text>
+                <Text style={styles.cefrSummaryLevel}>{cefrEstimate.level}</Text>
+              </View>
+              <Text style={styles.cefrSummaryMessage}>{cefrEstimate.message}</Text>
+              <Text style={styles.cefrSummaryMeta}>
+                Güven %{cefrEstimate.confidence} • Güçlü kart {cefrEstimate.knownWordCount} • Gelişim kartı {cefrEstimate.unknownWordCount} • Eşik %{cefrEstimate.knownThreshold}
+              </Text>
+              <Text style={styles.cefrSummarySignals}>
+                Sinyal: Kelime %{cefrEstimate.signals.lexicalMasteryPct} • Quiz %{cefrEstimate.signals.quizAccuracyPct} • SesYap %{cefrEstimate.signals.speechAccuracyPct} • Yapboz %{cefrEstimate.signals.puzzleMasteryPct} • Kapsama %{cefrEstimate.signals.coveragePct} • XP %{cefrEstimate.signals.xpProgressPct}
+              </Text>
+              <Text style={styles.cefrSummaryWeights}>
+                Etki: Kelime %{cefrEstimate.weights.lexicalPct} • Quiz %{cefrEstimate.weights.quizPct} • SesYap %{cefrEstimate.weights.speechPct} • Yapboz %{cefrEstimate.weights.puzzlePct} • Kapsama %{cefrEstimate.weights.coveragePct} • Tutarlılık %{cefrEstimate.weights.consistencyPct} • XP %{cefrEstimate.weights.xpPct}
+              </Text>
+            </LinearGradient>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -2550,6 +2519,9 @@ const styles = StyleSheet.create({
   cardWrapperMedium: {
     flex: 1,
   },
+  cardWrapperWide: {
+    width: "100%",
+  },
 
   // Card Container
   cardContainer: {
@@ -2594,6 +2566,13 @@ const styles = StyleSheet.create({
     height: "100%",
     opacity: 1,
   },
+  containBackdropImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
+    opacity: 0.5,
+    transform: [{ scale: 1.08 }],
+  },
 
   // Image Overlay
   imageOverlay: {
@@ -2613,18 +2592,21 @@ const styles = StyleSheet.create({
   // Help Icon
   helpIconContainer: {
     position: "absolute",
-    top: 8,
-    right: 8,
+    top: 6,
+    right: 6,
     zIndex: 10,
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.38)",
     justifyContent: "center",
     alignItems: "center",
   },
   helpIconText: {
-    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.82)",
+    fontSize: 11,
+    fontWeight: "700",
+    lineHeight: 12,
   },
 
   // Card Text Container
@@ -2636,6 +2618,25 @@ const styles = StyleSheet.create({
     padding: SPACING.sm,
     paddingBottom: SPACING.md,
   },
+  cardTextContainerCentered: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.lg,
+  },
+  cardTextContainerCenteredFill: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: SPACING.xl,
+  },
 
   // Card Title
   cardTitle: {
@@ -2645,6 +2646,15 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: 0, height: 3 },
     textShadowRadius: 8,
+  },
+  cardTitleCentered: {
+    textAlign: "center",
+    fontSize: IS_TABLET_DEVICE ? 24 : 18,
+    letterSpacing: 1.1,
+  },
+  cardTitleHero: {
+    fontSize: IS_TABLET_DEVICE ? 30 : 23,
+    letterSpacing: 1.4,
   },
 
   // Card Subtitle
@@ -2657,10 +2667,59 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
+  cardSubtitleCentered: {
+    textAlign: "center",
+    fontSize: IS_TABLET_DEVICE ? 13 : 11,
+    marginTop: 4,
+  },
+  cardSubtitleHero: {
+    marginTop: 8,
+    fontSize: IS_TABLET_DEVICE ? 14 : 12,
+    color: "rgba(255, 255, 255, 0.92)",
+  },
 
   // Dashboard Container
   dashboardContainer: {
     gap: SPACING.lg,
+  },
+  bottomMenuContainer: {
+    marginTop: SPACING.lg,
+    gap: GRID_GAP,
+  },
+  simpleMenuButton: {
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.14)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  simpleMenuGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    minHeight: 64,
+  },
+  simpleMenuTextWrap: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  simpleMenuTitle: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    letterSpacing: 0.7,
+  },
+  simpleMenuSubtitle: {
+    marginTop: 2,
+    color: "rgba(255, 255, 255, 0.88)",
+    fontSize: 12,
+    fontWeight: "600",
   },
 
   // Achievements Section
@@ -3057,6 +3116,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
+  },
+  bottomQuestsButton: {
+    marginTop: SPACING.xl,
   },
   questsGradient: {
     flexDirection: 'row',
