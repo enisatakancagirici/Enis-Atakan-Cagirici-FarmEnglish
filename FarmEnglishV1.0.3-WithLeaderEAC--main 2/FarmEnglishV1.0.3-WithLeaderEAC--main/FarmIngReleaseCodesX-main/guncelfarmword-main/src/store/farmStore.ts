@@ -10,6 +10,7 @@ import type {
 } from '../models/types';
 import { applyHintBonus, getPhrasalDiscountFactor } from '../utils/storePerks';
 import { getFruitType, getTierReward, TIER_SESSION_REQUIREMENTS, calculateFruitGrowthStage, type FruitType } from '../utils/fruitSystem';
+import { isNicknameClean } from '../utils/nicknameModeration';
 
 // Re-entry guard for harvestWord double-swipe protection
 const _harvestInFlight = new Set<string>();
@@ -73,6 +74,15 @@ function safeShowRewardToast(type: any, value: number, message?: string) {
   } catch (e) {
     // Complete silent fail
   }
+}
+
+function toSafeNumber(value: unknown, fallback: number = 0): number {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function toSafePositiveInt(value: unknown): number {
+  return Math.max(0, Math.floor(toSafeNumber(value, 0)));
 }
 
 // 🛡️ Achievement/mastery check debounce
@@ -639,26 +649,38 @@ export const useFarmStore = create<FarmStore>()(
       nickname: undefined,
       showNicknameModal: false,
       setNickname: (name) => {
-        set({ nickname: name });
-        // ⚡ Firebase'de de güncelle (eğer kullanıcı kayıtlıysa)
-        const state = get();
-        if (state.user?.odId && state.isAuthenticated) {
-          // user objesindeki nickname'i de güncelle
-          set({ user: { ...state.user, nickname: name } });
-          // Firebase async güncelle (fire-and-forget) — cached, dynamic import yok
-          try {
-            if (_cachedDb && _cachedFirestoreFns) {
-              const userRef = _cachedFirestoreFns.doc(_cachedDb, 'users', state.user!.odId);
-              _cachedFirestoreFns.updateDoc(userRef, { nickname: name, nicknameLower: name.toLowerCase().trim() }).catch(() => {});
-            } else {
-              ensureFirebaseCache().then(() => {
-                if (_cachedDb && _cachedFirestoreFns) {
-                  const userRef = _cachedFirestoreFns.doc(_cachedDb, 'users', state.user!.odId);
-                  _cachedFirestoreFns.updateDoc(userRef, { nickname: name, nicknameLower: name.toLowerCase().trim() }).catch(() => {});
-                }
-              });
-            }
-          } catch (e) {}
+        try {
+          const safeName = typeof name === 'string' ? name.trim() : '';
+          if (!safeName) return;
+          if (typeof isNicknameClean === 'function' && !isNicknameClean(safeName)) return;
+          const safeNicknameLower = safeName.toLowerCase();
+
+          set(prev => ({
+            nickname: safeName,
+            user: prev.user ? { ...prev.user, nickname: safeName } : prev.user,
+          }));
+
+          const state = get();
+          const safeOdId = state.user?.odId;
+          if (safeOdId && state.isAuthenticated) {
+            // Firebase async guncelle (fire-and-forget) - cached, dynamic import yok
+            try {
+              if (_cachedDb && _cachedFirestoreFns) {
+                const userRef = _cachedFirestoreFns.doc(_cachedDb, 'users', safeOdId);
+                _cachedFirestoreFns.updateDoc(userRef, { nickname: safeName, nicknameLower: safeNicknameLower }).catch(() => {});
+              } else {
+                ensureFirebaseCache().then(() => {
+                  const latestUserId = get().user?.odId;
+                  if (_cachedDb && _cachedFirestoreFns && latestUserId) {
+                    const userRef = _cachedFirestoreFns.doc(_cachedDb, 'users', latestUserId);
+                    _cachedFirestoreFns.updateDoc(userRef, { nickname: safeName, nicknameLower: safeNicknameLower }).catch(() => {});
+                  }
+                }).catch(() => {});
+              }
+            } catch (e) {}
+          }
+        } catch (e) {
+          console.error('[setNickname] Error:', e);
         }
       },
       setShowNicknameModal: (show) => set({ showNicknameModal: show }),
@@ -2395,10 +2417,12 @@ export const useFarmStore = create<FarmStore>()(
 
       claimQuestReward: (questId: string, questType?: 'daily' | 'weekly' | 'repeatable' | 'story' | 'achievement' | 'mastery') => {
         try {
+        const safeQuestId = typeof questId === 'string' ? questId.trim() : '';
+        if (!safeQuestId) return;
+
         const state = get();
         const type = questType || 'daily';
 
-        // 🛡️ Null-safe array references
         const safeDailyQuests = Array.isArray(state.dailyQuests) ? state.dailyQuests : [];
         const safeWeeklyQuests = Array.isArray(state.weeklyQuests) ? state.weeklyQuests : [];
         const safeRepeatableQuests = Array.isArray(state.repeatableQuests) ? state.repeatableQuests : [];
@@ -2406,98 +2430,104 @@ export const useFarmStore = create<FarmStore>()(
         const safeAchievementQuests = Array.isArray(state.achievementQuests) ? state.achievementQuests : [];
         const safeMasteryPaths = Array.isArray(state.masteryPaths) ? state.masteryPaths : [];
 
-        // Quest tipine göre quest'i bul
         let quest: any = null;
 
         switch (type) {
           case 'daily':
-            quest = safeDailyQuests.find(q => q.id === questId);
+            quest = safeDailyQuests.find(q => q.id === safeQuestId);
             break;
           case 'weekly':
-            quest = safeWeeklyQuests.find(q => q.id === questId);
+            quest = safeWeeklyQuests.find(q => q.id === safeQuestId);
             break;
           case 'repeatable':
-            quest = safeRepeatableQuests.find(q => q.id === questId);
+            quest = safeRepeatableQuests.find(q => q.id === safeQuestId);
             break;
           case 'story':
-            quest = safeStoryQuests.find(q => q.id === questId);
+            quest = safeStoryQuests.find(q => q.id === safeQuestId);
             break;
           case 'achievement':
-            quest = safeAchievementQuests.find(q => q.id === questId);
+            quest = safeAchievementQuests.find(q => q.id === safeQuestId);
             break;
           case 'mastery':
-            // Mastery paths have nested levels
             for (const path of safeMasteryPaths) {
-              const level = path.levels?.find((l: any) => l.level?.toString() === questId || `${path.id}-${l.level}` === questId);
+              const level = path.levels?.find((l: any) => l.level?.toString() === safeQuestId || `${path.id}-${l.level}` === safeQuestId);
               if (level) { quest = level; break; }
             }
             break;
           default:
-            quest = safeDailyQuests.find(q => q.id === questId);
+            quest = safeDailyQuests.find(q => q.id === safeQuestId);
         }
 
-        if (!quest || !quest.completed || quest.claimed) {
-          return; // Görev bulunamadı, tamamlanmamış veya zaten alınmış
+        if (!quest || quest.completed !== true || quest.claimed === true) {
+          return;
         }
 
-        // Ödül miktarlarını kaydet (toast için)
-        const rewardCoins = quest.reward?.coins || 0;
-        const rewardXp = quest.reward?.xp || 0;
-        const rewardTrophy = quest.reward?.trophy || 0;
+        const rewardCoins = toSafePositiveInt(quest.reward?.coins);
+        const rewardXp = toSafePositiveInt(quest.reward?.xp);
+        const rewardTrophy = toSafePositiveInt(quest.reward?.trophy);
+        const safeQuestTitle = (typeof quest.title === 'string' && quest.title.trim().length > 0)
+          ? quest.title
+          : 'Gorev odulu';
 
-        // Ödülü ver ve quest'i claimed olarak işaretle
-        set(state => {
-          let updates: any = {
-            trophies: state.trophies + rewardTrophy,
-            coins: state.coins + rewardCoins,
-            lifetimeCoins: state.lifetimeCoins + rewardCoins,
-            xp: state.xp + rewardXp,
-            totalQuestsCompleted: state.totalQuestsCompleted + 1
+        set(prev => {
+          const updates: any = {
+            trophies: toSafeNumber(prev.trophies, 0) + rewardTrophy,
+            coins: Math.max(0, toSafeNumber(prev.coins, 0) + rewardCoins),
+            lifetimeCoins: toSafeNumber(prev.lifetimeCoins, 0) + rewardCoins,
+            xp: toSafeNumber(prev.xp, 0) + rewardXp,
+            totalQuestsCompleted: toSafeNumber(prev.totalQuestsCompleted, 0) + 1,
           };
 
-          // Quest tipine göre array güncelle
           switch (type) {
             case 'daily':
-              updates.dailyQuests = (state.dailyQuests || []).map(q =>
-                q.id === questId ? { ...q, claimed: true } : q
+              updates.dailyQuests = (Array.isArray(prev.dailyQuests) ? prev.dailyQuests : []).map(q =>
+                q.id === safeQuestId ? { ...q, claimed: true } : q
               );
               break;
             case 'weekly':
-              updates.weeklyQuests = (state.weeklyQuests || []).map(q =>
-                q.id === questId ? { ...q, claimed: true } : q
+              updates.weeklyQuests = (Array.isArray(prev.weeklyQuests) ? prev.weeklyQuests : []).map(q =>
+                q.id === safeQuestId ? { ...q, claimed: true } : q
               );
               break;
             case 'repeatable':
-              // Repeatable quest claim edildiğinde, completionCount artır ve progress sıfırla
-              updates.repeatableQuests = (state.repeatableQuests || []).map(q =>
-                q.id === questId ? {
+              updates.repeatableQuests = (Array.isArray(prev.repeatableQuests) ? prev.repeatableQuests : []).map(q =>
+                q.id === safeQuestId ? {
                   ...q,
                   claimed: true,
                   completed: false,
                   progress: 0,
-                  completionCount: (q.completionCount || 0) + 1
+                  completionCount: toSafeNumber(q.completionCount, 0) + 1,
                 } : q
               );
               break;
             case 'story':
-              updates.storyQuests = (state.storyQuests || []).map(q =>
-                q.id === questId ? { ...q, claimed: true } : q
+              updates.storyQuests = (Array.isArray(prev.storyQuests) ? prev.storyQuests : []).map(q =>
+                q.id === safeQuestId ? { ...q, claimed: true } : q
               );
               break;
             case 'achievement':
-              updates.achievementQuests = (state.achievementQuests || []).map(q =>
-                q.id === questId ? { ...q, claimed: true } : q
+              updates.achievementQuests = (Array.isArray(prev.achievementQuests) ? prev.achievementQuests : []).map(q =>
+                q.id === safeQuestId ? { ...q, claimed: true } : q
               );
+              break;
+            case 'mastery':
+              updates.masteryPaths = (Array.isArray(prev.masteryPaths) ? prev.masteryPaths : []).map(path => ({
+                ...path,
+                levels: (Array.isArray(path.levels) ? path.levels : []).map((level: any) => {
+                  const levelId = `${path.id}-${level.level}`;
+                  const isMatch = level.level?.toString() === safeQuestId || levelId === safeQuestId;
+                  return isMatch ? { ...level, claimed: true } : level;
+                }),
+              }));
               break;
           }
 
           return updates;
         });
 
-        // 🎁 Ödül toast'lerini göster — crash-safe
         setTimeout(() => {
           try {
-            safeShowRewardToast('quest', 1, quest.title);
+            safeShowRewardToast('quest', 1, safeQuestTitle);
             if (rewardCoins > 0) {
               setTimeout(() => { try { safeShowRewardToast('coin', rewardCoins); } catch(e){} }, 300);
             }
@@ -2507,16 +2537,14 @@ export const useFarmStore = create<FarmStore>()(
           } catch (e) {}
         }, 100);
 
-        // Firebase'e senkronize et (trophy) - güvenli async
         setTimeout(() => {
-          import('../utils/firebaseBattle').then(({ updateUserStats }) => {
-            const currentState = get();
-            if (currentState.user?.odId) {
-              updateUserStats(currentState.user.odId, {
-                trophies: currentState.trophies
-              }).catch(() => {});
+          try {
+            const current = get();
+            const safeOdId = current.user?.odId;
+            if (safeOdId) {
+              safeSyncFirebase(safeOdId, { trophies: toSafeNumber(current.trophies, 0) });
             }
-          }).catch(() => {});
+          } catch (e) {}
         }, 200);
         } catch (e) {
           console.error('[claimQuestReward] Error:', e);
@@ -3909,14 +3937,19 @@ export const useFarmStore = create<FarmStore>()(
       },
 
       addCoins: (amount) => {
+        const safeAmount = toSafeNumber(amount, 0);
+        if (safeAmount === 0) return;
+
         set(state => ({
-          coins: state.coins + amount,
-          lifetimeCoins: amount > 0 ? state.lifetimeCoins + amount : state.lifetimeCoins,
+          coins: Math.max(0, toSafeNumber(state.coins, 0) + safeAmount),
+          lifetimeCoins: safeAmount > 0
+            ? toSafeNumber(state.lifetimeCoins, 0) + safeAmount
+            : toSafeNumber(state.lifetimeCoins, 0),
         }));
 
-        // 🎯 GÜNLÜK GÖREV - Coin kazandı! (setTimeout ile crash-safe)
-        if (amount > 0) {
-          const progress = Math.floor(amount / 10);
+        // Coin kazandi -> gorev ilerlemesi (crash-safe)
+        if (safeAmount > 0) {
+          const progress = Math.floor(safeAmount / 10);
           if (progress > 0) {
             setTimeout(() => {
               try { get().updateQuestProgress('EARN_COINS', progress); } catch(e) {}
@@ -3926,25 +3959,29 @@ export const useFarmStore = create<FarmStore>()(
       },
 
       addQuizReward: (xp) => {
+        const safeXp = toSafePositiveInt(xp);
         set(state => ({
-          xp: state.xp + xp,
-          totalCorrect: state.totalCorrect + 1,
-          totalQuizzes: state.totalQuizzes + 1,
+          xp: toSafeNumber(state.xp, 0) + safeXp,
+          totalCorrect: toSafeNumber(state.totalCorrect, 0) + 1,
+          totalQuizzes: toSafeNumber(state.totalQuizzes, 0) + 1,
         }));
       },
 
       addXp: (amount) => {
-        set(state => ({ xp: state.xp + amount }));
+        const safeAmount = toSafePositiveInt(amount);
+        if (safeAmount <= 0) return;
+        set(state => ({ xp: toSafeNumber(state.xp, 0) + safeAmount }));
       },
 
       addWrongStat: () => {
         set(state => ({
-          totalWrong: state.totalWrong + 1,
-          totalQuizzes: state.totalQuizzes + 1,
+          totalWrong: toSafeNumber(state.totalWrong, 0) + 1,
+          totalQuizzes: toSafeNumber(state.totalQuizzes, 0) + 1,
         }));
       },
 
       activateInsecticide: (price) => {
+        const safePrice = toSafePositiveInt(price);
         const state = get();
         const totalCount =
           state.inventory.filter((w: any) => !w.isPuzzleHarvested).length +
@@ -3952,7 +3989,7 @@ export const useFarmStore = create<FarmStore>()(
         const nextProtectionUntil = Math.ceil(totalCount / 10) * 10;
 
         set(s => ({
-          coins: price ? s.coins - price : s.coins,
+          coins: safePrice > 0 ? Math.max(0, toSafeNumber(s.coins, 0) - safePrice) : toSafeNumber(s.coins, 0),
           insecticideActive: true,
           cardsAddedSinceInsecticide: 0,
           lastInventoryQuizTime: nextProtectionUntil,
@@ -3994,47 +4031,51 @@ export const useFarmStore = create<FarmStore>()(
 
       // 🌱 SEED MARKET: Kelime satın al ve tarlaya ekle
       buySeed: (wordId, price) => {
-        const state = get();
+        const safeWordId = typeof wordId === 'string' ? wordId.trim() : '';
+        const safePrice = toSafePositiveInt(price);
+        if (!safeWordId) return false;
 
-        // Yeterli coin kontrolü
-        if (state.coins < price) return false;
+        const state = get();
+        const safePool = Array.isArray(state.pool) ? state.pool : [];
+        const safeFarm = Array.isArray(state.farm) ? state.farm : [];
+        const safeInventory = Array.isArray(state.inventory) ? state.inventory : [];
+        const safeDailyQuests = Array.isArray(state.dailyQuests) ? state.dailyQuests : [];
+
+        // Yeterli coin kontrolu
+        if (toSafeNumber(state.coins, 0) < safePrice) return false;
 
         // Kelimeyi pool'dan bul
-        const word = state.pool.find(w => w.id === wordId);
+        const word = safePool.find(w => w.id === safeWordId);
         if (!word) return false;
 
-        // Zaten tarlada mı kontrol et
-        const alreadyInFarm = state.farm.some(f => f.id === wordId);
+        // Zaten tarlada mi kontrol et
+        const alreadyInFarm = safeFarm.some(f => f.id === safeWordId);
         if (alreadyInFarm) return false;
 
         // Zaten envanterde mi kontrol et
-        const alreadyInInventory = state.inventory.some(i => i.id === wordId);
+        const alreadyInInventory = safeInventory.some(i => i.id === safeWordId);
         if (alreadyInInventory) return false;
 
-        // Kelimeyi tarlaya EN BAŞA ekle (wrongCount: 0 ile başlasın - KIRMIZI görünsün)
-        // 🧩 YAPBOZDA GÖRÜNMEYECEK - Sadece quiz'den gelenler yapbozda!
         const newWord = {
           ...word,
           correctCount: 0,
-          wrongCount: 0, // 🔴 0 ile başla - KIRMIZI (wrongCount 0-2 = kırmızı)
+          wrongCount: 0,
           level: 0,
           consecutiveCorrect: 0,
           harvestedCount: 0,
           totalHarvests: 0,
           masterLevel: 0,
           lastAnswerCorrect: false,
-          lastPlantedAt: Date.now(), // 📌 En yeni eklenen en üstte
-          // 🌾 Puzzle'da da görünür! (excludeFromPuzzle YOK)
+          lastPlantedAt: Date.now(),
         };
 
-        // 🎯 State'i güncelle + PLANT_WORDS quest'ini güncelle
         const today = new Date().toISOString().split('T')[0];
 
-        // Bugünün görevlerini güncelle
-        const updatedQuests = state.dailyQuests.map(quest => {
+        const updatedQuests = safeDailyQuests.map(quest => {
           if (quest.type === 'PLANT_WORDS' && !quest.completed && quest.date === today) {
-            const newProgress = Math.min(quest.progress + 1, quest.target);
-            const isCompleted = newProgress >= quest.target;
+            const target = Math.max(0, toSafeNumber(quest.target, 0));
+            const newProgress = Math.min(toSafeNumber(quest.progress, 0) + 1, target);
+            const isCompleted = newProgress >= target;
             return {
               ...quest,
               progress: newProgress,
@@ -4044,10 +4085,10 @@ export const useFarmStore = create<FarmStore>()(
           return quest;
         });
 
-        set(state => ({
-          coins: state.coins - price,
-          farm: [newWord, ...state.farm], // 📌 EN BAŞA EKLE
-          dailyQuests: updatedQuests, // 🎯 PLANT_WORDS ilerlemesini güncelle
+        set(current => ({
+          coins: Math.max(0, toSafeNumber(current.coins, 0) - safePrice),
+          farm: [newWord, ...(Array.isArray(current.farm) ? current.farm : [])],
+          dailyQuests: updatedQuests,
         }));
 
         return true;

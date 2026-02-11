@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useCallback, useMemo, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -38,8 +38,9 @@ import {
   type CardFontStyle,
 } from '../data/cardThemes';
 
-// ğŸŒ¾ BuÄŸday gÃ¶rseli - HenÃ¼z meyve olmamÄ±ÅŸ kartlar iÃ§in
-const WHEAT_IMAGE = require('../../assets/images/maskot/bugday.webp');
+const SEED_SMALL_IMAGE = require('../../assets/images/maskot/tohumenkucuk.webp');
+const SEED_MEDIUM_IMAGE = require('../../assets/images/maskot/tohumorta.webp');
+const SEED_LARGE_IMAGE = require('../../assets/images/maskot/tohumenbuyuk.webp');
 
 import {
   getFruitType,
@@ -204,6 +205,32 @@ const getSessionDisplay = (puzzleSessions: number, puzzleMasterLevel: number = 0
   }
 };
 
+const getPuzzleSeedVisual = (puzzleSessions: number): { source: any; size: number; opacity: number } => {
+  const safeSessions = Math.max(0, Math.floor(Number.isFinite(puzzleSessions) ? puzzleSessions : 0));
+
+  if (safeSessions >= 2) {
+    return {
+      source: SEED_LARGE_IMAGE,
+      size: IS_SMALL_SCREEN ? 118 : 136,
+      opacity: 0.74,
+    };
+  }
+
+  if (safeSessions >= 1) {
+    return {
+      source: SEED_MEDIUM_IMAGE,
+      size: IS_SMALL_SCREEN ? 98 : 114,
+      opacity: 0.68,
+    };
+  }
+
+  return {
+    source: SEED_SMALL_IMAGE,
+    size: IS_SMALL_SCREEN ? 78 : 90,
+    opacity: 0.62,
+  };
+};
+
 // ğŸŒ¾ Grid Swipe Wrapper
 const GridSwipeWrapper: React.FC<{ disabled?: boolean; onSwipeRight: () => void; children: React.ReactNode }> = ({ disabled, onSwipeRight, children }) => {
   const hasTriggeredRef = useRef(false);
@@ -280,7 +307,7 @@ const PuzzleGridCard: React.FC<{
   const puzzleRewardClaimedPerfect = word.puzzleRewardClaimedPerfect === true;
   // ğŸ¯ Master = puzzleMasterLevel > 0 VEYA pendingPuzzleMasterLevel > 0 (hasat bekleyen)
   const isMaster = puzzleMasterLevel > 0 || (readyForPuzzleHarvest && pendingPuzzleMasterLevel > 0);
-  const cappedSessions = Math.min(puzzleSessions, 15);
+  const seedVisual = useMemo(() => getPuzzleSeedVisual(puzzleSessions), [puzzleSessions]);
   // ğŸ¯ HASAT HAZIR OLSA DA MEVCUT SEVÄ°YEYÄ° GÃ–STER! Yeni seviye SADECE envanterde gÃ¶rÃ¼necek!
   const theme = useMemo(
     () => applyPuzzleThemeCustomization(getPuzzleTheme(puzzleSessions, puzzleMasterLevel), activeThemeId, safeCustomization),
@@ -445,10 +472,10 @@ const PuzzleGridCard: React.FC<{
               />
             </View>
           ) : (
-            <View style={[gridCardStyles.seedling, { opacity: Math.min(0.35 + cappedSessions * 0.08, 0.7) }]}>
+            <View style={[gridCardStyles.seedling, { opacity: seedVisual.opacity }]}>
               <Image
-                source={WHEAT_IMAGE}
-                style={{ width: Math.min(60 + cappedSessions * 18, 150), height: Math.min(60 + cappedSessions * 18, 150) }}
+                source={seedVisual.source}
+                style={{ width: seedVisual.size, height: seedVisual.size }}
                 contentFit="contain"
                 cachePolicy="memory-disk"
                 transition={0}

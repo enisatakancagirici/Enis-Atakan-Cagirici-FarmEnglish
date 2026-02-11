@@ -33,6 +33,16 @@ import {
 import { isNicknameClean } from './nicknameModeration';
 export { isNicknameClean } from './nicknameModeration';
 
+function isNicknameCleanSafe(nickname: string): boolean {
+    try {
+        if (typeof isNicknameClean !== 'function') return false;
+        return isNicknameClean(nickname);
+    } catch (error) {
+        console.warn('[nicknameModeration] validator failed:', error);
+        return false;
+    }
+}
+
 // Firebase Config - GoogleService-Info.plist'ten alındı
 const firebaseConfig = {
     apiKey: 'AIzaSyBN_-fg6G4l0CJhEJKCUEVx-2cExQmw3pY',
@@ -155,7 +165,7 @@ export async function checkNicknameAvailable(nickname: string): Promise<boolean>
     try {
         const trimmedNickname = nickname?.trim() || '';
         if (trimmedNickname.length < 2 || trimmedNickname.length > 15) return false;
-        if (!isNicknameClean(trimmedNickname)) return false;
+        if (!isNicknameCleanSafe(trimmedNickname)) return false;
 
         const normalizedNickname = trimmedNickname.toLowerCase();
         const usersRef = collection(db, 'users');
@@ -185,7 +195,7 @@ export async function registerUser(
         if (trimmedNickname.length > 15) {
             return { success: false, error: 'Takma ad en fazla 15 karakter olabilir' };
         }
-        if (!isNicknameClean(trimmedNickname)) {
+        if (!isNicknameCleanSafe(trimmedNickname)) {
             return { success: false, error: 'Bu kullanici adi uygunsuz ifade iceriyor' };
         }
         const isAvailable = await checkNicknameAvailable(trimmedNickname);
@@ -243,27 +253,38 @@ export async function getUser(odId: string): Promise<BattleUser | null> {
 const _pendingStats: Record<string, Record<string, any>> = {};
 const _pendingTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
+function isSafeFirestoreValue(value: any): boolean {
+    if (value === undefined || value === null) return false;
+    if (typeof value === 'number' && !Number.isFinite(value)) return false;
+    return true;
+}
+
 async function _flushStats(odId: string): Promise<void> {
-    const updates = _pendingStats[odId];
-    delete _pendingStats[odId];
-    delete _pendingTimers[odId];
+    const safeOdId = typeof odId === 'string' ? odId.trim() : '';
+    if (!safeOdId) return;
+
+    const updates = _pendingStats[safeOdId];
+    delete _pendingStats[safeOdId];
+    delete _pendingTimers[safeOdId];
     if (!updates || Object.keys(updates).length === 0) return;
-    
+
     try {
-        const userRef = doc(db, 'users', odId);
-        // 🛡️ lifetimeHarvests için increment() kullan — debounce batching ile çift yazma önlenir
+        const userRef = doc(db, 'users', safeOdId);
         const firestoreUpdates: Record<string, any> = { lastActiveAt: serverTimestamp() };
+
         for (const [key, value] of Object.entries(updates)) {
+            if (!isSafeFirestoreValue(value)) continue;
             if (key === 'lifetimeHarvests') {
-                // Mutlak değer yerine Firestore increment kullanarak +1 garanti et
                 firestoreUpdates[key] = increment(1);
             } else {
                 firestoreUpdates[key] = value;
             }
         }
+
+        if (Object.keys(firestoreUpdates).length <= 1) return;
         await updateDoc(userRef, firestoreUpdates);
     } catch (error) {
-        console.error('İstatistik güncelleme hatası:', error);
+        console.error('Istatistik guncelleme hatasi:', error);
     }
 }
 
@@ -276,13 +297,18 @@ export async function updateUserStats(
         trophies?: number;
     }
 ): Promise<void> {
-    // Merge updates into pending batch
-    if (!_pendingStats[odId]) _pendingStats[odId] = {};
-    Object.assign(_pendingStats[odId], updates);
+    const safeOdId = typeof odId === 'string' ? odId.trim() : '';
+    if (!safeOdId || !updates || typeof updates !== 'object') return;
 
-    // Reset debounce timer
-    if (_pendingTimers[odId]) clearTimeout(_pendingTimers[odId]);
-    _pendingTimers[odId] = setTimeout(() => _flushStats(odId), 2000);
+    const sanitizedEntries = Object.entries(updates).filter(([, value]) => isSafeFirestoreValue(value));
+    if (sanitizedEntries.length === 0) return;
+    const sanitizedUpdates = Object.fromEntries(sanitizedEntries);
+
+    if (!_pendingStats[safeOdId]) _pendingStats[safeOdId] = {};
+    Object.assign(_pendingStats[safeOdId], sanitizedUpdates);
+
+    if (_pendingTimers[safeOdId]) clearTimeout(_pendingTimers[safeOdId]);
+    _pendingTimers[safeOdId] = setTimeout(() => _flushStats(safeOdId), 2000);
 }
 
 // ===============================
@@ -1489,6 +1515,17 @@ function generateDemoQuestions(): BattleQuestion[] {
 
 export type PracticeType = 'wordmatch' | 'fillblank' | 'collocations' | 'idioms' | 'yds' | 'wordforms';
 
+const PRACTICE_SCORE_FIELDS: Record<PracticeType, string> = {
+    wordmatch: 'wordMatchScore',
+    fillblank: 'fillBlankScore',
+    collocations: 'collocationsScore',
+    idioms: 'idiomsScore',
+    yds: 'ydsScore',
+    wordforms: 'wordFormsScore',
+};
+
+const MAX_PRACTICE_SCORE_INCREMENT = 100000;
+
 /**
  * Pratik Merkezi skorunu güncelle
  * @param odId - Kullanıcı ID
@@ -1503,36 +1540,40 @@ export async function updatePracticeScore(
     scoreToAdd: number
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const userRef = doc(db, 'users', odId);
+        const safeOdId = typeof odId === 'string' ? odId.trim() : '';
+        if (!safeOdId) {
+            return { success: false, error: 'Gecersiz kullanici' };
+        }
+
+        const field = PRACTICE_SCORE_FIELDS[practiceType];
+        if (!field) {
+            return { success: false, error: 'Gecersiz pratik turu' };
+        }
+
+        const numericScore = Number.isFinite(scoreToAdd) ? Math.floor(scoreToAdd) : 0;
+        if (numericScore <= 0) {
+            return { success: true };
+        }
+        const safeScore = Math.min(numericScore, MAX_PRACTICE_SCORE_INCREMENT);
+
+        const userRef = doc(db, 'users', safeOdId);
         const userDoc = await getDoc(userRef);
 
         if (!userDoc.exists()) {
-            return { success: false, error: 'Kullanıcı bulunamadı' };
+            return { success: false, error: 'Kullanici bulunamadi' };
         }
 
-        // Hangi alanı güncelleyeceğiz?
-        const fieldMap: Record<PracticeType, string> = {
-            wordmatch: 'wordMatchScore',
-            fillblank: 'fillBlankScore',
-            collocations: 'collocationsScore',
-            idioms: 'idiomsScore',
-            yds: 'ydsScore',
-            wordforms: 'wordFormsScore',
-        };
-
-        const field = fieldMap[practiceType];
-
-        // Hem ilgili pratik skorunu hem de toplam pratik skorunu güncelle
+        // Hem ilgili pratik skorunu hem de toplam pratik skorunu guncelle
         await updateDoc(userRef, {
-            [field]: increment(scoreToAdd),
-            totalPracticeScore: increment(scoreToAdd), // 📊 Toplam Pratik Puanı
+            [field]: increment(safeScore),
+            totalPracticeScore: increment(safeScore),
             lastActiveAt: serverTimestamp(),
         });
 
         return { success: true };
     } catch (error) {
-        console.error('Pratik skor güncelleme hatası:', error);
-        return { success: false, error: 'Skor güncellenemedi' };
+        console.error('Pratik skor guncelleme hatasi:', error);
+        return { success: false, error: 'Skor guncellenemedi' };
     }
 }
 

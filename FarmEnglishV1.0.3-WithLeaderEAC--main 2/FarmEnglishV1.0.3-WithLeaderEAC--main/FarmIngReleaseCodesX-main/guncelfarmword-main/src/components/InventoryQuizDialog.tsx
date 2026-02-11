@@ -417,7 +417,7 @@ const ResultScreen: React.FC<{
           {/* Header */}
           <View style={styles.resultHeader}>
             <Text style={styles.resultEmoji}>
-              {correctCount >= 8 ? '🎉' : correctCount >= 5 ? '�️' : '🐛'}
+              {correctCount >= 8 ? '\u{1F389}' : correctCount >= 5 ? '\u2694\uFE0F' : '\u{1F41B}'}
             </Text>
             <Text style={styles.resultTitle}>
               {correctCount >= 8 ? 'BÖCEKLER KAÇTI!' : correctCount >= 5 ? 'İYİ SAVUNMA!' : 'BÖCEKLER ISIRDI!'}

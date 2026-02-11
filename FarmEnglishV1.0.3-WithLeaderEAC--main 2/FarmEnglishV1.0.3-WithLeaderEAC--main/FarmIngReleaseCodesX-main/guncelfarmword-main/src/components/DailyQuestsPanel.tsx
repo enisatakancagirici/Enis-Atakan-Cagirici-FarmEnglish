@@ -59,32 +59,37 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
   }, []);
 
   const handleClaimReward = (questId: string, questType: TabType = 'daily') => {
-    // Double-tap guard
-    if (claimingRef.current.has(questId)) return;
-    claimingRef.current.add(questId);
+    const safeQuestId = typeof questId === 'string' ? questId.trim() : '';
+    if (!safeQuestId) return;
+    if (claimingRef.current.has(safeQuestId)) return;
+    claimingRef.current.add(safeQuestId);
 
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    useFarmStore.getState().claimQuestReward(questId, questType);
-    
-    // Tekrarlanabilir görev ise yenisini oluştur
-    if (questType === 'repeatable') {
-      const quest = repeatableQuests.find(q => q.id === questId);
-      if (quest) {
+    try {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      useFarmStore.getState().claimQuestReward(safeQuestId, questType);
+
+      if (questType === 'repeatable') {
+        const quest = repeatableQuests.find(q => q.id === safeQuestId);
+        if (quest) {
+          setTimeout(() => {
+            useFarmStore.getState().generateRepeatableQuest(quest.category);
+          }, 500);
+        }
+      }
+
+      if (questType === 'story') {
         setTimeout(() => {
-          useFarmStore.getState().generateRepeatableQuest(quest.category);
+          useFarmStore.getState().checkStoryQuestUnlocks();
         }, 500);
       }
-    }
-    
-    // Hikaye görevi ise unlock kontrolü yap
-    if (questType === 'story') {
+    } finally {
       setTimeout(() => {
-        useFarmStore.getState().checkStoryQuestUnlocks();
-      }, 500);
+        claimingRef.current.delete(safeQuestId);
+      }, 800);
     }
   };
 
-  // 🎯 Quest'e tıklayınca ilgili ekrana yönlendir
+  // Quest'e tiklayinca ilgili ekrana yonlendir
   const handleStartQuest = (quest: any) => {
     if (quest.completed) return; // Tamamlanmış göreve tıklanamaz
     
@@ -235,12 +240,22 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
 
       {/* Quest List */}
       <ScrollView style={styles.questList} showsVerticalScrollIndicator={false}>
-        {activeQuests.map((quest) => {
+        {activeQuests.map((quest, questIndex) => {
+          if (!quest || typeof quest !== 'object') return null;
+
+          const safeQuestId = typeof quest.id === 'string' && quest.id.trim().length > 0
+            ? quest.id
+            : `${activeTab}-quest-${questIndex}`;
+          const safeReward = quest.reward || {};
+          const safeRewardTrophy = Number.isFinite(safeReward.trophy) ? safeReward.trophy : 0;
+          const safeRewardCoins = Number.isFinite(safeReward.coins) ? safeReward.coins : 0;
+          const safeTarget = Math.max(1, Number.isFinite(quest.target) ? quest.target : 1);
+          const safeProgress = Math.max(0, Number.isFinite(quest.progress) ? quest.progress : 0);
           const gradientColors = getQuestGradient(quest.type, quest.completed);
           
           return (
             <TouchableOpacity 
-              key={quest.id} 
+              key={safeQuestId} 
               style={styles.questCard}
               onPress={() => handleStartQuest(quest)}
               activeOpacity={quest.completed ? 1 : 0.8}
@@ -271,12 +286,12 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
                           <View 
                             style={[
                               styles.miniProgressFill,
-                              { width: `${Math.min((quest.progress / quest.target) * 100, 100)}%` }
+                              { width: `${Math.min((safeProgress / safeTarget) * 100, 100)}%` }
                             ]} 
                           />
                         </View>
                         <Text style={[styles.miniProgressText, quest.completed && styles.completedText]}>
-                          {quest.progress}/{quest.target}
+                          {safeProgress}/{safeTarget}
                         </Text>
                       </View>
                       {/* Hint - tamamlanmamış görevler için */}
@@ -292,8 +307,8 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
                   <View style={styles.questRight}>
                     {/* Mini Rewards */}
                     <View style={styles.miniRewards}>
-                      <Text style={styles.miniRewardText}>🏆{quest.reward.trophy}</Text>
-                      <Text style={styles.miniRewardText}>💰{quest.reward.coins}</Text>
+                      <Text style={styles.miniRewardText}>🏆{safeRewardTrophy}</Text>
+                      <Text style={styles.miniRewardText}>💰{safeRewardCoins}</Text>
                     </View>
                     
                     {/* Action */}
@@ -309,7 +324,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
                     {quest.completed && !quest.claimed && (
                       <TouchableOpacity 
                         style={styles.miniClaimBtn}
-                        onPress={() => handleClaimReward(quest.id, activeTab)}
+                        onPress={() => handleClaimReward(safeQuestId, activeTab)}
                       >
                         <Text style={styles.miniClaimText}>Al</Text>
                       </TouchableOpacity>

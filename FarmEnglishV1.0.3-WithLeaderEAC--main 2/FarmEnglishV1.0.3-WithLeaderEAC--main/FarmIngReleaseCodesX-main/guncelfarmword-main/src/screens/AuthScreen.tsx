@@ -57,6 +57,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
     const setStoreNickname = useFarmStore((s) => s.setNickname);
     const level = useFarmStore((s) => s.level);
     const existingUser = useFarmStore((s) => s.user);
+    const isNicknameCleanSafe = useCallback((value: string): boolean => {
+        try {
+            if (typeof isNicknameClean !== 'function') return false;
+            return isNicknameClean(value);
+        } catch (error) {
+            console.warn('[AuthScreen] nickname validator failed:', error);
+            return false;
+        }
+    }, []);
 
     // Daha önce kayıtlı kullanıcı varsa kontrol et
     useEffect(() => {
@@ -82,7 +91,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
             return;
         }
 
-        if (!isNicknameClean(trimmed)) {
+        if (!isNicknameCleanSafe(trimmed)) {
             setNicknameStatus('taken');
             setChecking(false);
             return;
@@ -96,7 +105,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [nickname]);
+    }, [nickname, isNicknameCleanSafe]);
 
     // Kayıt ol
     const handleRegister = useCallback(async () => {
@@ -107,7 +116,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
             return;
         }
 
-        if (!isNicknameClean(trimmedName)) {
+        if (!isNicknameCleanSafe(trimmedName)) {
             Alert.alert('Uygunsuz İsim', 'Bu kullanıcı adı uygunsuz ifade içeriyor. Lütfen farklı bir ad seçin.');
             return;
         }
@@ -151,7 +160,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
             `${trimmedName}, artık savaş moduna katılabilirsin!`,
             [{ text: 'Hadi Başlayalım!', onPress: () => navigation.goBack() }]
         );
-    }, [nickname, nicknameStatus, level, setUser, setStoreNickname, setIsAuthenticated, navigation]);
+    }, [nickname, nicknameStatus, level, setUser, setStoreNickname, setIsAuthenticated, navigation, isNicknameCleanSafe]);
 
     const handleBack = useCallback(() => {
         haptic.light();

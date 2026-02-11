@@ -204,7 +204,7 @@ export const TUTORIAL_DIALOGS: Record<TutorialStep, {
       '',
       '⭐ Master → 💎 Ultra → 👑 Perfect',
       'Her kartın farklı bir görünümü var!',
-      '� Sola kaydırarak tarlaya gönder!',
+      'Sola kaydirarak tarlaya gonder!',
       '',
       '',
     ],
@@ -2236,6 +2236,16 @@ export const NicknameModal = memo(() => {
   
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+  const savingRef = useRef(false);
+  const isNicknameCleanSafe = useCallback((value: string): boolean => {
+    try {
+      if (typeof isNicknameClean !== 'function') return false;
+      return isNicknameClean(value);
+    } catch (error) {
+      console.warn('[NicknameModal] nickname validator failed:', error);
+      return false;
+    }
+  }, []);
   
   useEffect(() => {
     if (showNicknameModal) {
@@ -2245,26 +2255,38 @@ export const NicknameModal = memo(() => {
       ]).start();
     }
   }, [showNicknameModal]);
-  
+
   const handleSave = useCallback(() => {
+    if (savingRef.current) return;
+
     const trimmedName = name.trim();
     if (trimmedName.length < 2) {
-      Alert.alert('Hata', 'Takma ad en az 2 karakter olmalı.');
+      Alert.alert('Hata', 'Takma ad en az 2 karakter olmali.');
       return;
     }
     if (trimmedName.length > 15) {
       Alert.alert('Hata', 'Takma ad en fazla 15 karakter olabilir.');
       return;
     }
-    if (!isNicknameClean(trimmedName)) {
-      Alert.alert('Uygunsuz İsim', 'Bu isim uygunsuz ifade içeriyor. Lütfen farklı bir ad seçin.');
+    if (!isNicknameCleanSafe(trimmedName)) {
+      Alert.alert('Uygunsuz Isim', 'Bu isim uygunsuz ifade iceriyor. Lutfen farkli bir ad secin.');
       return;
     }
 
-    haptic.medium();
-    setNickname(trimmedName);
-    setShowNicknameModal(false);
-  }, [name, setNickname, setShowNicknameModal]);
+    savingRef.current = true;
+    try {
+      haptic.medium();
+      setNickname(trimmedName);
+      setShowNicknameModal(false);
+    } catch (error) {
+      console.error('[NicknameModal] Save error:', error);
+      Alert.alert('Hata', 'Takma ad kaydedilirken bir sorun oldu.');
+    } finally {
+      setTimeout(() => {
+        savingRef.current = false;
+      }, 250);
+    }
+  }, [name, setNickname, setShowNicknameModal, isNicknameCleanSafe]);
   
   if (!showNicknameModal) return null;
   

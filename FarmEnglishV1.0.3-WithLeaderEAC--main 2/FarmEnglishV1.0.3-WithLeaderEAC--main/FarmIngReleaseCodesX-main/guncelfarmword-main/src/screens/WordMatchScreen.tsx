@@ -766,16 +766,16 @@ export default function WordMatchScreen() {
                                 <View style={styles.resultContainer}>
                                     <Sparkles size={IS_SMALL_DEVICE ? 40 : 48} color="#FBBF24" />
                                     <Text style={[styles.resultTitle, IS_SMALL_DEVICE && { fontSize: 24 }]}>
-                                        {timeLeft > 0 ? 'Harika! 🎉' : 'Süre Bitti! ⏰'}
+                                        {timeLeft > 0 ? 'Harika! \u{1F389}' : 'Sure Bitti! \u{23F0}'}
                                     </Text>
                                     <Text style={styles.resultSubtitle}>
-                                        Tur {round} {timeLeft > 0 ? 'tamamlandı!' : ''}
+                                        Tur {round} {timeLeft > 0 ? 'tamamlandi!' : ''}
                                     </Text>
                                 
                                 <View style={[styles.resultStats, IS_SMALL_DEVICE && { gap: 20 }]}>
                                     <View style={styles.statItem}>
                                         <Text style={[styles.statValue, IS_SMALL_DEVICE && { fontSize: 20 }]}>{matchedPairs}</Text>
-                                        <Text style={styles.statLabel}>Eşleşme</Text>
+                                        <Text style={styles.statLabel}>Eslesme</Text>
                                     </View>
                                     <View style={styles.statItem}>
                                         <Text style={[styles.statValue, IS_SMALL_DEVICE && { fontSize: 20 }]}>{wrongAttempts}</Text>
@@ -787,7 +787,7 @@ export default function WordMatchScreen() {
                                     </View>
                                     {maxCombo >= 2 && (
                                         <View style={styles.statItem}>
-                                            <Text style={[styles.statValue, { color: COLORS.comboFire }, IS_SMALL_DEVICE && { fontSize: 20 }]}>🔥 {maxCombo}x</Text>
+                                            <Text style={[styles.statValue, { color: COLORS.comboFire }, IS_SMALL_DEVICE && { fontSize: 20 }]}>Combo {maxCombo}x</Text>
                                             <Text style={styles.statLabel}>Max Combo</Text>
                                         </View>
                                     )}
@@ -797,7 +797,7 @@ export default function WordMatchScreen() {
                                     <View style={styles.speedBonusSummary}>
                                         <Zap size={16} color={COLORS.success} />
                                         <Text style={styles.speedBonusSummaryText}>
-                                            Hız Bonusu: +{speedBonusTotal}
+                                            Hiz Bonusu: +{speedBonusTotal}
                                         </Text>
                                     </View>
                                 )}
@@ -820,8 +820,8 @@ export default function WordMatchScreen() {
                         <View style={[
                             styles.bottomBar,
                             {
-                                paddingBottom: Math.max(insets.bottom + 12, IS_SMALL_DEVICE ? 24 : 28),
-                                marginBottom: IS_SMALL_DEVICE ? 66 : 78,
+                                paddingBottom: Math.max(insets.bottom + 2, IS_SMALL_DEVICE ? 6 : 8),
+                                marginBottom: IS_SMALL_DEVICE ? 38 : 46,
                             }
                         ]}>
                             <TouchableOpacity 
@@ -829,11 +829,11 @@ export default function WordMatchScreen() {
                                 onPress={initializeRound}
                             >
                                 <RotateCcw size={IS_SMALL_DEVICE ? 18 : 20} color={COLORS.textMuted} />
-                                <Text style={[styles.resetButtonText, IS_SMALL_DEVICE && { fontSize: 12 }]}>Karıştır</Text>
+                                <Text style={[styles.resetButtonText, IS_SMALL_DEVICE && { fontSize: 12 }]}>Karistir</Text>
                             </TouchableOpacity>
 
                             <Text style={[styles.hintText, IS_SMALL_DEVICE && { fontSize: 10 }]}>
-                                💡 Bir kelimeye dokun, sonra eşini bul
+                                Bir kelimeye dokun, sonra esini bul
                             </Text>
                         </View>
                     )}
@@ -1115,8 +1115,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingTop: IS_SMALL_DEVICE ? 8 : 12,
-        paddingBottom: Platform.OS === 'ios' ? 34 : 24,
+        paddingTop: IS_SMALL_DEVICE ? 4 : 6,
+        paddingBottom: Platform.OS === 'ios' ? 12 : 8,
         backgroundColor: 'rgba(15, 23, 42, 0.95)',
         borderTopWidth: 1,
         borderTopColor: 'rgba(148, 163, 184, 0.1)',
@@ -1125,7 +1125,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        padding: IS_SMALL_DEVICE ? 8 : 10,
+        paddingVertical: IS_SMALL_DEVICE ? 5 : 6,
+        paddingHorizontal: IS_SMALL_DEVICE ? 8 : 10,
         backgroundColor: 'rgba(255, 255, 255, 0.08)',
         borderRadius: 12,
     },
@@ -1137,6 +1138,7 @@ const styles = StyleSheet.create({
         fontSize: IS_SMALL_DEVICE ? 10 : 12,
         color: COLORS.textMuted,
         fontStyle: 'italic',
+        lineHeight: IS_SMALL_DEVICE ? 13 : 15,
         flex: 1,
         textAlign: 'right',
     },
