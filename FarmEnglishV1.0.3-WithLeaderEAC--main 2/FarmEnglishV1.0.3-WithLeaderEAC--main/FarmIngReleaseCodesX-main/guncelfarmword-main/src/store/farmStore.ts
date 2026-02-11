@@ -89,6 +89,41 @@ function toSafeLowerText(value: unknown): string {
   return typeof value === 'string' ? value.trim().toLowerCase() : '';
 }
 
+function toSafeArray<T = any>(value: unknown): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function toSafeObjectArray<T = any>(value: unknown): T[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item) => !!item && typeof item === 'object') as T[];
+}
+
+function toSafeWordArray(value: unknown): WordModel[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is WordModel => (
+    !!item &&
+    typeof item === 'object' &&
+    typeof (item as any).id === 'string'
+  ));
+}
+
+function sanitizePersistedUser(user: unknown): { odId: string; email?: string | null; nickname: string; avatarUrl?: string | null } | null {
+  if (!user || typeof user !== 'object') return null;
+  const safeOdId = typeof (user as any).odId === 'string' ? (user as any).odId.trim() : '';
+  if (!safeOdId) return null;
+
+  const safeNickname = typeof (user as any).nickname === 'string' && (user as any).nickname.trim().length > 0
+    ? (user as any).nickname.trim()
+    : 'Oyuncu';
+
+  return {
+    odId: safeOdId,
+    email: typeof (user as any).email === 'string' || (user as any).email === null ? (user as any).email : null,
+    nickname: safeNickname,
+    avatarUrl: typeof (user as any).avatarUrl === 'string' || (user as any).avatarUrl === null ? (user as any).avatarUrl : null,
+  };
+}
+
 // 🛡️ Achievement/mastery check debounce
 let _achievementCheckTimer: any = null;
 
@@ -997,11 +1032,13 @@ export const useFarmStore = create<FarmStore>()(
 
       answerQuiz: (wordId, correct) => {
         const state = get();
-        const w = state.pool.find(w => w.id === wordId);
+        const safePool = toSafeWordArray(state.pool);
+        const safeFarm = toSafeWordArray(state.farm);
+        const w = safePool.find(w => w.id === wordId);
         if (!w) return;
 
         // Calculate streak and rewards
-        const currentStreak = correct ? state.streak + 1 : 0;
+        const currentStreak = correct ? toSafeNumber(state.streak, 0) + 1 : 0;
         const streakBonus = Math.floor(currentStreak / 5) * 10;
         const baseXP = correct ? 10 : 0;
         let earnedXP = baseXP + streakBonus;
@@ -1010,13 +1047,13 @@ export const useFarmStore = create<FarmStore>()(
         // console.log('📦 Store answerQuiz - correct:', correct, 'old streak:', state.streak, '→ new streak:', currentStreak);
 
         // Check if word is already in farm
-        const already = state.farm.some(f => f.id === wordId);
+        const already = safeFarm.some(f => f.id === wordId);
         if (!already) {
           // 🎯 RENK SİSTEMİ:
           // ✅ Doğru cevap → YEŞİL (wrongCount=3, hasat edilebilir meyve) 
           // 🔴 Yanlış cevap → KIRMIZI (wrongCount=0, tohum - en düşük seviye)
           set(state => ({
-            farm: [...state.farm, {
+            farm: [...toSafeWordArray(state.farm), {
               ...w,
               correctCount: 0,
               wrongCount: correct ? 3 : 0, // Doğru=yeşil(3)=meyve, Yanlış=kırmızı(0)=tohum
@@ -1041,7 +1078,7 @@ export const useFarmStore = create<FarmStore>()(
         } else {
           // 📊 Zaten farm'da olan kelime - istatistikleri güncelle + lastPlantedAt
           set(state => ({
-            farm: state.farm.map(f => f.id === wordId ? {
+            farm: toSafeWordArray(state.farm).map(f => f.id === wordId ? {
               ...f,
               lastPlantedAt: Date.now(), // 📌 Quiz'de cevaplanan kelime en üstte
               quizCorrect: (f.quizCorrect || 0) + (correct ? 1 : 0),
@@ -1052,18 +1089,18 @@ export const useFarmStore = create<FarmStore>()(
 
         // Update stats
         set(state => {
-          const newXP = state.xp + earnedXP;
+          const newXP = toSafeNumber(state.xp, 0) + earnedXP;
           const newLevel = Math.floor(newXP / 1000) + 1;
 
           return {
-            totalQuizzes: state.totalQuizzes + 1,
-            totalCorrect: correct ? state.totalCorrect + 1 : state.totalCorrect,
-            totalWrong: correct ? state.totalWrong : state.totalWrong + 1,
+            totalQuizzes: toSafeNumber(state.totalQuizzes, 0) + 1,
+            totalCorrect: correct ? toSafeNumber(state.totalCorrect, 0) + 1 : toSafeNumber(state.totalCorrect, 0),
+            totalWrong: correct ? toSafeNumber(state.totalWrong, 0) : toSafeNumber(state.totalWrong, 0) + 1,
             streak: currentStreak,
-            bestStreak: Math.max(state.bestStreak, currentStreak),
+            bestStreak: Math.max(toSafeNumber(state.bestStreak, 0), currentStreak),
             xp: newXP,
-            coins: state.coins + earnedCoins,
-            lifetimeCoins: state.lifetimeCoins + earnedCoins,
+            coins: toSafeNumber(state.coins, 0) + earnedCoins,
+            lifetimeCoins: toSafeNumber(state.lifetimeCoins, 0) + earnedCoins,
             level: newLevel,
           };
         });
@@ -1892,7 +1929,7 @@ export const useFarmStore = create<FarmStore>()(
 
         // Bugün zaten unclaimed görevler var mı kontrol et
         const safeDailyQuests = Array.isArray(state.dailyQuests) ? state.dailyQuests : [];
-        const unclaimedQuests = safeDailyQuests.filter(q => q.date === today && !q.claimed);
+        const unclaimedQuests = safeDailyQuests.filter(q => q && typeof q === 'object' && q.date === today && !q.claimed);
         if (unclaimedQuests.length > 0) {
           return; // Zaten bugünün claimed olmayan görevleri var
         }
@@ -2462,12 +2499,12 @@ export const useFarmStore = create<FarmStore>()(
         const state = get();
         const type = questType || 'daily';
 
-        const safeDailyQuests = Array.isArray(state.dailyQuests) ? state.dailyQuests : [];
-        const safeWeeklyQuests = Array.isArray(state.weeklyQuests) ? state.weeklyQuests : [];
-        const safeRepeatableQuests = Array.isArray(state.repeatableQuests) ? state.repeatableQuests : [];
-        const safeStoryQuests = Array.isArray(state.storyQuests) ? state.storyQuests : [];
-        const safeAchievementQuests = Array.isArray(state.achievementQuests) ? state.achievementQuests : [];
-        const safeMasteryPaths = Array.isArray(state.masteryPaths) ? state.masteryPaths : [];
+        const safeDailyQuests = toSafeObjectArray<any>(state.dailyQuests);
+        const safeWeeklyQuests = toSafeObjectArray<any>(state.weeklyQuests);
+        const safeRepeatableQuests = toSafeObjectArray<any>(state.repeatableQuests);
+        const safeStoryQuests = toSafeObjectArray<any>(state.storyQuests);
+        const safeAchievementQuests = toSafeObjectArray<any>(state.achievementQuests);
+        const safeMasteryPaths = toSafeObjectArray<any>(state.masteryPaths);
 
         let quest: any = null;
 
@@ -2519,17 +2556,17 @@ export const useFarmStore = create<FarmStore>()(
 
           switch (type) {
             case 'daily':
-              updates.dailyQuests = (Array.isArray(prev.dailyQuests) ? prev.dailyQuests : []).map(q =>
+              updates.dailyQuests = toSafeObjectArray<any>(prev.dailyQuests).map(q =>
                 q.id === safeQuestId ? { ...q, claimed: true } : q
               );
               break;
             case 'weekly':
-              updates.weeklyQuests = (Array.isArray(prev.weeklyQuests) ? prev.weeklyQuests : []).map(q =>
+              updates.weeklyQuests = toSafeObjectArray<any>(prev.weeklyQuests).map(q =>
                 q.id === safeQuestId ? { ...q, claimed: true } : q
               );
               break;
             case 'repeatable':
-              updates.repeatableQuests = (Array.isArray(prev.repeatableQuests) ? prev.repeatableQuests : []).map(q =>
+              updates.repeatableQuests = toSafeObjectArray<any>(prev.repeatableQuests).map(q =>
                 q.id === safeQuestId ? {
                   ...q,
                   claimed: true,
@@ -2540,19 +2577,19 @@ export const useFarmStore = create<FarmStore>()(
               );
               break;
             case 'story':
-              updates.storyQuests = (Array.isArray(prev.storyQuests) ? prev.storyQuests : []).map(q =>
+              updates.storyQuests = toSafeObjectArray<any>(prev.storyQuests).map(q =>
                 q.id === safeQuestId ? { ...q, claimed: true } : q
               );
               break;
             case 'achievement':
-              updates.achievementQuests = (Array.isArray(prev.achievementQuests) ? prev.achievementQuests : []).map(q =>
+              updates.achievementQuests = toSafeObjectArray<any>(prev.achievementQuests).map(q =>
                 q.id === safeQuestId ? { ...q, claimed: true } : q
               );
               break;
             case 'mastery':
-              updates.masteryPaths = (Array.isArray(prev.masteryPaths) ? prev.masteryPaths : []).map(path => ({
+              updates.masteryPaths = toSafeObjectArray<any>(prev.masteryPaths).map(path => ({
                 ...path,
-                levels: (Array.isArray(path.levels) ? path.levels : []).map((level: any) => {
+                levels: toSafeObjectArray<any>(path.levels).map((level: any) => {
                   const levelId = `${path.id}-${level.level}`;
                   const isMatch = level.level?.toString() === safeQuestId || levelId === safeQuestId;
                   return isMatch ? { ...level, claimed: true } : level;
@@ -2600,7 +2637,7 @@ export const useFarmStore = create<FarmStore>()(
         try {
           const today = new Date().toISOString().split('T')[0];
           const state = get();
-          const safeDailyQuests = Array.isArray(state.dailyQuests) ? state.dailyQuests : [];
+          const safeDailyQuests = toSafeObjectArray<any>(state.dailyQuests);
 
           // Gün değişti mi ya da quest listesi boş mu?
           if (state.lastQuestResetDate !== today || safeDailyQuests.length === 0) {
@@ -3470,11 +3507,13 @@ export const useFarmStore = create<FarmStore>()(
 
         try {
         const state = get();
+        const safeFarm = toSafeWordArray(state.farm);
+        const safePhrasalFarm = toSafeWordArray(state.phrasalVerbFarm);
 
         // Kelimeyi bul (farm veya phrasalVerbFarm'da)
         // 🔍 Önce AKTİF (görünür) kartı bulmaya çalış, yoksa herhangi birini al
-        const normalWord = state.farm.find(f => f.id === wordId && !(f as any).normalHarvested) || state.farm.find(f => f.id === wordId);
-        const phrasalWord = state.phrasalVerbFarm.find(f => f.id === wordId && !(f as any).normalHarvested) || state.phrasalVerbFarm.find(f => f.id === wordId);
+        const normalWord = safeFarm.find(f => f.id === wordId && !(f as any).normalHarvested) || safeFarm.find(f => f.id === wordId);
+        const phrasalWord = safePhrasalFarm.find(f => f.id === wordId && !(f as any).normalHarvested) || safePhrasalFarm.find(f => f.id === wordId);
         const farmWord = normalWord || phrasalWord;
         const isPhrasal = !!phrasalWord;
 
@@ -3556,12 +3595,15 @@ export const useFarmStore = create<FarmStore>()(
           set(state => {
             // 📊 Öğrenilen kelime ID'si (phrasal verb için orijinal ID kullan)
             const originalId = farmWord.id;
-            const newLearnedIds = state.learnedWordIds.includes(originalId)
-              ? state.learnedWordIds
-              : [...state.learnedWordIds, originalId];
+            const safeLearnedIds = toSafeArray<string>(state.learnedWordIds);
+            const safePhrasalVerbFarm = toSafeWordArray(state.phrasalVerbFarm);
+            const safePhrasalVerbInventory = toSafeWordArray(state.phrasalVerbInventory);
+            const newLearnedIds = safeLearnedIds.includes(originalId)
+              ? safeLearnedIds
+              : [...safeLearnedIds, originalId];
 
             return {
-              phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === wordId ? {
+              phrasalVerbFarm: safePhrasalVerbFarm.map(f => f.id === wordId ? {
                 ...f,
                 normalHarvested: true,
                 masterLevel: newMasterLevel,
@@ -3572,13 +3614,13 @@ export const useFarmStore = create<FarmStore>()(
                 // 🎯 FIX: Sadece ZATEN Perfect olan kartlar için true, Ultra→Perfect geçişinde false kalmalı!
                 rewardClaimedPerfect: isPerfectCard ? true : f.rewardClaimedPerfect,
               } : f),
-              phrasalVerbInventory: [inventoryWord, ...state.phrasalVerbInventory],
+              phrasalVerbInventory: [inventoryWord, ...safePhrasalVerbInventory],
               // 💰 Ödüller
-              coins: state.coins + rewards.coins,
-              lifetimeCoins: state.lifetimeCoins + rewards.coins,
-              xp: state.xp + rewards.xp,
+              coins: toSafeNumber(state.coins, 0) + rewards.coins,
+              lifetimeCoins: toSafeNumber(state.lifetimeCoins, 0) + rewards.coins,
+              xp: toSafeNumber(state.xp, 0) + rewards.xp,
               // 📊 Achievement tracking
-              lifetimeHarvests: state.lifetimeHarvests + 1,
+              lifetimeHarvests: toSafeNumber(state.lifetimeHarvests, 0) + 1,
               learnedWordIds: newLearnedIds,
               // Transfer event
               transferEvent: {
@@ -3594,21 +3636,24 @@ export const useFarmStore = create<FarmStore>()(
               },
               // 🧪 Böcek ilacı sayacı güncelle
               cardsAddedSinceInsecticide: state.insecticideActive
-                ? Math.min(state.cardsAddedSinceInsecticide + 1, 10)
-                : state.cardsAddedSinceInsecticide,
-              insecticideActive: state.insecticideActive && (state.cardsAddedSinceInsecticide + 1) < 10,
+                ? Math.min(toSafeNumber(state.cardsAddedSinceInsecticide, 0) + 1, 10)
+                : toSafeNumber(state.cardsAddedSinceInsecticide, 0),
+              insecticideActive: state.insecticideActive && (toSafeNumber(state.cardsAddedSinceInsecticide, 0) + 1) < 10,
             };
           });
         } else {
           set(state => {
             // 📊 Öğrenilen kelime ID'si
             const originalId = farmWord.id;
-            const newLearnedIds = state.learnedWordIds.includes(originalId)
-              ? state.learnedWordIds
-              : [...state.learnedWordIds, originalId];
+            const safeLearnedIds = toSafeArray<string>(state.learnedWordIds);
+            const safeFarmArray = toSafeWordArray(state.farm);
+            const safeInventory = toSafeWordArray(state.inventory);
+            const newLearnedIds = safeLearnedIds.includes(originalId)
+              ? safeLearnedIds
+              : [...safeLearnedIds, originalId];
 
             return {
-              farm: state.farm.map(f => f.id === wordId ? {
+              farm: safeFarmArray.map(f => f.id === wordId ? {
                 ...f,
                 normalHarvested: true,
                 masterLevel: newMasterLevel,
@@ -3619,13 +3664,13 @@ export const useFarmStore = create<FarmStore>()(
                 // 🎯 FIX: Sadece ZATEN Perfect olan kartlar için true, Ultra→Perfect geçişinde false kalmalı!
                 rewardClaimedPerfect: isPerfectCard ? true : f.rewardClaimedPerfect,
               } : f),
-              inventory: [inventoryWord, ...state.inventory],
+              inventory: [inventoryWord, ...safeInventory],
               // 💰 Ödüller
-              coins: state.coins + rewards.coins,
-              lifetimeCoins: state.lifetimeCoins + rewards.coins,
-              xp: state.xp + rewards.xp,
+              coins: toSafeNumber(state.coins, 0) + rewards.coins,
+              lifetimeCoins: toSafeNumber(state.lifetimeCoins, 0) + rewards.coins,
+              xp: toSafeNumber(state.xp, 0) + rewards.xp,
               // 📊 Achievement tracking
-              lifetimeHarvests: state.lifetimeHarvests + 1,
+              lifetimeHarvests: toSafeNumber(state.lifetimeHarvests, 0) + 1,
               learnedWordIds: newLearnedIds,
               // Transfer event
               transferEvent: {
@@ -3641,9 +3686,9 @@ export const useFarmStore = create<FarmStore>()(
               },
               // 🧪 Böcek ilacı sayacı güncelle
               cardsAddedSinceInsecticide: state.insecticideActive
-                ? Math.min(state.cardsAddedSinceInsecticide + 1, 10)
-                : state.cardsAddedSinceInsecticide,
-              insecticideActive: state.insecticideActive && (state.cardsAddedSinceInsecticide + 1) < 10,
+                ? Math.min(toSafeNumber(state.cardsAddedSinceInsecticide, 0) + 1, 10)
+                : toSafeNumber(state.cardsAddedSinceInsecticide, 0),
+              insecticideActive: state.insecticideActive && (toSafeNumber(state.cardsAddedSinceInsecticide, 0) + 1) < 10,
             };
           });
         }
@@ -4237,6 +4282,8 @@ export const useFarmStore = create<FarmStore>()(
 
       checkCollectibleCards: () => {
         const state = get();
+        const safeCollectedCards = toSafeArray<string>(state.collectedCards);
+        const safeOwnedThemes = toSafeArray<string>(state.ownedCardThemes);
         const stats: Record<string, number> = {
           lifetimeHarvests: state.lifetimeHarvests || 0,
           totalQuizzes: state.totalQuizzes || 0,
@@ -4252,25 +4299,25 @@ export const useFarmStore = create<FarmStore>()(
         const newCards: string[] = [];
         const unlockedRewardThemes: string[] = [];
         for (const card of COLLECTIBLE_CARDS) {
-          if (state.collectedCards.includes(card.id)) continue;
+          if (safeCollectedCards.includes(card.id)) continue;
           if (checkCollectibleUnlock(card.id, stats)) {
             newCards.push(card.id);
           }
         }
 
-        const collectedSet = new Set([...state.collectedCards, ...newCards]);
+        const collectedSet = new Set([...safeCollectedCards, ...newCards]);
         for (const card of COLLECTIBLE_CARDS) {
           if (!collectedSet.has(card.id) || !card.rewardThemeId) continue;
           if (!getThemeOverlay(card.rewardThemeId)) continue;
-          if (state.ownedCardThemes.includes(card.rewardThemeId)) continue;
+          if (safeOwnedThemes.includes(card.rewardThemeId)) continue;
           if (unlockedRewardThemes.includes(card.rewardThemeId)) continue;
           unlockedRewardThemes.push(card.rewardThemeId);
         }
 
         if (newCards.length > 0 || unlockedRewardThemes.length > 0) {
           set({
-            collectedCards: [...state.collectedCards, ...newCards],
-            ownedCardThemes: [...state.ownedCardThemes, ...unlockedRewardThemes],
+            collectedCards: [...safeCollectedCards, ...newCards],
+            ownedCardThemes: [...safeOwnedThemes, ...unlockedRewardThemes],
           });
         }
         return newCards;
@@ -4842,7 +4889,7 @@ export const useFarmStore = create<FarmStore>()(
       addCardsCounterForInsecticide: (count) => {
         set((state) => {
           if (!state.insecticideActive) return state;
-          const newCount = state.cardsAddedSinceInsecticide + count;
+          const newCount = toSafeNumber(state.cardsAddedSinceInsecticide, 0) + toSafeNumber(count, 0);
           return {
             cardsAddedSinceInsecticide: newCount,
             // 10'a ulaştıysak böcek ilacısını kapat
@@ -4854,6 +4901,45 @@ export const useFarmStore = create<FarmStore>()(
     {
       name: 'farmword-storage',
       storage: createJSONStorage(() => AsyncStorage),
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState as Record<string, unknown>) || {};
+        const merged = {
+          ...(currentState as any),
+          ...persisted,
+        } as any;
+
+        merged.farm = toSafeWordArray(persisted.farm ?? merged.farm);
+        merged.inventory = toSafeWordArray(persisted.inventory ?? merged.inventory);
+        merged.phrasalVerbFarm = toSafeWordArray(persisted.phrasalVerbFarm ?? merged.phrasalVerbFarm);
+        merged.phrasalVerbInventory = toSafeWordArray(persisted.phrasalVerbInventory ?? merged.phrasalVerbInventory);
+        merged.learnedWordIds = toSafeArray<string>(persisted.learnedWordIds ?? merged.learnedWordIds);
+        merged.recentQuizWordIds = toSafeArray<string>(persisted.recentQuizWordIds ?? merged.recentQuizWordIds);
+        merged.ownedItems = toSafeArray<string>(persisted.ownedItems ?? merged.ownedItems);
+        merged.ownedCardThemes = toSafeArray<string>(persisted.ownedCardThemes ?? merged.ownedCardThemes);
+        merged.collectedCards = toSafeArray<string>(persisted.collectedCards ?? merged.collectedCards);
+        merged.activeBoosts = toSafeObjectArray<ActiveBoost>(persisted.activeBoosts ?? merged.activeBoosts);
+        merged.battleHistory = toSafeObjectArray<any>(persisted.battleHistory ?? merged.battleHistory);
+        merged.sesyapHistory = toSafeObjectArray<any>(persisted.sesyapHistory ?? merged.sesyapHistory);
+        merged.dailyQuests = toSafeObjectArray<any>(persisted.dailyQuests ?? merged.dailyQuests);
+        merged.weeklyQuests = toSafeObjectArray<any>(persisted.weeklyQuests ?? merged.weeklyQuests);
+        merged.repeatableQuests = toSafeObjectArray<any>(persisted.repeatableQuests ?? merged.repeatableQuests);
+        merged.storyQuests = toSafeObjectArray<any>(persisted.storyQuests ?? merged.storyQuests);
+        merged.achievementQuests = toSafeObjectArray<any>(persisted.achievementQuests ?? merged.achievementQuests);
+        merged.masteryPaths = toSafeObjectArray<any>(persisted.masteryPaths ?? merged.masteryPaths);
+        merged.achievements = toSafeObjectArray<Achievement>(persisted.achievements ?? merged.achievements);
+        merged.cardCustomization = { ...DEFAULT_CUSTOMIZATION, ...(persisted.cardCustomization as any || merged.cardCustomization || {}) };
+        merged.user = sanitizePersistedUser(persisted.user ?? merged.user);
+        merged.isAuthenticated = !!merged.user && !!persisted.isAuthenticated;
+        merged.coins = toSafePositiveInt(persisted.coins ?? merged.coins);
+        merged.lifetimeCoins = toSafePositiveInt(persisted.lifetimeCoins ?? merged.lifetimeCoins);
+        merged.xp = toSafePositiveInt(persisted.xp ?? merged.xp);
+        merged.level = Math.max(1, toSafePositiveInt((persisted.level ?? merged.level ?? 1)));
+        merged.streak = toSafePositiveInt(persisted.streak ?? merged.streak);
+        merged.bestStreak = toSafePositiveInt(persisted.bestStreak ?? merged.bestStreak);
+        merged.lifetimeHarvests = toSafePositiveInt(persisted.lifetimeHarvests ?? merged.lifetimeHarvests);
+        merged.cardsAddedSinceInsecticide = toSafePositiveInt(persisted.cardsAddedSinceInsecticide ?? merged.cardsAddedSinceInsecticide);
+        return merged;
+      },
       partialize: (state) => ({
         // pool: state.pool, // 🚫 Static data - persist etme!
         farm: state.farm,
@@ -4948,6 +5034,25 @@ export const useFarmStore = create<FarmStore>()(
       onRehydrateStorage: () => (state) => {
         // �️ QUEST ARRAY VALIDATION: Corrupted AsyncStorage protection
         if (state) {
+          state.farm = toSafeWordArray(state.farm);
+          state.inventory = toSafeWordArray(state.inventory);
+          state.phrasalVerbFarm = toSafeWordArray(state.phrasalVerbFarm);
+          state.phrasalVerbInventory = toSafeWordArray(state.phrasalVerbInventory);
+          state.learnedWordIds = toSafeArray<string>(state.learnedWordIds);
+          state.recentQuizWordIds = toSafeArray<string>(state.recentQuizWordIds);
+          state.ownedItems = toSafeArray<string>(state.ownedItems);
+          state.activeBoosts = toSafeObjectArray<ActiveBoost>(state.activeBoosts);
+          state.achievements = toSafeObjectArray<Achievement>(state.achievements);
+          state.user = sanitizePersistedUser(state.user);
+          state.isAuthenticated = !!state.user && !!state.isAuthenticated;
+          state.coins = toSafePositiveInt(state.coins);
+          state.lifetimeCoins = toSafePositiveInt(state.lifetimeCoins);
+          state.xp = toSafePositiveInt(state.xp);
+          state.level = Math.max(1, toSafePositiveInt(state.level || 1));
+          state.streak = toSafePositiveInt(state.streak);
+          state.bestStreak = toSafePositiveInt(state.bestStreak);
+          state.lifetimeHarvests = toSafePositiveInt(state.lifetimeHarvests);
+          state.cardsAddedSinceInsecticide = toSafePositiveInt(state.cardsAddedSinceInsecticide);
           if (!Array.isArray(state.dailyQuests)) state.dailyQuests = [];
           if (!Array.isArray(state.weeklyQuests)) state.weeklyQuests = [];
           if (!Array.isArray(state.repeatableQuests)) state.repeatableQuests = [];

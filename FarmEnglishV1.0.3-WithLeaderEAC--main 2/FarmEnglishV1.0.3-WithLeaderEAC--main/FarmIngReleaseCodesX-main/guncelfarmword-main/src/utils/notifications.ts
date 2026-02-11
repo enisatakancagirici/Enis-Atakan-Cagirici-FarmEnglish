@@ -15,15 +15,19 @@ export type NotificationPermissionResult = {
 
 export function configureNotifications(): void {
   if (handlerConfigured) return;
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
-  });
-  handlerConfigured = true;
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+    handlerConfigured = true;
+  } catch {
+    // Notification module unavailable or not initialized correctly
+  }
 }
 
 export async function hasPromptedNotificationPermission(): Promise<boolean> {
@@ -44,32 +48,48 @@ export async function markNotificationPermissionPrompted(): Promise<void> {
 }
 
 export async function getNotificationPermission(): Promise<NotificationPermissionResult> {
-  const perms = await Notifications.getPermissionsAsync();
-  return {
-    granted: perms.granted || perms.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL,
-    canAskAgain: perms.canAskAgain,
-    status: perms.status,
-  };
+  try {
+    const perms = await Notifications.getPermissionsAsync();
+    return {
+      granted: perms.granted || perms.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL,
+      canAskAgain: perms.canAskAgain,
+      status: perms.status,
+    };
+  } catch {
+    return {
+      granted: false,
+      canAskAgain: false,
+      status: Notifications.PermissionStatus.DENIED,
+    };
+  }
 }
 
 export async function requestNotificationPermission(): Promise<NotificationPermissionResult> {
-  configureNotifications();
-  const current = await getNotificationPermission();
-  if (current.granted || !current.canAskAgain) return current;
+  try {
+    configureNotifications();
+    const current = await getNotificationPermission();
+    if (current.granted || !current.canAskAgain) return current;
 
-  const requested = await Notifications.requestPermissionsAsync({
-    ios: {
-      allowAlert: true,
-      allowBadge: false,
-      allowSound: true,
-    },
-  });
+    const requested = await Notifications.requestPermissionsAsync({
+      ios: {
+        allowAlert: true,
+        allowBadge: false,
+        allowSound: true,
+      },
+    });
 
-  return {
-    granted: requested.granted || requested.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL,
-    canAskAgain: requested.canAskAgain,
-    status: requested.status,
-  };
+    return {
+      granted: requested.granted || requested.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL,
+      canAskAgain: requested.canAskAgain,
+      status: requested.status,
+    };
+  } catch {
+    return {
+      granted: false,
+      canAskAgain: false,
+      status: Notifications.PermissionStatus.DENIED,
+    };
+  }
 }
 
 export async function scheduleComebackNotifications(): Promise<void> {
@@ -94,20 +114,45 @@ export async function scheduleComebackNotifications(): Promise<void> {
     { hour: 21, minute: 15, body: messages[2] },
   ];
 
-  await Promise.all(
-    schedules.map((item, index) =>
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: 'FarmEnglish',
-          body: item.body,
-          data: { source: 'daily_reminder', slot: index + 1 },
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.DAILY,
-          hour: item.hour,
-          minute: item.minute,
-        } as Notifications.DailyTriggerInput,
-      })
-    )
-  );
+  try {
+    await Promise.all(
+      schedules.map((item, index) =>
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'FarmEnglish',
+            body: item.body,
+            data: { source: 'daily_reminder', slot: index + 1 },
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DAILY,
+            hour: item.hour,
+            minute: item.minute,
+          } as Notifications.DailyTriggerInput,
+        })
+      )
+    );
+  } catch {
+    // no-op
+  }
+}
+
+export async function scheduleNotificationPreview(seconds: number = 5): Promise<boolean> {
+  try {
+    configureNotifications();
+    const delay = Math.max(1, Math.floor(seconds));
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'FarmEnglish Test',
+        body: 'Bildirim testi basarili. Hatirlaticilar aktif.',
+        data: { source: 'preview' },
+      },
+      trigger: {
+        seconds: delay,
+        repeats: false,
+      } as Notifications.TimeIntervalTriggerInput,
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }

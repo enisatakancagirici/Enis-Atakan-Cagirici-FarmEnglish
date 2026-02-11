@@ -46,6 +46,7 @@ import {
   RefreshCw,
   ChevronRight,
   Settings,
+  Bell,
 } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Asset } from "expo-asset";
@@ -70,6 +71,7 @@ import {
   markNotificationPermissionPrompted,
   requestNotificationPermission,
   scheduleComebackNotifications,
+  scheduleNotificationPreview,
 } from "../utils/notifications";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -104,7 +106,8 @@ const PRELOADED_IMAGES = {
   puzzle: require("../../assets/images/maskot/puzzle.webp"),
   phrasal: require("../../assets/images/maskot/phrasal.webp"),
   soruIsareti: require("../../assets/images/maskot/yeniTasarımlar/1.png"),
-  market: require("../../assets/images/maskot/yeniTasarımlar/KartPazari.png"),
+  market: require("../../assets/images/maskot/market_anasayfa.webp"),
+  cardShop: require("../../assets/images/maskot/yeniTasarımlar/KartPazari.png"),
   battle: require("../../assets/images/maskot/yeniTasarımlar/Savas.png"),
   sesyap: require("../../assets/images/maskot/yeniTasarımlar/Sesyap.png"),
   pratik: require("../../assets/images/maskot/yeniTasarımlar/pratik.png"),
@@ -1078,17 +1081,26 @@ const PremiumGridMenu = ({
 
 export const HomeScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
-  const farm = useFarmStore((state) => state.farm);
-  const inventory = useFarmStore((state) => state.inventory);
-  const phrasalVerbFarm = useFarmStore((state) => state.phrasalVerbFarm);
-  const phrasalVerbInventory = useFarmStore(
-    (state) => state.phrasalVerbInventory,
+  const farm = useFarmStore((state) =>
+    Array.isArray(state.farm) ? state.farm : [],
   );
-  const pool = useFarmStore((state) => state.pool);
+  const inventory = useFarmStore((state) =>
+    Array.isArray(state.inventory) ? state.inventory : [],
+  );
+  const phrasalVerbFarm = useFarmStore((state) =>
+    Array.isArray(state.phrasalVerbFarm) ? state.phrasalVerbFarm : [],
+  );
+  const phrasalVerbInventory = useFarmStore(
+    (state) =>
+      Array.isArray(state.phrasalVerbInventory) ? state.phrasalVerbInventory : [],
+  );
+  const pool = useFarmStore((state) => (Array.isArray(state.pool) ? state.pool : []));
   const xp = useFarmStore((state) => state.xp);
   const level = useFarmStore((state) => state.level);
   const coins = useFarmStore((state) => state.coins);
-  const achievements = useFarmStore((state) => state.achievements);
+  const achievements = useFarmStore((state) =>
+    Array.isArray(state.achievements) ? state.achievements : [],
+  );
   const bestStreak = useFarmStore((state) => state.bestStreak);
   const streak = useFarmStore((state) => state.streak);
   const currentCombo = useFarmStore((state) => state.currentCombo);
@@ -1098,7 +1110,9 @@ export const HomeScreen = ({ navigation }: any) => {
   const resetProgress = useFarmStore((state) => state.resetProgress);
   const plantFromInventory = useFarmStore((state) => state.plantFromInventory);
   const answerMiniQuiz = useFarmStore((state) => state.answerMiniQuiz);
-  const activeBoosts = useFarmStore((state) => state.activeBoosts);
+  const activeBoosts = useFarmStore((state) =>
+    Array.isArray(state.activeBoosts) ? state.activeBoosts : [],
+  );
   const totalQuizzes = useFarmStore((state) => state.totalQuizzes);
   const harvestWord = useFarmStore((state) => state.harvestWord);
   // 🎓 Tutorial
@@ -1124,6 +1138,7 @@ export const HomeScreen = ({ navigation }: any) => {
           Asset.loadAsync(PRELOADED_IMAGES.phrasal),
           Asset.loadAsync(PRELOADED_IMAGES.soruIsareti),
           Asset.loadAsync(PRELOADED_IMAGES.market),
+          Asset.loadAsync(PRELOADED_IMAGES.cardShop),
           Asset.loadAsync(PRELOADED_IMAGES.battle),
           Asset.loadAsync(PRELOADED_IMAGES.sesyap),
           Asset.loadAsync(PRELOADED_IMAGES.pratik),
@@ -1162,7 +1177,11 @@ export const HomeScreen = ({ navigation }: any) => {
   }, []);
 
   useEffect(() => {
-    configureNotifications();
+    try {
+      configureNotifications();
+    } catch {
+      // notification module can fail in edge runtimes; keep home screen alive
+    }
   }, []);
 
   const quizWord = useMemo(() => {
@@ -1186,7 +1205,11 @@ export const HomeScreen = ({ navigation }: any) => {
       lastNavigationTime.current = 0;
       
       // 🎯 Günlük görevleri kontrol et ve yenile
-      checkAndResetDailyQuests();
+      try {
+        checkAndResetDailyQuests();
+      } catch (error) {
+        console.error("[HomeScreen] checkAndResetDailyQuests failed:", error);
+      }
       
       return () => {
         isNavigating.current = false;
@@ -1291,9 +1314,15 @@ export const HomeScreen = ({ navigation }: any) => {
 
     let mounted = true;
     (async () => {
-      const prompted = await hasPromptedNotificationPermission();
-      if (!prompted && mounted) {
-        setNotificationPromptVisible(true);
+      try {
+        const prompted = await hasPromptedNotificationPermission();
+        if (!prompted && mounted) {
+          setNotificationPromptVisible(true);
+        }
+      } catch {
+        if (mounted) {
+          setNotificationPromptVisible(false);
+        }
       }
     })();
 
@@ -1303,29 +1332,50 @@ export const HomeScreen = ({ navigation }: any) => {
   }, [tutorialStep]);
 
   const handleRequestNotifications = useCallback(async () => {
-    setNotificationPromptVisible(false);
-    await markNotificationPermissionPrompted();
-    const result = await requestNotificationPermission();
+    try {
+      setNotificationPromptVisible(false);
+      await markNotificationPermissionPrompted();
+      const result = await requestNotificationPermission();
 
-    if (result.granted) {
-      await scheduleComebackNotifications();
+      if (result.granted) {
+        await scheduleComebackNotifications();
+        showHomeHelpModal(
+          "Bildirimler Acildi",
+          "Hatirlaticilar aktif. Tarlan, quiz ve SesYap rutinleri icin gun icinde nazik bildirimler gelecektir."
+        );
+        return;
+      }
+
       showHomeHelpModal(
-        "Bildirimler Acildi",
-        "Hatirlaticilar aktif. Tarlan, quiz ve SesYap rutinleri icin gun icinde nazik bildirimler gelecektir."
+        "Bildirim Kapali",
+        "Istersen daha sonra ayarlardan bildirimleri acabilirsin."
       );
-      return;
+    } catch {
+      showHomeHelpModal(
+        "Bildirim Ayari Basarisiz",
+        "Bildirim modulu su anda kullanilamiyor. Oyunu etkilemez; daha sonra tekrar deneyebilirsin."
+      );
     }
-
-    showHomeHelpModal(
-      "Bildirim Kapali",
-      "İstersen daha sonra ayarlardan bildirimleri acabilirsin."
-    );
   }, [showHomeHelpModal]);
 
   const handleSkipNotifications = useCallback(async () => {
     setNotificationPromptVisible(false);
-    await markNotificationPermissionPrompted();
+    try {
+      await markNotificationPermissionPrompted();
+    } catch {
+      // no-op
+    }
   }, []);
+
+  const handleNotificationPreview = useCallback(async () => {
+    const ok = await scheduleNotificationPreview(5);
+    showHomeHelpModal(
+      ok ? "Bildirim Testi Planlandi" : "Bildirim Testi Basarisiz",
+      ok
+        ? "5 saniye icinde test bildirimi gelecek. Gelmezse cihaz ayarlarinda izin durumunu kontrol et."
+        : "Test bildirimi zamanlanamadi. Ayarlar > Bildirimler icinde izin verdiginden emin ol."
+    );
+  }, [showHomeHelpModal]);
 
   const handleStartGuidedMode = useCallback(() => {
     setGuidedModalVisible(false);
@@ -1481,24 +1531,35 @@ export const HomeScreen = ({ navigation }: any) => {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* 🎨 Kart Mağazası Butonu */}
           <TouchableOpacity
-            style={styles.questsButton}
+            style={[styles.marketContainer, styles.cardShopHero]}
             onPress={() => {
               haptic.light();
               setCardShopVisible(true);
             }}
-            activeOpacity={0.7}
+            activeOpacity={0.9}
           >
+            <Image
+              source={PRELOADED_IMAGES.cardShop}
+              style={styles.marketFullImage}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              priority="high"
+              transition={0}
+            />
             <LinearGradient
-              colors={['#A855F7', '#7C3AED']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.questsGradient}
-            >
-              <Text style={styles.questsButtonIcon}>🎨</Text>
-              <Text style={styles.questsButtonText}>Kart Mağazası</Text>
-            </LinearGradient>
+              colors={["rgba(0,0,0,0.1)", "rgba(0,0,0,0.35)", "rgba(0,0,0,0.65)"]}
+              style={styles.marketOverlay}
+            />
+            <View style={styles.marketContent}>
+              <View style={styles.marketTextContainer}>
+                <Text style={styles.marketTitle}>KART MAGAZASI</Text>
+                <Text style={styles.marketSubtitle}>
+                  Tasarimlar • Cerceveler • Fontlar
+                </Text>
+              </View>
+              <ChevronRight size={24} color="#DDD6FE" />
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1517,6 +1578,25 @@ export const HomeScreen = ({ navigation }: any) => {
             >
               <Text style={styles.questsButtonIcon}>🧭</Text>
               <Text style={styles.questsButtonText}>Beni Sen Yonlendir</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.questsButton}
+            onPress={() => {
+              haptic.light();
+              handleNotificationPreview();
+            }}
+            activeOpacity={0.7}
+          >
+            <LinearGradient
+              colors={["#0F172A", "#1E293B"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.questsGradient}
+            >
+              <Bell size={20} color="#E2E8F0" />
+              <Text style={styles.questsButtonText}>Bildirim Testi (5sn)</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -1546,7 +1626,7 @@ export const HomeScreen = ({ navigation }: any) => {
               <Image
                 source={PRELOADED_IMAGES.pratik}
                 style={styles.pratikHeroImage}
-                contentFit="cover"
+                contentFit="contain"
                 cachePolicy="memory-disk"
                 priority="high"
                 transition={0}
@@ -1670,7 +1750,7 @@ export const HomeScreen = ({ navigation }: any) => {
             <Image
               source={PRELOADED_IMAGES.customWord}
               style={styles.customWordBgImage}
-              contentFit="cover"
+              contentFit="contain"
               cachePolicy="memory-disk"
               priority="high"
               transition={0}
@@ -2603,6 +2683,11 @@ const styles = StyleSheet.create({
     borderColor: "rgba(167, 139, 250, 0.3)",
     height: IS_SMALL_DEVICE ? 100 : 120,
     position: "relative",
+  },
+  cardShopHero: {
+    marginTop: SPACING.sm,
+    marginBottom: SPACING.lg,
+    borderColor: "rgba(196, 181, 253, 0.45)",
   },
   marketFullImage: {
     ...StyleSheet.absoluteFillObject,
