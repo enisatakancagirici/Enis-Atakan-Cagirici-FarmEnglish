@@ -14,6 +14,8 @@ import { isNicknameClean } from '../utils/nicknameModeration';
 
 // Re-entry guard for harvestWord double-swipe protection
 const _harvestInFlight = new Set<string>();
+const _puzzleHarvestInFlight = new Set<string>();
+const _claimQuestInFlight = new Set<string>();
 
 // Prevent duplicate daily quest resets from multiple screens/focus effects firing together
 let dailyQuestResetInFlight = false;
@@ -44,33 +46,77 @@ function ensureFirebaseCache(): Promise<void> {
 /** Cached updateUserStats — null-safe fire-and-forget */
 function safeSyncFirebase(odId: string, updates: any) {
   try {
+    const safeOdId = typeof odId === 'string' ? odId.trim() : '';
+    if (!safeOdId || !updates || typeof updates !== 'object') return;
+
+    const sanitizedUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([_, value]) => {
+        if (value === undefined || value === null) return false;
+        if (typeof value === 'number' && !Number.isFinite(value)) return false;
+        return true;
+      })
+    );
+    if (Object.keys(sanitizedUpdates).length === 0) return;
+
     if (_cachedUpdateUserStats) {
-      _cachedUpdateUserStats(odId, updates).catch(() => {});
+      _cachedUpdateUserStats(safeOdId, sanitizedUpdates).catch(() => {});
     } else {
       ensureFirebaseCache().then(() => {
-        _cachedUpdateUserStats?.(odId, updates)?.catch(() => {});
+        _cachedUpdateUserStats?.(safeOdId, sanitizedUpdates)?.catch(() => {});
       });
     }
   } catch (e) {}
 }
 
-// 🛡️ Cached RewardToast reference — no more dynamic import crashes
+// 🛡️ Cached RewardToast reference + queue to avoid lost toasts under heavy burst
 let _cachedShowRewardToast: ((type: string, value: number, message?: string) => void) | null = null;
-let _toastImportAttempted = false;
+let _toastImportPromise: Promise<void> | null = null;
+const _pendingRewardToasts: Array<{ type: string; value: number; message?: string }> = [];
+let _lastToastImportAttemptAt = 0;
+const MAX_PENDING_REWARD_TOASTS = 18;
+
+function flushPendingRewardToasts() {
+  if (!_cachedShowRewardToast || _pendingRewardToasts.length === 0) return;
+  const queue = _pendingRewardToasts.splice(0, _pendingRewardToasts.length);
+  for (const pending of queue) {
+    try {
+      _cachedShowRewardToast(pending.type, pending.value, pending.message);
+    } catch (e) {}
+  }
+}
+
+function ensureRewardToastLoaded() {
+  if (_cachedShowRewardToast || _toastImportPromise) return;
+  const now = Date.now();
+  if (now - _lastToastImportAttemptAt < 1500) return;
+  _lastToastImportAttemptAt = now;
+  _toastImportPromise = import('../components/RewardToast')
+    .then(({ showRewardToast }) => {
+      _cachedShowRewardToast = showRewardToast as any;
+      flushPendingRewardToasts();
+    })
+    .catch(() => {})
+    .finally(() => {
+      _toastImportPromise = null;
+    });
+}
 
 function safeShowRewardToast(type: any, value: number, message?: string) {
   try {
+    const safeType = typeof type === 'string' && type.trim().length > 0 ? type : 'quest';
+    const safeValue = toSafePositiveInt(value);
+    const safeMessage = typeof message === 'string' && message.trim().length > 0 ? message.trim() : undefined;
+
     if (_cachedShowRewardToast) {
-      _cachedShowRewardToast(type, value, message);
+      _cachedShowRewardToast(safeType, safeValue, safeMessage);
       return;
     }
-    if (_toastImportAttempted) return; // Already failed once, don't retry
-    _toastImportAttempted = true;
-    // Lazy import just once, cache the reference
-    import('../components/RewardToast').then(({ showRewardToast }) => {
-      _cachedShowRewardToast = showRewardToast as any;
-      showRewardToast(type, value, message);
-    }).catch(() => {});
+
+    if (_pendingRewardToasts.length >= MAX_PENDING_REWARD_TOASTS) {
+      _pendingRewardToasts.shift();
+    }
+    _pendingRewardToasts.push({ type: safeType, value: safeValue, message: safeMessage });
+    ensureRewardToastLoaded();
   } catch (e) {
     // Complete silent fail
   }
@@ -126,6 +172,7 @@ function sanitizePersistedUser(user: unknown): { odId: string; email?: string | 
 
 // 🛡️ Achievement/mastery check debounce
 let _achievementCheckTimer: any = null;
+let _questRewardSyncTimer: any = null;
 
 // 🛡️ checkAchievements debounce — birden fazla yerden çağrılır, 800ms birleştir
 let _checkAchievementsDebounceTimer: any = null;
@@ -253,7 +300,7 @@ interface FarmStore {
   collectedCards: string[];          // Kazanılan koleksiyon kartları
 
   // 🌱 KENDİ KELİME KARTI — Normal tarlaya eklenir
-  addCustomWord: (word: { text: string; meaning: string; example?: string; difficulty: string }) => { success: boolean; message: string };
+  addCustomWord: (word: { text: string; meaning: string; example?: string; exampleTr?: string; difficulty: string }) => { success: boolean; message: string };
 
   // 📅 Reset tarihleri
   lastQuestResetDate?: string; // Günlük reset
@@ -1031,6 +1078,7 @@ export const useFarmStore = create<FarmStore>()(
       },
 
       answerQuiz: (wordId, correct) => {
+        try {
         const state = get();
         const safePool = toSafeWordArray(state.pool);
         const safeFarm = toSafeWordArray(state.farm);
@@ -1106,6 +1154,9 @@ export const useFarmStore = create<FarmStore>()(
         });
 
         debouncedCheckAchievements(get);
+        } catch (error) {
+          console.error('[answerQuiz] Error:', error);
+        }
       },
 
       openMiniQuiz: (wordId) => set({ miniQuizFor: wordId }),
@@ -1155,6 +1206,7 @@ export const useFarmStore = create<FarmStore>()(
       },
 
       answerMiniQuiz: (wordId, correct, correctCount = 1) => {
+        try {
         const state = get();
 
         // 🔍 Önce AKTİF (görünür) kartı bulmaya çalış, yoksa herhangi birini al (duplicate bug fix)
@@ -1469,6 +1521,10 @@ export const useFarmStore = create<FarmStore>()(
         }
 
         debouncedCheckAchievements(get);
+        } catch (error) {
+          console.error('[answerMiniQuiz] Error:', error);
+          set({ miniQuizFor: undefined });
+        }
       },
 
       reviewFromInventory: (wordId) => {
@@ -2384,10 +2440,12 @@ export const useFarmStore = create<FarmStore>()(
           if (hasMatchingQuest) {
             batchedUpdate.dailyQuests = safeDailyQuests.map(quest => {
               if (quest.type === type && !quest.completed) {
+                const safeTarget = Math.max(1, toSafePositiveInt(quest.target));
+                const safeCurrentProgress = Math.max(0, toSafePositiveInt(quest.progress));
                 const newProgress = type === 'REACH_COMBO' 
-                  ? Math.max(quest.progress || 0, Math.min(safeAmount, quest.target))
-                  : Math.min((quest.progress || 0) + safeAmount, quest.target);
-                const isCompleted = newProgress >= quest.target;
+                  ? Math.max(safeCurrentProgress, Math.min(safeAmount, safeTarget))
+                  : Math.min(safeCurrentProgress + safeAmount, safeTarget);
+                const isCompleted = newProgress >= safeTarget;
                 if (isCompleted && !questCompleted) {
                   questCompleted = true;
                   completedQuestTitle = quest.title;
@@ -2405,10 +2463,12 @@ export const useFarmStore = create<FarmStore>()(
           if (hasMatchingQuest) {
             batchedUpdate.weeklyQuests = safeWeeklyQuests.map(quest => {
               if (quest.type === type && !quest.completed) {
+                const safeTarget = Math.max(1, toSafePositiveInt(quest.target));
+                const safeCurrentProgress = Math.max(0, toSafePositiveInt(quest.progress));
                 const newProgress = type === 'REACH_COMBO'
-                  ? Math.max(quest.progress || 0, Math.min(safeAmount, quest.target))
-                  : Math.min((quest.progress || 0) + safeAmount, quest.target);
-                const isCompleted = newProgress >= quest.target;
+                  ? Math.max(safeCurrentProgress, Math.min(safeAmount, safeTarget))
+                  : Math.min(safeCurrentProgress + safeAmount, safeTarget);
+                const isCompleted = newProgress >= safeTarget;
                 if (isCompleted && !questCompleted) {
                   questCompleted = true;
                   completedQuestTitle = quest.title + ' (Haftalık)';
@@ -2426,10 +2486,12 @@ export const useFarmStore = create<FarmStore>()(
           if (hasMatchingQuest) {
             batchedUpdate.repeatableQuests = safeRepeatableQuests.map(quest => {
               if (quest.type === type && !quest.completed && !quest.claimed) {
+                const safeTarget = Math.max(1, toSafePositiveInt(quest.target));
+                const safeCurrentProgress = Math.max(0, toSafePositiveInt(quest.progress));
                 const newProgress = type === 'REACH_COMBO'
-                  ? Math.max(quest.progress || 0, Math.min(safeAmount, quest.target))
-                  : Math.min((quest.progress || 0) + safeAmount, quest.target);
-                return { ...quest, progress: newProgress, completed: newProgress >= quest.target };
+                  ? Math.max(safeCurrentProgress, Math.min(safeAmount, safeTarget))
+                  : Math.min(safeCurrentProgress + safeAmount, safeTarget);
+                return { ...quest, progress: newProgress, completed: newProgress >= safeTarget };
               }
               return quest;
             });
@@ -2442,10 +2504,12 @@ export const useFarmStore = create<FarmStore>()(
           if (hasMatchingQuest) {
             batchedUpdate.storyQuests = safeStoryQuests.map(quest => {
               if (quest.type === type && quest.isUnlocked && !quest.completed && !quest.claimed) {
+                const safeTarget = Math.max(1, toSafePositiveInt(quest.target));
+                const safeCurrentProgress = Math.max(0, toSafePositiveInt(quest.progress));
                 const newProgress = type === 'REACH_COMBO'
-                  ? Math.max(quest.progress || 0, Math.min(safeAmount, quest.target))
-                  : Math.min((quest.progress || 0) + safeAmount, quest.target);
-                const isCompleted = newProgress >= quest.target;
+                  ? Math.max(safeCurrentProgress, Math.min(safeAmount, safeTarget))
+                  : Math.min(safeCurrentProgress + safeAmount, safeTarget);
+                const isCompleted = newProgress >= safeTarget;
                 if (isCompleted && !questCompleted) {
                   questCompleted = true;
                   completedQuestTitle = quest.title + ' (Hikaye)';
@@ -2492,12 +2556,16 @@ export const useFarmStore = create<FarmStore>()(
       },
 
       claimQuestReward: (questId: string, questType?: 'daily' | 'weekly' | 'repeatable' | 'story' | 'achievement' | 'mastery') => {
+        let inFlightKey = '';
         try {
         const safeQuestId = typeof questId === 'string' ? questId.trim() : '';
         if (!safeQuestId) return;
 
         const state = get();
         const type = questType || 'daily';
+        inFlightKey = `${type}:${safeQuestId}`;
+        if (_claimQuestInFlight.has(inFlightKey)) return;
+        _claimQuestInFlight.add(inFlightKey);
 
         const safeDailyQuests = toSafeObjectArray<any>(state.dailyQuests);
         const safeWeeklyQuests = toSafeObjectArray<any>(state.weeklyQuests);
@@ -2601,29 +2669,33 @@ export const useFarmStore = create<FarmStore>()(
           return updates;
         });
 
-        setTimeout(() => {
-          try {
-            safeShowRewardToast('quest', 1, safeQuestTitle);
-            if (rewardCoins > 0) {
-              setTimeout(() => { try { safeShowRewardToast('coin', rewardCoins); } catch(e){} }, 300);
-            }
-            if (rewardXp > 0) {
-              setTimeout(() => { try { safeShowRewardToast('xp', rewardXp); } catch(e){} }, 500);
-            }
-          } catch (e) {}
-        }, 100);
+        const rewardSummary = [
+          rewardCoins > 0 ? `+${rewardCoins} coin` : '',
+          rewardXp > 0 ? `+${rewardXp} XP` : '',
+        ].filter(Boolean).join(' • ');
+        safeShowRewardToast('quest', 1, rewardSummary ? `${safeQuestTitle} • ${rewardSummary}` : safeQuestTitle);
 
-        setTimeout(() => {
+        if (_questRewardSyncTimer) clearTimeout(_questRewardSyncTimer);
+        _questRewardSyncTimer = setTimeout(() => {
+          _questRewardSyncTimer = null;
           try {
             const current = get();
             const safeOdId = current.user?.odId;
             if (safeOdId) {
-              safeSyncFirebase(safeOdId, { trophies: toSafeNumber(current.trophies, 0) });
+              safeSyncFirebase(safeOdId, {
+                trophies: toSafeNumber(current.trophies, 0),
+                coins: toSafeNumber(current.coins, 0),
+                xp: toSafeNumber(current.xp, 0),
+              });
             }
           } catch (e) {}
-        }, 200);
+        }, 900);
         } catch (e) {
           console.error('[claimQuestReward] Error:', e);
+        } finally {
+          if (inFlightKey) {
+            setTimeout(() => _claimQuestInFlight.delete(inFlightKey), 900);
+          }
         }
       },
 
@@ -3729,6 +3801,9 @@ export const useFarmStore = create<FarmStore>()(
           xp: rewards.xp,
           newTier: newMasterLevel,
         };
+        } catch (error) {
+          console.error('[harvestWord] Error:', error);
+          return null;
         } finally {
           _harvestInFlight.delete(wordId);
         }
@@ -3736,11 +3811,16 @@ export const useFarmStore = create<FarmStore>()(
 
       // 🧩 YAPBOZ MANUEL HASAT
       harvestPuzzleWord: (wordId: string) => {
+        if (_puzzleHarvestInFlight.has(wordId)) return null;
+        _puzzleHarvestInFlight.add(wordId);
+        try {
         const state = get();
+        const safeFarm = toSafeWordArray(state.farm);
+        const safePhrasalFarm = toSafeWordArray(state.phrasalVerbFarm);
 
         // Kelimeyi bul (farm veya phrasalVerbFarm'da)
-        const normalWord = state.farm.find(f => f.id === wordId);
-        const phrasalWord = state.phrasalVerbFarm.find(f => f.id === wordId);
+        const normalWord = safeFarm.find(f => f.id === wordId);
+        const phrasalWord = safePhrasalFarm.find(f => f.id === wordId);
         const farmWord = normalWord || phrasalWord;
         const isPhrasal = !!phrasalWord;
 
@@ -3798,19 +3878,22 @@ export const useFarmStore = create<FarmStore>()(
           set(state => {
             // 📊 Öğrenilen kelime ID'si
             const originalId = (farmWord as any).id;
-            const newLearnedIds = state.learnedWordIds.includes(originalId)
-              ? state.learnedWordIds
-              : [...state.learnedWordIds, originalId];
+            const safeLearnedIds = toSafeArray<string>(state.learnedWordIds);
+            const safePhrasalVerbFarm = toSafeWordArray(state.phrasalVerbFarm);
+            const safePhrasalVerbInventory = toSafeWordArray(state.phrasalVerbInventory);
+            const newLearnedIds = safeLearnedIds.includes(originalId)
+              ? safeLearnedIds
+              : [...safeLearnedIds, originalId];
 
             return {
               // 💰 COIN VE XP EKLE!
-              coins: state.coins + puzzleCoins,
-              xp: state.xp + puzzleXp,
+              coins: toSafeNumber(state.coins, 0) + puzzleCoins,
+              xp: toSafeNumber(state.xp, 0) + puzzleXp,
               // 📊 Achievement tracking
-              lifetimeHarvests: state.lifetimeHarvests + 1,
+              lifetimeHarvests: toSafeNumber(state.lifetimeHarvests, 0) + 1,
               learnedWordIds: newLearnedIds,
               // 🌾 Farm'daki kelime KALIR ama yapboz tarlasında GÖRÜNMEZ!
-              phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === wordId ? {
+              phrasalVerbFarm: safePhrasalVerbFarm.map(f => f.id === wordId ? {
                 ...f,
                 readyForPuzzleHarvest: false, // 🌾 Hasat edildi!
                 pendingPuzzleMasterLevel: undefined,
@@ -3818,7 +3901,7 @@ export const useFarmStore = create<FarmStore>()(
                 puzzleRewardClaimedPerfect: isPerfectHarvest ? true : f.puzzleRewardClaimedPerfect, // 👑 Perfect HASAT ödülü alındı!
                 puzzleStats: { sessions: 0, totalCorrect: 0, totalWrong: 0, consecutiveCorrect: 0, puzzleMasterLevel: 0, puzzleTotalHarvests: newPuzzleTotalHarvests },
               } : f),
-              phrasalVerbInventory: [harvestedWord as any, ...state.phrasalVerbInventory],
+              phrasalVerbInventory: [harvestedWord as any, ...safePhrasalVerbInventory],
               transferEvent: {
                 id: `puzzle-harvest-${Date.now()}`,
                 type: 'harvest',
@@ -3836,19 +3919,22 @@ export const useFarmStore = create<FarmStore>()(
           set(state => {
             // 📊 Öğrenilen kelime ID'si
             const originalId = farmWord.id;
-            const newLearnedIds = state.learnedWordIds.includes(originalId)
-              ? state.learnedWordIds
-              : [...state.learnedWordIds, originalId];
+            const safeLearnedIds = toSafeArray<string>(state.learnedWordIds);
+            const safeFarmArray = toSafeWordArray(state.farm);
+            const safeInventoryArray = toSafeWordArray(state.inventory);
+            const newLearnedIds = safeLearnedIds.includes(originalId)
+              ? safeLearnedIds
+              : [...safeLearnedIds, originalId];
 
             return {
               // 💰 COIN VE XP EKLE!
-              coins: state.coins + puzzleCoins,
-              xp: state.xp + puzzleXp,
+              coins: toSafeNumber(state.coins, 0) + puzzleCoins,
+              xp: toSafeNumber(state.xp, 0) + puzzleXp,
               // 📊 Achievement tracking
-              lifetimeHarvests: state.lifetimeHarvests + 1,
+              lifetimeHarvests: toSafeNumber(state.lifetimeHarvests, 0) + 1,
               learnedWordIds: newLearnedIds,
               // 🌾 Farm'daki kelime KALIR ama yapboz tarlasında GÖRÜNMEZ!
-              farm: state.farm.map(f => f.id === wordId ? {
+              farm: safeFarmArray.map(f => f.id === wordId ? {
                 ...f,
                 readyForPuzzleHarvest: false, // 🌾 Hasat edildi!
                 pendingPuzzleMasterLevel: undefined,
@@ -3856,7 +3942,7 @@ export const useFarmStore = create<FarmStore>()(
                 puzzleRewardClaimedPerfect: isPerfectHarvest ? true : f.puzzleRewardClaimedPerfect, // 👑 Perfect HASAT ödülü alındı!
                 puzzleStats: { sessions: 0, totalCorrect: 0, totalWrong: 0, consecutiveCorrect: 0, puzzleMasterLevel: 0, puzzleTotalHarvests: newPuzzleTotalHarvests },
               } : f),
-              inventory: [harvestedWord, ...state.inventory],
+              inventory: [harvestedWord, ...safeInventoryArray],
               transferEvent: {
                 id: `puzzle-harvest-${Date.now()}`,
                 type: 'harvest',
@@ -3881,6 +3967,12 @@ export const useFarmStore = create<FarmStore>()(
           xp: puzzleXp,
           newTier: pendingPuzzleMasterLevel,
         };
+        } catch (error) {
+          console.error('[harvestPuzzleWord] Error:', error);
+          return null;
+        } finally {
+          _puzzleHarvestInFlight.delete(wordId);
+        }
       },
 
       checkAchievements: () => {
@@ -4181,7 +4273,7 @@ export const useFarmStore = create<FarmStore>()(
       // ═══════════════════════════════════════════════════════════════
       // � KENDİ KELİME KARTI SİSTEMİ Actions (Özerk Tarla)
       // ═══════════════════════════════════════════════════════════════
-      addCustomWord: ({ text, meaning, example, difficulty }) => {
+      addCustomWord: ({ text, meaning, example, exampleTr, difficulty }) => {
         const state = get();
         const CUSTOM_WORD_PRICE = 2800;
 
@@ -4224,7 +4316,7 @@ export const useFarmStore = create<FarmStore>()(
           text: text.trim(),
           meaning: meaning.trim(),
           example: example?.trim() || undefined,
-          example_tr: undefined,
+          example_tr: exampleTr?.trim() || undefined,
           difficulty: (difficulty as WordModel['difficulty']) || 'B1',
           type: 'custom',
           level: 0,

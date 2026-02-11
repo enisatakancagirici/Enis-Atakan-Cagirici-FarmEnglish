@@ -39,11 +39,41 @@ export interface CefrEstimate {
   unknownWordCount: number;
   sampleSize: number;
   message: string;
+  knownThreshold: number;
+  signals: {
+    lexicalMasteryPct: number;
+    quizAccuracyPct: number;
+    speechAccuracyPct: number;
+    puzzleMasteryPct: number;
+    coveragePct: number;
+    xpProgressPct: number;
+  };
+  weights: {
+    lexicalPct: number;
+    coveragePct: number;
+    quizPct: number;
+    speechPct: number;
+    puzzlePct: number;
+    consistencyPct: number;
+    xpPct: number;
+  };
+}
+
+export interface CefrEstimatorMetrics {
+  quizAnswered?: number;
+  quizCorrect?: number;
+  quizWrong?: number;
+  puzzleCompleted?: number;
+  speechPracticeCount?: number;
+  puzzleScore?: number;
+  sesyapScore?: number;
+  xp?: number;
 }
 
 export function estimateCefrLevel(
   words: WordModel[],
-  sesyapHistory: Array<{ correct?: boolean }> = []
+  sesyapHistory: Array<{ correct?: boolean }> = [],
+  metrics?: CefrEstimatorMetrics
 ): CefrEstimate {
   const safeWords = Array.isArray(words) ? words.filter(Boolean) : [];
 
@@ -64,6 +94,24 @@ export function estimateCefrLevel(
       unknownWordCount: 0,
       sampleSize: 0,
       message: 'Veri henuz az. Biraz quiz ve sesyap yaptikca tahmin netlesecek.',
+      knownThreshold: 62,
+      signals: {
+        lexicalMasteryPct: 0,
+        quizAccuracyPct: 0,
+        speechAccuracyPct: 0,
+        puzzleMasteryPct: 0,
+        coveragePct: 0,
+        xpProgressPct: 0,
+      },
+      weights: {
+        lexicalPct: 42,
+        coveragePct: 13,
+        quizPct: 16,
+        speechPct: 11,
+        puzzlePct: 9,
+        consistencyPct: 6,
+        xpPct: 3,
+      },
     };
   }
 
@@ -107,17 +155,96 @@ export function estimateCefrLevel(
   const safeSpeech = Array.isArray(sesyapHistory) ? sesyapHistory : [];
   const speechSamples = safeSpeech.length;
   const speechCorrect = safeSpeech.filter(item => !!item?.correct).length;
-  const speechAccuracy = speechSamples > 0 ? speechCorrect / speechSamples : 0.5;
+  const speechAccuracy = speechSamples > 0 ? speechCorrect / speechSamples : 0.55;
+
+  const safeMetrics = metrics || {};
+  const quizAnswered = Math.max(0, toFinite(safeMetrics.quizAnswered, totalAttempts));
+  const quizCorrect = Math.max(0, toFinite(safeMetrics.quizCorrect, totalAttempts - totalWrong));
+  const quizWrong = Math.max(0, toFinite(safeMetrics.quizWrong, totalWrong));
+  const puzzleCompleted = Math.max(0, toFinite(safeMetrics.puzzleCompleted, 0));
+  const speechPracticeCount = Math.max(0, toFinite(safeMetrics.speechPracticeCount, speechSamples));
+  const puzzleScore = Math.max(0, toFinite(safeMetrics.puzzleScore, 0));
+  const sesyapScore = Math.max(0, toFinite(safeMetrics.sesyapScore, 0));
+  const totalXp = Math.max(0, toFinite(safeMetrics.xp, 0));
 
   const consistency = totalAttempts > 0
     ? clamp(1 - totalWrong / Math.max(1, totalAttempts), 0, 1)
     : 0.6;
 
+  const quizMastery = quizAnswered > 0
+    ? clamp((quizCorrect + 1) / (quizAnswered + 2), 0, 1)
+    : consistency;
+  const puzzleMastery = clamp(
+    puzzleScore / Math.max(1, puzzleCompleted * 120 + 600),
+    0,
+    1
+  );
+  const speechSkill = clamp(
+    speechAccuracy * 0.8 + Math.min(1, sesyapScore / 5000) * 0.2,
+    0,
+    1
+  );
+  const xpMastery = clamp(Math.log10(totalXp + 10) / 5, 0, 1);
+
+  const baseWeights = {
+    lexical: 0.42,
+    coverage: 0.13,
+    quiz: 0.16,
+    speech: 0.11,
+    puzzle: 0.09,
+    consistency: 0.06,
+    xp: 0.03,
+  };
+
+  const reliability = {
+    lexical: clamp(uniqueWords.length / 45, 0.45, 1),
+    coverage: clamp(uniqueWords.length / 120, 0.3, 1),
+    quiz: clamp(quizAnswered / 120, 0.3, 1),
+    speech: clamp((speechSamples + speechPracticeCount) / 50, 0.25, 1),
+    puzzle: clamp(puzzleCompleted / 60, 0.25, 1),
+    consistency: clamp(totalAttempts / 80, 0.3, 1),
+    xp: clamp(Math.log10(totalXp + 10) / 3, 0.25, 1),
+  };
+
+  const effectiveWeights = {
+    lexical: baseWeights.lexical * reliability.lexical,
+    coverage: baseWeights.coverage * reliability.coverage,
+    quiz: baseWeights.quiz * reliability.quiz,
+    speech: baseWeights.speech * reliability.speech,
+    puzzle: baseWeights.puzzle * reliability.puzzle,
+    consistency: baseWeights.consistency * reliability.consistency,
+    xp: baseWeights.xp * reliability.xp,
+  };
+
+  const totalEffectiveWeight = Math.max(
+    0.0001,
+    effectiveWeights.lexical +
+      effectiveWeights.coverage +
+      effectiveWeights.quiz +
+      effectiveWeights.speech +
+      effectiveWeights.puzzle +
+      effectiveWeights.consistency +
+      effectiveWeights.xp
+  );
+
+  const normalizedWeights = {
+    lexical: effectiveWeights.lexical / totalEffectiveWeight,
+    coverage: effectiveWeights.coverage / totalEffectiveWeight,
+    quiz: effectiveWeights.quiz / totalEffectiveWeight,
+    speech: effectiveWeights.speech / totalEffectiveWeight,
+    puzzle: effectiveWeights.puzzle / totalEffectiveWeight,
+    consistency: effectiveWeights.consistency / totalEffectiveWeight,
+    xp: effectiveWeights.xp / totalEffectiveWeight,
+  };
+
   const weightedScore = (
-    lexicalMastery * 0.56 +
-    coverage * 0.2 +
-    speechAccuracy * 0.14 +
-    consistency * 0.1
+    lexicalMastery * normalizedWeights.lexical +
+    coverage * normalizedWeights.coverage +
+    quizMastery * normalizedWeights.quiz +
+    speechSkill * normalizedWeights.speech +
+    puzzleMastery * normalizedWeights.puzzle +
+    consistency * normalizedWeights.consistency +
+    xpMastery * normalizedWeights.xp
   ) * 100;
 
   const score = Math.round(clamp(weightedScore, 1, 99));
@@ -129,13 +256,13 @@ export function estimateCefrLevel(
   else if (score >= 42) level = 'B1';
   else if (score >= 27) level = 'A2';
 
-  const sampleSize = uniqueWords.length + totalAttempts + speechSamples;
-  const confidence = Math.round(clamp((sampleSize / 240) * 100, 12, 98));
+  const sampleSize = uniqueWords.length + totalAttempts + speechSamples + puzzleCompleted + speechPracticeCount;
+  const confidence = Math.round(clamp((sampleSize / 260) * 100, 12, 99));
 
   const message =
     confidence < 35
-      ? `Tahmini seviye: ${level}. Veri arttikca tahmin hassasiyeti artacak.`
-      : `Tahmini seviye: ${level}. Bilinen/bilinmeyen dagilimi ve performansina gore guncellendi.`;
+      ? `Tahmini seviye: ${level}. Veri arttıkça tahmin hassasiyeti artacak.`
+      : `Tahmini seviye: ${level}. Hesap; kelime ustalığı, quiz doğruluğu, sesyap performansı, yapboz ustalığı, kapsama, tutarlılık ve XP ivmesinin ağırlıklı toplamıdır.`;
 
   return {
     level,
@@ -145,5 +272,23 @@ export function estimateCefrLevel(
     unknownWordCount,
     sampleSize,
     message,
+    knownThreshold: 62,
+    signals: {
+      lexicalMasteryPct: Math.round(lexicalMastery * 100),
+      quizAccuracyPct: Math.round(quizMastery * 100),
+      speechAccuracyPct: Math.round(speechSkill * 100),
+      puzzleMasteryPct: Math.round(puzzleMastery * 100),
+      coveragePct: Math.round(coverage * 100),
+      xpProgressPct: Math.round(xpMastery * 100),
+    },
+    weights: {
+      lexicalPct: Math.round(normalizedWeights.lexical * 100),
+      coveragePct: Math.round(normalizedWeights.coverage * 100),
+      quizPct: Math.round(normalizedWeights.quiz * 100),
+      speechPct: Math.round(normalizedWeights.speech * 100),
+      puzzlePct: Math.round(normalizedWeights.puzzle * 100),
+      consistencyPct: Math.round(normalizedWeights.consistency * 100),
+      xpPct: Math.round(normalizedWeights.xp * 100),
+    },
   };
 }

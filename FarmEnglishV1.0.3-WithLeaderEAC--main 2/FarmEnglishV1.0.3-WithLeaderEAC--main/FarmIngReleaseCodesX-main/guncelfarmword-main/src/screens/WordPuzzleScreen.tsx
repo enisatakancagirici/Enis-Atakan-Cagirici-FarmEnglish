@@ -37,6 +37,7 @@ import {
   type CardCustomization,
   type CardFontStyle,
 } from '../data/cardThemes';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 const SEED_SMALL_IMAGE = require('../../assets/images/maskot/tohumenkucuk.webp');
 const SEED_MEDIUM_IMAGE = require('../../assets/images/maskot/tohumorta.webp');
@@ -580,7 +581,11 @@ const PuzzleFeedCard: React.FC<{
     return applyPuzzleThemeCustomization(getPuzzleTheme(puzzleSessions, puzzleMasterLevel), activeThemeId, safeCustomization);
   }, [justHarvested, puzzleSessions, puzzleMasterLevel, activeThemeId, safeCustomization]);
   const turkishMeaning = useMemo(() => getTurkishMeaning(word.text), [word.text]);
-  const turkishExample = useMemo(() => getTurkishExample(word.text), [word.text]);
+  const turkishExample = useMemo(() => {
+    const customOrLocalExample = normalizeDisplayText((word as any).example_tr);
+    if (customOrLocalExample) return customOrLocalExample;
+    return getTurkishExample(word.text);
+  }, [word.text, (word as any).example_tr]);
 
   const config = usePerformanceStore(s => s.config);
   const shimmerAnim = useRef(new Animated.Value(-1)).current;

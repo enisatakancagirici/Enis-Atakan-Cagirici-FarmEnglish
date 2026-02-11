@@ -51,9 +51,9 @@ import {
     requestMicrophonePermission,
 } from '../utils/speechToText';
 import { compareSentences, ComparisonResult } from '../utils/compareSentences';
+import { normalizeDisplayText } from '../utils/textNormalization';
 import { useFarmStore } from '../store/farmStore';
 import JuicyModal from '../components/JuicyModal';
-import { estimateCefrLevel } from '../utils/cefrEstimator';
 import {
     BORDER_STYLES,
     DEFAULT_CUSTOMIZATION,
@@ -143,28 +143,6 @@ const VALID_SENTENCES: WordItem[] = (ENSAGLAM_DATA.items || []).filter(item => {
     const wordCount = item.example.split(' ').length;
     return wordCount <= 10 && wordCount >= 3;
 });
-
-function normalizeDisplayText(value: unknown): string {
-    const raw = typeof value === 'string' ? value.trim() : '';
-    if (!raw) return '';
-
-    const markers = /[ÃƒÆ’Ãƒâ€šÃƒÂ¢Ãƒâ€¦Ãƒâ€Ã„Å¸Ã…Â¸]/;
-    if (!markers.test(raw)) return raw;
-
-    let normalized = raw;
-    for (let i = 0; i < 2; i += 1) {
-        if (!markers.test(normalized)) break;
-        try {
-            const decoded = decodeURIComponent(escape(normalized));
-            if (!decoded || decoded === normalized) break;
-            normalized = decoded;
-        } catch {
-            break;
-        }
-    }
-
-    return normalized;
-}
 
 function getRandomSentence(): SentenceData | null {
     if (VALID_SENTENCES.length === 0) return null;
@@ -417,7 +395,7 @@ const MicButton = memo<MicButtonProps>(({ isRecording, isProcessing, remainingTi
                     ? 'Kontrol ediliyor...'
                     : isRecording
                         ? (remainingTime + 's')
-                        : 'Konus'}
+                        : 'Konuş'}
             </Text>
         </View>
     );
@@ -493,10 +471,6 @@ export default function SesYapScreen() {
     const updateQuestProgress = useFarmStore(state => state.updateQuestProgress);
     const activeThemeId = useFarmStore(state => state.activeCardTheme);
     const cardCustomization = useFarmStore(state => state.cardCustomization);
-    const farmWords = useFarmStore(state => state.farm);
-    const inventoryWords = useFarmStore(state => state.inventory);
-    const phrasalFarmWords = useFarmStore(state => state.phrasalVerbFarm);
-    const phrasalInventoryWords = useFarmStore(state => state.phrasalVerbInventory);
 
     const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
     const cardSizeMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
@@ -536,16 +510,6 @@ export default function SesYapScreen() {
     const [micModalState, setMicModalState] = useState<MicModalState>('hidden');
     const [pendingMicStart, setPendingMicStart] = useState(false);
 
-    const cefrEstimate = useMemo(() => {
-        const sourceWords = [
-            ...(Array.isArray(farmWords) ? farmWords : []),
-            ...(Array.isArray(inventoryWords) ? inventoryWords : []),
-            ...(Array.isArray(phrasalFarmWords) ? phrasalFarmWords : []),
-            ...(Array.isArray(phrasalInventoryWords) ? phrasalInventoryWords : []),
-        ];
-        return estimateCefrLevel(sourceWords, sesyapHistory);
-    }, [farmWords, inventoryWords, phrasalFarmWords, phrasalInventoryWords, sesyapHistory]);
-
     // CÃƒÆ’Ã‚Â¼mle kelimeleri
     const sentenceWords = useMemo(() => {
         if (!sentence) return [];
@@ -562,6 +526,11 @@ export default function SesYapScreen() {
     const silenceCheckRunningRef = useRef(false);
     const silenceStartRef = useRef<number | null>(null);
     const hasSpokenRef = useRef(false);
+    const isProcessingRef = useRef(false);
+
+    useEffect(() => {
+        isProcessingRef.current = isProcessing;
+    }, [isProcessing]);
 
     // Ãƒâ€Ã‚Â°lk cÃƒÆ’Ã‚Â¼mleyi yÃƒÆ’Ã‚Â¼kle
     useEffect(() => {
@@ -593,93 +562,111 @@ export default function SesYapScreen() {
     }, []);
     // Mikrofon press
     const handleMicPress = useCallback(async () => {
-        if (isRecording) {
-            if (timerRef.current) clearTimeout(timerRef.current);
-            if (countdownRef.current) clearInterval(countdownRef.current);
-            if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
-            await processRecording();
-            return;
-        }
-
-        if (isRecordingRef.current || isProcessing || isComplete) return;
-
-        const permission = await getMicrophonePermissionState();
-        if (!permission.granted) {
-            setPendingMicStart(true);
-            setMicModalState(permission.canAskAgain ? 'needPermission' : 'settingsRequired');
-            return;
-        }
-
-        isRecordingRef.current = true;
-        hasSpokenRef.current = false;
-        silenceStartRef.current = null;
-        silenceCheckRunningRef.current = false;
-        haptic.medium();
-        sound.setRecordingActive?.(true);
-
-        setIsRecording(true);
-        setRemainingTime(RECORDING_DURATION_MS / 1000);
-
-        const started = await startRecording();
-        if (started) {
-            const recordingStartTime = Date.now();
-
-            let timeLeft = RECORDING_DURATION_MS / 1000;
-            countdownRef.current = setInterval(() => {
-                timeLeft -= 1;
-                setRemainingTime(Math.max(0, timeLeft));
-                if (timeLeft <= 0 && countdownRef.current) {
-                    clearInterval(countdownRef.current);
-                }
-            }, 1000);
-
-            silenceCheckRef.current = setInterval(async () => {
-                if (silenceCheckRunningRef.current || isProcessing || !isRecordingRef.current) return;
-                silenceCheckRunningRef.current = true;
-                try {
-                    const status = await getRecordingStatus();
-                    if (!status || !status.isRecording) return;
-
-                    const metering = status.metering;
-                    const elapsedTime = Date.now() - recordingStartTime;
-
-                    if (metering > SILENCE_THRESHOLD) {
-                        hasSpokenRef.current = true;
-                        silenceStartRef.current = null;
-                    } else if (hasSpokenRef.current && elapsedTime > MIN_SPEECH_TIME_MS) {
-                        if (!silenceStartRef.current) {
-                            silenceStartRef.current = Date.now();
-                        } else {
-                            const silenceDuration = Date.now() - silenceStartRef.current;
-                            if (silenceDuration >= SILENCE_DURATION_MS) {
-                                if (timerRef.current) clearTimeout(timerRef.current);
-                                if (countdownRef.current) clearInterval(countdownRef.current);
-                                if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
-                                await processRecording();
-                            }
-                        }
-                    }
-                } finally {
-                    silenceCheckRunningRef.current = false;
-                }
-            }, 400);
-
-            timerRef.current = setTimeout(async () => {
+        try {
+            if (isRecording) {
+                if (timerRef.current) clearTimeout(timerRef.current);
                 if (countdownRef.current) clearInterval(countdownRef.current);
                 if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
                 await processRecording();
-            }, RECORDING_DURATION_MS);
-        } else {
+                return;
+            }
+
+            if (isRecordingRef.current || isProcessingRef.current || isComplete) return;
+
+            const permission = await getMicrophonePermissionState();
+            if (!permission.granted) {
+                setPendingMicStart(true);
+                setMicModalState(permission.canAskAgain ? 'needPermission' : 'settingsRequired');
+                return;
+            }
+
+            isRecordingRef.current = true;
+            hasSpokenRef.current = false;
+            silenceStartRef.current = null;
+            silenceCheckRunningRef.current = false;
+            haptic.medium();
+            sound.setRecordingActive?.(true);
+
+            setIsRecording(true);
+            setRemainingTime(RECORDING_DURATION_MS / 1000);
+
+            const started = await startRecording();
+            if (started) {
+                const recordingStartTime = Date.now();
+
+                let timeLeft = RECORDING_DURATION_MS / 1000;
+                countdownRef.current = setInterval(() => {
+                    timeLeft -= 1;
+                    setRemainingTime(Math.max(0, timeLeft));
+                    if (timeLeft <= 0 && countdownRef.current) {
+                        clearInterval(countdownRef.current);
+                    }
+                }, 1000);
+
+                silenceCheckRef.current = setInterval(async () => {
+                    if (silenceCheckRunningRef.current || isProcessingRef.current || !isRecordingRef.current) return;
+                    silenceCheckRunningRef.current = true;
+                    try {
+                        const status = await getRecordingStatus();
+                        if (!status || !status.isRecording) return;
+
+                        const metering = status.metering;
+                        const elapsedTime = Date.now() - recordingStartTime;
+
+                        if (metering > SILENCE_THRESHOLD) {
+                            hasSpokenRef.current = true;
+                            silenceStartRef.current = null;
+                        } else if (hasSpokenRef.current && elapsedTime > MIN_SPEECH_TIME_MS) {
+                            if (!silenceStartRef.current) {
+                                silenceStartRef.current = Date.now();
+                            } else {
+                                const silenceDuration = Date.now() - silenceStartRef.current;
+                                if (silenceDuration >= SILENCE_DURATION_MS) {
+                                    if (timerRef.current) clearTimeout(timerRef.current);
+                                    if (countdownRef.current) clearInterval(countdownRef.current);
+                                    if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+                                    await processRecording();
+                                }
+                            }
+                        }
+                    } finally {
+                        silenceCheckRunningRef.current = false;
+                    }
+                }, 400);
+
+                timerRef.current = setTimeout(async () => {
+                    if (countdownRef.current) clearInterval(countdownRef.current);
+                    if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+                    await processRecording();
+                }, RECORDING_DURATION_MS);
+                return;
+            }
+
             setIsRecording(false);
             isRecordingRef.current = false;
             setPendingMicStart(false);
             setMicModalState('startFailed');
+        } catch (error) {
+            console.error('[SesYap] handleMicPress error:', error);
+            if (timerRef.current) clearTimeout(timerRef.current);
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+            silenceCheckRunningRef.current = false;
+            isRecordingRef.current = false;
+            setIsRecording(false);
+            setIsProcessing(false);
+            isProcessingRef.current = false;
+            sound.setRecordingActive?.(false);
+            setPendingMicStart(false);
+            setMicModalState('startFailed');
         }
-    }, [isProcessing, isComplete, isRecording]);
+    }, [isComplete, isRecording]);
 
     // KayÄ±dÄ± iÅŸleÃƒâ€Ã‚Â± iÃƒâ€¦Ã…Â¸le
     const processRecording = useCallback(async () => {
         if (!isRecording && !isRecordingRef.current) return;
+        if (isProcessingRef.current) return;
+        isProcessingRef.current = true;
 
         if (timerRef.current) clearTimeout(timerRef.current);
         if (countdownRef.current) clearInterval(countdownRef.current);
@@ -695,8 +682,6 @@ export default function SesYapScreen() {
         try {
             const uri = await stopRecording();
             if (!uri || !sentence) {
-                setIsProcessing(false);
-                isRecordingRef.current = false;
                 return;
             }
 
@@ -704,8 +689,6 @@ export default function SesYapScreen() {
             await deleteRecording();
 
             if (speechResult.error || !speechResult.transcript) {
-                setIsProcessing(false);
-                isRecordingRef.current = false;
                 return;
             }
 
@@ -793,12 +776,13 @@ export default function SesYapScreen() {
                 }
             }
         } catch (error) {
-            console.error('Ãƒâ€Ã‚Â°Ãƒâ€¦Ã…Â¸lem hatasÃƒâ€Ã‚Â±:', error);
+            console.error('[SesYap] processRecording error:', error);
+        } finally {
+            setIsProcessing(false);
+            isProcessingRef.current = false;
+            isRecordingRef.current = false;
+            setRemainingTime(RECORDING_DURATION_MS / 1000);
         }
-
-        setIsProcessing(false);
-        isRecordingRef.current = false;
-        setRemainingTime(RECORDING_DURATION_MS / 1000);
     }, [isRecording, sentence, filledWords, sentenceWords, addSesyapHistory, addSesyapScore]);
 
     // Sonraki soru
@@ -961,7 +945,7 @@ export default function SesYapScreen() {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={COLORS.accent} />
-                <Text style={styles.loadingText}>Yukleniyor...</Text>
+                <Text style={styles.loadingText}>Yükleniyor...</Text>
             </View>
         );
     }
@@ -1009,7 +993,7 @@ export default function SesYapScreen() {
                             <Text style={[
                                 styles.modeTabText,
                                 activeMode === 'calis' && styles.modeTabTextActive,
-                            ]}>Calis</Text>
+                            ]}>Çalış</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[
@@ -1062,7 +1046,7 @@ export default function SesYapScreen() {
                                     colors={['rgba(139, 92, 246, 0.15)', 'rgba(139, 92, 246, 0.05)']}
                                     style={styles.targetCardGradient}
                                 >
-                                    <Text style={styles.targetLabel}>Ogren:</Text>
+                                    <Text style={styles.targetLabel}>Öğren:</Text>
                                     <Text style={styles.targetWord}>{normalizeDisplayText(sentence.word)}</Text>
                                     <Text style={styles.targetMeaning}>{normalizeDisplayText(sentence.meaning_tr)}</Text>
                                 </LinearGradient>
@@ -1070,7 +1054,7 @@ export default function SesYapScreen() {
 
                             {/* CÃƒÆ’Ã‚Â¼mle alanÃƒâ€Ã‚Â± - Yapboz tarzÃƒâ€Ã‚Â± slot'lar */}
                             <View style={styles.sentenceArea}>
-                                <Text style={styles.sentenceLabel}>Bu cumleyi soyle:</Text>
+                                <Text style={styles.sentenceLabel}>Bu cümleyi söyle:</Text>
 
                                 <View style={styles.slotsContainer}>
                                     {sentenceWords.map((word, index) => {
@@ -1090,7 +1074,7 @@ export default function SesYapScreen() {
                                     })}
                                 </View>
 
-                                <Text style={styles.translationHint}>Ipucu: {normalizeDisplayText(sentence.example_tr)}</Text>
+                                <Text style={styles.translationHint}>İpucu: {normalizeDisplayText(sentence.example_tr)}</Text>
                             </View>
 
                             {/* Mikrofon veya sonuÃƒÆ’Ã‚Â§ butonlarÃƒâ€Ã‚Â± */}
@@ -1117,7 +1101,7 @@ export default function SesYapScreen() {
                                                 styles.resultText,
                                                 { color: allCorrect ? COLORS.success : COLORS.warning }
                                             ]}>
-                                                {allCorrect ? 'Mukemmel!' : 'Devam et!'}
+                                                {allCorrect ? 'Mükemmel!' : 'Devam et!'}
                                             </Text>
                                         </View>
 
@@ -1162,18 +1146,7 @@ export default function SesYapScreen() {
                         <ScrollView style={styles.tarlaContent} contentContainerStyle={styles.tarlaContentContainer}>
                             <View style={styles.tarlaGuideCard}>
                                 <Text style={styles.tarlaGuideText}>
-                                    SesYapda mukemmel bildiklerin meyvedir, bilemediklerin tohumdur. Buradan secerek hem bilemediklerine hem bildiklerine calisabilirsin.
-                                </Text>
-                            </View>
-
-                            <View style={styles.cefrCard}>
-                                <View style={styles.cefrHeader}>
-                                    <Text style={styles.cefrLabel}>Tahmini CEFR Seviyesi</Text>
-                                    <Text style={styles.cefrLevel}>{cefrEstimate.level}</Text>
-                                </View>
-                                <Text style={styles.cefrMessage}>{cefrEstimate.message}</Text>
-                                <Text style={styles.cefrMeta}>
-                                    Guven {cefrEstimate.confidence}% · Bilinen {cefrEstimate.knownWordCount} · Gelistirilecek {cefrEstimate.unknownWordCount}
+                                    SesYap'ta mükemmel bildiklerin meyvedir, bilemediklerin tohumdur. Buradan seçerek hem bilemediklerine hem bildiklerine çalışabilirsin.
                                 </Text>
                             </View>
 
@@ -1181,7 +1154,7 @@ export default function SesYapScreen() {
                                 <Text style={styles.tarlaTitle}>Senin Tarlan</Text>
                                 <Text style={styles.tarlaSubtitle}>
                                     {sesyapHistory.length === 0
-                                        ? 'Henuz calistigin cumle yok'
+                                        ? 'Henüz çalıştığın cümle yok'
                                         : `${sesyapHistory.filter(h => h.correct).length} meyve / ${sesyapHistory.filter(h => !h.correct).length} tohum`
                                     }
                                 </Text>
@@ -1189,8 +1162,8 @@ export default function SesYapScreen() {
 
                             {sesyapHistory.length === 0 ? (
                                 <View style={styles.tarlaEmpty}>
-                                    <Text style={styles.tarlaEmptyEmoji}>Fide</Text>
-                                    <Text style={styles.tarlaEmptyText}>Calis modunda pratik yap,</Text>
+                                    <Text style={styles.tarlaEmptyEmoji}>{'\u{1F331}'}</Text>
+                                    <Text style={styles.tarlaEmptyText}>Çalış modunda pratik yap,</Text>
                                     <Text style={styles.tarlaEmptyText}>tarlan dolsun!</Text>
                                 </View>
                             ) : (
@@ -1743,43 +1716,6 @@ const styles = StyleSheet.create({
         color: '#ccfbf1',
         fontSize: 13,
         lineHeight: 18,
-        fontWeight: '600',
-    },
-    cefrCard: {
-        marginTop: 10,
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: 'rgba(139, 92, 246, 0.38)',
-        backgroundColor: 'rgba(49, 46, 129, 0.22)',
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-    },
-    cefrHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 6,
-    },
-    cefrLabel: {
-        color: '#c4b5fd',
-        fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 0.2,
-    },
-    cefrLevel: {
-        color: '#ffffff',
-        fontSize: 18,
-        fontWeight: '900',
-    },
-    cefrMessage: {
-        color: '#e9d5ff',
-        fontSize: 12,
-        lineHeight: 17,
-    },
-    cefrMeta: {
-        marginTop: 6,
-        color: '#c4b5fd',
-        fontSize: 11,
         fontWeight: '600',
     },
     tarlaHeader: {

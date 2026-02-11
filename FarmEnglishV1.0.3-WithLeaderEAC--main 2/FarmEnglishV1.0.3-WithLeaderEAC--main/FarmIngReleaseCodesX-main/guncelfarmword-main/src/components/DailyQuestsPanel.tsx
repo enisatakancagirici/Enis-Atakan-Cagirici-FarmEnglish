@@ -60,9 +60,10 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
 
   const handleClaimReward = (questId: string, questType: TabType = 'daily') => {
     const safeQuestId = typeof questId === 'string' ? questId.trim() : '';
+    const claimKey = `${questType}:${safeQuestId}`;
     if (!safeQuestId) return;
-    if (claimingRef.current.has(safeQuestId)) return;
-    claimingRef.current.add(safeQuestId);
+    if (claimingRef.current.has(claimKey)) return;
+    claimingRef.current.add(claimKey);
 
     try {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -84,7 +85,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
       }
     } finally {
       setTimeout(() => {
-        claimingRef.current.delete(safeQuestId);
+        claimingRef.current.delete(claimKey);
       }, 800);
     }
   };

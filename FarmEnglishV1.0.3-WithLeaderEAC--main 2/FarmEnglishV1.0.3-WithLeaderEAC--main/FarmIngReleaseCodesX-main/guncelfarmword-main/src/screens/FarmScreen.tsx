@@ -938,6 +938,10 @@ export function FarmScreen() {
   const transferEvent = useFarmStore(state => state.transferEvent);
   const consumeTransferEvent = useFarmStore(state => state.consumeTransferEvent);
   const setStoreFeedVisible = useFarmStore(state => state.setFeedVisible); // Swipe block için
+  const activeCardTheme = useFarmStore(state => state.activeCardTheme);
+  const ownedCardThemes = useFarmStore(state => state.ownedCardThemes);
+  const setActiveCardTheme = useFarmStore(state => state.setActiveCardTheme);
+  const updateCardCustomization = useFarmStore(state => state.updateCardCustomization);
 
   // ⚡ PERFORMANS — FeedCard'a prop olarak geçilecek (hook bypass)
   const feedPerformanceConfig = usePerformanceStore(s => s.config);
@@ -961,6 +965,18 @@ export function FarmScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
   const gridColumns = cardCustomization?.largeMode ? 1 : cardCustomization?.compactMode ? 3 : 2;
+  const isSoilQuickThemeActive = cardCustomization?.backgroundStyle === 'soil' || activeCardTheme === 'soil';
+  const handleQuickThemeSwitch = useCallback((mode: 'default' | 'soil') => {
+    if (mode === 'soil') {
+      updateCardCustomization({ backgroundStyle: 'soil' });
+      if (Array.isArray(ownedCardThemes) && ownedCardThemes.includes('soil')) {
+        setActiveCardTheme('soil');
+      }
+      return;
+    }
+    updateCardCustomization({ backgroundStyle: 'default' });
+    setActiveCardTheme('default');
+  }, [ownedCardThemes, setActiveCardTheme, updateCardCustomization]);
 
   // 🎯 GÜNLÜK GÖREVLER PANEL
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
@@ -1708,6 +1724,51 @@ export function FarmScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      <View style={styles.quickThemeRow}>
+        <TouchableOpacity
+          style={[
+            styles.quickThemeChip,
+            !isSoilQuickThemeActive && styles.quickThemeChipActive,
+          ]}
+          activeOpacity={0.85}
+          onPress={() => {
+            haptic.selection();
+            sound.playTap();
+            handleQuickThemeSwitch('default');
+          }}
+        >
+          <Text
+            style={[
+              styles.quickThemeChipText,
+              !isSoilQuickThemeActive && styles.quickThemeChipTextActive,
+            ]}
+          >
+            Varsayilan
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.quickThemeChip,
+            isSoilQuickThemeActive && styles.quickThemeChipActive,
+            isSoilQuickThemeActive && styles.quickThemeChipActiveSoil,
+          ]}
+          activeOpacity={0.85}
+          onPress={() => {
+            haptic.selection();
+            sound.playTap();
+            handleQuickThemeSwitch('soil');
+          }}
+        >
+          <Text
+            style={[
+              styles.quickThemeChipText,
+              isSoilQuickThemeActive && styles.quickThemeChipTextActive,
+            ]}
+          >
+            Toprak
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {/* ?? TAB CONTENT */}
       {activeTab === 'words' ? (
@@ -2008,6 +2069,42 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 4,
     right: 4,
+  },
+  quickThemeRow: {
+    marginHorizontal: IS_TABLET ? 20 : IS_SMALL_SCREEN ? 12 : 16,
+    marginBottom: IS_TABLET ? 10 : IS_SMALL_SCREEN ? 8 : 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  quickThemeChip: {
+    minWidth: IS_SMALL_SCREEN ? 112 : 126,
+    paddingVertical: IS_SMALL_SCREEN ? 8 : 9,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickThemeChipActive: {
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+    borderColor: 'rgba(34, 197, 94, 0.55)',
+  },
+  quickThemeChipActiveSoil: {
+    backgroundColor: 'rgba(105, 62, 31, 0.33)',
+    borderColor: 'rgba(145, 93, 57, 0.75)',
+  },
+  quickThemeChipText: {
+    color: 'rgba(255,255,255,0.74)',
+    fontSize: IS_SMALL_SCREEN ? 12 : 13,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  quickThemeChipTextActive: {
+    color: '#fff',
   },
 
   // ?? Animated Filter Tabs - Scroll ile gizlenir

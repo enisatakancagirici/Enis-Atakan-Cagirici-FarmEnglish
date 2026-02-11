@@ -17,11 +17,24 @@ export const HOMEPAGE_IMAGES = {
   soruIsareti: require('../../assets/images/maskot/soru_isareti.webp'),
 };
 
+// Home yeni tasarim görselleri (anasayfa kartlari)
+export const HOME_NEW_DESIGN_IMAGES = {
+  quizYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/quizegelecek.png'),
+  ciftlikYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/ciftligegelecek.png'),
+  envanterYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/envanteregelecek.png'),
+  yapbozYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/yapbozagelecek.png'),
+  savasYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/savasmodunagelecek.png'),
+  sesyapYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/SesYapagelecek.png'),
+  kartMagazasiYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/kartmagazasinagelecek.png'),
+  pratikYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/pratikmerkezinegelecek.png'),
+  customWordYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/kendikelimekartiniolusturagelecek.png'),
+};
+
 // 🛒 Market görselleri
 export const MARKET_IMAGES = {
   marketGuc: require('../../assets/images/maskot/guc_magazasi.webp'),
   marketPhrasal: require('../../assets/images/maskot/market_pharasal.webp'),
-  marketTohum: require('../../assets/images/maskot/tohum_pazarı.webp'),
+  marketTohum: require('../../assets/images/maskot/tohum_pazar\u0131.webp'),
 };
 
 // 🚜 Çiftlik filtre görselleri
@@ -106,6 +119,7 @@ export function getAllAppImages(): any[] {
   
   // Homepage
   Object.values(HOMEPAGE_IMAGES).forEach(img => images.push(img));
+  Object.values(HOME_NEW_DESIGN_IMAGES).forEach(img => images.push(img));
   
   // Market
   Object.values(MARKET_IMAGES).forEach(img => images.push(img));
@@ -142,6 +156,7 @@ export function getAllAppImages(): any[] {
  */
 export const AppImageSources = {
   homepage: HOMEPAGE_IMAGES,
+  homepageNewDesign: HOME_NEW_DESIGN_IMAGES,
   market: MARKET_IMAGES,
   ciftlikFiltre: CIFTLIK_FILTRE_IMAGES,
   envanterFiltre: ENVANTER_FILTRE_IMAGES,

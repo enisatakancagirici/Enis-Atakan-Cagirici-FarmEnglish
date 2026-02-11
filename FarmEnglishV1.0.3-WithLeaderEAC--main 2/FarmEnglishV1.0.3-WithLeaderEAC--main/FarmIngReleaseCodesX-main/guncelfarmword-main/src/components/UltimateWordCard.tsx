@@ -18,6 +18,7 @@ import { useFarmStore } from '../store/farmStore';
 import { haptic, sound } from '../utils/sound';
 import { usePerformanceStore } from '../store/performanceStore';
 import { getThemeOverlay, BORDER_STYLES } from '../data/cardThemes';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 // ğŸŒ± Tohum gÃ¶rselleri - KÄ±rmÄ±zÄ±/SarÄ± ilerleme iÃ§in
 const SEED_SMALL_IMAGE = require('../../assets/images/maskot/tohumenkucuk.webp');
@@ -855,9 +856,14 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
 
   // ğŸ“ Phrasal Verb kontrolÃ¼
   const isPhrasalVerb = word.isPhrasalVerb || false;
+  const verbText = (word as any).verb;
 
   // ğŸ·ï¸ Custom kelime kontrolÃ¼
   const isCustomWord = (word as any).isCustom === true;
+  const displayWordText = useMemo(
+    () => normalizeDisplayText(word.text || verbText || ''),
+    [word.text, verbText]
+  );
 
   const safeCustomization = cardCustomization || ({
     fontStyle: 'default',
@@ -1625,7 +1631,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
                 { color: theme.textMain },
                 fontStyleOverride,
               ]} numberOfLines={2}>
-                {word.text}
+                {displayWordText}
               </Text>
 
               {/* ğŸ¯ STREAK COUNTER */}

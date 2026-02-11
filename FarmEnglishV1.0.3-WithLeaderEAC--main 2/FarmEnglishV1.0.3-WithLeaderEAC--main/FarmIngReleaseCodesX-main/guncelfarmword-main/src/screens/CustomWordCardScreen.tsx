@@ -46,6 +46,7 @@ const CreateTab: React.FC<{
   const [wordText, setWordText] = useState('');
   const [meaningText, setMeaningText] = useState('');
   const [exampleText, setExampleText] = useState('');
+  const [exampleTrText, setExampleTrText] = useState('');
   const [selectedCefr, setSelectedCefr] = useState<string>('B1');
   const [isCreating, setIsCreating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -127,6 +128,7 @@ const CreateTab: React.FC<{
       text: wordText.trim(),
       meaning: meaningText.trim(),
       example: exampleText.trim() || undefined,
+      exampleTr: exampleTrText.trim() || undefined,
       difficulty: selectedCefr,
     });
 
@@ -148,6 +150,7 @@ const CreateTab: React.FC<{
         setWordText('');
         setMeaningText('');
         setExampleText('');
+        setExampleTrText('');
         setIsCreating(false);
         onWordCreated();
       }, 600);
@@ -171,7 +174,7 @@ const CreateTab: React.FC<{
         'Tamam'
       );
     }
-  }, [wordText, meaningText, exampleText, selectedCefr, canAfford, coins, isCreating, addCustomWord, onWordCreated, showGameAlert]);
+  }, [wordText, meaningText, exampleText, exampleTrText, selectedCefr, canAfford, coins, isCreating, addCustomWord, onWordCreated, showGameAlert]);
 
   return (
     <>
@@ -239,6 +242,21 @@ const CreateTab: React.FC<{
           multiline
           numberOfLines={2}
           maxLength={200}
+        />
+      </View>
+
+      {/* 🇹🇷 Örnek Cümle Türkçe (Opsiyonel) */}
+      <View style={styles.inputSection}>
+        <Text style={styles.inputLabel}>🇹🇷 Örnek Cümlenin Türkçe Anlamı (opsiyonel)</Text>
+        <TextInput
+          style={[styles.textInput, styles.textInputMultiline]}
+          value={exampleTrText}
+          onChangeText={setExampleTrText}
+          placeholder="örn: Tanışmamız tamamen güzel bir tesadüftü."
+          placeholderTextColor="rgba(255,255,255,0.25)"
+          multiline
+          numberOfLines={2}
+          maxLength={220}
         />
       </View>
 

@@ -426,7 +426,7 @@ class SoundManager {
   private _speakDebounce: NodeJS.Timeout | null = null;
   private _lastSpeakTime = 0;
 
-  speakWord(word: string, language: string = 'en-US') {
+  speakWord(word: string, language: string = 'en-US', options?: { rate?: number; pitch?: number }) {
     if (!this.isEnabled || !word) return;
 
     // 🔒 Debounce: 150ms içinde tekrar çağrılırsa öncekini iptal et
@@ -442,15 +442,15 @@ class SoundManager {
     if (timeSinceLast < 200) {
       this._speakDebounce = setTimeout(() => {
         this._speakDebounce = null;
-        this._doSpeak(word, language);
+        this._doSpeak(word, language, options);
       }, 200 - timeSinceLast);
       return;
     }
 
-    this._doSpeak(word, language);
+    this._doSpeak(word, language, options);
   }
 
-  private _doSpeak(word: string, language: string) {
+  private _doSpeak(word: string, language: string, options?: { rate?: number; pitch?: number }) {
     this._lastSpeakTime = Date.now();
     try {
       // Her zaman önce durdur — overlap ve _isSpeaking takılmasını önle
@@ -460,10 +460,20 @@ class SoundManager {
       setTimeout(() => {
         try {
           this._isSpeaking = true;
+          const safeRate = (() => {
+            const requested = typeof options?.rate === 'number' ? options.rate : 0.9;
+            if (!Number.isFinite(requested)) return 0.9;
+            return Math.max(0.5, Math.min(1.4, requested));
+          })();
+          const safePitch = (() => {
+            const requested = typeof options?.pitch === 'number' ? options.pitch : 1.0;
+            if (!Number.isFinite(requested)) return 1.0;
+            return Math.max(0.5, Math.min(2.0, requested));
+          })();
           Speech.speak(word, {
             language,
-            pitch: 1.0,
-            rate: 0.9,
+            pitch: safePitch,
+            rate: safeRate,
             onDone: () => { this._isSpeaking = false; },
             onError: () => { this._isSpeaking = false; },
             onStopped: () => { this._isSpeaking = false; },
@@ -478,8 +488,8 @@ class SoundManager {
   }
 
   // 🗣️ speakSentence - cümle seslendirme (speakWord ile aynı)
-  speakSentence(sentence: string, language: string = 'en-US') {
-    this.speakWord(sentence, language);
+  speakSentence(sentence: string, language: string = 'en-US', options?: { rate?: number; pitch?: number }) {
+    this.speakWord(sentence, language, options);
   }
 
   stopSpeaking() {
