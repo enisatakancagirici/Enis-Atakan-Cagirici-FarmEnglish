@@ -752,6 +752,12 @@ const PremiumMenuCard = ({
   };
 
   const cardHeight = (() => {
+    if (size === "halfSquare") {
+      const base = Math.floor((SCREEN_WIDTH - SPACING.lg * 2 - GRID_GAP) / 2);
+      if (IS_LARGE_TABLET) return Math.max(220, Math.min(300, base));
+      if (IS_TABLET_DEVICE) return Math.max(190, Math.min(260, base));
+      return IS_SMALL_DEVICE ? Math.max(146, Math.min(176, base)) : Math.max(160, Math.min(196, base));
+    }
     if (size === "wideXXL") {
       const horizontalInset = IS_TABLET_DEVICE ? 44 : 24;
       const availableWidth = SCREEN_WIDTH - horizontalInset;
@@ -785,6 +791,8 @@ const PremiumMenuCard = ({
   const wrapperStyle =
     size === "large"
       ? styles.cardWrapperLarge
+      : size === "halfSquare"
+        ? styles.cardWrapperMedium
       : size === "wideXXL"
         ? styles.cardWrapperWide
       : size === "wideXL"
@@ -844,28 +852,15 @@ const PremiumMenuCard = ({
           <View style={styles.innerCard}>
             {/* Background Image - FULL COVERAGE */}
             {!hideImage && imageSource ? (
-              <>
-                {imageFit === "contain" && (
-                  <Image
-                    source={imageSource}
-                    style={styles.containBackdropImage}
-                    contentFit="cover"
-                    contentPosition="center"
-                    cachePolicy="memory-disk"
-                    priority="high"
-                    transition={0}
-                  />
-                )}
-                <Image
-                  source={imageSource}
-                  style={styles.fullImageCover}
-                  contentFit={imageFit}
-                  contentPosition="center"
-                  cachePolicy="memory-disk"
-                  priority="high"
-                  transition={0}
-                />
-              </>
+              <Image
+                source={imageSource}
+                style={styles.fullImageCover}
+                contentFit={imageFit}
+                contentPosition="center"
+                cachePolicy="memory-disk"
+                priority="high"
+                transition={0}
+              />
             ) : (
               <LinearGradient
                 colors={[`${accentColor}66`, `${accentColor}26`, "rgba(15, 23, 42, 0.95)"]}
@@ -1752,38 +1747,40 @@ export const HomeScreen = ({ navigation }: any) => {
               helpText="Hasat ettiğin kartlar burada. Tarlaya tekrar gönderdiğinde kartların gelişmiş seviyesiyle devam edersin. Hasatların burada 10 ve 10'un katları olduğunda böcek saldırısına uğrar. Quiz çözerek defedebilirsin. Bu olay aralıklı tekrar yaptırarak öğrenmeni kalıcılaştırır."
             />
 
-            <PremiumMenuCard
-              onPress={() => handleNav("CustomWordCard")}
-              imageSource={PRELOADED_IMAGES.customWord}
-              title="KENDİ KELİME KARTINI OLUŞTUR"
-              subtitle="Kendi tohumunu ek, büyüt, geliştir"
-              size="wideXXL"
-              textAlign="center"
-              imageFit="contain"
-              accentColor="#22C55E"
-              delay={280}
-              hasBounce={true}
-              onHelpPress={showHomeHelpModal}
-              helpText="Kendi kelimeni, örnek cümleni ve Türkçe anlamını ekleyip oyuna dahil edebilirsin."
-            />
+            <View style={styles.gridRow}>
+              <PremiumMenuCard
+                onPress={() => handleNav("CustomWordCard")}
+                imageSource={PRELOADED_IMAGES.customWord}
+                title="KENDİ KELİME KARTI"
+                subtitle="Kendi tohumunu ek"
+                size="halfSquare"
+                textAlign="center"
+                imageFit="cover"
+                accentColor="#22C55E"
+                delay={280}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Kendi kelimeni, örnek cümleni ve Türkçe anlamını ekleyip oyuna dahil edebilirsin."
+              />
 
-            <PremiumMenuCard
-              onPress={() => {
-                haptic.light();
-                setPracticeCenterVisible(true);
-              }}
-              imageSource={PRELOADED_IMAGES.pratik}
-              title="PRATİK MERKEZİ"
-              subtitle="Kelime eşleştir, boşluk doldur, YDS ve deyimler"
-              size="wideXXL"
-              textAlign="center"
-              imageFit="contain"
-              accentColor="#38BDF8"
-              delay={320}
-              hasBounce={true}
-              onHelpPress={showHomeHelpModal}
-              helpText="Pratik merkezinde hız, doğruluk ve sınav odaklı alıştırmaları tek yerden çözersin."
-            />
+              <PremiumMenuCard
+                onPress={() => {
+                  haptic.light();
+                  setPracticeCenterVisible(true);
+                }}
+                imageSource={PRELOADED_IMAGES.pratik}
+                title="PRATİK MERKEZİ"
+                subtitle="Eşleştir, doldur, YDS"
+                size="halfSquare"
+                textAlign="center"
+                imageFit="cover"
+                accentColor="#38BDF8"
+                delay={320}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Pratik merkezinde hız, doğruluk ve sınav odaklı alıştırmaları tek yerden çözersin."
+              />
+            </View>
 
             <PremiumMenuCard
               onPress={() => {
@@ -2565,13 +2562,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     opacity: 1,
-  },
-  containBackdropImage: {
-    ...StyleSheet.absoluteFillObject,
-    width: "100%",
-    height: "100%",
-    opacity: 0.5,
-    transform: [{ scale: 1.08 }],
   },
 
   // Image Overlay
