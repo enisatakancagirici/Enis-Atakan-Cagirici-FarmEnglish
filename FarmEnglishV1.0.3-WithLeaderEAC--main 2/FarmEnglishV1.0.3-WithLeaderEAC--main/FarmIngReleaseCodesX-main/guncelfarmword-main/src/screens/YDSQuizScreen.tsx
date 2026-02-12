@@ -109,12 +109,12 @@ function decodeMojibake(text: string): string {
 function buildContextHint(questionText: string): string {
     const parts = questionText.split('________');
     if (parts.length !== 2) {
-        return 'Boslugun etrafindaki anlam butunlugunu kontrol et.';
+        return 'Boşluğun etrafındaki anlam bütünlüğünü kontrol et.';
     }
 
     const left = parts[0].trim().split(/\s+/).slice(-3).join(' ');
     const right = parts[1].trim().split(/\s+/).slice(0, 3).join(' ');
-    return `Baglam: "${left} ___ ${right}".`;
+    return `Bağlam: "${left} ___ ${right}".`;
 }
 
 function inferYdsStrategy(answer: string, questionText: string): string {
@@ -122,21 +122,21 @@ function inferYdsStrategy(answer: string, questionText: string): string {
     const lowerQuestion = questionText.toLowerCase();
 
     if (['however', 'therefore', 'moreover', 'nevertheless', 'despite', 'although', 'whereas'].includes(lowerAnswer)) {
-        return 'Baglac sorusu: once cumleler arasi iliskiyi (zitlik, neden-sonuc, ekleme) tespit et.';
+        return 'Bağlaç sorusu: önce cümleler arası ilişkiyi (zıtlık, neden-sonuç, ekleme) tespit et.';
     }
     if (['in', 'on', 'at', 'to', 'for', 'with', 'from', 'by', 'of'].includes(lowerAnswer)) {
-        return 'Edat sorusu: boslugun solundaki fiil/isim ile sabit kalibi kontrol et.';
+        return 'Edat sorusu: boşluğun solundaki fiil/isim ile sabit kalıbı kontrol et.';
     }
     if (lowerAnswer.endsWith('ly')) {
-        return 'Zarf adayi: fiili veya tum cumleyi nasil oldugunu anlatarak tamamlar.';
+        return 'Zarf adayı: fiili veya tüm cümleyi nasıl olduğunu anlatarak tamamlar.';
     }
     if (/(has|have|had)\s+________/.test(lowerQuestion)) {
-        return 'Perfect yapiya dikkat et: genelde V3 veya uygun isim/ifade beklenir.';
+        return 'Perfect yapıya dikkat et: genelde V3 ya da uygun isim/ifade beklenir.';
     }
     if (/(is|are|was|were|be)\s+________/.test(lowerQuestion)) {
-        return 'Be fiilinden sonra gelen kelimenin turunu (sifat/isim/participle) kontrol et.';
+        return 'Be fiilinden sonra gelen kelimenin türünü (sıfat/isim/participle) kontrol et.';
     }
-    return 'Secenekleri eleyerek ilerle: once gramer uyumu, sonra anlam uyumu, en son collocation kontrolu.';
+    return 'Seçenekleri eleyerek ilerle: önce gramer uyumu, sonra anlam uyumu, en son collocation kontrolü.';
 }
 
 function buildYdsExplanation(
@@ -145,17 +145,17 @@ function buildYdsExplanation(
     isCorrect: boolean | null
 ): string {
     const selectionLine = isCorrect
-        ? `Secimin dogru: "${question.answer}".`
+        ? `Seçimin doğru: "${question.answer}".`
         : selectedOption
-            ? `Dogru cevap "${question.answer}". Sen "${selectedOption}" sectin.`
-            : `Dogru cevap "${question.answer}".`;
+            ? `Doğru cevap "${question.answer}". Sen "${selectedOption}" seçtin.`
+            : `Doğru cevap "${question.answer}".`;
 
     const sourceExplanation = decodeMojibake(question.explanation || '').trim();
 
     return [
         selectionLine,
         buildContextHint(question.question),
-        `Sinav ipucu: ${inferYdsStrategy(question.answer, question.question)}`,
+        `Sınav ipucu: ${inferYdsStrategy(question.answer, question.question)}`,
         sourceExplanation ? `Detay: ${sourceExplanation}` : '',
     ].filter(Boolean).join('\n');
 }
@@ -624,7 +624,7 @@ export default function YDSQuizScreen() {
                                             styles.explanationTitle,
                                             { color: isCorrect ? COLORS.success : COLORS.warning }
                                         ]}>
-                                            {isCorrect ? 'Dogru!' : 'Cozum'}
+                                            {isCorrect ? 'Doğru!' : 'Çözüm'}
                                         </Text>
                                     </View>
                                     <Text style={styles.explanationText}>
@@ -632,7 +632,7 @@ export default function YDSQuizScreen() {
                                     </Text>
                                     {!isCorrect && (
                                         <Text style={styles.correctAnswerText}>
-                                            {'\u2713'} Dogru cevap: <Text style={{ fontWeight: '700' }}>{currentQuestion.answer}</Text>
+                                            {'\u2713'} Doğru cevap: <Text style={{ fontWeight: '700' }}>{currentQuestion.answer}</Text>
                                         </Text>
                                     )}
                                 </View>

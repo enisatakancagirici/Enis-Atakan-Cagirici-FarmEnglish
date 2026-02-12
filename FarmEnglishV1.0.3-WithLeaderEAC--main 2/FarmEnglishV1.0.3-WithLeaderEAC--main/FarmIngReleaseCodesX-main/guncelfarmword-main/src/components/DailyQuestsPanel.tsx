@@ -36,6 +36,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState<TabType>('daily');
   const claimingRef = useRef(new Set<string>());
+  const lastClaimAtRef = useRef(0);
   
   // Store hooks — sadece data selectors (action'lar için getState() kullanılır)
   const dailyQuests = useFarmStore(state => state.dailyQuests);
@@ -61,13 +62,17 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
   const handleClaimReward = (questId: string, questType: TabType = 'daily') => {
     const safeQuestId = typeof questId === 'string' ? questId.trim() : '';
     const claimKey = `${questType}:${safeQuestId}`;
+    const now = Date.now();
     if (!safeQuestId) return;
+    if (now - lastClaimAtRef.current < 220) return;
     if (claimingRef.current.has(claimKey)) return;
+    lastClaimAtRef.current = now;
     claimingRef.current.add(claimKey);
 
     try {
+      const claimed = useFarmStore.getState().claimQuestReward(safeQuestId, questType);
+      if (!claimed) return;
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-      useFarmStore.getState().claimQuestReward(safeQuestId, questType);
 
       if (questType === 'repeatable') {
         const quest = repeatableQuests.find(q => q.id === safeQuestId);
@@ -94,7 +99,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     } finally {
       setTimeout(() => {
         claimingRef.current.delete(claimKey);
-      }, 800);
+      }, 1000);
     }
   };
 

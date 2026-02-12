@@ -141,22 +141,22 @@ function inferWordFormStrategy(question: WordFormQuestion): string {
     const answer = question.answer.toLowerCase();
 
     if (answer.endsWith('ly')) {
-        return 'Bu bosluk buyuk olasilikla zarf ister; -ly son eki dogru sinyaldir.';
+        return 'Bu boşluk büyük olasılıkla zarf ister; `-ly` son eki güçlü bir sinyaldir.';
     }
     if (answer.endsWith('tion') || answer.endsWith('sion') || answer.endsWith('ment') || answer.endsWith('ness')) {
-        return 'Cumlede isim pozisyonu var; noun yapan son ekleri kontrol et.';
+        return 'Cümlede isim pozisyonu var; noun yapan son ekleri kontrol et.';
     }
     if (answer.endsWith('ive') || answer.endsWith('al') || answer.endsWith('ous') || answer.endsWith('able') || answer.endsWith('ic')) {
-        return 'Cumle bir niteleme bekliyor; adjective form secimi daha guclu.';
+        return 'Cümle bir niteleme bekliyor; adjective form seçimi daha güçlü.';
     }
     if (answer.startsWith('un') || answer.startsWith('in') || answer.startsWith('im') || answer.startsWith('ir') || answer.startsWith('dis')) {
-        return 'Anlam olumsuz yone kayiyor; negatif on ek (un-/in-/dis-) kontrolu yap.';
+        return 'Anlam olumsuz yöne kayıyor; negatif ön ekleri (`un-`, `in-`, `dis-`) kontrol et.';
     }
     if (question.category === 'complex_transformation') {
-        return 'Kompleks donusum sorusu: once kelime turunu, sonra anlam yonunu dogrula.';
+        return 'Kompleks dönüşüm sorusu: önce kelime türünü, sonra anlam yönünü doğrula.';
     }
 
-    return 'Kok kelimeyi bul, cumledeki pozisyona gore kelime turunu sec, sonra anlam uygunlugunu test et.';
+    return 'Kök kelimeyi bul, cümledeki pozisyona göre kelime türünü seç, sonra anlam uygunluğunu test et.';
 }
 
 function buildWordFormExplanation(
@@ -165,18 +165,18 @@ function buildWordFormExplanation(
     isCorrect: boolean | null
 ): string {
     const selectionLine = isCorrect
-        ? `Secimin dogru: "${question.answer}".`
+        ? `Seçimin doğru: "${question.answer}".`
         : selectedOption
-            ? `Dogru cevap "${question.answer}". Sen "${selectedOption}" sectin.`
-            : `Dogru cevap "${question.answer}".`;
+            ? `Doğru cevap "${question.answer}". Sen "${selectedOption}" seçtin.`
+            : `Doğru cevap "${question.answer}".`;
 
     const sourceExplanation = decodeMojibake(question.explanation || '').trim();
     const categoryLabel = CATEGORY_LABELS[question.category] || question.category;
 
     return [
         selectionLine,
-        `Kategori: ${categoryLabel} | Kok: ${question.root_word}`,
-        `Sinav ipucu: ${inferWordFormStrategy(question)}`,
+        `Kategori: ${categoryLabel} | Kök: ${question.root_word}`,
+        `Sınav ipucu: ${inferWordFormStrategy(question)}`,
         sourceExplanation ? `Detay: ${sourceExplanation}` : '',
     ].filter(Boolean).join('\n');
 }
@@ -775,7 +775,7 @@ export default function YDSWordFormsScreen() {
                                             styles.explanationTitle,
                                             { color: isCorrect ? COLORS.success : COLORS.warning }
                                         ]}>
-                                            {isCorrect ? 'Mukemmel!' : 'Cozum'}
+                                            {isCorrect ? 'Mükemmel!' : 'Çözüm'}
                                         </Text>
                                     </View>
                                     <Text style={styles.explanationText}>
@@ -785,7 +785,7 @@ export default function YDSWordFormsScreen() {
                                         <View style={styles.correctAnswerRow}>
                                             <Check size={16} color={COLORS.success} />
                                             <Text style={styles.correctAnswerText}>
-                                                Dogru cevap: <Text style={{ fontWeight: '700' }}>{currentQuestion.answer}</Text>
+                                                Doğru cevap: <Text style={{ fontWeight: '700' }}>{currentQuestion.answer}</Text>
                                             </Text>
                                         </View>
                                     )}

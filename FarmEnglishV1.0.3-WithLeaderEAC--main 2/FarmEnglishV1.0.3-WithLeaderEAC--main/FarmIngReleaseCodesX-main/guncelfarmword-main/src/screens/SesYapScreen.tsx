@@ -19,6 +19,7 @@ import {
     Linking,
     ScrollView,
     Easing,
+    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -60,6 +61,7 @@ import {
     getThemeOverlay,
     type CardFontStyle,
 } from '../data/cardThemes';
+import NetInfo from '@react-native-community/netinfo';
 
 // ÃƒÆ’Ã¢â‚¬â€œrnek cÃƒÆ’Ã‚Â¼mleler veri kaynaÃƒâ€Ã…Â¸Ãƒâ€Ã‚Â±
 import ensaglamData from '../../assets/data/ensaglamdata_with_example_tr.json';
@@ -527,6 +529,7 @@ export default function SesYapScreen() {
     const silenceStartRef = useRef<number | null>(null);
     const hasSpokenRef = useRef(false);
     const isProcessingRef = useRef(false);
+    const lastInternetAlertAtRef = useRef(0);
 
     useEffect(() => {
         isProcessingRef.current = isProcessing;
@@ -560,6 +563,34 @@ export default function SesYapScreen() {
         setIsComplete(false);
         setTranscript(''); // Transcript'i temizle
     }, []);
+
+    const showInternetRequiredAlert = useCallback(() => {
+        const now = Date.now();
+        if (now - lastInternetAlertAtRef.current < 2500) return;
+        lastInternetAlertAtRef.current = now;
+        Alert.alert(
+            'İnternet Gerekli',
+            'SesYap doğruluk kontrolü için internet bağlantısı gerekir. Bağlantını kontrol edip tekrar dene.'
+        );
+        haptic.error();
+    }, []);
+
+    const ensureInternetForSesYap = useCallback(async () => {
+        try {
+            const netState = await NetInfo.fetch();
+            const connected = netState.isConnected !== false;
+            const reachable = netState.isInternetReachable !== false;
+            const hasInternet = connected && reachable;
+            if (!hasInternet) {
+                showInternetRequiredAlert();
+                return false;
+            }
+            return true;
+        } catch {
+            return true;
+        }
+    }, [showInternetRequiredAlert]);
+
     // Mikrofon press
     const handleMicPress = useCallback(async () => {
         try {
@@ -572,6 +603,12 @@ export default function SesYapScreen() {
             }
 
             if (isRecordingRef.current || isProcessingRef.current || isComplete) return;
+
+            const canStartWithInternet = await ensureInternetForSesYap();
+            if (!canStartWithInternet) {
+                setPendingMicStart(false);
+                return;
+            }
 
             const permission = await getMicrophonePermissionState();
             if (!permission.granted) {
@@ -660,7 +697,7 @@ export default function SesYapScreen() {
             setPendingMicStart(false);
             setMicModalState('startFailed');
         }
-    }, [isComplete, isRecording]);
+    }, [isComplete, isRecording, ensureInternetForSesYap]);
 
     // KayÄ±dÄ± iÅŸleÃƒâ€Ã‚Â± iÃƒâ€¦Ã…Â¸le
     const processRecording = useCallback(async () => {
@@ -682,6 +719,12 @@ export default function SesYapScreen() {
         try {
             const uri = await stopRecording();
             if (!uri || !sentence) {
+                return;
+            }
+
+            const canTranscribeWithInternet = await ensureInternetForSesYap();
+            if (!canTranscribeWithInternet) {
+                await deleteRecording();
                 return;
             }
 
@@ -783,7 +826,7 @@ export default function SesYapScreen() {
             isRecordingRef.current = false;
             setRemainingTime(RECORDING_DURATION_MS / 1000);
         }
-    }, [isRecording, sentence, filledWords, sentenceWords, addSesyapHistory, addSesyapScore]);
+    }, [isRecording, sentence, filledWords, sentenceWords, addSesyapHistory, addSesyapScore, ensureInternetForSesYap]);
 
     // Sonraki soru
     const handleNext = useCallback(() => {

@@ -99,6 +99,36 @@ function getMilitaryRank(position: number): MilitaryRank {
 // ─── Tab Types ────────────────────────────────────────
 type TabType = 'general' | 'battle' | 'harvest';
 
+function getSpecialTitle(tabType: TabType, position: number): string | null {
+    if (position < 1 || position > 5) return null;
+
+    const titleMap: Record<TabType, string[]> = {
+        general: [
+            'Efsane Lider',
+            'Tahtın Varisi',
+            'Zirve Takipçisi',
+            'Seçkin Komutan',
+            'Seçkin Komutan',
+        ],
+        battle: [
+            'En İyi Savaşçı',
+            'Arena Ustası',
+            'Demir Yumruk',
+            'Savaş Elçisi',
+            'Savaş Elçisi',
+        ],
+        harvest: [
+            'En İyi Çiftçi',
+            'Altın Orak',
+            'Bereket Ustası',
+            'Tarla Yıldızı',
+            'Tarla Yıldızı',
+        ],
+    };
+
+    return titleMap[tabType][position - 1] || null;
+}
+
 const TABS: { key: TabType; label: string; icon: (active: boolean, size: number) => React.ReactNode }[] = [
     {
         key: 'general',
@@ -155,6 +185,7 @@ const PodiumCard = memo(
         tabType: TabType;
     }) => {
         const rank = getMilitaryRank(position);
+        const specialTitle = getSpecialTitle(tabType, position);
 
         // 🏆 Mareşal (1.) çok daha görkemli
         const is1st = position === 1;
@@ -276,6 +307,9 @@ const PodiumCard = memo(
                 ]}>
                     {rank.title}
                 </Text>
+                {!!specialTitle && (
+                    <Text style={styles.podiumSpecialTitle}>{specialTitle}</Text>
+                )}
 
                 {/* Score — Mareşal daha görkemli */}
                 <Text style={[
@@ -312,6 +346,7 @@ const LeaderboardItem = memo(
         tabType: TabType;
     }) => {
         const rank = getMilitaryRank(position);
+        const specialTitle = getSpecialTitle(tabType, position);
         const scoreValue = useMemo(() => getDisplayScore(entry, tabType), [entry, tabType]);
 
         return (
@@ -343,7 +378,9 @@ const LeaderboardItem = memo(
                             {isCurrentUser ? ' (Sen)' : ''}
                         </Text>
                     </View>
-                    <Text style={[styles.rankLabel, { color: rank.color }]}>{rank.title}</Text>
+                    <Text style={[styles.rankLabel, { color: rank.color }]}>
+                        {specialTitle ? `${rank.title} • ${specialTitle}` : rank.title}
+                    </Text>
                 </View>
 
                 {/* Score */}
@@ -470,6 +507,7 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
     const currentUserIdx = leaderboard.findIndex((e) => e.odId === currentOdId);
     const currentUserRank = currentUserIdx >= 0 ? currentUserIdx + 1 : -1;
     const currentMilRank = currentUserRank > 0 ? getMilitaryRank(currentUserRank) : null;
+    const currentSpecialTitle = currentUserRank > 0 ? getSpecialTitle(activeTab, currentUserRank) : null;
 
     // ── Top 3 & rest ──────────────────────────────────
     const top3 = leaderboard.slice(0, 3);
@@ -567,7 +605,7 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
                                     </Text>
                                     {'  '}
                                     <Text style={[styles.rankBannerTitle, { color: currentMilRank.color }]}>
-                                        {currentMilRank.title}
+                                        {currentSpecialTitle ? `${currentMilRank.title} • ${currentSpecialTitle}` : currentMilRank.title}
                                     </Text>
                                 </Text>
                             </View>
@@ -765,6 +803,13 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: '700',
         marginTop: 1,
+    },
+    podiumSpecialTitle: {
+        marginTop: 1,
+        fontSize: 10,
+        fontWeight: '700',
+        color: 'rgba(255,255,255,0.78)',
+        textAlign: 'center',
     },
     podiumScore: {
         fontWeight: '800',

@@ -353,7 +353,7 @@ const CardWaterDrops = React.memo<{
         >
           <Text style={cardAnimStyles.growTextEmoji}>{isProtected ? '\u{1F6E1}\uFE0F' : '\u{1F4A7}'}</Text>
           <Text style={[cardAnimStyles.growText, isProtected && { color: '#fbbf24' }]}>
-            {isProtected ? 'Korundu!' : 'BUYUYOR!'}
+            {isProtected ? 'Korundu!' : 'BÜYÜYOR!'}
           </Text>
         </Animated.View>
       )}
@@ -1018,7 +1018,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     const cappedDisplayStreak = showInfinity ? displayStreak : Math.min(displayStreak, streakNeeded);
 
     // ğŸ HASAT BUTONU - Sadece isHarvestReady true ise gÃ¶ster
-    let buttonText = 'CALIS';
+    let buttonText = 'ÇALIŞ';
     let showHarvestButton = false;
 
     if (isHarvestReady) {
@@ -1161,10 +1161,13 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     outputRange: [-dynamicCardWidth * 2, dynamicCardWidth * 2],
   });
 
-  const playFruitGrowPulse = useCallback(() => {
+  const playFruitGrowPulse = useCallback((stage: number = fruitGrowthStage) => {
+    const safeStage = Math.max(0, Math.min(Number.isFinite(stage) ? Math.floor(stage) : 0, 3));
+    const peakByStage = [1.22, 1.3, 1.4, 1.52];
+    const peakScale = peakByStage[safeStage] || 1.3;
     Animated.sequence([
       Animated.spring(fruitScaleAnim, {
-        toValue: 1.3,
+        toValue: peakScale,
         friction: 4,
         tension: 200,
         useNativeDriver: true,
@@ -1176,12 +1179,12 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
         useNativeDriver: true,
       }),
     ]).start();
-  }, [fruitScaleAnim]);
+  }, [fruitScaleAnim, fruitGrowthStage]);
 
   // ğŸ MEYVE BÃœYÃœME ANÄ°MASYONU - Session tamamlandÄ±ÄŸÄ±nda
   useEffect(() => {
     if (showFruit && fruitGrowthStage > 0) {
-      playFruitGrowPulse();
+      playFruitGrowPulse(fruitGrowthStage);
     }
   }, [fruitGrowthStage, showFruit, playFruitGrowPulse]);
 
@@ -1199,8 +1202,8 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     if (previousProgress === null) return;
     if (currentProgress <= previousProgress) return;
 
-    playFruitGrowPulse();
-  }, [displayStreak, showFruit, playFruitGrowPulse]);
+    playFruitGrowPulse(fruitGrowthStage);
+  }, [displayStreak, showFruit, playFruitGrowPulse, fruitGrowthStage]);
 
   // ğŸ HASAT HAZIR GLOW - Hasat hazÄ±r olduÄŸunda pulse
   useEffect(() => {
@@ -1506,10 +1509,10 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
                   let growthMultipliers: number[];
                   if (fruitType === 'watermelon') {
                     // ğŸ‰ KARPUZ: TÃ¼m tier'lerde kÃ¼Ã§Ã¼k
-                    growthMultipliers = [0.68, 0.78, 0.88, 0.98];
+                    growthMultipliers = [0.62, 0.78, 0.94, 1.08];
                   } else {
                     // ğŸŒ DÄ°ÄER MEYVELER: Normal growth
-                    growthMultipliers = [0.85, 0.95, 1.05, 1.15];
+                    growthMultipliers = [0.8, 0.98, 1.14, 1.28];
                   }
                   const currentMultiplier = growthMultipliers[Math.min(fruitGrowthStage, 3)];
                   fruitSize = Math.round(cardMaxSize * currentMultiplier);

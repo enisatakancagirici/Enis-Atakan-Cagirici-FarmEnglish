@@ -1077,9 +1077,8 @@ export function FarmScreen() {
     }).start();
   }, [topTabAnim]);
 
-  const handleFarmContentScroll = useCallback((event: any) => {
-    const rawY = Number(event?.nativeEvent?.contentOffset?.y ?? 0);
-    const y = Number.isFinite(rawY) ? Math.max(0, rawY) : 0;
+  const handleSharedContentOffset = useCallback((offsetY: number) => {
+    const y = Number.isFinite(offsetY) ? Math.max(0, offsetY) : 0;
     const prevY = lastScrollOffsetRef.current;
     const delta = y - prevY;
 
@@ -1097,6 +1096,16 @@ export function FarmScreen() {
 
     lastScrollOffsetRef.current = y;
   }, [setTopTabVisibility]);
+
+  const handleFarmContentScroll = useCallback((event: any) => {
+    const rawY = Number(event?.nativeEvent?.contentOffset?.y ?? 0);
+    const y = Number.isFinite(rawY) ? Math.max(0, rawY) : 0;
+    handleSharedContentOffset(y);
+  }, [handleSharedContentOffset]);
+
+  const handleEmbeddedTabScroll = useCallback((offsetY: number) => {
+    handleSharedContentOffset(offsetY);
+  }, [handleSharedContentOffset]);
 
   useEffect(() => {
     setTopTabVisibility(true, true);
@@ -2054,6 +2063,7 @@ export function FarmScreen() {
           initialFilter={filter}
           externalSearchVisible={phrasalSearchVisible}
           setExternalSearchVisible={setPhrasalSearchVisible}
+          onParentScroll={handleEmbeddedTabScroll}
         />
       ) : (
         /* ?? YAPBOZ TAB CONTENT */
@@ -2062,6 +2072,7 @@ export function FarmScreen() {
           initialFilter={filter}
           externalSearchVisible={puzzleSearchVisible}
           setExternalSearchVisible={setPuzzleSearchVisible}
+          onParentScroll={handleEmbeddedTabScroll}
         />
       )}
 

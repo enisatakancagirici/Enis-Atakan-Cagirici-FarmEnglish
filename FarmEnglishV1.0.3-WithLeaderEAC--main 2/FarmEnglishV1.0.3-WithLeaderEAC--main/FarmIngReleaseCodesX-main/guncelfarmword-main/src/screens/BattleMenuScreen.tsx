@@ -30,6 +30,7 @@ import { useFarmStore } from '../store/farmStore';
 import { haptic } from '../utils/sound';
 import { createBattleRoom, joinBattleRoom, generateBattleQuestions, listenToBattle, startBattle } from '../utils/firebaseBattle';
 import * as Clipboard from 'expo-clipboard';
+import NetInfo from '@react-native-community/netinfo';
 
 // Base responsive sizes helper
 const getResponsiveSizes = (width: number, height: number) => {
@@ -289,7 +290,33 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
     }, [nickname, user]);
 
     // Handlers
-    const handleQuickMatch = useCallback(() => {
+    const ensureInternetConnection = useCallback(async () => {
+        try {
+            const netState = await NetInfo.fetch();
+            const connected = netState.isConnected !== false;
+            const reachable = netState.isInternetReachable !== false;
+            const hasInternet = connected && reachable;
+
+            if (!hasInternet) {
+                Alert.alert(
+                    'İnternet Gerekli',
+                    'Savaş moduna girmek, rakip bulmak ve liderlik tablosunu görmek için internet bağlantısı gerekir.'
+                );
+                haptic.error();
+                return false;
+            }
+
+            return true;
+        } catch {
+            // NetInfo beklenmedik hata verirse akışı bloklamayalım.
+            return true;
+        }
+    }, []);
+
+    const handleQuickMatch = useCallback(async () => {
+        const canProceed = await ensureInternetConnection();
+        if (!canProceed) return;
+
         // Auto-generate user if not authenticated
         if (!user) {
             // Create a unique odId for this session
@@ -301,9 +328,12 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
             useFarmStore.getState().setIsAuthenticated(true);
         }
         navigation.navigate('Battle', { mode: 'quickMatch' });
-    }, [navigation, user, getBattleNickname]);
+    }, [navigation, user, getBattleNickname, ensureInternetConnection]);
 
     const handleCreateRoom = useCallback(async () => {
+        const canProceed = await ensureInternetConnection();
+        if (!canProceed) return;
+
         // Auto-generate user if not authenticated
         let currentUser = user;
         if (!currentUser) {
@@ -362,9 +392,12 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
         } catch (error) {
             Alert.alert('Hata', 'Oda oluşturulamadı');
         }
-    }, [isAuthenticated, user, nickname, navigation, farm, pool]);
+    }, [isAuthenticated, user, nickname, navigation, farm, pool, ensureInternetConnection]);
 
     const handleJoinRoom = useCallback(async (code: string) => {
+        const canProceed = await ensureInternetConnection();
+        if (!canProceed) return;
+
         // Auto-generate user if not authenticated
         let currentUser = user;
         if (!currentUser) {
@@ -406,7 +439,7 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
         } finally {
             setJoining(false);
         }
-    }, [isAuthenticated, user, nickname, navigation, level]);
+    }, [isAuthenticated, user, nickname, navigation, level, ensureInternetConnection]);
 
     const handleStartBattle = useCallback(() => {
         if (battleId) {
@@ -415,9 +448,11 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
         }
     }, [battleId, navigation]);
 
-    const handleLeaderboard = useCallback(() => {
+    const handleLeaderboard = useCallback(async () => {
+        const canProceed = await ensureInternetConnection();
+        if (!canProceed) return;
         navigation.navigate('Leaderboard');
-    }, [navigation]);
+    }, [navigation, ensureInternetConnection]);
 
     const handleBack = useCallback(() => {
         haptic.light();

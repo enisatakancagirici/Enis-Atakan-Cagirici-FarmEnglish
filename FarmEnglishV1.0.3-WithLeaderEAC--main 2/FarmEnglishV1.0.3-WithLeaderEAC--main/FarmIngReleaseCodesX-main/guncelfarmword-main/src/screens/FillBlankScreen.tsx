@@ -117,29 +117,29 @@ function decodeMojibake(text: string): string {
 }
 
 const CATEGORY_RULES: Record<string, string> = {
-    time: 'Zaman sorularinda kaliba bak: at saat, on gun/tarih, in ay-yil-donem.',
-    place: 'Yer sorularinda fiziksel konum iliskisini kontrol et: in/inside, on/surface, at/nokta.',
-    direction: 'Hareket yonunu veren fiillerde to, into, onto gibi yon bildiren kaliplari ara.',
-    purpose: 'Amac bildiren yapilarda for + noun / to + verb ayrimina dikkat et.',
-    origin: 'Kaynak cikis anlaminda from kalibi baskindir.',
-    accompaniment: 'Birliktelik anlatiminda with kalibi en guclu adaydir.',
-    means: 'Arac-yontem sorularinda by + method kalibina odaklan.',
-    topic: 'Konu bildirirken about/on gibi konu edatlari beklenir.',
-    position: 'Sabit konumda under/over/between gibi uzamsal iliskiyi dogrula.',
-    absence: 'Yokluk anlaminda without kalibi aranir.',
+    time: 'Zaman sorularında kalıba bak: `at` saat, `on` gün/tarih, `in` ay-yıl-dönem.',
+    place: 'Yer sorularında fiziksel konum ilişkisini kontrol et: `in`/inside, `on`/surface, `at`/nokta.',
+    direction: 'Hareket yönü veren fiillerde `to`, `into`, `onto` gibi yön bildiren kalıpları ara.',
+    purpose: 'Amaç bildiren yapılarda `for + noun` / `to + verb` ayrımına dikkat et.',
+    origin: 'Kaynak-çıkış anlamında `from` kalıbı baskındır.',
+    accompaniment: 'Birliktelik anlatımında `with` kalıbı en güçlü adaydır.',
+    means: 'Araç-yöntem sorularında `by + method` kalıbına odaklan.',
+    topic: 'Konu bildirirken `about/on` gibi konu edatları beklenir.',
+    position: 'Sabit konumda `under/over/between` gibi uzamsal ilişkiyi doğrula.',
+    absence: 'Yokluk anlamında `without` kalıbı aranır.',
 };
 
 const PREPOSITION_RULES: Record<string, string> = {
-    at: 'Kisa ve net bir nokta/saat odagi var.',
-    in: 'Kapali alan, donem veya daha genis bir cerceve anlami tasiyor.',
-    on: 'Yuzey, gun veya temas eden bir konum var.',
-    to: 'Bir hedefe yonelim bildiriliyor.',
-    for: 'Amac, sure veya hedef kisi/nesne baglami kuruluyor.',
-    from: 'Baslangic/kaynak noktasi vurgulaniyor.',
-    with: 'Birliktelik veya arac iliskisi kuruluyor.',
-    by: 'Yontem/vasita iliskisi anlatiliyor.',
-    about: 'Bir konu hakkinda olma anlami var.',
-    without: 'Eksiklik veya yokluk anlami var.',
+    at: 'Kısa ve net bir nokta/saat odağı var.',
+    in: 'Kapalı alan, dönem veya daha geniş bir çerçeve anlamı taşıyor.',
+    on: 'Yüzey, gün veya temas eden bir konum var.',
+    to: 'Bir hedefe yönelim bildiriliyor.',
+    for: 'Amaç, süre veya hedef kişi/nesne bağlamı kuruluyor.',
+    from: 'Başlangıç/kaynak noktası vurgulanıyor.',
+    with: 'Birliktelik veya araç ilişkisi kuruluyor.',
+    by: 'Yöntem/vasıta ilişkisi anlatılıyor.',
+    about: 'Bir konu hakkında olma anlamı var.',
+    without: 'Eksiklik veya yokluk anlamı var.',
 };
 
 function buildFillBlankExplanation(
@@ -149,13 +149,13 @@ function buildFillBlankExplanation(
 ): string {
     const correctWord = question.correct;
     const selectionSummary = isCorrect
-        ? `Secimin dogru: "${correctWord}".`
+        ? `Seçimin doğru: "${correctWord}".`
         : selectedOption
-            ? `Dogru cevap "${correctWord}". Sen "${selectedOption}" sectin.`
-            : `Dogru cevap "${correctWord}".`;
+            ? `Doğru cevap "${correctWord}". Sen "${selectedOption}" seçtin.`
+            : `Doğru cevap "${correctWord}".`;
 
-    const prepositionRule = PREPOSITION_RULES[correctWord.toLowerCase()] || `"${correctWord}" bu baglamla en uyumlu secenektir.`;
-    const categoryRule = CATEGORY_RULES[question.category] || 'Boslugun sagi-solu ve cumlenin genel anlamina odaklan.';
+    const prepositionRule = PREPOSITION_RULES[correctWord.toLowerCase()] || `"${correctWord}" bu bağlamla en uyumlu seçenektir.`;
+    const categoryRule = CATEGORY_RULES[question.category] || 'Boşluğun sağı-solu ve cümlenin genel anlamına odaklan.';
     const sourceUsage = decodeMojibake(question.usage || '').trim();
 
     return [
@@ -568,7 +568,7 @@ export default function FillBlankScreen() {
                                     { borderColor: isCorrect ? COLORS.success : COLORS.warning }
                                 ]}>
                                     <Text style={styles.explanationTitle}>
-                                        {isCorrect ? 'Dogru cevap!' : `Dogru cevap: ${currentQuestion.correct}`}
+                                        {isCorrect ? 'Doğru cevap!' : `Doğru cevap: ${currentQuestion.correct}`}
                                     </Text>
                                     <Text style={styles.explanationText}>
                                         {buildFillBlankExplanation(currentQuestion, selectedOption, isCorrect)}

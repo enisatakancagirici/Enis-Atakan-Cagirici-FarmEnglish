@@ -16,6 +16,7 @@ import { isNicknameClean } from '../utils/nicknameModeration';
 const _harvestInFlight = new Set<string>();
 const _puzzleHarvestInFlight = new Set<string>();
 const _claimQuestInFlight = new Set<string>();
+const _plantInFlight = new Set<string>();
 
 // Prevent duplicate daily quest resets from multiple screens/focus effects firing together
 let dailyQuestResetInFlight = false;
@@ -431,7 +432,7 @@ interface FarmStore {
 
   // Ortak Actions
   updateQuestProgress: (type: QuestType, amount?: number) => void;
-  claimQuestReward: (questId: string, questType: 'daily' | 'weekly' | 'repeatable' | 'story' | 'achievement' | 'mastery') => void;
+  claimQuestReward: (questId: string, questType: 'daily' | 'weekly' | 'repeatable' | 'story' | 'achievement' | 'mastery') => boolean;
 
   // Combo Actions (ikiye ayrıldı: Quiz vs Phrasal)
   setCurrentCombo: (combo: number) => void; // 🗑️ DEPRECATED
@@ -1556,189 +1557,212 @@ export const useFarmStore = create<FarmStore>()(
 
       // 🌱 Envanterden tarlaya dik (plant) - NORMAL + PHRASAL VERB SUPPORT
       plantFromInventory: (wordId) => {
-        const state = get();
-        const normalWord = state.inventory.find(w => w.id === wordId);
-        const phrasalWord = state.phrasalVerbInventory.find(w => w.id === wordId);
-        const word = normalWord || phrasalWord;
-        if (!word) return;
+        const safeWordId = typeof wordId === 'string' ? wordId.trim() : '';
+        if (!safeWordId) return;
+        if (_plantInFlight.has(safeWordId)) return;
+        _plantInFlight.add(safeWordId);
 
-        const isPhrasal = !!phrasalWord;
-        const isPuzzleHarvested = (word as any).isPuzzleHarvested === true;
+        try {
+          const state = get();
+          const normalWord = state.inventory.find(w => w.id === safeWordId);
+          const phrasalWord = state.phrasalVerbInventory.find(w => w.id === safeWordId);
+          const word = normalWord || phrasalWord;
+          if (!word) return;
 
-        // 💰 MASTER/ULTRA/PERFECT KART ÖDÜLÜ - Envanterden tarlaya gönderimde motivasyon!
-        const masterLevel = (word as any).masterLevel || 0;
-        let plantRewardCoin = 0;
-        let plantRewardXp = 0;
+          const isPhrasal = !!phrasalWord;
+          const isPuzzleHarvested = (word as any).isPuzzleHarvested === true;
 
-        if (masterLevel >= 3) {
-          // 👑 PERFECT CARD - 150 coin + 150 XP
-          plantRewardCoin = 150;
-          plantRewardXp = 150;
-        } else if (masterLevel >= 2) {
-          // 💎 ULTRA CARD - 100 coin + 100 XP
-          plantRewardCoin = 100;
-          plantRewardXp = 100;
-        } else if (masterLevel >= 1) {
-          // 🏆 MASTER CARD - 50 coin + 50 XP
-          plantRewardCoin = 50;
-          plantRewardXp = 50;
-        }
+          const masterLevel = (word as any).masterLevel || 0;
+          let plantRewardCoin = 0;
+          let plantRewardXp = 0;
 
-        // Ödül varsa ver!
-        if (plantRewardCoin > 0) {
-          set(s => ({
-            coins: s.coins + plantRewardCoin,
-            xp: s.xp + plantRewardXp,
-          }));
-        }
+          if (masterLevel >= 3) {
+            plantRewardCoin = 150;
+            plantRewardXp = 150;
+          } else if (masterLevel >= 2) {
+            plantRewardCoin = 100;
+            plantRewardXp = 100;
+          } else if (masterLevel >= 1) {
+            plantRewardCoin = 50;
+            plantRewardXp = 50;
+          }
 
-        // 🧩 Puzzle envanter kelimesi tarlaya gönderilirse:
-        // ⚠️ TAMAMEN BAĞIMSIZ SİSTEM - Normal tarla ile İLGİSİ YOK!
-        // Orijinal kelime farm'da olabilir veya OLMAYABILIR (normal tarladan hasat edilmiş olabilir)
-        // Her durumda yapboz tarlasına EKLENMELİ!
-        if (isPuzzleHarvested) {
-          const originalWordId = (word as any).originalWordId || wordId.replace(/-puzzle-.*$/, '');
-          const puzzleStats = (word as any).puzzleStats || { sessions: 0, totalCorrect: 0, totalWrong: 0, consecutiveCorrect: 0, puzzleMasterLevel: 0, puzzleTotalHarvests: 0 };
+          if (plantRewardCoin > 0) {
+            set(s => ({
+              coins: s.coins + plantRewardCoin,
+              xp: s.xp + plantRewardXp,
+            }));
+          }
 
-          // 🎯 YENİ: Session SIFIRLANMALI ama puzzleMasterLevel KORUNMALI!
-          const resetPuzzleStats = {
-            sessions: 0, // 🔄 Session sıfırla - yeni döngü başlıyor!
-            totalCorrect: puzzleStats.totalCorrect || 0,
-            totalWrong: puzzleStats.totalWrong || 0,
+          if (isPuzzleHarvested) {
+            const originalWordId = (word as any).originalWordId || safeWordId.replace(/-puzzle-.*$/, '');
+            const puzzleStats = (word as any).puzzleStats || { sessions: 0, totalCorrect: 0, totalWrong: 0, consecutiveCorrect: 0, puzzleMasterLevel: 0, puzzleTotalHarvests: 0 };
+
+            const resetPuzzleStats = {
+              sessions: 0,
+              totalCorrect: puzzleStats.totalCorrect || 0,
+              totalWrong: puzzleStats.totalWrong || 0,
+              consecutiveCorrect: 0,
+              puzzleMasterLevel: puzzleStats.puzzleMasterLevel || 0,
+              puzzleTotalHarvests: puzzleStats.puzzleTotalHarvests || 0,
+            };
+
+            if (isPhrasal) {
+              const originalExists = state.phrasalVerbFarm.some(f => f.id === originalWordId);
+
+              if (originalExists) {
+                set(state => {
+                  const originalWord = state.phrasalVerbFarm.find(f => f.id === originalWordId);
+                  if (!originalWord) return state;
+
+                  const updatedWord = {
+                    ...originalWord,
+                    puzzleHarvested: false,
+                    puzzleStats: resetPuzzleStats,
+                    lastPlantedAt: Date.now(),
+                  };
+
+                  const filteredFarm = state.phrasalVerbFarm.filter(f => f.id !== originalWordId);
+                  return {
+                    phrasalVerbInventory: state.phrasalVerbInventory.filter(w => w.id !== safeWordId),
+                    phrasalVerbFarm: [updatedWord, ...filteredFarm],
+                  };
+                });
+              } else {
+                const newPuzzleWord = {
+                  ...word,
+                  id: originalWordId,
+                  puzzleHarvested: false,
+                  puzzleStats: resetPuzzleStats,
+                  forPuzzleOnly: true,
+                  masterLevel: 0,
+                  consecutiveCorrect: 0,
+                  consecutiveMasterSessions: 0,
+                  level: 1,
+                  lastPlantedAt: Date.now(),
+                };
+                set(state => ({
+                  phrasalVerbInventory: state.phrasalVerbInventory.filter(w => w.id !== safeWordId),
+                  phrasalVerbFarm: [newPuzzleWord, ...state.phrasalVerbFarm],
+                }));
+              }
+            } else {
+              const originalExists = state.farm.some(f => f.id === originalWordId);
+
+              if (originalExists) {
+                set(state => {
+                  const originalWord = state.farm.find(f => f.id === originalWordId);
+                  if (!originalWord) return state;
+
+                  const updatedWord = {
+                    ...originalWord,
+                    puzzleHarvested: false,
+                    puzzleStats: resetPuzzleStats,
+                    lastPlantedAt: Date.now(),
+                  };
+
+                  const filteredFarm = state.farm.filter(f => f.id !== originalWordId);
+                  return {
+                    inventory: state.inventory.filter(w => w.id !== safeWordId),
+                    farm: [updatedWord, ...filteredFarm],
+                  };
+                });
+              } else {
+                const newPuzzleWord = {
+                  ...word,
+                  id: originalWordId,
+                  puzzleHarvested: false,
+                  puzzleStats: resetPuzzleStats,
+                  forPuzzleOnly: true,
+                  masterLevel: 0,
+                  consecutiveCorrect: 0,
+                  consecutiveMasterSessions: 0,
+                  level: 1,
+                  lastPlantedAt: Date.now(),
+                };
+                set(state => ({
+                  inventory: state.inventory.filter(w => w.id !== safeWordId),
+                  farm: [newPuzzleWord, ...state.farm],
+                }));
+              }
+            }
+            return;
+          }
+
+          const targetId = word.originalWordId || safeWordId;
+
+          const existingInFarm = isPhrasal
+            ? state.phrasalVerbFarm.find(f => f.id === targetId)
+            : state.farm.find(f => f.id === targetId);
+
+          if (existingInFarm) {
+            if (isPhrasal) {
+              set(state => ({
+                phrasalVerbInventory: state.phrasalVerbInventory.filter(w => w.id !== safeWordId),
+                phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === targetId ? {
+                  ...f,
+                  normalHarvested: false,
+                  totalHarvests: Math.max(f.totalHarvests || 0, word.totalHarvests || 0),
+                  consecutiveCorrect: 0,
+                  consecutiveMasterSessions: 0,
+                  lastPlantedAt: Date.now(),
+                } : f),
+                transferEvent: {
+                  id: `${safeWordId}-${Date.now()}`,
+                  type: 'plant',
+                  wordId: safeWordId,
+                  wordText: word.text || 'Kelime',
+                  from: 'phrasalVerbInventory',
+                  to: 'phrasalVerbFarm',
+                  timestamp: Date.now(),
+                },
+              }));
+            } else {
+              set(state => ({
+                inventory: state.inventory.filter(w => w.id !== safeWordId),
+                farm: state.farm.map(f => f.id === targetId ? {
+                  ...f,
+                  normalHarvested: false,
+                  totalHarvests: Math.max(f.totalHarvests || 0, word.totalHarvests || 0),
+                  level: 1,
+                  consecutiveCorrect: 0,
+                  consecutiveMasterSessions: 0,
+                  lastPlantedAt: Date.now(),
+                } : f),
+                transferEvent: {
+                  id: `${safeWordId}-${Date.now()}`,
+                  type: 'plant',
+                  wordId: safeWordId,
+                  wordText: word.text || 'Kelime',
+                  from: 'inventory',
+                  to: 'farm',
+                  timestamp: Date.now(),
+                },
+              }));
+            }
+            return;
+          }
+
+          const newWord = {
+            ...word,
+            level: 1,
+            wrongCount: word.wrongCount || 0,
             consecutiveCorrect: 0,
-            puzzleMasterLevel: puzzleStats.puzzleMasterLevel || 0, // 🏆 Seviye korunur!
-            puzzleTotalHarvests: puzzleStats.puzzleTotalHarvests || 0,
+            consecutiveMasterSessions: 0,
+            streak: 0,
+            lastPlantedAt: Date.now(),
+            plantedFromInventory: true,
+            excludeFromPuzzle: true,
           };
 
           if (isPhrasal) {
-            // 🔍 Orijinal kelime farm'da var mı kontrol et
-            const originalExists = state.phrasalVerbFarm.some(f => f.id === originalWordId);
-
-            if (originalExists) {
-              // ✅ Orijinal var - güncelle VE EN BAŞA TAŞI!
-              set(state => {
-                const originalWord = state.phrasalVerbFarm.find(f => f.id === originalWordId);
-                if (!originalWord) return state;
-
-                const updatedWord = {
-                  ...originalWord,
-                  puzzleHarvested: false, // 🌱 Tekrar yapboz tarlasında görünsün!
-                  puzzleStats: resetPuzzleStats, // 🎯 Session sıfırla, seviye koru!
-                  // ⚠️ masterLevel DEĞİŞMEMELİ! Orijinal tarla seviyesi korunur!
-                  lastPlantedAt: Date.now(), // 🕐 Yeni ekim zamanı
-                };
-
-                // 🔝 Kartı listeden çıkar ve EN BAŞA ekle!
-                const filteredFarm = state.phrasalVerbFarm.filter(f => f.id !== originalWordId);
-                return {
-                  phrasalVerbInventory: state.phrasalVerbInventory.filter(w => w.id !== wordId),
-                  phrasalVerbFarm: [updatedWord, ...filteredFarm],
-                };
-              });
-            } else {
-              // ⚠️ Orijinal YOK - Yeni kelime olarak ekle (normal tarladan hasat edilmiş)
-              // Yapboz sistemi BAĞIMSIZ - SADECE yapboz tarlasında görünsün!
-              const newPuzzleWord = {
-                ...word,
-                id: originalWordId, // Orijinal ID kullan
-                puzzleHarvested: false,
-                puzzleStats: resetPuzzleStats, // 🎯 Session sıfırla, seviye koru!
-                forPuzzleOnly: true, // 🧩 SADECE yapboz tarlasında görünsün!
-                // ⚠️ masterLevel 0 OLMALI! Yapboz seviyesi tarla seviyesini ETKİLEMEMELİ!
-                masterLevel: 0,
-                consecutiveCorrect: 0,
-                consecutiveMasterSessions: 0,
-                level: 1,
-                lastPlantedAt: Date.now(),
-              };
-              set(state => ({
-                phrasalVerbInventory: state.phrasalVerbInventory.filter(w => w.id !== wordId),
-                phrasalVerbFarm: [newPuzzleWord, ...state.phrasalVerbFarm],
-              }));
-            }
-          } else {
-            // 🔍 Orijinal kelime farm'da var mı kontrol et
-            const originalExists = state.farm.some(f => f.id === originalWordId);
-
-            if (originalExists) {
-              // ✅ Orijinal var - güncelle VE EN BAŞA TAŞI!
-              set(state => {
-                const originalWord = state.farm.find(f => f.id === originalWordId);
-                if (!originalWord) return state;
-
-                const updatedWord = {
-                  ...originalWord,
-                  puzzleHarvested: false, // 🌱 Tekrar yapboz tarlasında görünsün!
-                  puzzleStats: resetPuzzleStats, // 🎯 Session sıfırla, seviye koru!
-                  // ⚠️ masterLevel DEĞİŞMEMELİ! Orijinal tarla seviyesi korunur!
-                  lastPlantedAt: Date.now(), // 🕐 Yeni ekim zamanı
-                };
-
-                // 🔝 Kartı listeden çıkar ve EN BAŞA ekle!
-                const filteredFarm = state.farm.filter(f => f.id !== originalWordId);
-                return {
-                  inventory: state.inventory.filter(w => w.id !== wordId),
-                  farm: [updatedWord, ...filteredFarm],
-                };
-              });
-            } else {
-              // ⚠️ Orijinal YOK - Yeni kelime olarak ekle (normal tarladan hasat edilmiş)
-              // Yapboz sistemi BAĞIMSIZ - SADECE yapboz tarlasında görünsün!
-              const newPuzzleWord = {
-                ...word,
-                id: originalWordId, // Orijinal ID kullan
-                puzzleHarvested: false,
-                puzzleStats: resetPuzzleStats, // 🎯 Session sıfırla, seviye koru!
-                forPuzzleOnly: true, // 🧩 SADECE yapboz tarlasında görünsün!
-                // ⚠️ masterLevel 0 OLMALI! Yapboz seviyesi tarla seviyesini ETKİLEMEMELİ!
-                masterLevel: 0,
-                consecutiveCorrect: 0,
-                consecutiveMasterSessions: 0,
-                level: 1,
-                lastPlantedAt: Date.now(),
-              };
-              set(state => ({
-                inventory: state.inventory.filter(w => w.id !== wordId),
-                farm: [newPuzzleWord, ...state.farm],
-              }));
-            }
-          }
-          return; // İşlem tamam!
-        }
-
-        // console.log('🌱 Envanterden tarlaya dikiliyor:', word.text, isPhrasal ? '(phrasal)' : '');
-
-        // ⚠️ NORMAL ENVANTER KELİMESİ - Yapboza EKLENMEYECEK!
-        // Yapboza SADECE quiz'den veya yapboz envanterinden kelime gelebilir!
-
-        // 🔍 Farm'da bu kelime var mı kontrol et (normalHarvested olabilir)
-        // 🔑 Orijinal ID'yi kullan!
-        const targetId = word.originalWordId || wordId;
-
-        const existingInFarm = isPhrasal
-          ? state.phrasalVerbFarm.find(f => f.id === targetId)
-          : state.farm.find(f => f.id === targetId);
-
-        if (existingInFarm) {
-          // ✅ Kelime zaten farm'da var (normalHarvested: true ile)
-          // Sadece normalHarvested: false yap, diğer her şey KORUNSUN!
-          if (isPhrasal) {
             set(state => ({
-              phrasalVerbInventory: state.phrasalVerbInventory.filter(w => w.id !== wordId),
-              phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === targetId ? {
-                ...f,
-                normalHarvested: false, // Normal tarlada tekrar GÖRÜNSÜN!
-                // masterLevel, wrongCount, puzzleStats HEPSİ KORUNUYOR!
-                // wrongCount KORUNUYOR - renk değişmeyecek!
-                totalHarvests: Math.max(f.totalHarvests || 0, word.totalHarvests || 0), // 🌾 Hasat sayısını koru/güncelle!
-                consecutiveCorrect: 0,
-                consecutiveMasterSessions: 0,
-                lastPlantedAt: Date.now(),
-              } : f),
+              phrasalVerbInventory: state.phrasalVerbInventory.filter(w => w.id !== safeWordId),
+              phrasalVerbFarm: [newWord, ...state.phrasalVerbFarm],
               transferEvent: {
-                id: `${wordId}-${Date.now()}`,
+                id: `${safeWordId}-${Date.now()}`,
                 type: 'plant',
-                wordId,
+                wordId: safeWordId,
                 wordText: word.text || 'Kelime',
                 from: 'phrasalVerbInventory',
                 to: 'phrasalVerbFarm',
@@ -1747,21 +1771,12 @@ export const useFarmStore = create<FarmStore>()(
             }));
           } else {
             set(state => ({
-              inventory: state.inventory.filter(w => w.id !== wordId),
-              farm: state.farm.map(f => f.id === targetId ? {
-                ...f,
-                normalHarvested: false, // Normal tarlada tekrar GÖRÜNSÜN!
-                // masterLevel, wrongCount, puzzleStats HEPSİ KORUNUYOR!
-                totalHarvests: Math.max(f.totalHarvests || 0, word.totalHarvests || 0), // 🌾 Hasat sayısını koru/güncelle!
-                level: 1,
-                consecutiveCorrect: 0,
-                consecutiveMasterSessions: 0,
-                lastPlantedAt: Date.now(),
-              } : f),
+              inventory: state.inventory.filter(w => w.id !== safeWordId),
+              farm: [newWord, ...state.farm],
               transferEvent: {
-                id: `${wordId}-${Date.now()}`,
+                id: `${safeWordId}-${Date.now()}`,
                 type: 'plant',
-                wordId,
+                wordId: safeWordId,
                 wordText: word.text || 'Kelime',
                 from: 'inventory',
                 to: 'farm',
@@ -1769,52 +1784,10 @@ export const useFarmStore = create<FarmStore>()(
               },
             }));
           }
-          return;
-        }
-
-        // ⚠️ Kelime farm'da YOK - Yeni ekle
-        // 🧩 Envanterden geldi = PUZZLE'DA GÖRÜNMEYECEK!
-        const newWord = {
-          ...word,
-          level: 1,
-          wrongCount: word.wrongCount || 0, // Progress level'i koru
-          consecutiveCorrect: 0,
-          consecutiveMasterSessions: 0, // 🔄 Tekrar hasat için sıfırla!
-          streak: 0,
-          lastPlantedAt: Date.now(), // 📌 En yeni eklenen en üstte
-          plantedFromInventory: true, // 📌 Envanterden geldi
-          excludeFromPuzzle: true, // 🧩 PUZZLE'DA GÖRÜNMEYECEK! Envanterden geldi.
-          // masterLevel ve totalHarvests korunuyor
-        };
-
-        if (isPhrasal) {
-          set(state => ({
-            phrasalVerbInventory: state.phrasalVerbInventory.filter(w => w.id !== wordId),
-            phrasalVerbFarm: [newWord, ...state.phrasalVerbFarm], // 📌 EN BAŞA EKLE
-            transferEvent: {
-              id: `${wordId}-${Date.now()}`,
-              type: 'plant',
-              wordId,
-              wordText: word.text || 'Kelime',
-              from: 'phrasalVerbInventory',
-              to: 'phrasalVerbFarm',
-              timestamp: Date.now(),
-            },
-          }));
-        } else {
-          set(state => ({
-            inventory: state.inventory.filter(w => w.id !== wordId),
-            farm: [newWord, ...state.farm], // 📌 EN BAŞA EKLE
-            transferEvent: {
-              id: `${wordId}-${Date.now()}`,
-              type: 'plant',
-              wordId,
-              wordText: word.text || 'Kelime',
-              from: 'inventory',
-              to: 'farm',
-              timestamp: Date.now(),
-            },
-          }));
+        } catch (error) {
+          console.error('[plantFromInventory] Error:', error);
+        } finally {
+          _plantInFlight.delete(safeWordId);
         }
       },
 
@@ -2559,12 +2532,12 @@ export const useFarmStore = create<FarmStore>()(
         let inFlightKey = '';
         try {
         const safeQuestId = typeof questId === 'string' ? questId.trim() : '';
-        if (!safeQuestId) return;
+        if (!safeQuestId) return false;
 
         const state = get();
         const type = questType || 'daily';
         inFlightKey = `${type}:${safeQuestId}`;
-        if (_claimQuestInFlight.has(inFlightKey)) return;
+        if (_claimQuestInFlight.has(inFlightKey)) return false;
         _claimQuestInFlight.add(inFlightKey);
 
         const safeDailyQuests = toSafeObjectArray<any>(state.dailyQuests);
@@ -2603,7 +2576,7 @@ export const useFarmStore = create<FarmStore>()(
         }
 
         if (!quest || quest.completed !== true || quest.claimed === true) {
-          return;
+          return false;
         }
 
         const rewardCoins = toSafePositiveInt(quest.reward?.coins);
@@ -2690,8 +2663,10 @@ export const useFarmStore = create<FarmStore>()(
             }
           } catch (e) {}
         }, 900);
+        return true;
         } catch (e) {
           console.error('[claimQuestReward] Error:', e);
+          return false;
         } finally {
           if (inFlightKey) {
             setTimeout(() => _claimQuestInFlight.delete(inFlightKey), 900);
@@ -3573,9 +3548,11 @@ export const useFarmStore = create<FarmStore>()(
       // 🍎 MEYVE SİSTEMİ - Manuel Hasat Fonksiyonu
       // Kullanıcı "Hasat Et" butonuna bastığında çağrılır
       harvestWord: (wordId: string) => {
+        const safeWordId = typeof wordId === 'string' ? wordId.trim() : '';
+        if (!safeWordId) return null;
         // Re-entry guard: double-swipe'i engelle
-        if (_harvestInFlight.has(wordId)) return null;
-        _harvestInFlight.add(wordId);
+        if (_harvestInFlight.has(safeWordId)) return null;
+        _harvestInFlight.add(safeWordId);
 
         try {
         const state = get();
@@ -3584,8 +3561,8 @@ export const useFarmStore = create<FarmStore>()(
 
         // Kelimeyi bul (farm veya phrasalVerbFarm'da)
         // 🔍 Önce AKTİF (görünür) kartı bulmaya çalış, yoksa herhangi birini al
-        const normalWord = safeFarm.find(f => f.id === wordId && !(f as any).normalHarvested) || safeFarm.find(f => f.id === wordId);
-        const phrasalWord = safePhrasalFarm.find(f => f.id === wordId && !(f as any).normalHarvested) || safePhrasalFarm.find(f => f.id === wordId);
+        const normalWord = safeFarm.find(f => f.id === safeWordId && !(f as any).normalHarvested) || safeFarm.find(f => f.id === safeWordId);
+        const phrasalWord = safePhrasalFarm.find(f => f.id === safeWordId && !(f as any).normalHarvested) || safePhrasalFarm.find(f => f.id === safeWordId);
         const farmWord = normalWord || phrasalWord;
         const isPhrasal = !!phrasalWord;
 
@@ -3675,7 +3652,7 @@ export const useFarmStore = create<FarmStore>()(
               : [...safeLearnedIds, originalId];
 
             return {
-              phrasalVerbFarm: safePhrasalVerbFarm.map(f => f.id === wordId ? {
+              phrasalVerbFarm: safePhrasalVerbFarm.map(f => f.id === safeWordId ? {
                 ...f,
                 normalHarvested: true,
                 masterLevel: newMasterLevel,
@@ -3696,9 +3673,9 @@ export const useFarmStore = create<FarmStore>()(
               learnedWordIds: newLearnedIds,
               // Transfer event
               transferEvent: {
-                id: `${wordId}-${Date.now()}`,
+                id: `${safeWordId}-${Date.now()}`,
                 type: 'harvest',
-                wordId,
+                wordId: safeWordId,
                 wordText: farmWord.text || 'Kelime',
                 from: 'phrasalVerbFarm',
                 to: 'phrasalVerbInventory',
@@ -3725,7 +3702,7 @@ export const useFarmStore = create<FarmStore>()(
               : [...safeLearnedIds, originalId];
 
             return {
-              farm: safeFarmArray.map(f => f.id === wordId ? {
+              farm: safeFarmArray.map(f => f.id === safeWordId ? {
                 ...f,
                 normalHarvested: true,
                 masterLevel: newMasterLevel,
@@ -3746,9 +3723,9 @@ export const useFarmStore = create<FarmStore>()(
               learnedWordIds: newLearnedIds,
               // Transfer event
               transferEvent: {
-                id: `${wordId}-${Date.now()}`,
+                id: `${safeWordId}-${Date.now()}`,
                 type: 'harvest',
-                wordId,
+                wordId: safeWordId,
                 wordText: farmWord.text || 'Kelime',
                 from: 'farm',
                 to: 'inventory',
@@ -3805,22 +3782,24 @@ export const useFarmStore = create<FarmStore>()(
           console.error('[harvestWord] Error:', error);
           return null;
         } finally {
-          _harvestInFlight.delete(wordId);
+          _harvestInFlight.delete(safeWordId);
         }
       },
 
       // 🧩 YAPBOZ MANUEL HASAT
       harvestPuzzleWord: (wordId: string) => {
-        if (_puzzleHarvestInFlight.has(wordId)) return null;
-        _puzzleHarvestInFlight.add(wordId);
+        const safeWordId = typeof wordId === 'string' ? wordId.trim() : '';
+        if (!safeWordId) return null;
+        if (_puzzleHarvestInFlight.has(safeWordId)) return null;
+        _puzzleHarvestInFlight.add(safeWordId);
         try {
         const state = get();
         const safeFarm = toSafeWordArray(state.farm);
         const safePhrasalFarm = toSafeWordArray(state.phrasalVerbFarm);
 
         // Kelimeyi bul (farm veya phrasalVerbFarm'da)
-        const normalWord = safeFarm.find(f => f.id === wordId);
-        const phrasalWord = safePhrasalFarm.find(f => f.id === wordId);
+        const normalWord = safeFarm.find(f => f.id === safeWordId);
+        const phrasalWord = safePhrasalFarm.find(f => f.id === safeWordId);
         const farmWord = normalWord || phrasalWord;
         const isPhrasal = !!phrasalWord;
 
@@ -3854,12 +3833,12 @@ export const useFarmStore = create<FarmStore>()(
         const puzzleCoins = puzzleReward.coins;
         const puzzleXp = puzzleReward.xp;
 
-        const puzzleHarvestId = `${wordId}-puzzle-${Date.now()}`; // 🎯 Benzersiz ID!
+        const puzzleHarvestId = `${safeWordId}-puzzle-${Date.now()}`; // 🎯 Benzersiz ID!
 
         const harvestedWord = {
           ...farmWord,
           id: puzzleHarvestId, // 🎯 Farklı ID - çakışma olmaz!
-          originalWordId: wordId, // 🔗 Orijinal kelimeye referans
+          originalWordId: safeWordId, // 🔗 Orijinal kelimeye referans
           masterLevel: pendingPuzzleMasterLevel, // 🎯 YAPBOZ SEVİYESİ - Altın(1), Elmas(2), Kraliyet(3)!
           isPuzzleHarvested: true, // SADECE yapboz filtresinde görünsün!
           puzzleStats: {
@@ -3893,7 +3872,7 @@ export const useFarmStore = create<FarmStore>()(
               lifetimeHarvests: toSafeNumber(state.lifetimeHarvests, 0) + 1,
               learnedWordIds: newLearnedIds,
               // 🌾 Farm'daki kelime KALIR ama yapboz tarlasında GÖRÜNMEZ!
-              phrasalVerbFarm: safePhrasalVerbFarm.map(f => f.id === wordId ? {
+              phrasalVerbFarm: safePhrasalVerbFarm.map(f => f.id === safeWordId ? {
                 ...f,
                 readyForPuzzleHarvest: false, // 🌾 Hasat edildi!
                 pendingPuzzleMasterLevel: undefined,
@@ -3934,7 +3913,7 @@ export const useFarmStore = create<FarmStore>()(
               lifetimeHarvests: toSafeNumber(state.lifetimeHarvests, 0) + 1,
               learnedWordIds: newLearnedIds,
               // 🌾 Farm'daki kelime KALIR ama yapboz tarlasında GÖRÜNMEZ!
-              farm: safeFarmArray.map(f => f.id === wordId ? {
+              farm: safeFarmArray.map(f => f.id === safeWordId ? {
                 ...f,
                 readyForPuzzleHarvest: false, // 🌾 Hasat edildi!
                 pendingPuzzleMasterLevel: undefined,
@@ -3971,7 +3950,7 @@ export const useFarmStore = create<FarmStore>()(
           console.error('[harvestPuzzleWord] Error:', error);
           return null;
         } finally {
-          _puzzleHarvestInFlight.delete(wordId);
+          _puzzleHarvestInFlight.delete(safeWordId);
         }
       },
 

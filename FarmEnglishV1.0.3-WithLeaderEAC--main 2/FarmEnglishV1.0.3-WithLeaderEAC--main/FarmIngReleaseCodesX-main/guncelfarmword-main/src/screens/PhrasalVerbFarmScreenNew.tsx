@@ -524,11 +524,13 @@ export default function PhrasalVerbFarmScreenNew({
   initialFilter = 'all' as FilterType,
   externalSearchVisible,
   setExternalSearchVisible,
+  onParentScroll,
 }: { 
   embedded?: boolean;
   initialFilter?: FilterType;
   externalSearchVisible?: boolean;
   setExternalSearchVisible?: (visible: boolean) => void;
+  onParentScroll?: (offsetY: number) => void;
 } = {}) {
   const navigation = useNavigation<any>();
 
@@ -872,6 +874,13 @@ export default function PhrasalVerbFarmScreenNew({
     answerMiniQuiz?.(targetWord.id, correct, count || 1);
   }, [targetWord, answerMiniQuiz]);
 
+  const handleEmbeddedGridScroll = useCallback((event: any) => {
+    if (!onParentScroll) return;
+    const rawY = Number(event?.nativeEvent?.contentOffset?.y ?? 0);
+    const y = Number.isFinite(rawY) ? Math.max(0, rawY) : 0;
+    onParentScroll(y);
+  }, [onParentScroll]);
+
   // Render item for FlashList with swipe wrapper
   const renderItem = useCallback(({ item, index }: { item: WordModel; index: number }) => (
     <GridSwipeWrapper
@@ -1069,6 +1078,8 @@ export default function PhrasalVerbFarmScreenNew({
             key={`phrasal-grid-embedded-${gridColumns}`}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={handleEmbeddedGridScroll}
           />
         )}
 

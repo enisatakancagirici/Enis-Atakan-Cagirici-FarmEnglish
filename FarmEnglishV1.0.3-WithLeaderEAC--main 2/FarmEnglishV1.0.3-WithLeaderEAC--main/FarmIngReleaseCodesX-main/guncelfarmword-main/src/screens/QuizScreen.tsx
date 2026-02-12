@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import {
   View,
   Text,
@@ -27,29 +27,29 @@ import type { WordModel } from '../models/types';
 import { formatMeaningForQuiz } from '../utils/loadWords';
 import { CEFR_TO_FRUIT, type CEFRLevel } from '../utils/fruitSystem';
 
-// 🍎 CEFR → Meyve Emojisi Mapping
+// ğŸ CEFR â†’ Meyve Emojisi Mapping
 const CEFR_TO_FRUIT_EMOJI: Record<string, string> = {
-  'A1': '🍌',
-  'A2': '🍒',
-  'B1': '🍓',
-  'B2': '🍇',
-  'C1': '🍎',
-  'C2': '🍉',
+  'A1': 'ğŸŒ',
+  'A2': 'ğŸ’',
+  'B1': 'ğŸ“',
+  'B2': 'ğŸ‡',
+  'C1': 'ğŸ',
+  'C2': 'ğŸ‰',
 };
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// 📱 RESPONSIVE SYSTEM - Her ekran boyutu için optimal değerler
+// ğŸ“± RESPONSIVE SYSTEM - Her ekran boyutu iÃ§in optimal deÄŸerler
 const getScreenType = () => {
   if (SCREEN_HEIGHT < 700) return 'small';      // 4.7" iPhone SE
   if (SCREEN_HEIGHT < 850) return 'medium';     // Normal telefonlar
-  if (SCREEN_HEIGHT < 1100) return 'large';     // Büyük telefonlar
+  if (SCREEN_HEIGHT < 1100) return 'large';     // BÃ¼yÃ¼k telefonlar
   return 'tablet';                               // Tabletler
 };
 
 const SCREEN_TYPE = getScreenType();
 
-// Responsive değerler
+// Responsive deÄŸerler
 const RS = {
   // Font sizes
   questionFont: { small: 24, medium: 36, large: 42, tablet: 52 }[SCREEN_TYPE],
@@ -89,7 +89,7 @@ const RS = {
 
 const isSmallScreen = SCREEN_TYPE === 'small';
 const TIMER_DURATION = 10000; // 10 seconds
-const NEXT_QUESTION_DELAY = 140; // 🎮 GAME FEEL - 120-150ms kuralı! Hızlı akış.
+const NEXT_QUESTION_DELAY = 140; // ğŸ® GAME FEEL - 120-150ms kuralÄ±! HÄ±zlÄ± akÄ±ÅŸ.
 
 // Difficulty multipliers (like PhrasalVerbQuizScreen)
 const DIFFICULTY_MULTIPLIER: Record<string, number> = {
@@ -145,7 +145,7 @@ const OptionButton = memo(({
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
 
-  // Simple shake for wrong answer - OPTIMIZED + PERFORMANS KONTROLÜ
+  // Simple shake for wrong answer - OPTIMIZED + PERFORMANS KONTROLÃœ
   useEffect(() => {
     if (showResult && isSelected && !isCorrect && enableJuicyButtons) {
       // Wrong - fast shake
@@ -155,13 +155,13 @@ const OptionButton = memo(({
         Animated.timing(shakeAnim, { toValue: 0, duration: 35, useNativeDriver: true }),
       ]).start();
     } else if (showResult && isCorrect && enableJuicyButtons) {
-      // Correct - MEGA PULSE 🔥
+      // Correct - MEGA PULSE ğŸ”¥
       Animated.sequence([
         Animated.spring(scaleAnim, { toValue: 1.05, friction: 8, tension: 200, useNativeDriver: true }),
         Animated.spring(scaleAnim, { toValue: 1, friction: 9, tension: 180, useNativeDriver: true }),
       ]).start();
 
-      // 🌟 GLOW single burst - PERFORMANS KONTROLÜ
+      // ğŸŒŸ GLOW single burst - PERFORMANS KONTROLÃœ
       if (enableGlow) {
         Animated.sequence([
           Animated.timing(glowAnim, {
@@ -197,7 +197,7 @@ const OptionButton = memo(({
       Animated.spring(scaleAnim, {
         toValue: 1,
         friction: 8,
-        tension: 350, // Daha hızlı geri dönüş
+        tension: 350, // Daha hÄ±zlÄ± geri dÃ¶nÃ¼ÅŸ
         useNativeDriver: true,
       }).start();
     }
@@ -345,10 +345,10 @@ const TimerBar: React.FC<{ duration: number; onTimeUp: () => void; timerKey: num
 export const QuizScreen = () => {
   const navigation = useNavigation();
 
-  // 🎮 PERFORMANS AYARLARI
+  // ğŸ® PERFORMANS AYARLARI
   const config = usePerformanceStore((s) => s.config);
 
-  // 🔧 Individual selectors - stable and no infinite loop
+  // ğŸ”§ Individual selectors - stable and no infinite loop
   const farm = useFarmStore((s) => s.farm);
   const pool = useFarmStore((s) => s.pool);
   const answerQuiz = useFarmStore((s) => s.answerQuiz);
@@ -361,13 +361,13 @@ export const QuizScreen = () => {
   const activeBoosts = useFarmStore((s) => s.activeBoosts);
   const ownedItems = useFarmStore((s) => s.ownedItems);
   
-  // 🎓 TUTORIAL STATE
+  // ğŸ“ TUTORIAL STATE
   const tutorialStep = useFarmStore((s) => s.tutorialStep);
   const setTutorialStep = useFarmStore((s) => s.setTutorialStep);
   const setTutorialFirstWrongWord = useFarmStore((s) => s.setTutorialFirstWrongWord);
   const totalWrong = useFarmStore((s) => s.totalWrong);
 
-  // 🔥 Persisted combo from store - Regular Quiz uses currentQuizCombo
+  // ğŸ”¥ Persisted combo from store - Regular Quiz uses currentQuizCombo
   const currentCombo = useFarmStore((s) => s.currentQuizCombo);
   const incrementCombo = useFarmStore((s) => s.incrementQuizCombo);
   const resetCombo = useFarmStore((s) => s.resetQuizCombo);
@@ -380,22 +380,22 @@ export const QuizScreen = () => {
   const [wrongCount, setWrongCount] = useState(0);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [timerKey, setTimerKey] = useState(0);
-  const [isPaused, setIsPaused] = useState(false); // 🔧 Pause state for screen focus
-  const [tutorialTooltipMessage, setTutorialTooltipMessage] = useState<string | null>(null); // 🎓 Tutorial teşvik mesajları
+  const [isPaused, setIsPaused] = useState(false); // ğŸ”§ Pause state for screen focus
+  const [tutorialTooltipMessage, setTutorialTooltipMessage] = useState<string | null>(null); // ğŸ“ Tutorial teÅŸvik mesajlarÄ±
 
-  // 💡 Hint state (disables 1 wrong option)
+  // ğŸ’¡ Hint state (disables 1 wrong option)
   const [disabledOptionIndexes, setDisabledOptionIndexes] = useState<number[]>([]);
 
-  // 🔥 Use store combo for persistence + local maxCombo for session tracking
+  // ğŸ”¥ Use store combo for persistence + local maxCombo for session tracking
   const combo = currentCombo; // Alias for easier use
   const [maxCombo, setMaxCombo] = useState(currentCombo); // Start from persisted value
-  const [totalCoinsEarned, setTotalCoinsEarned] = useState(0); // 💰 Total coins this session
+  const [totalCoinsEarned, setTotalCoinsEarned] = useState(0); // ğŸ’° Total coins this session
 
-  // 🎉 Dopamine boost components
+  // ğŸ‰ Dopamine boost components
   const [confettiKey, setConfettiKey] = useState(0);
   const [showComboDisplay, setShowComboDisplay] = useState(false);
 
-  // 🍎 APPLE-STYLE TRANSITION ANIMATIONS - useRef to prevent recreation
+  // ğŸ APPLE-STYLE TRANSITION ANIMATIONS - useRef to prevent recreation
   const cardOpacity = useRef(new Animated.Value(1)).current;
   const cardTranslateY = useRef(new Animated.Value(0)).current;
   const cardScale = useRef(new Animated.Value(1)).current;
@@ -410,7 +410,7 @@ export const QuizScreen = () => {
   const comboScaleAnim = useRef(new Animated.Value(1)).current;
   const comboGlowAnim = useRef(new Animated.Value(0)).current;
   const screenFlashAnim = useRef(new Animated.Value(0)).current;
-  const screenShakeAnim = useRef(new Animated.Value(0)).current; // 🌋 MEGA SHAKE!
+  const screenShakeAnim = useRef(new Animated.Value(0)).current; // ğŸŒ‹ MEGA SHAKE!
   const nextQuestionTimeout = useRef<NodeJS.Timeout | null>(null);
   const hasGeneratedQuestions = useRef(false);
   const isAnswering = useRef(false);
@@ -448,7 +448,7 @@ export const QuizScreen = () => {
     }, [])
   );
 
-  // 🍎 Animate options entrance on question change - ONLY when focused!
+  // ğŸ Animate options entrance on question change - ONLY when focused!
   useEffect(() => {
     if (!isFocused.current) return;
 
@@ -468,7 +468,7 @@ export const QuizScreen = () => {
     Animated.parallel(animations).start();
   }, [currentQuestionIndex]);
 
-  // 🧹 Full cleanup on unmount - prevents lag on 2nd quiz
+  // ğŸ§¹ Full cleanup on unmount - prevents lag on 2nd quiz
   useEffect(() => {
     return () => {
       if (nextQuestionTimeout.current) {
@@ -486,25 +486,25 @@ export const QuizScreen = () => {
     };
   }, []);
 
-  // 📊 Get total questions answered (persisted in store)
+  // ğŸ“Š Get total questions answered (persisted in store)
   const totalQuizzesAnswered = useFarmStore((s) => s.totalQuizzes);
   
-  // 🆕 BEGINNER MODE: İlk 50 soru için sadece A1 (çok kolay) kelimeler
+  // ğŸ†• BEGINNER MODE: Ä°lk 50 soru iÃ§in sadece A1 (Ã§ok kolay) kelimeler
   const BEGINNER_THRESHOLD = 50;
   const isBeginnerMode = totalQuizzesAnswered < BEGINNER_THRESHOLD;
 
-  // Generate questions - ONLY when focused! - ♾️ ENDLESS MODE: Generate more questions dynamically!
+  // Generate questions - ONLY when focused! - â™¾ï¸ ENDLESS MODE: Generate more questions dynamically!
   const generateMoreQuestions = useCallback(() => {
     const allWords = [...farm, ...pool];
     if (allWords.length === 0) return [];
 
-    // 🆕 BEGINNER MODE: İlk 50 soru için sadece A1 kelimeler
+    // ğŸ†• BEGINNER MODE: Ä°lk 50 soru iÃ§in sadece A1 kelimeler
     // A1 = En kolay kelimeler (yes, no, baby, hello, good, bad vb.)
     let wordPool = allWords;
     
     if (isBeginnerMode) {
       const a1Words = allWords.filter(w => w.difficulty === 'A1');
-      // A1 kelime yoksa A2'ye de bak, yine yoksa tümünü kullan
+      // A1 kelime yoksa A2'ye de bak, yine yoksa tÃ¼mÃ¼nÃ¼ kullan
       if (a1Words.length >= 10) {
         wordPool = a1Words;
       } else {
@@ -521,10 +521,10 @@ export const QuizScreen = () => {
     // Generate 10 questions at a time for endless mode
     for (let i = 0; i < Math.min(10, shuffled.length); i++) {
       const word = shuffled[i];
-      // ";" ile ayrılmış anlamları ", " ile göster
+      // ";" ile ayrÄ±lmÄ±ÅŸ anlamlarÄ± ", " ile gÃ¶ster
       const correctAnswer = formatMeaningForQuiz(word.meaning);
       
-      // 🆕 BEGINNER MODE: Wrong options da aynı havuzdan gelsin (benzer zorluk)
+      // ğŸ†• BEGINNER MODE: Wrong options da aynÄ± havuzdan gelsin (benzer zorluk)
       const wrongOptions = wordPool
         .filter((w) => w.id !== word.id && formatMeaningForQuiz(w.meaning) !== correctAnswer)
         .sort(() => Math.random() - 0.5)
@@ -538,7 +538,7 @@ export const QuizScreen = () => {
 
       generatedQuestions.push({
         word,
-        prompt: `"${word.text}" kelimesinin anlamı nedir?`,
+        prompt: `"${word.text}" kelimesinin anlamÄ± nedir?`,
         options,
       });
     }
@@ -555,17 +555,17 @@ export const QuizScreen = () => {
     setQuestions(generatedQuestions);
     hasGeneratedQuestions.current = true;
     
-    // 🎯 Quiz başlangıç sesi
+    // ğŸ¯ Quiz baÅŸlangÄ±Ã§ sesi
     sound.playQuizStart();
-  }, [farm.length, pool.length, questions.length]); // questions.length trigger'ı eklendi
+  }, [farm.length, pool.length, questions.length]); // questions.length trigger'Ä± eklendi
 
-  // ♾️ ENDLESS MODE: Sorular azaldığında yenilerini ekle (Infinite Scroll mantığı)
+  // â™¾ï¸ ENDLESS MODE: Sorular azaldÄ±ÄŸÄ±nda yenilerini ekle (Infinite Scroll mantÄ±ÄŸÄ±)
   useEffect(() => {
     if (!isFocused.current || questions.length === 0) return;
 
-    // Eğer kalan soru sayısı 3 veya daha az ise yeni sorular ekle
+    // EÄŸer kalan soru sayÄ±sÄ± 3 veya daha az ise yeni sorular ekle
     if (questions.length - currentQuestionIndex <= 3) {
-      // console.log('🔄 Generating more questions for endless mode...');
+      // console.log('ğŸ”„ Generating more questions for endless mode...');
       const moreQuestions = generateMoreQuestions();
       if (moreQuestions.length > 0) {
         setQuestions(prev => [...prev, ...moreQuestions]);
@@ -601,12 +601,12 @@ export const QuizScreen = () => {
       .map(({ i }) => i);
 
     const shuffled = [...wrongIndexes].sort(() => Math.random() - 0.5);
-    const picked = shuffled.slice(0, 1); // Sadece 1 yanlış şık elenir
+    const picked = shuffled.slice(0, 1); // Sadece 1 yanlÄ±ÅŸ ÅŸÄ±k elenir
     setDisabledOptionIndexes(picked);
     haptic.selection();
   }, [showResult, currentQuestionIndex, disabledOptionIndexes.length, useHintToken]);
 
-  // 🔧 OPTIMIZED: Memoized handler to prevent child re-renders
+  // ğŸ”§ OPTIMIZED: Memoized handler to prevent child re-renders
   const handleAnswer = useCallback((index: number) => {
     const question = questions[currentQuestionIndex];
     if (isAnswering.current || showResult || !question) {
@@ -622,10 +622,10 @@ export const QuizScreen = () => {
     setShowResult(true);
 
     if (isCorrect) {
-      // 💥 COMBO-BASED HAPTIC - MiniQuiz gibi dehşet!
+      // ğŸ’¥ COMBO-BASED HAPTIC - MiniQuiz gibi dehÅŸet!
       haptic.correctAnswer(combo + 1);
 
-      // 🔊 SOUND
+      // ğŸ”Š SOUND
       sound.playStreak(combo + 1);
       setCorrectCount((prev) => prev + 1);
       const newCombo = incrementCombo();
@@ -633,21 +633,21 @@ export const QuizScreen = () => {
         setMaxCombo(newCombo);
       }
       
-      // 🎓 TUTORIAL: Doğru cevap - artık toast gösterme
-      // (Daha az kalabalık UI için kaldırıldı)
+      // ğŸ“ TUTORIAL: DoÄŸru cevap - artÄ±k toast gÃ¶sterme
+      // (Daha az kalabalÄ±k UI iÃ§in kaldÄ±rÄ±ldÄ±)
       
-      // 🎯 COMBO MILESTONES - Özel haptic + toast
+      // ğŸ¯ COMBO MILESTONES - Ã–zel haptic + toast
       const milestones = {
-        25: { text: 'Güzelll', duration: 2000, hapticKey: 'combo25' },
+        25: { text: 'GÃ¼zelll', duration: 2000, hapticKey: 'combo25' },
         50: { text: 'Fennna', duration: 3000, hapticKey: 'combo50' },
         75: { text: 'Noluyooo', duration: 4000, hapticKey: 'combo75' },
         100: { text: 'Oyyy', duration: 5000, hapticKey: 'combo100' },
-        150: { text: 'İngilizce Hocasııı', duration: 6000, hapticKey: 'combo150' },
-        200: { text: 'Yapıyosun bu işi:D', duration: 8000, hapticKey: 'combo200' },
+        150: { text: 'Ä°ngilizce HocasÄ±Ä±Ä±', duration: 6000, hapticKey: 'combo150' },
+        200: { text: 'YapÄ±yosun bu iÅŸi:D', duration: 8000, hapticKey: 'combo200' },
         225: { text: 'Deliriyooo', duration: 9000, hapticKey: 'combo225' },
         250: { text: 'Efsaneeee', duration: 10000, hapticKey: 'combo250' },
-        275: { text: 'İmkansııız', duration: 11000, hapticKey: 'combo275' },
-        300: { text: 'Bune böyleeee', duration: 12000, hapticKey: 'combo300' },
+        275: { text: 'Ä°mkansÄ±Ä±Ä±z', duration: 11000, hapticKey: 'combo275' },
+        300: { text: 'Bune bÃ¶yleeee', duration: 12000, hapticKey: 'combo300' },
       };
 
       // 200'den sonra her 25'te milestone (325, 350, 375, vs.)
@@ -655,7 +655,7 @@ export const QuizScreen = () => {
       if (!milestone && newCombo > 300 && (newCombo - 200) % 25 === 0) {
         const durationSeconds = Math.min(8 + Math.floor((newCombo - 200) / 25), 15);
         milestone = {
-          text: `${newCombo} COMBO! 🔥`,
+          text: `${newCombo} COMBO! ğŸ”¥`,
           duration: durationSeconds * 1000,
           hapticKey: 'comboMega',
         };
@@ -675,7 +675,7 @@ export const QuizScreen = () => {
         else if (milestone.hapticKey === 'combo300') haptic.combo300?.();
         else if (milestone.hapticKey === 'comboMega') haptic.comboMega?.(milestone.duration / 1000);
         
-        // Milestone toast - PERFORMANS KONTROLÜ
+        // Milestone toast - PERFORMANS KONTROLÃœ
         if (config.enableMilestoneToast) {
           const addMilestoneToast = useMilestoneToastStore.getState().addToast;
           addMilestoneToast({
@@ -688,15 +688,15 @@ export const QuizScreen = () => {
 
       //  Calculate rewards - ENHANCED COMBO MULTIPLIERS
       let comboMultiplier = 1;
-      if (newCombo >= 100) comboMultiplier = 10;      // 🌟 LEGENDARY
-      else if (newCombo >= 50) comboMultiplier = 7;   // 👑 ROYAL
-      else if (newCombo >= 30) comboMultiplier = 5.5; // ⚡ UNSTOPPABLE
-      else if (newCombo >= 20) comboMultiplier = 4.5; // 💎 MASTER
-      else if (newCombo >= 15) comboMultiplier = 3.5; // 🔥 EPIC
-      else if (newCombo >= 10) comboMultiplier = 3;   // 💥 MEGA
-      else if (newCombo >= 7) comboMultiplier = 2.5;  // ⭐ SUPER
-      else if (newCombo >= 5) comboMultiplier = 2;    // 🎯 GREAT
-      else if (newCombo >= 3) comboMultiplier = 1.5;  // ✨ GOOD
+      if (newCombo >= 100) comboMultiplier = 10;      // ğŸŒŸ LEGENDARY
+      else if (newCombo >= 50) comboMultiplier = 7;   // ğŸ‘‘ ROYAL
+      else if (newCombo >= 30) comboMultiplier = 5.5; // âš¡ UNSTOPPABLE
+      else if (newCombo >= 20) comboMultiplier = 4.5; // ğŸ’ MASTER
+      else if (newCombo >= 15) comboMultiplier = 3.5; // ğŸ”¥ EPIC
+      else if (newCombo >= 10) comboMultiplier = 3;   // ğŸ’¥ MEGA
+      else if (newCombo >= 7) comboMultiplier = 2.5;  // â­ SUPER
+      else if (newCombo >= 5) comboMultiplier = 2;    // ğŸ¯ GREAT
+      else if (newCombo >= 3) comboMultiplier = 1.5;  // âœ¨ GOOD
 
       const difficulty = currentQuestion.word.difficulty || 'B1';
       const diffMult = DIFFICULTY_MULTIPLIER[difficulty] || 1;
@@ -714,17 +714,17 @@ export const QuizScreen = () => {
       addCoins?.(coinReward);
       setTotalCoinsEarned(prev => prev + coinReward);
 
-      // 🎉 Show reward toasts - MINIMAL & OPTIMIZED + PERFORMANS KONTROLÜ
-      // ⚡ Coin toast sadece 3+ combo'da göster (performans için)
-      // Coin her zaman kazanılır ama toast spam olmasın
+      // ğŸ‰ Show reward toasts - MINIMAL & OPTIMIZED + PERFORMANS KONTROLÃœ
+      // âš¡ Coin toast sadece 3+ combo'da gÃ¶ster (performans iÃ§in)
+      // Coin her zaman kazanÄ±lÄ±r ama toast spam olmasÄ±n
       if (newCombo >= 3 && config.enableRewardToast) {
         requestAnimationFrame(() => {
           showRewardToast('coin', coinReward);
         });
       }
       
-      // 🔥 Combo toast - PERFORMANS AYARINA GÖRE GÖSTER
-      // comboToastThreshold: LOW=999(hiç), MEDIUM=10, HIGH=5, ULTRA/PERFECT=2
+      // ğŸ”¥ Combo toast - PERFORMANS AYARINA GÃ–RE GÃ–STER
+      // comboToastThreshold: LOW=999(hiÃ§), MEDIUM=10, HIGH=5, ULTRA/PERFECT=2
       if (config.enableComboToast && newCombo >= config.comboToastThreshold && !milestone) {
         requestAnimationFrame(() => {
           showRewardToast('combo', newCombo);
@@ -738,7 +738,7 @@ export const QuizScreen = () => {
         totalQuizzes: state.totalQuizzes + 1,
       }));
 
-      // 🔥 CONFETTI - BÜYÜK MİLESTONE'LARDA + PERFORMANS KONTROLÜ
+      // ğŸ”¥ CONFETTI - BÃœYÃœK MÄ°LESTONE'LARDA + PERFORMANS KONTROLÃœ
       if (config.celebrationIntensity > 0 && (newCombo === 10 || newCombo === 20 || newCombo === 30 || newCombo === 50 || newCombo === 100 || newCombo === 150 || newCombo === 200)) {
         requestAnimationFrame(() => {
           setConfettiKey(k => k + 1);
@@ -750,32 +750,32 @@ export const QuizScreen = () => {
         });
       }
 
-      // Combo display göster - PERFORMANS AYARINA GÖRE
+      // Combo display gÃ¶ster - PERFORMANS AYARINA GÃ–RE
       if (config.enableComboToast && newCombo >= config.comboToastThreshold) {
         setShowComboDisplay(true);
-        // Daha uzun süre görünsün - takılma oluyor çünkü animasyon henüz bitmeden kayboluyordu
+        // Daha uzun sÃ¼re gÃ¶rÃ¼nsÃ¼n - takÄ±lma oluyor Ã§Ã¼nkÃ¼ animasyon henÃ¼z bitmeden kayboluyordu
         setTimeout(() => setShowComboDisplay(false), isSmallScreen ? 2200 : 2500);
       }
 
-      // 🎉 MILESTONE HAPTICS - 🌋 MEGA DOPAMIN ESCALATION!
+      // ğŸ‰ MILESTONE HAPTICS - ğŸŒ‹ MEGA DOPAMIN ESCALATION!
       if (newCombo === 200) {
-        // 👨‍🏫 İngilizce Hocasıııı - 5 saniye mega vibration
+        // ğŸ‘¨â€ğŸ« Ä°ngilizce HocasÄ±Ä±Ä±Ä± - 5 saniye mega vibration
         haptic.megaVibration(5);
       } else if (newCombo === 150) {
-        // 🌋 fennnna - 5 saniye mega vibration
+        // ğŸŒ‹ fennnna - 5 saniye mega vibration
         haptic.megaVibration(5);
       } else if (newCombo === 100) {
-        // 💥 NOLUYA YAAA - 4 saniye mega vibration
+        // ğŸ’¥ NOLUYA YAAA - 4 saniye mega vibration
         haptic.megaVibration(4);
       } else if (newCombo === 50) {
-        // 🔥 Yok artıkk - 2.5 saniye ağır titreşim
+        // ğŸ”¥ Yok artÄ±kk - 2.5 saniye aÄŸÄ±r titreÅŸim
         haptic.combo50();
       } else if (newCombo === 40) {
         haptic.masterCelebration();
       } else if (newCombo === 30) {
         haptic.epicHarvestSuccess();
       } else if (newCombo === 25) {
-        // 🌟 25 combo - 2.5 saniye ağır titreşim
+        // ğŸŒŸ 25 combo - 2.5 saniye aÄŸÄ±r titreÅŸim
         haptic.combo25();
       } else if (newCombo === 20) {
         haptic.celebration();
@@ -783,12 +783,12 @@ export const QuizScreen = () => {
         haptic.progressMilestone();
       }
 
-      // 🌋 SCREEN SHAKE - Her combo'da hafif, 10'un katlarında DAHA GÜÇLÜ! + PERFORMANS KONTROLÜ
+      // ğŸŒ‹ SCREEN SHAKE - Her combo'da hafif, 10'un katlarÄ±nda DAHA GÃœÃ‡LÃœ! + PERFORMANS KONTROLÃœ
       if (newCombo >= 5 && config.enableScreenShake) {
         requestAnimationFrame(() => {
           // Her 5+ combo'da hafif shake
           const baseIntensity = newCombo >= 20 ? 2 + Math.floor((newCombo - 20) / 10) : 1.5;
-          const intensity = Math.min(12, baseIntensity + (newCombo % 10 === 0 ? 4 : 0)); // 10'un katlarında +4
+          const intensity = Math.min(12, baseIntensity + (newCombo % 10 === 0 ? 4 : 0)); // 10'un katlarÄ±nda +4
           const shakeDuration = 40;
           const shakeCount = newCombo % 10 === 0 ? Math.min(8, 3 + Math.floor(newCombo / 10)) : 2;
 
@@ -813,7 +813,7 @@ export const QuizScreen = () => {
         });
       }
 
-      // 💥 COMBO SCALE - SADECE BÜYÜK MİLESTONE'LARDA (FPS optimize)
+      // ğŸ’¥ COMBO SCALE - SADECE BÃœYÃœK MÄ°LESTONE'LARDA (FPS optimize)
       if (newCombo === 10 || newCombo === 20 || newCombo === 30 || newCombo === 50) {
         requestAnimationFrame(() => {
           Animated.spring(comboScaleAnim, {
@@ -832,7 +832,7 @@ export const QuizScreen = () => {
         });
       }
 
-      // 🌟 SCREEN FLASH - SADECE BÜYÜK MİLESTONE'LARDA (FPS optimize) + PERFORMANS KONTROLÜ
+      // ğŸŒŸ SCREEN FLASH - SADECE BÃœYÃœK MÄ°LESTONE'LARDA (FPS optimize) + PERFORMANS KONTROLÃœ
       if ((newCombo === 10 || newCombo === 20 || newCombo === 30 || newCombo === 50) && config.enableScreenFlash) {
         requestAnimationFrame(() => {
           Animated.sequence([
@@ -853,21 +853,21 @@ export const QuizScreen = () => {
       answerQuiz(currentQuestion.word.id, true);
       useFarmStore.getState().updateQuestProgress('COMPLETE_QUIZ', 1);
       
-      // 🍎 CEFR Toast kaldırıldı - performans için
+      // ğŸ CEFR Toast kaldÄ±rÄ±ldÄ± - performans iÃ§in
     } else {
-      // 🔊 WRONG SOUND + POWERFUL HAPTIC
+      // ğŸ”Š WRONG SOUND + POWERFUL HAPTIC
       sound.playWrong();
       haptic.shake(); // Shake pattern!
       setWrongCount((prev) => prev + 1);
 
-      // 🛡️ COMBO SHIELD CHECK - Kalkan varsa combo kırılmaz, quiz devam eder!
+      // ğŸ›¡ï¸ COMBO SHIELD CHECK - Kalkan varsa combo kÄ±rÄ±lmaz, quiz devam eder!
       const hasShield = comboShields > 0;
 
       if (hasShield) {
         // Kalkan kullan - combo korundu!
         useComboShield();
 
-        // 🛡️ Shield kullanıldı animasyonu - mavi flash + PERFORMANS KONTROLÜ
+        // ğŸ›¡ï¸ Shield kullanÄ±ldÄ± animasyonu - mavi flash + PERFORMANS KONTROLÃœ
         if (config.enableScreenFlash) {
           Animated.sequence([
             Animated.timing(screenFlashAnim, {
@@ -888,7 +888,7 @@ export const QuizScreen = () => {
         answerQuiz(currentQuestion.word.id, false);
         useFarmStore.getState().updateQuestProgress('COMPLETE_QUIZ', 1);
 
-        // Shield ile quiz devam ediyor - sonraki soruya geç
+        // Shield ile quiz devam ediyor - sonraki soruya geÃ§
         if (nextQuestionTimeout.current) {
           clearTimeout(nextQuestionTimeout.current);
         }
@@ -908,7 +908,7 @@ export const QuizScreen = () => {
           isAnswering.current = false;
           setTimerKey((k) => k + 1);
 
-          // Kart giriş animasyonu
+          // Kart giriÅŸ animasyonu
           Animated.parallel([
             Animated.timing(cardOpacity, {
               toValue: 1,
@@ -926,12 +926,12 @@ export const QuizScreen = () => {
         return;
       }
 
-      // 💔 COMBO BREAK - Kalkan yok, combo kırılıyor
+      // ğŸ’” COMBO BREAK - Kalkan yok, combo kÄ±rÄ±lÄ±yor
       resetCombo();
       
-      // 🎓 TUTORIAL: Yanlış cevap - tarlaya kırmızı olarak ekildi
+      // ğŸ“ TUTORIAL: YanlÄ±ÅŸ cevap - tarlaya kÄ±rmÄ±zÄ± olarak ekildi
       if (tutorialStep === 'STEP_3_FIRST_QUIZ') {
-        // İlk yanlış kelimeyi kaydet (çiftlikte highlight için)
+        // Ä°lk yanlÄ±ÅŸ kelimeyi kaydet (Ã§iftlikte highlight iÃ§in)
         if (!useFarmStore.getState().tutorialFirstWrongWord) {
           setTutorialFirstWrongWord({
             id: currentQuestion.word.id,
@@ -940,11 +940,11 @@ export const QuizScreen = () => {
           });
         }
         
-        // 🎓 TUTORIAL: Yanlış cevap - artık toast gösterme
-        // NOT: STEP_4'e geçiş quiz bitince yapılacak (quizFinished effect'te)
+        // ğŸ“ TUTORIAL: YanlÄ±ÅŸ cevap - artÄ±k toast gÃ¶sterme
+        // NOT: STEP_4'e geÃ§iÅŸ quiz bitince yapÄ±lacak (quizFinished effect'te)
       }
 
-      // 💔 COMBO BREAK - Slower shrink
+      // ğŸ’” COMBO BREAK - Slower shrink
       Animated.sequence([
         Animated.spring(comboScaleAnim, {
           toValue: 0.7,
@@ -960,7 +960,7 @@ export const QuizScreen = () => {
         }),
       ]).start();
 
-      // Red flash - slower + PERFORMANS KONTROLÜ
+      // Red flash - slower + PERFORMANS KONTROLÃœ
       if (config.enableScreenFlash) {
         Animated.sequence([
           Animated.timing(screenFlashAnim, {
@@ -981,16 +981,16 @@ export const QuizScreen = () => {
       answerQuiz(currentQuestion.word.id, false);
       useFarmStore.getState().updateQuestProgress('COMPLETE_QUIZ', 1);
       
-      // 🌱 Toast kaldırıldı - performans için
+      // ğŸŒ± Toast kaldÄ±rÄ±ldÄ± - performans iÃ§in
 
-      // 🛡️ COMBO SHIELD CHECK - Kalkan varsa quiz devam ediyor!
+      // ğŸ›¡ï¸ COMBO SHIELD CHECK - Kalkan varsa quiz devam ediyor!
       const hasWrongAnswerShield = comboShields > 0;
       
       if (hasWrongAnswerShield) {
         // Kalkan kullan - quiz devam et!
         useComboShield();
         
-        // 🛡️ Shield flash + PERFORMANS KONTROLÜ
+        // ğŸ›¡ï¸ Shield flash + PERFORMANS KONTROLÃœ
         if (config.enableScreenFlash) {
           Animated.sequence([
             Animated.timing(screenFlashAnim, {
@@ -1044,14 +1044,14 @@ export const QuizScreen = () => {
         return;
       }
 
-      // ♾️ ENDLESS MODE: Yanlış yapınca (kalkan yoksa) direkt quiz bitir!
+      // â™¾ï¸ ENDLESS MODE: YanlÄ±ÅŸ yapÄ±nca (kalkan yoksa) direkt quiz bitir!
       if (nextQuestionTimeout.current) {
         clearTimeout(nextQuestionTimeout.current);
       }
       nextQuestionTimeout.current = setTimeout(() => {
         isAnswering.current = false;
         setQuizFinished(true);
-      }, 800); // Yanlış cevabı göster, sonra bitir
+      }, 800); // YanlÄ±ÅŸ cevabÄ± gÃ¶ster, sonra bitir
       return;
     }
 
@@ -1060,8 +1060,8 @@ export const QuizScreen = () => {
       clearTimeout(nextQuestionTimeout.current);
     }
 
-    // 🚀 DİNAMİK GEÇİŞ - Combo arttıkça HIZLAN!
-    // Başlangıç: 200ms, Combo 10: 150ms, Combo 20: 120ms, Combo 30+: 100ms
+    // ğŸš€ DÄ°NAMÄ°K GEÃ‡Ä°Å - Combo arttÄ±kÃ§a HIZLAN!
+    // BaÅŸlangÄ±Ã§: 200ms, Combo 10: 150ms, Combo 20: 120ms, Combo 30+: 100ms
     const dynamicDelay = Math.max(80, 200 - (combo * 4));
 
     nextQuestionTimeout.current = setTimeout(() => {
@@ -1073,7 +1073,7 @@ export const QuizScreen = () => {
       sound.playNextQuestion();
       haptic.nextQuestion();
 
-      // Fade in süresi de combo'ya göre azalsın
+      // Fade in sÃ¼resi de combo'ya gÃ¶re azalsÄ±n
       const fadeInDuration = Math.max(80, 180 - (combo * 3));
 
       if (currentQuestionIndex < questions.length - 1) {
@@ -1090,7 +1090,7 @@ export const QuizScreen = () => {
           useNativeDriver: true,
         }).start();
       } else {
-        // ♾️ ENDLESS MODE: Sorular bitince yeni sorular üret!
+        // â™¾ï¸ ENDLESS MODE: Sorular bitince yeni sorular Ã¼ret!
         const newQuestions = generateMoreQuestions();
         if (newQuestions.length > 0) {
           setQuestions(newQuestions);
@@ -1113,7 +1113,7 @@ export const QuizScreen = () => {
       }
     }, dynamicDelay);
   }, [
-    currentQuestion?.word.id, // Sadece word ID'yi dependency yap, tüm obje yerine
+    currentQuestion?.word.id, // Sadece word ID'yi dependency yap, tÃ¼m obje yerine
     combo,
     showResult,
     currentQuestionIndex,
@@ -1129,7 +1129,7 @@ export const QuizScreen = () => {
     tutorialStep,
   ]);
 
-  // 🔧 OPTIMIZED: Stable callbacks for OptionButton to prevent re-renders
+  // ğŸ”§ OPTIMIZED: Stable callbacks for OptionButton to prevent re-renders
   const handleOption0 = useCallback(() => handleAnswer(0), [handleAnswer]);
   const handleOption1 = useCallback(() => handleAnswer(1), [handleAnswer]);
   const handleOption2 = useCallback(() => handleAnswer(2), [handleAnswer]);
@@ -1146,14 +1146,14 @@ export const QuizScreen = () => {
     if (showResult || !currentQuestion) return;
     setWrongCount((prev) => prev + 1);
     
-    // 🛡️ COMBO SHIELD CHECK - Kalkan varsa combo kırılmaz!
+    // ğŸ›¡ï¸ COMBO SHIELD CHECK - Kalkan varsa combo kÄ±rÄ±lmaz!
     const hasShield = comboShields > 0;
     
     if (hasShield) {
       // Kalkan kullan - combo korundu!
       useComboShield();
       
-      // 🛡️ Shield kullanıldı animasyonu - mavi flash + PERFORMANS KONTROLÜ
+      // ğŸ›¡ï¸ Shield kullanÄ±ldÄ± animasyonu - mavi flash + PERFORMANS KONTROLÃœ
       if (config.enableScreenFlash) {
         Animated.sequence([
           Animated.timing(screenFlashAnim, {
@@ -1171,22 +1171,22 @@ export const QuizScreen = () => {
         ]).start();
       }
     } else {
-      // Kalkan yok - combo sıfırla
+      // Kalkan yok - combo sÄ±fÄ±rla
       resetCombo();
     }
     
     setSelectedIndex(-1);
     setShowResult(true);
 
-    // Güçlü wrong feedback
+    // GÃ¼Ã§lÃ¼ wrong feedback
     sound.playWrong();
     haptic.shake(); // Shake pattern!
     answerQuiz(currentQuestion.word.id, false);
     useFarmStore.getState().updateQuestProgress('COMPLETE_QUIZ', 1);
     
-    // 🎓 TUTORIAL: Süre doldu - Kırmızı tohum ekildi
+    // ğŸ“ TUTORIAL: SÃ¼re doldu - KÄ±rmÄ±zÄ± tohum ekildi
     if (tutorialStep === 'STEP_3_FIRST_QUIZ') {
-      // İlk yanlış kelimeyi kaydet
+      // Ä°lk yanlÄ±ÅŸ kelimeyi kaydet
       if (!useFarmStore.getState().tutorialFirstWrongWord) {
         setTutorialFirstWrongWord({
           id: currentQuestion.word.id,
@@ -1195,14 +1195,14 @@ export const QuizScreen = () => {
         });
       }
       
-      // 🔴 KIRMIZI TOHUM EKİLDİ BİLDİRİMİ (süre dolduğunda)
+      // ğŸ”´ KIRMIZI TOHUM EKÄ°LDÄ° BÄ°LDÄ°RÄ°MÄ° (sÃ¼re dolduÄŸunda)
       setTimeout(() => {
-        showRewardToast('level', 1, `🔴 Süre doldu! "${currentQuestion.word.text}" tarlana ekildi! (Kırmızı)`);
+        showRewardToast('level', 1, `ğŸ”´ SÃ¼re doldu! "${currentQuestion.word.text}" tarlana ekildi! (KÄ±rmÄ±zÄ±)`);
       }, 300);
-      // NOT: STEP_4'e geçiş quiz bitince yapılacak
+      // NOT: STEP_4'e geÃ§iÅŸ quiz bitince yapÄ±lacak
     }
 
-    // Timeout sonrası - shield varsa devam, yoksa bitir
+    // Timeout sonrasÄ± - shield varsa devam, yoksa bitir
     if (nextQuestionTimeout.current) {
       clearTimeout(nextQuestionTimeout.current);
     }
@@ -1239,7 +1239,7 @@ export const QuizScreen = () => {
         ]).start();
       }, 600);
     } else {
-      // ♾️ ENDLESS MODE: Kalkan yoksa quiz bitir
+      // â™¾ï¸ ENDLESS MODE: Kalkan yoksa quiz bitir
       nextQuestionTimeout.current = setTimeout(() => {
         isAnswering.current = false;
         setQuizFinished(true);
@@ -1247,25 +1247,25 @@ export const QuizScreen = () => {
     }
   }, [currentQuestion, showResult, answerQuiz, resetCombo, tutorialStep, setTutorialFirstWrongWord, setTutorialStep, comboShields, useComboShield, screenFlashAnim, cardOpacity, cardScale]);
 
-  // 🔒 Prevent double-tap exit
+  // ğŸ”’ Prevent double-tap exit
   const isExiting = useRef(false);
 
   const handleExit = useCallback(() => {
-    // 🎓 Tutorial aktifken çıkışı engelle
+    // ğŸ“ Tutorial aktifken Ã§Ä±kÄ±ÅŸÄ± engelle
     if (tutorialStep !== 'COMPLETED' && tutorialStep !== 'NOT_STARTED') {
       haptic.light();
       return;
     }
     
-    if (isExiting.current) return; // ⚠️ Prevent double-tap
+    if (isExiting.current) return; // âš ï¸ Prevent double-tap
     isExiting.current = true;
 
-    haptic.heavy(); // 🔥 MEGA HAPTIC
+    haptic.heavy(); // ğŸ”¥ MEGA HAPTIC
     
-    // 🔄 Combo'yu sıfırla (Quiz çıkışında)
+    // ğŸ”„ Combo'yu sÄ±fÄ±rla (Quiz Ã§Ä±kÄ±ÅŸÄ±nda)
     resetCombo();
 
-    // 🔧 Stack'i temizle ve Home'a git (arka planda quiz çalışmasın)
+    // ğŸ”§ Stack'i temizle ve Home'a git (arka planda quiz Ã§alÄ±ÅŸmasÄ±n)
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -1274,11 +1274,11 @@ export const QuizScreen = () => {
     );
   }, [navigation, resetCombo, tutorialStep]);
 
-  // 🏆 QUIZ FINISHED SCREEN - ♾️ ENDLESS MODE: Cevaplanan soru sayısına göre accuracy
-  // 🎓 TUTORIAL: Quiz bittiğinde STEP_4'e geç (ilk yanlışta değil, quiz bitince)
+  // ğŸ† QUIZ FINISHED SCREEN - â™¾ï¸ ENDLESS MODE: Cevaplanan soru sayÄ±sÄ±na gÃ¶re accuracy
+  // ğŸ“ TUTORIAL: Quiz bittiÄŸinde STEP_4'e geÃ§ (ilk yanlÄ±ÅŸta deÄŸil, quiz bitince)
   useEffect(() => {
     if (quizFinished && tutorialStep === 'STEP_3_FIRST_QUIZ') {
-      // Quiz bitti - Tutorial'ı ilerlet
+      // Quiz bitti - Tutorial'Ä± ilerlet
       setTimeout(() => {
         setTutorialStep('STEP_4_HOME_UNLOCK');
       }, 500);
@@ -1290,6 +1290,12 @@ export const QuizScreen = () => {
     const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
     const isGreat = accuracy >= 80;
     const isGood = accuracy >= 60;
+    const hasHotCombo = maxCombo >= 8;
+    const farmResultMessage = hasHotCombo
+      ? '🔥 Combo eğlencesine kapıldın! Bildiklerin meyve, bilmediklerin tohum olarak ekildi. İstersen ritmi sürdür, istersen tarlada büyütmeye devam et.'
+      : accuracy >= 70
+        ? '🌱 Bildiklerin meyve, bilmediklerin tohum olarak ekildi. Haydi, bunları tarlanda büyüt!'
+        : '🌱 Bildiklerin meyve, bilmediklerin tohum olarak ekildi. Şimdi tarlada çalışıp tohumları meyveye çevirme zamanı!';
 
     return (
       <SafeAreaView style={styles.container}>
@@ -1301,31 +1307,31 @@ export const QuizScreen = () => {
           <View style={styles.resultsContainer}>
             {/* Trophy/Medal */}
             <Text style={styles.resultEmoji}>
-              {isGreat ? '🏆' : isGood ? '🎯' : '📚'}
+              {isGreat ? 'ğŸ†' : isGood ? 'ğŸ¯' : 'ğŸ“š'}
             </Text>
 
             {/* Title */}
             <Text style={styles.resultTitle}>
-              {isGreat ? 'Mükemmel!' : isGood ? 'İyi İş!' : 'Çalışmaya Devam!'}
+              {isGreat ? 'MÃ¼kemmel!' : isGood ? 'Ä°yi Ä°ÅŸ!' : 'Ã‡alÄ±ÅŸmaya Devam!'}
             </Text>
 
             {/* Stats */}
             <View style={styles.statsRow}>
               <View style={styles.statBox}>
                 <Text style={styles.statNumber}>{correctCount}</Text>
-                <Text style={styles.statLabel}>Doğru ✓</Text>
+                <Text style={styles.statLabel}>DoÄŸru âœ“</Text>
               </View>
               <View style={styles.statBox}>
                 <Text style={[styles.statNumber, { color: '#ef4444' }]}>{wrongCount}</Text>
-                <Text style={styles.statLabel}>Yanlış ✗</Text>
+                <Text style={styles.statLabel}>YanlÄ±ÅŸ âœ—</Text>
               </View>
               <View style={styles.statBox}>
                 <Text style={[styles.statNumber, { color: '#f59e0b' }]}>{maxCombo}</Text>
-                <Text style={styles.statLabel}>Combo 🔥</Text>
+                <Text style={styles.statLabel}>Combo ğŸ”¥</Text>
               </View>
             </View>
 
-            {/* 💰 Coins + Accuracy Row */}
+            {/* ğŸ’° Coins + Accuracy Row */}
             <View style={styles.coinsAccuracyRow}>
               <View style={styles.coinsEarnedContainerCompact}>
                 <Coins color="#FFD700" size={RS.labelFont + 2} fill="#FFD700" />
@@ -1342,10 +1348,10 @@ export const QuizScreen = () => {
               </View>
             </View>
 
-            {/* 🌱 Tarla Açıklama - Kompakt */}
+            {/* ğŸŒ± Tarla AÃ§Ä±klama - Kompakt */}
             <View style={styles.farmExplanationContainer}>
               <Text style={styles.farmExplanationText}>
-                🌱 Kelimeler tarlana ekildi! <Text style={{ color: '#22c55e' }}>✓ Meyve</Text> • <Text style={{ color: '#f59e0b' }}>✗ Tohum</Text>
+                {farmResultMessage}
               </Text>
             </View>
 
@@ -1355,7 +1361,7 @@ export const QuizScreen = () => {
               <Pressable
                 style={[styles.continueButton, tutorialStep !== 'COMPLETED' && styles.buttonDisabled]}
                 onPress={() => {
-                  // Tutorial sırasında kilitle
+                  // Tutorial sÄ±rasÄ±nda kilitle
                   if (tutorialStep !== 'COMPLETED') return;
                   
                   // Instant haptic feedback
@@ -1381,19 +1387,19 @@ export const QuizScreen = () => {
                   comboGlowAnim.setValue(0);
                   screenFlashAnim.setValue(0);
 
-                  // 🔥 YENİ SORULAR OLUŞTUR - Flag'i reset et!
+                  // ğŸ”¥ YENÄ° SORULAR OLUÅTUR - Flag'i reset et!
                   hasGeneratedQuestions.current = false;
-                  setQuestions([]); // Boşalt ki useEffect tetiklensin
+                  setQuestions([]); // BoÅŸalt ki useEffect tetiklensin
                 }}
               >
                 <Text style={[styles.continueButtonText, tutorialStep !== 'COMPLETED' && styles.buttonTextDisabled]}>Devam Et</Text>
               </Pressable>
 
-              {/* 🌾 Tarlana Git */}
+              {/* ğŸŒ¾ Tarlana Git */}
               <Pressable
                 style={[styles.goToFarmButton, tutorialStep !== 'COMPLETED' && styles.buttonDisabled]}
                 onPress={() => {
-                  // Tutorial sırasında kilitle
+                  // Tutorial sÄ±rasÄ±nda kilitle
                   if (tutorialStep !== 'COMPLETED') return;
                   
                   haptic.medium();
@@ -1401,7 +1407,7 @@ export const QuizScreen = () => {
                   navigation.navigate('Farm' as never);
                 }}
               >
-                <Text style={[styles.goToFarmButtonText, tutorialStep !== 'COMPLETED' && styles.buttonTextDisabled]}>🌾 Tarlana Git</Text>
+                <Text style={[styles.goToFarmButtonText, tutorialStep !== 'COMPLETED' && styles.buttonTextDisabled]}>ğŸŒ¾ Tarlana Git</Text>
               </Pressable>
             </View>
           </View>
@@ -1413,33 +1419,33 @@ export const QuizScreen = () => {
   if (!currentQuestion) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loadingText}>Sorular yükleniyor...</Text>
+        <Text style={styles.loadingText}>Sorular yÃ¼kleniyor...</Text>
       </View>
     );
   }
 
   // Get combo color based on level - ENHANCED TIERS
   const getComboColor = () => {
-    if (combo >= 100) return '#FFD700'; // 🌟 LEGENDARY GOLD
-    if (combo >= 50) return '#FF1493';  // 👑 ROYAL PINK
-    if (combo >= 30) return '#00FFFF';  // ⚡ UNSTOPPABLE CYAN
-    if (combo >= 20) return '#9D00FF';  // 💎 MASTER VIOLET
-    if (combo >= 15) return '#FF00FF';  // 🔥 EPIC MAGENTA
-    if (combo >= 10) return '#FF0099';  // 💥 MEGA PINK
-    if (combo >= 7) return '#FF4444';   // ⭐ SUPER RED
-    if (combo >= 5) return '#FF8800';   // 🎯 GREAT ORANGE
-    if (combo >= 3) return '#f59e0b';   // ✨ GOOD GOLDEN
+    if (combo >= 100) return '#FFD700'; // ğŸŒŸ LEGENDARY GOLD
+    if (combo >= 50) return '#FF1493';  // ğŸ‘‘ ROYAL PINK
+    if (combo >= 30) return '#00FFFF';  // âš¡ UNSTOPPABLE CYAN
+    if (combo >= 20) return '#9D00FF';  // ğŸ’ MASTER VIOLET
+    if (combo >= 15) return '#FF00FF';  // ğŸ”¥ EPIC MAGENTA
+    if (combo >= 10) return '#FF0099';  // ğŸ’¥ MEGA PINK
+    if (combo >= 7) return '#FF4444';   // â­ SUPER RED
+    if (combo >= 5) return '#FF8800';   // ğŸ¯ GREAT ORANGE
+    if (combo >= 3) return '#f59e0b';   // âœ¨ GOOD GOLDEN
     return '#f59e0b'; // DEFAULT
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* 🎉 DOPAMINE BOOST COMPONENTS */}
+      {/* ğŸ‰ DOPAMINE BOOST COMPONENTS */}
       <ComboDisplay combo={combo} maxCombo={maxCombo} visible={showComboDisplay} />
       <CorrectCelebration trigger={confettiKey} />
       <MilestoneToastContainer />
 
-      {/* 🌟 SCREEN FLASH OVERLAY */}
+      {/* ğŸŒŸ SCREEN FLASH OVERLAY */}
       <Animated.View
         pointerEvents="none"
         style={[
@@ -1454,7 +1460,7 @@ export const QuizScreen = () => {
 
       {/* ===== FIXED HEADER ===== */}
       <View style={styles.header}>
-        {/* 🔥 Combo Badge - Sol tarafta kompakt, SCALE ANİMASYONU YOK */}
+        {/* ğŸ”¥ Combo Badge - Sol tarafta kompakt, SCALE ANÄ°MASYONU YOK */}
         {combo > 0 ? (
           <View
             style={[
@@ -1489,12 +1495,12 @@ export const QuizScreen = () => {
           />
         </View>
 
-        {/* 🗡️ MODE TOGGLE + Exit Button - Sağda */}
+        {/* ğŸ—¡ï¸ MODE TOGGLE + Exit Button - SaÄŸda */}
         <View style={styles.rightControls}>
-          {/* 🛡️ Combo Shield Göstergesi */}
+          {/* ğŸ›¡ï¸ Combo Shield GÃ¶stergesi */}
           {comboShields > 0 && (
             <View style={styles.shieldIndicator}>
-              <Text style={styles.shieldEmoji}>🛡️</Text>
+              <Text style={styles.shieldEmoji}>ğŸ›¡ï¸</Text>
               <Text style={styles.shieldText}>{comboShields}</Text>
             </View>
           )}
@@ -1508,7 +1514,7 @@ export const QuizScreen = () => {
             ]}
             activeOpacity={0.7}
           >
-            <Text style={styles.hintEmoji}>💡</Text>
+            <Text style={styles.hintEmoji}>ğŸ’¡</Text>
             <Text style={styles.hintText}>{hintTokens}</Text>
           </TouchableOpacity>
 
@@ -1531,12 +1537,12 @@ export const QuizScreen = () => {
           styles.contentArea,
           {
             transform: [
-              { translateX: screenShakeAnim }, // 🌋 MEGA SHAKE!
+              { translateX: screenShakeAnim }, // ğŸŒ‹ MEGA SHAKE!
             ]
           }
         ]}
       >
-        {/* 🍎 QUESTION CARD - MEGA DOPAMINE 🔥 */}
+        {/* ğŸ QUESTION CARD - MEGA DOPAMINE ğŸ”¥ */}
         <Animated.View
           style={[
             styles.questionArea,
@@ -1552,7 +1558,7 @@ export const QuizScreen = () => {
 
           <View style={styles.labelPill}>
             <Text style={styles.labelText}>
-              {currentQuestion.word.difficulty || 'B1'} • Kelime Anlamı
+              {currentQuestion.word.difficulty || 'B1'} â€¢ Kelime AnlamÄ±
             </Text>
           </View>
           <Text style={[styles.questionText, { textShadowColor: getComboColor(), textShadowRadius: combo > 5 ? 15 : 0 }]}>
@@ -1560,7 +1566,7 @@ export const QuizScreen = () => {
           </Text>
         </Animated.View>
 
-        {/* 🍎 OPTIONS */}
+        {/* ğŸ OPTIONS */}
         <View style={styles.optionsContainer}>
           {currentQuestion.options.map((option, index) => {
             const optionAnim = optionAnims[index];
@@ -1587,7 +1593,7 @@ export const QuizScreen = () => {
         </View>
       </Animated.View>
 
-      {/*  Tutorial Teşvik Mesajları */}
+      {/*  Tutorial TeÅŸvik MesajlarÄ± */}
       <TutorialTooltip 
         message={tutorialTooltipMessage || ''} 
         visible={!!tutorialTooltipMessage && tutorialStep === 'STEP_3_FIRST_QUIZ'} 
@@ -1821,11 +1827,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    // Kristaller soru kartının etrafında - Apple tier layout
+    // Kristaller soru kartÄ±nÄ±n etrafÄ±nda - Apple tier layout
     justifyContent: 'center',
     alignItems: 'center',
     pointerEvents: 'box-none', // Allow touches through empty space
-    zIndex: 10, // Kristaller en üstte
+    zIndex: 10, // Kristaller en Ã¼stte
   },
   optionButton: {
     flexDirection: 'row',
@@ -1878,7 +1884,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // 🏆 Results Screen Styles
+  // ğŸ† Results Screen Styles
   resultsScrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -1955,7 +1961,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#f59e0b',
   },
-  // Kompakt coin/accuracy/streak satırı
+  // Kompakt coin/accuracy/streak satÄ±rÄ±
   coinsAccuracyRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2091,3 +2097,4 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.4)',
   },
 });
+

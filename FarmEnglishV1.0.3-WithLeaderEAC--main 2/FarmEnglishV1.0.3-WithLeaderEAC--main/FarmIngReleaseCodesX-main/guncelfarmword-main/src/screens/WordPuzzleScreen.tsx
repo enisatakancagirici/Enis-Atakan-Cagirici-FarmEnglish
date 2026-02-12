@@ -374,7 +374,7 @@ const PuzzleGridCard: React.FC<{
   useEffect(() => {
     if ((isMaster || readyForPuzzleHarvest) && config.enablePulseAnimations) {
       const pulse = Animated.loop(Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.03, duration: 600, useNativeDriver: true, easing: Easing.out(Easing.sin) }),
+        Animated.timing(pulseAnim, { toValue: 1.07, duration: 560, useNativeDriver: true, easing: Easing.out(Easing.sin) }),
         Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true, easing: Easing.in(Easing.sin) }),
       ]));
       pulse.start();
@@ -417,9 +417,9 @@ const PuzzleGridCard: React.FC<{
     // ğŸŒ± TIER 1-3: Growth multipliers (UltimateWordCard ile aynÄ±)
     let growthMultipliers: number[];
     if (fruitType === 'watermelon') {
-      growthMultipliers = [0.68, 0.78, 0.88, 0.98];
+      growthMultipliers = [0.62, 0.78, 0.94, 1.08];
     } else {
-      growthMultipliers = [0.85, 0.95, 1.05, 1.15];
+      growthMultipliers = [0.8, 0.98, 1.14, 1.28];
     }
     const currentMultiplier = growthMultipliers[Math.min(fruitGrowthStage, 3)];
     return Math.round(cardMaxSize * currentMultiplier);
@@ -447,7 +447,7 @@ const PuzzleGridCard: React.FC<{
           {/* ğŸ’§ FEEDBACK ANÄ°MASYONU - "BÜYÜYOR!" + damla efekti */}
           {showFeedback === 'levelUp' && config.enableCardFeedbackText && (
             <Animated.View style={[gridCardStyles.feedbackOverlay, { opacity: feedbackAnim }]}>
-              <Text style={gridCardStyles.feedbackText}>BUYUYOR!</Text>
+              <Text style={gridCardStyles.feedbackText}>BÜYÜYOR!</Text>
             </Animated.View>
           )}
 
@@ -594,7 +594,7 @@ const PuzzleFeedCard: React.FC<{
 
   useEffect(() => { if ((isMaster || readyForPuzzleHarvest) && config.enableShimmer) { const s = Animated.loop(Animated.timing(shimmerAnim, { toValue: 1, duration: 2000, useNativeDriver: true, easing: Easing.linear })); s.start(); return () => s.stop(); } }, [isMaster, readyForPuzzleHarvest, config.enableShimmer]);
   useEffect(() => { if ((isMaster || readyForPuzzleHarvest) && config.enableGlow) { const g = Animated.loop(Animated.sequence([Animated.timing(glowAnim, { toValue: 0.9, duration: 900, useNativeDriver: true }), Animated.timing(glowAnim, { toValue: 0.4, duration: 900, useNativeDriver: true })])); g.start(); return () => g.stop(); } }, [isMaster, readyForPuzzleHarvest, config.enableGlow]);
-  useEffect(() => { if ((isMaster || readyForPuzzleHarvest) && config.enablePulseAnimations) { const p = Animated.loop(Animated.sequence([Animated.timing(pulseAnim, { toValue: 1.03, duration: 600, useNativeDriver: true }), Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true })])); p.start(); return () => p.stop(); } }, [isMaster, readyForPuzzleHarvest, config.enablePulseAnimations]);
+  useEffect(() => { if ((isMaster || readyForPuzzleHarvest) && config.enablePulseAnimations) { const p = Animated.loop(Animated.sequence([Animated.timing(pulseAnim, { toValue: 1.07, duration: 560, useNativeDriver: true }), Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true })])); p.start(); return () => p.stop(); } }, [isMaster, readyForPuzzleHarvest, config.enablePulseAnimations]);
 
   // ğŸŒ¾ Swipe handler - hasat hazÄ±rsa hasat et, hasat edilmiÅŸse replant, deÄŸilse quiz aÃ§
   const handleSwipeAction = useCallback(() => {
@@ -692,6 +692,7 @@ interface WordPuzzleScreenProps {
   initialFilter?: FilterType;
   externalSearchVisible?: boolean;
   setExternalSearchVisible?: (visible: boolean) => void;
+  onParentScroll?: (offsetY: number) => void;
 }
 
 // ğŸ¯ Ana Component - FarmScreen'e TAM ENTEGRE!
@@ -700,6 +701,7 @@ export default function WordPuzzleScreen({
   initialFilter = 'all',
   externalSearchVisible,
   setExternalSearchVisible,
+  onParentScroll,
 }: WordPuzzleScreenProps) {
   const navigation = useNavigation<any>();
 
@@ -1056,6 +1058,13 @@ export default function WordPuzzleScreen({
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 
+  const handleEmbeddedGridScroll = useCallback((event: any) => {
+    if (!onParentScroll) return;
+    const rawY = Number(event?.nativeEvent?.contentOffset?.y ?? 0);
+    const y = Number.isFinite(rawY) ? Math.max(0, rawY) : 0;
+    onParentScroll(y);
+  }, [onParentScroll]);
+
   // ğŸ”„ EMBEDDED MODE - FarmScreen'deki tab iÃ§in (PhrasalVerbFarmScreen gibi)
   if (embedded) {
     return (
@@ -1076,8 +1085,8 @@ export default function WordPuzzleScreen({
         {puzzleWords_filtered.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Puzzle size={64} color={COLORS.textMuted} />
-            <Text style={styles.emptyTitle}>{puzzleWords_all.length === 0 ? 'Yapboz Icin Kelime Yok' : 'Bu filtrede kelime yok'}</Text>
-            <Text style={styles.emptySubtitle}>{puzzleWords_all.length === 0 ? 'Tarlana ornek cumleli kelimeler eklemelisin' : 'Baska bir filtre deneyin'}</Text>
+            <Text style={styles.emptyTitle}>{puzzleWords_all.length === 0 ? 'Yapboz İçin Kelime Yok' : 'Bu filtrede kelime yok'}</Text>
+            <Text style={styles.emptySubtitle}>{puzzleWords_all.length === 0 ? 'Tarlana örnek cümleli kelimeler eklemelisin' : 'Başka bir filtre deneyin'}</Text>
           </View>
         ) : (
           <FlashList
@@ -1090,6 +1099,8 @@ export default function WordPuzzleScreen({
             contentContainerStyle={{ paddingTop: 12, paddingBottom: 100, paddingHorizontal: GRID_PADDING }}
             showsVerticalScrollIndicator={false}
             extraData={[CALCULATED_CARD_WIDTH, gridColumns, safeCustomization]}
+            scrollEventThrottle={16}
+            onScroll={handleEmbeddedGridScroll}
           />
         )}
 
@@ -1158,9 +1169,9 @@ export default function WordPuzzleScreen({
       {puzzleWords_filtered.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Puzzle size={64} color={COLORS.textMuted} />
-          <Text style={styles.emptyTitle}>{filter === 'all' ? 'Yapboz Icin Kelime Yok' : 'Bu filtrede kelime yok'}</Text>
-          <Text style={styles.emptySubtitle}>{filter === 'all' ? 'Tarlana ornek cumleli kelimeler eklemelisin' : 'Baska bir filtre deneyin'}</Text>
-          {filter !== 'all' && <TouchableOpacity style={styles.resetFilterBtn} onPress={() => setFilter('all')}><RotateCcw size={16} color="#fff" /><Text style={styles.resetFilterText}>Filtreyi Sifirla</Text></TouchableOpacity>}
+          <Text style={styles.emptyTitle}>{filter === 'all' ? 'Yapboz İçin Kelime Yok' : 'Bu filtrede kelime yok'}</Text>
+          <Text style={styles.emptySubtitle}>{filter === 'all' ? 'Tarlana örnek cümleli kelimeler eklemelisin' : 'Başka bir filtre deneyin'}</Text>
+          {filter !== 'all' && <TouchableOpacity style={styles.resetFilterBtn} onPress={() => setFilter('all')}><RotateCcw size={16} color="#fff" /><Text style={styles.resetFilterText}>Filtreyi Sıfırla</Text></TouchableOpacity>}
         </View>
       ) : (
         <FlashList

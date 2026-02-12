@@ -116,6 +116,10 @@ export const BattleResultScreen: React.FC<BattleResultProps> = ({
             .filter((w): w is WrongWord => w !== null);
     }, [questions, myAnswers, farm, inventory, isWordInCollection]);
 
+    const safeAccuracy = Number.isFinite(stats?.accuracy) ? Math.max(0, Math.min(100, Math.round(stats.accuracy))) : 0;
+    const safeSpeed = Number.isFinite(stats?.speed) ? Math.max(0, Math.min(100, Math.round(stats.speed))) : 0;
+    const safeStreak = Number.isFinite(stats?.streak) ? Math.max(0, Math.round(stats.streak)) : 0;
+
     // 🌱 YANLIŞ KELİMELERİ OTOMATIK TOHUM OLARAK EKLE
     useEffect(() => {
         if (seedsAdded || wrongWords.length === 0) return;
@@ -284,17 +288,17 @@ export const BattleResultScreen: React.FC<BattleResultProps> = ({
                     <View style={styles.statBox}>
                         <CheckCircle2 size={normalize(20)} color="#22c55e" />
                         <Text style={styles.statLabel}>Doğruluk</Text>
-                        <Text style={styles.statNumber}>%{stats.accuracy}</Text>
+                        <Text style={styles.statNumber}>%{safeAccuracy}</Text>
                     </View>
                     <View style={styles.statBox}>
                         <Zap size={normalize(20)} color="#3b82f6" fill="#3b82f6" />
                         <Text style={styles.statLabel}>Seri</Text>
-                        <Text style={styles.statNumber}>{stats.streak}x</Text>
+                        <Text style={styles.statNumber}>{safeStreak}x</Text>
                     </View>
                     <View style={styles.statBox}>
                         <Clock size={normalize(20)} color="#a855f7" />
                         <Text style={styles.statLabel}>Hız</Text>
-                        <Text style={styles.statNumber}>80/100</Text>
+                        <Text style={styles.statNumber}>%{safeSpeed}</Text>
                     </View>
                 </Animated.View>
 
@@ -323,7 +327,7 @@ export const BattleResultScreen: React.FC<BattleResultProps> = ({
                         {showWrongWords && (
                             <View style={styles.wrongWordsList}>
                                 {wrongWords.map((word, index) => (
-                                    <View key={word.wordId} style={styles.wrongWordItem}>
+                                    <View key={`${word.wordId || word.wordText}-${index}`} style={styles.wrongWordItem}>
                                         <View style={styles.wrongWordLeft}>
                                             <Text style={styles.wrongWordText}>{word.wordText}</Text>
                                             <Text style={styles.wrongWordCorrect}>

@@ -1056,7 +1056,9 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     useEffect(() => {
 
-        if (battleState !== 'searching' || !user?.odId || !isAuthenticated) return;
+        const safeUserId = typeof user?.odId === 'string' ? user.odId : '';
+        const safeUserNickname = user?.nickname || nickname || 'Player';
+        if (battleState !== 'searching' || !safeUserId || !isAuthenticated) return;
 
         let isCancelled = false;
 
@@ -1076,11 +1078,11 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                 if (isCancelled) return;
 
-                await joinMatchmaking(user.odId, user?.nickname || nickname || 'Player', level);
+                await joinMatchmaking(safeUserId, safeUserNickname, level);
 
                 // 👍‚ 1. PASIF: Biri beni bulup davet etti mi? (Listener)
 
-                unsubscribeMatchmaking = listenToMatchmaking(user.odId, async (battleId) => {
+                unsubscribeMatchmaking = listenToMatchmaking(safeUserId, async (battleId) => {
 
                     if (isCancelled || !battleId) return;
 
@@ -1093,7 +1095,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                         try {
                             const incomingHostId = battleId.split('_')[1];
-                            const myId = user.odId;
+                            const myId = safeUserId;
 
                             if (incomingHostId > myId) {
                                 console.log(`[Matchmaking] Race condition: Yielding to larger ID (${incomingHostId} > ${myId}). Abandoning local host.`);
@@ -1119,7 +1121,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                     if (searchInterval) clearInterval(searchInterval);
 
                     // 🚨 HEMEN matchmaking'den çık - race condition önleme
-                    await leaveMatchmaking(user!.odId);
+                    await leaveMatchmaking(safeUserId).catch(() => { });
 
                     // Odaya katıl (GUEST veya HOST fark etmez, davet edilen odaya girer)
                     try {
@@ -1150,17 +1152,17 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                                 battleId: battleId,
                                 questions: battleData.questions,
                                 opponentInfo: {
-                                    odId: battleData.hostId === user!.odId ? (battleData.guestId || 'unknown') : battleData.hostId,
-                                    nickname: battleData.hostId === user!.odId ? (battleData.guestNickname || 'Rakip') : battleData.hostNickname,
+                                    odId: battleData.hostId === safeUserId ? (battleData.guestId || 'unknown') : battleData.hostId,
+                                    nickname: battleData.hostId === safeUserId ? (battleData.guestNickname || 'Rakip') : battleData.hostNickname,
                                     level: 0 // Level verisi room'da yoksa 0 (sonra sync olabilir)
                                 }
                             });
 
                             // Odaya GUEST olarak kaydol (Eğer ben Host değilsem)
-                            if (battleData.hostId !== user!.odId) {
+                            if (battleData.hostId !== safeUserId) {
                                 await updateDoc(battleRef, {
-                                    guestId: user!.odId,
-                                    guestNickname: user?.nickname || nickname || 'Player',
+                                    guestId: safeUserId,
+                                    guestNickname: safeUserNickname,
                                     guestLastActiveAt: serverTimestamp(),
                                     status: 'inProgress',
                                     startedAt: serverTimestamp()
@@ -1273,8 +1275,9 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                     if (isCancelled || isMatchFound || isFinding) return;
 
                     isFinding = true;
+                    try {
 
-                    const opponent = await findOpponent(user!.odId, level);
+                    const opponent = await findOpponent(safeUserId, level);
 
                     if (opponent && !isCancelled && !isMatchFound) {
 
@@ -1282,7 +1285,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                         // Odayı Kur (HOST benim)
 
-                        const battleId = `battle_${user!.odId}_${Date.now()}`; // Unique ID
+                        const battleId = `battle_${safeUserId}_${Date.now()}`; // Unique ID
 
                         const allWords = [...farm, ...pool].map(w => ({ id: w.id, text: w.text, meaning: w.meaning }));
 
@@ -1311,9 +1314,9 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                 roomCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
 
-                                hostId: user!.odId,
+                                hostId: safeUserId,
 
-                                hostNickname: user?.nickname || nickname || 'Player',
+                                hostNickname: safeUserNickname,
 
                                 guestId: null,
 
@@ -1367,7 +1370,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                             setBattleState('matched');
 
-                            await leaveMatchmaking(user!.odId);
+                            await leaveMatchmaking(safeUserId).catch(() => { });
 
                             let safetyUnsubscribe: () => void;
 
@@ -1425,7 +1428,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                     console.log('[Matchmaking] Countdown sırasında iptal edildi. Oda status=abandoned yapılıyor.');
 
-                                    abandonBattle(battleId, user!.odId, true).catch(console.error);
+                                    abandonBattle(battleId, safeUserId, true).catch(console.error);
 
                                     return;
 
@@ -1490,6 +1493,13 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                         isFinding = false;
 
                     }
+                    } catch (searchError) {
+                        console.error('[Matchmaking] findOpponent loop error:', searchError);
+                    } finally {
+                        if (!isMatchFound) {
+                            isFinding = false;
+                        }
+                    }
 
                 }, 2000);
 
@@ -1515,7 +1525,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
             if (unsubscribeMatchmaking) unsubscribeMatchmaking();
 
-            if (user?.odId) leaveMatchmaking(user.odId).catch(() => { });
+            if (safeUserId) leaveMatchmaking(safeUserId).catch(() => { });
 
         };
 
@@ -2192,6 +2202,21 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     }
 
+    if (battleState === 'inProgress' && !currentQuestion) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <LinearGradient colors={['#1a1b2e', '#16213e']} style={styles.gradient} />
+                <View style={styles.waitingOverlay}>
+                    <View style={styles.waitingContainer}>
+                        <ActivityIndicator size="large" color="#ffffff" style={{ marginBottom: 20 }} />
+                        <Text style={styles.waitingTitle}>Savaş Hazırlanıyor...</Text>
+                        <Text style={styles.waitingSubtitle}>Rakip bulundu, sorular yükleniyor.</Text>
+                    </View>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
     // 3. BATTLE IN PROGRESS VIEW
 
     if (battleState === 'inProgress' && currentQuestion) {
@@ -2388,15 +2413,49 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
         else resultType = 'loss';
 
         // 🏆 Calculate correct answers from final data
-        const myAnswers = user?.odId === finalBattleData.hostId
+        const rawAnswers = user?.odId === finalBattleData.hostId
             ? finalBattleData.hostAnswers
             : finalBattleData.guestAnswers;
-        const correctCount = myAnswers ? myAnswers.filter((a: any) => a.isCorrect).length : Math.round(battleScore / 100);
+        const myAnswers = Array.isArray(rawAnswers) ? rawAnswers : [];
+
+        const totalQuestionCount = Math.max(
+            1,
+            Array.isArray(finalBattleData.questions) ? finalBattleData.questions.length : 0,
+            QUESTION_COUNT,
+        );
+
+        const correctCount = myAnswers.length > 0
+            ? myAnswers.filter((a: any) => a?.isCorrect === true).length
+            : Math.max(0, Math.round((Number.isFinite(battleScore) ? battleScore : 0) / 100));
+
+        const accuracy = Math.max(0, Math.min(100, Math.round((correctCount / totalQuestionCount) * 100)));
+
+        let currentStreak = 0;
+        let bestStreak = 0;
+        for (const answer of myAnswers) {
+            if (answer?.isCorrect === true) {
+                currentStreak += 1;
+                if (currentStreak > bestStreak) bestStreak = currentStreak;
+            } else {
+                currentStreak = 0;
+            }
+        }
+
+        const timedAnswers = myAnswers.filter((a: any) => Number.isFinite(a?.timeMs) && a.timeMs > 0);
+        const avgTimeMs = timedAnswers.length > 0
+            ? timedAnswers.reduce((sum: number, answer: any) => sum + Number(answer.timeMs), 0) / timedAnswers.length
+            : 6500;
+        const clampedAvgTimeMs = Math.min(Math.max(avgTimeMs, 700), 12000);
+        const baseSpeed = Math.round(100 - ((clampedAvgTimeMs - 700) / (12000 - 700)) * 100);
+        const unansweredPenalty = myAnswers.length < totalQuestionCount
+            ? Math.min(25, (totalQuestionCount - myAnswers.length) * 6)
+            : 0;
+        const speed = Math.max(0, Math.min(100, baseSpeed - unansweredPenalty));
 
         const stats = {
-            accuracy: Math.round((correctCount / QUESTION_COUNT) * 100) || 0,
-            speed: 85,
-            streak: 0
+            accuracy,
+            speed,
+            streak: bestStreak,
         };
 
         // 💰 REWARD SYSTEM: 100 coin + 100 XP PER CORRECT ANSWER

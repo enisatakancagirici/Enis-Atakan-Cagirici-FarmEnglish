@@ -49,6 +49,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const IS_SMALL_DEVICE = SCREEN_HEIGHT < 700;
 const IS_VERY_SMALL = SCREEN_HEIGHT < 620;
 const IS_TABLET = Math.min(SCREEN_WIDTH, SCREEN_HEIGHT) >= 600;
+const BOTTOM_NAV_SAFE_GAP = Platform.OS === 'ios' ? (IS_SMALL_DEVICE ? 72 : 84) : 64;
 
 // ⏱️ SPEED BONUS SİSTEMİ
 const SPEED_BONUS = {
@@ -616,12 +617,20 @@ export default function WordMatchScreen() {
         const totalCoins = baseCoins + roundBonus + difficultyBonus + timeBonus + comboBonus + speedBonusTotal;
         
         addCoins(totalCoins);
-        updateQuestProgress('MATCH_WORDS', 1);
+        try {
+            updateQuestProgress('MATCH_WORDS', 1);
+        } catch (error) {
+            console.error('[WordMatch] quest progress update failed:', error);
+        }
         
         // 🎉💥 MEGA KUTLAMA - TELEFONU KUDURT!
         if (user?.odId) {
             const scoreToAdd = totalCoins + (maxCombo * 5); // Coin + combo bonus
-            updatePracticeScore(user.odId, 'wordmatch', scoreToAdd);
+            try {
+                updatePracticeScore(user.odId, 'wordmatch', scoreToAdd);
+            } catch (error) {
+                console.error('[WordMatch] practice score sync failed:', error);
+            }
         }
         
         // 📳🔥 ÇOK GÜÇLÜ CELEBRATION HAPTIC + HASAT SESİ!
@@ -797,7 +806,7 @@ export default function WordMatchScreen() {
                                     <View style={styles.speedBonusSummary}>
                                         <Zap size={16} color={COLORS.success} />
                                         <Text style={styles.speedBonusSummaryText}>
-                                            Hiz Bonusu: +{speedBonusTotal}
+                                            H\u0131z Bonusu: +{speedBonusTotal}
                                         </Text>
                                     </View>
                                 )}
@@ -820,8 +829,8 @@ export default function WordMatchScreen() {
                         <View style={[
                             styles.bottomBar,
                             {
-                                paddingBottom: Math.max(insets.bottom, IS_SMALL_DEVICE ? 4 : 6),
-                                marginBottom: IS_SMALL_DEVICE ? 10 : 14,
+                                paddingBottom: Math.max(insets.bottom, IS_SMALL_DEVICE ? 5 : 8),
+                                marginBottom: BOTTOM_NAV_SAFE_GAP,
                             }
                         ]}>
                             <TouchableOpacity 
@@ -829,11 +838,11 @@ export default function WordMatchScreen() {
                                 onPress={initializeRound}
                             >
                                 <RotateCcw size={IS_SMALL_DEVICE ? 18 : 20} color={COLORS.textMuted} />
-                                <Text style={[styles.resetButtonText, IS_SMALL_DEVICE && { fontSize: 12 }]}>Karistir</Text>
+                                <Text style={[styles.resetButtonText, IS_SMALL_DEVICE && { fontSize: 12 }]}>Kartları Karıştır</Text>
                             </TouchableOpacity>
 
                             <Text style={[styles.hintText, IS_SMALL_DEVICE && { fontSize: 10 }]}>
-                                Bir kelimeye dokun, sonra esini bul
+                                Bir kelimeye dokun, sonra e\u015Fini bul
                             </Text>
                         </View>
                     )}
@@ -1114,9 +1123,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingTop: IS_SMALL_DEVICE ? 3 : 5,
-        paddingBottom: Platform.OS === 'ios' ? 8 : 6,
+        paddingHorizontal: 14,
+        paddingTop: IS_SMALL_DEVICE ? 2 : 4,
+        paddingBottom: 4,
         backgroundColor: 'rgba(15, 23, 42, 0.95)',
         borderTopWidth: 1,
         borderTopColor: 'rgba(148, 163, 184, 0.1)',
