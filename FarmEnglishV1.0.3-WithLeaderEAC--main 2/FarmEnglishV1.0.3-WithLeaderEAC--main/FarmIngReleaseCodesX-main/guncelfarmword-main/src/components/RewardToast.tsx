@@ -15,7 +15,6 @@ import { create } from 'zustand';
 const { width, height } = Dimensions.get('window');
 const isSmallScreen = height < 700;
 
-// 🎯 Reward Toast Store
 interface RewardToast {
   id: string;
   type: 'xp' | 'coin' | 'level' | 'combo' | 'harvest' | 'quest';
@@ -65,57 +64,53 @@ export const useRewardToastStore = create<RewardToastStore>((set) => ({
   },
 }));
 
-// Helper function to show rewards
 export const showRewardToast = (type: RewardToast['type'], value: number, message?: string) => {
   useRewardToastStore.getState().addToast({ type, value, message });
 };
 
-// 🎨 Toast themes
 const TOAST_THEMES = {
   xp: {
     gradient: ['#8b5cf6', '#a855f7'] as const,
-    icon: '⚡',
+    icon: '\u26A1',
     label: 'XP',
     glow: '#a855f7',
   },
   coin: {
     gradient: ['#eab308', '#f59e0b'] as const,
-    icon: '💰',
+    icon: '\uD83D\uDCB0',
     label: 'Coin',
     glow: '#eab308',
   },
   level: {
     gradient: ['#22c55e', '#10b981'] as const,
-    icon: '🎉',
+    icon: '\uD83C\uDF89',
     label: 'LEVEL UP!',
     glow: '#22c55e',
   },
   combo: {
     gradient: ['#f97316', '#ef4444'] as const,
-    icon: '🔥',
+    icon: '\uD83D\uDD25',
     label: 'COMBO',
     glow: '#f97316',
   },
   harvest: {
     gradient: ['#06b6d4', '#0ea5e9'] as const,
-    icon: '🌾',
+    icon: '\uD83C\uDF3E',
     label: 'HASAT',
     glow: '#06b6d4',
   },
   quest: {
     gradient: ['#ec4899', '#f472b6'] as const,
-    icon: '✨',
-    label: 'GÖREV TAMAM!',
+    icon: '\u2728',
+    label: 'G\u00D6REV TAMAM!',
     glow: '#ec4899',
   },
 };
 
-// 🎴 Single Toast Component
 const RewardToastItem = React.memo(({ toast, index, topInset }: { toast: RewardToast; index: number; topInset: number }) => {
-  // 🔒 Fallback theme to prevent crash when unknown type is passed
   const DEFAULT_THEME = {
     gradient: ['#6b7280', '#4b5563'] as const,
-    icon: '✨',
+    icon: '\u2728',
     label: 'REWARD',
     glow: '#6b7280',
   };
@@ -125,7 +120,6 @@ const RewardToastItem = React.memo(({ toast, index, topInset }: { toast: RewardT
   const scale = useSharedValue(0.5);
 
   useEffect(() => {
-    // SE: Daha hızlı ve daha az bounce
     scale.value = withSequence(
       withSpring(isSmallScreen ? 1.1 : 1.2, { damping: isSmallScreen ? 12 : 8 }),
       withSpring(1, { damping: isSmallScreen ? 14 : 10 })
@@ -136,7 +130,6 @@ const RewardToastItem = React.memo(({ toast, index, topInset }: { toast: RewardT
     transform: [{ scale: scale.value }],
   }));
 
-  // Toast'lar en üstte, timer'ın üstünde - küçük ve kompakt
   const topPosition = topInset + (isSmallScreen ? 2 : 8) + index * (isSmallScreen ? 36 : 44);
 
   return (
@@ -166,7 +159,6 @@ const RewardToastItem = React.memo(({ toast, index, topInset }: { toast: RewardT
   );
 });
 
-// 🏠 Toast Container Component
 export const RewardToastContainer = () => {
   const toasts = useRewardToastStore((s) => s.toasts);
   const insets = useSafeAreaInsets();

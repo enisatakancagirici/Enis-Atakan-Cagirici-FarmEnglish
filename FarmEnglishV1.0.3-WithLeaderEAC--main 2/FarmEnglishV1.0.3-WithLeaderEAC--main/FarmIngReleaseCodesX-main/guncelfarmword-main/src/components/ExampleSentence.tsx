@@ -25,7 +25,7 @@ wordList.forEach(item => {
   };
 });
 
-// � Irregular Verbs - v2/v3 → v1 mapping
+//  Irregular Verbs - v2/v3 → v1 mapping
 const IRREGULAR_VERBS: Record<string, string> = {
   // be
   'was': 'be', 'were': 'be', 'been': 'be', 'am': 'be', 'is': 'be', 'are': 'be',
@@ -540,7 +540,7 @@ export const ExampleSentence = memo(({
   const handleWordPress = useCallback((word: string, index: number) => {
     haptic.light();
 
-    const cleanedWord = word.replace(/[.,!?;:'""\u201C\u201D]/g, '').trim();
+    const cleanedWord = word.replace(/[.,!?;:'"\u201C\u201D]/g, '').trim();
     const cleanedWordSafe = word.replace(/[.,!?;:'"\u201C\u201D]/g, '').trim();
     const spokenWord = cleanedWordSafe.length > 0 ? cleanedWordSafe : cleanedWord;
     if (spokenWord.length > 0) {

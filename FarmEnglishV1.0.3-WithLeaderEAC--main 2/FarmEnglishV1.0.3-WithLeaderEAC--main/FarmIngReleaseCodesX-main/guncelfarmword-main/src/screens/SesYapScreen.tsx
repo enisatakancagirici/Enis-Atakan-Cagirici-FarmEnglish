@@ -1,8 +1,8 @@
 /**
- * Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â¤ SesYap EkranÃƒâ€Ã‚Â± - Yapboz TarzÃƒâ€Ã‚Â± KonuÃƒâ€¦Ã…Â¸ma Modu
+ *  SesYap Ekranı - Yapboz Tarzı Konuşma Modu
  *
- * Kelimeler boÃƒâ€¦Ã…Â¸luk olarak gÃƒÆ’Ã‚Â¶sterilir, doÃƒâ€Ã…Â¸ru sÃƒÆ’Ã‚Â¶ylenenler yerine oturur.
- * Yapboz MiniQuiz'e ÃƒÆ’Ã‚Â§ok benzer UI.
+ * Kelimeler boşluk olarak gösterilir, doğru söylenenler yerine oturur.
+ * Yapboz MiniQuiz'e çok benzer UI.
  */
 
 import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
@@ -62,8 +62,9 @@ import {
     type CardFontStyle,
 } from '../data/cardThemes';
 import NetInfo from '@react-native-community/netinfo';
+import { traceEvent } from '../utils/debugTrace';
 
-// ÃƒÆ’Ã¢â‚¬â€œrnek cÃƒÆ’Ã‚Â¼mleler veri kaynaÃƒâ€Ã…Â¸Ãƒâ€Ã‚Â±
+// Örnek cümleler veri kaynağı
 import ensaglamData from '../../assets/data/ensaglamdata_with_example_tr.json';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -73,20 +74,20 @@ const IS_SMALL_DEVICE = SCREEN_HEIGHT < 700;
 type SesYapMode = 'calis' | 'tarla';
 type MicModalState = 'hidden' | 'needPermission' | 'settingsRequired' | 'startFailed';
 
-// ÃƒÆ’Ã¢â‚¬Â¡alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸Ãƒâ€Ã‚Â±lmÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸ cÃƒÆ’Ã‚Â¼mle geÃƒÆ’Ã‚Â§miÃƒâ€¦Ã…Â¸i iÃƒÆ’Ã‚Â§in tip
+// Çalışılmış cümle geçmişi için tip
 interface SentenceHistory {
     sentence: SentenceData;
     correct: boolean;
     timestamp: number;
 }
 
-// KayÃƒâ€Ã‚Â±t ayarlarÃƒâ€Ã‚Â± - HÃƒâ€Ã‚Â±zlÃƒâ€Ã‚Â± sonuÃƒÆ’Ã‚Â§ iÃƒÆ’Ã‚Â§in optimize edildi
+// Kayıt ayarları - Hızlı sonuç için optimize edildi
 const RECORDING_DURATION_MS = 6000;
 const SILENCE_THRESHOLD = -35;
-const SILENCE_DURATION_MS = 800; // 1500 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 800ms - AnÃƒâ€Ã‚Â±nda sonuÃƒÆ’Ã‚Â§
-const MIN_SPEECH_TIME_MS = 600; // 800 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 600ms - Daha hÃƒâ€Ã‚Â±zlÃƒâ€Ã‚Â± algÃƒâ€Ã‚Â±lama
+const SILENCE_DURATION_MS = 800; // 1500 → 800ms - Anında sonuç
+const MIN_SPEECH_TIME_MS = 600; // 800 → 600ms - Daha hızlı algılama
 
-// Ã„Å¸Ã…Â¸Ã…â€™Ã‹â€  Renk paleti - Yapboz ile uyumlu
+// 🌈 Renk paleti - Yapboz ile uyumlu
 const COLORS = {
     background: '#0F172A',
     surface: 'rgba(30, 41, 59, 0.95)',
@@ -132,13 +133,14 @@ interface EnsaglamDataType {
 }
 
 interface SentenceData {
+    wordId?: string;
     word: string;
     meaning_tr: string;
     example_en: string;
     example_tr: string;
 }
 
-// Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â² Rastgele ÃƒÆ’Ã‚Â¶rnek cÃƒÆ’Ã‚Â¼mle seÃƒÆ’Ã‚Â§ (performans iÃƒÆ’Ã‚Â§in ÃƒÆ’Ã‚Â¶nceden filtrelenmiÃƒâ€¦Ã…Â¸)
+//  Rastgele örnek cümle seç (performans için önceden filtrelenmiş)
 const ENSAGLAM_DATA = ensaglamData as EnsaglamDataType;
 const VALID_SENTENCES: WordItem[] = (ENSAGLAM_DATA.items || []).filter(item => {
     if (!item.example || item.example.length < 10) return false;
@@ -160,7 +162,32 @@ function getRandomSentence(): SentenceData | null {
     };
 }
 
-// Ã„Å¸Ã…Â¸Ã‚Â§Ã‚Â© Kelime Slot'u - Her zaman Ãƒâ€Ã‚Â°ngilizce kelimeyi gÃƒÆ’Ã‚Â¶ster
+function normalizeMatchKey(value: unknown): string {
+    return normalizeDisplayText(value).trim().toLowerCase();
+}
+
+function toSentenceData(source: any, fallbackWordId?: string): SentenceData | null {
+    if (!source || typeof source !== 'object') return null;
+    const word = normalizeDisplayText(source.word ?? source.text ?? source.verb);
+    const meaning = normalizeDisplayText(source.meaning_tr ?? source.meaning ?? source.tr);
+    const exampleEn = normalizeDisplayText(source.example_en ?? source.example);
+    const exampleTr = normalizeDisplayText(source.example_tr ?? source.tr ?? source.meaning);
+    if (!word || !exampleEn) return null;
+    const wordId = typeof source.wordId === 'string'
+        ? source.wordId
+        : typeof source.id === 'string'
+            ? source.id
+            : fallbackWordId;
+    return {
+        wordId: typeof wordId === 'string' && wordId.trim().length > 0 ? wordId.trim() : undefined,
+        word,
+        meaning_tr: meaning,
+        example_en: exampleEn,
+        example_tr: exampleTr,
+    };
+}
+
+// 🧩 Kelime Slot'u - Her zaman İngilizce kelimeyi göster
 interface WordSlotProps {
     word: string;
     status: 'pending' | 'correct' | 'wrong';
@@ -187,7 +214,7 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
                 }),
             ]).start();
 
-            // Glow (sadece doÃƒâ€Ã…Â¸ruysa)
+            // Glow (sadece doğruysa)
             if (status === 'correct') {
                 Animated.loop(
                     Animated.sequence([
@@ -214,7 +241,7 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
     const getTextColor = () => {
         if (status === 'correct') return COLORS.success;
         if (status === 'wrong') return COLORS.error;
-        return COLORS.text; // Pending iÃƒÆ’Ã‚Â§in normal beyaz renk - kelime gÃƒÆ’Ã‚Â¶rÃƒÆ’Ã‚Â¼nsÃƒÆ’Ã‚Â¼n!
+        return COLORS.text; // Pending için normal beyaz renk - kelime görünsün!
     };
 
     return (
@@ -244,7 +271,7 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
 });
 WordSlot.displayName = 'WordSlot';
 
-// Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â¤ Mikrofon Butonu
+//  Mikrofon Butonu
 interface MicButtonProps {
     isRecording: boolean;
     isProcessing: boolean;
@@ -404,7 +431,7 @@ const MicButton = memo<MicButtonProps>(({ isRecording, isProcessing, remainingTi
 });
 MicButton.displayName = 'MicButton';
 
-// ÃƒÂ¯Ã‚Â¿Ã‚Â½ CÃƒÆ’Ã‚Â¼mle Seslendirme Butonu
+//  Cümle Seslendirme Butonu
 interface SpeakButtonProps {
     sentence: SentenceData | null;
     disabled?: boolean;
@@ -461,16 +488,25 @@ const SpeakButton = memo<SpeakButtonProps>(({ sentence, disabled = false, onPres
 });
 SpeakButton.displayName = 'SpeakButton';
 
-// Ã„Å¸Ã…Â¸Ã¢â‚¬Å“Ã‚Â± Ana Ekran
+// 📱 Ana Ekran
 export default function SesYapScreen() {
     const navigation = useNavigation();
 
-    // Ã„Å¸Ã…Â¸Ã¢â‚¬Å“Ã‚Â¦ Store'dan sesyapHistory ve aksiyonlarÃƒâ€Ã‚Â± al
+    // 📦 Store'dan sesyapHistory ve aksiyonları al
     const sesyapHistory = useFarmStore(state => state.sesyapHistory);
     const addSesyapHistory = useFarmStore(state => state.addSesyapHistory);
     const clearSesyapHistory = useFarmStore(state => state.clearSesyapHistory);
     const addSesyapScore = useFarmStore(state => state.addSesyapScore);
-    const updateQuestProgress = useFarmStore(state => state.updateQuestProgress);
+    const queueQuestProgress = useFarmStore(state => state.queueQuestProgress);
+    const farm = useFarmStore(state => state.farm);
+    const phrasalVerbFarm = useFarmStore(state => state.phrasalVerbFarm);
+    const inventory = useFarmStore(state => state.inventory);
+    const phrasalVerbInventory = useFarmStore(state => state.phrasalVerbInventory);
+    const guidedModeActive = useFarmStore(state => state.guidedModeActive);
+    const guidedModeStep = useFarmStore(state => state.guidedModeStep);
+    const guidedModeTargetWordId = useFarmStore(state => state.guidedModeTargetWordId);
+    const guidedModeTargetWordText = useFarmStore(state => state.guidedModeTargetWordText);
+    const stopGuidedMode = useFarmStore(state => state.stopGuidedMode);
     const activeThemeId = useFarmStore(state => state.activeCardTheme);
     const cardCustomization = useFarmStore(state => state.cardCustomization);
 
@@ -508,15 +544,30 @@ export default function SesYapScreen() {
     const [questionCount, setQuestionCount] = useState(0);
     const [remainingTime, setRemainingTime] = useState(RECORDING_DURATION_MS / 1000);
     const [isComplete, setIsComplete] = useState(false);
-    const [transcript, setTranscript] = useState<string>(''); // KullanÃƒâ€Ã‚Â±cÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â±n sÃƒÆ’Ã‚Â¶ylediÃƒâ€Ã…Â¸i
+    const [transcript, setTranscript] = useState<string>(''); // Kullanıcının söylediği
     const [micModalState, setMicModalState] = useState<MicModalState>('hidden');
     const [pendingMicStart, setPendingMicStart] = useState(false);
 
-    // CÃƒÆ’Ã‚Â¼mle kelimeleri
+    const [pendingGuidedHistoryEntry, setPendingGuidedHistoryEntry] = useState<{
+        word: string;
+        wordId?: string;
+        meaning_tr: string;
+        example_en: string;
+        example_tr: string;
+        correct: boolean;
+        timestamp: number;
+    } | null>(null);
+    const [guidedCompletionModalVisible, setGuidedCompletionModalVisible] = useState(false);
+    const [guidedSentenceMissing, setGuidedSentenceMissing] = useState(false);
+    const isGuidedSesYapStep = guidedModeActive && guidedModeStep === 'SESYAP_PRACTICE';
+    // Cümle kelimeleri
     const sentenceWords = useMemo(() => {
         if (!sentence) return [];
         return sentence.example_en.split(' ').filter(w => w.trim().length > 0);
     }, [sentence]);
+
+    const allFilled = filledWords.size === sentenceWords.length;
+    const allCorrect = allFilled && Array.from(filledWords.values()).every(v => v.isCorrect);
 
     // Refs
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -531,11 +582,101 @@ export default function SesYapScreen() {
     const isProcessingRef = useRef(false);
     const lastInternetAlertAtRef = useRef(0);
 
+    const guidedMissingTraceRef = useRef(false);
+    const appliedGuidedSentenceKeyRef = useRef<string>('');
+
+    const resetSessionForSentence = useCallback((nextSentence: SentenceData | null) => {
+        setSentence(nextSentence);
+        setFilledWords(new Map());
+        setRemainingTime(RECORDING_DURATION_MS / 1000);
+        setIsComplete(false);
+        setTranscript('');
+        setIsRecording(false);
+        setIsProcessing(false);
+        isRecordingRef.current = false;
+        isProcessingRef.current = false;
+        silenceCheckRunningRef.current = false;
+        silenceStartRef.current = null;
+        hasSpokenRef.current = false;
+        setPendingGuidedHistoryEntry(null);
+        setGuidedCompletionModalVisible(false);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+    }, []);
+
+    const guidedTargetSentence = useMemo(() => {
+        if (!isGuidedSesYapStep) return null;
+
+        const targetWordId = typeof guidedModeTargetWordId === 'string' ? guidedModeTargetWordId.trim() : '';
+        const targetWordKey = normalizeMatchKey(guidedModeTargetWordText);
+
+        const pool = [
+            ...(Array.isArray(farm) ? farm : []),
+            ...(Array.isArray(phrasalVerbFarm) ? phrasalVerbFarm : []),
+            ...(Array.isArray(inventory) ? inventory : []),
+            ...(Array.isArray(phrasalVerbInventory) ? phrasalVerbInventory : []),
+        ] as any[];
+
+        const matchedStoreWord = pool.find((item) => {
+            const itemId = typeof item?.id === 'string' ? item.id.trim() : '';
+            if (targetWordId && itemId && itemId === targetWordId) return true;
+            const itemWordKey = normalizeMatchKey(item?.text ?? item?.verb ?? item?.word);
+            return !!targetWordKey && !!itemWordKey && targetWordKey === itemWordKey;
+        });
+        const fromStore = toSentenceData(matchedStoreWord, targetWordId || undefined);
+        if (fromStore) return fromStore;
+
+        const matchedDatasetWord = (ENSAGLAM_DATA.items || []).find((item) => {
+            const itemWordKey = normalizeMatchKey(item.word);
+            return !!targetWordKey && !!itemWordKey && targetWordKey === itemWordKey;
+        });
+        if (!matchedDatasetWord) return null;
+        return toSentenceData({ ...matchedDatasetWord, wordId: targetWordId || undefined }, targetWordId || undefined);
+    }, [isGuidedSesYapStep, guidedModeTargetWordId, guidedModeTargetWordText, farm, phrasalVerbFarm, inventory, phrasalVerbInventory]);
+
+    useEffect(() => {
+        if (!isGuidedSesYapStep) {
+            guidedMissingTraceRef.current = false;
+            appliedGuidedSentenceKeyRef.current = '';
+            setGuidedSentenceMissing(false);
+            return;
+        }
+
+        if (activeMode !== 'calis') {
+            setActiveMode('calis');
+        }
+
+        if (!guidedTargetSentence) {
+            setGuidedSentenceMissing(true);
+            if (sentence !== null) {
+                resetSessionForSentence(null);
+            }
+            if (!guidedMissingTraceRef.current) {
+                guidedMissingTraceRef.current = true;
+                traceEvent('guided_target_sentence_missing', {
+                    step: guidedModeStep,
+                    targetWordId: guidedModeTargetWordId,
+                    targetWordText: guidedModeTargetWordText,
+                }, 'warn');
+            }
+            return;
+        }
+
+        setGuidedSentenceMissing(false);
+        guidedMissingTraceRef.current = false;
+
+        const sentenceKey = `${guidedTargetSentence.wordId || ''}:${normalizeMatchKey(guidedTargetSentence.example_en)}`;
+        if (appliedGuidedSentenceKeyRef.current === sentenceKey) return;
+        appliedGuidedSentenceKeyRef.current = sentenceKey;
+        resetSessionForSentence(guidedTargetSentence);
+    }, [isGuidedSesYapStep, activeMode, guidedTargetSentence, resetSessionForSentence, guidedModeStep, guidedModeTargetWordId, guidedModeTargetWordText, sentence]);
+
     useEffect(() => {
         isProcessingRef.current = isProcessing;
     }, [isProcessing]);
 
-    // Ãƒâ€Ã‚Â°lk cÃƒÆ’Ã‚Â¼mleyi yÃƒÆ’Ã‚Â¼kle
+    // Ilk cumleyi yukle
     useEffect(() => {
         loadNewSentence();
 
@@ -548,29 +689,35 @@ export default function SesYapScreen() {
             if (timerRef.current) clearTimeout(timerRef.current);
             if (countdownRef.current) clearInterval(countdownRef.current);
             if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
-            // Ã„Å¸Ã…Â¸Ã¢â‚¬ÂºÃ‚Â¡ÃƒÂ¯Ã‚Â¸Ã‚Â TTS'i durdur ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â audio session ÃƒÆ’Ã‚Â§akÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸masÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â± ÃƒÆ’Ã‚Â¶nle
+            //  TTS'i durdur  audio session akşmasn nle
             sound.stopSpeaking?.();
             sound.setRecordingActive?.(false);
         };
     }, []);
 
-    // Yeni cÃƒÆ’Ã‚Â¼mle yÃƒÆ’Ã‚Â¼kle
+    // Yeni cumle yukle
     const loadNewSentence = useCallback(() => {
-        const newSentence = getRandomSentence();
-        setSentence(newSentence);
-        setFilledWords(new Map());
-        setRemainingTime(RECORDING_DURATION_MS / 1000);
-        setIsComplete(false);
-        setTranscript(''); // Transcript'i temizle
-    }, []);
+        if (isGuidedSesYapStep) {
+            if (guidedTargetSentence) {
+                resetSessionForSentence(guidedTargetSentence);
+                return;
+            }
+            setGuidedSentenceMissing(true);
+            resetSessionForSentence(null);
+            return;
+        }
 
-    const showInternetRequiredAlert = useCallback(() => {
+        const newSentence = getRandomSentence();
+        resetSessionForSentence(newSentence);
+    }, [isGuidedSesYapStep, guidedTargetSentence, resetSessionForSentence]);
+
+        const showInternetRequiredAlert = useCallback(() => {
         const now = Date.now();
         if (now - lastInternetAlertAtRef.current < 2500) return;
         lastInternetAlertAtRef.current = now;
         Alert.alert(
             'İnternet Gerekli',
-            'SesYap doğruluk kontrolü için internet bağlantısı gerekir. Bağlantını kontrol edip tekrar dene.'
+            'SesYap doğruluk kontrolü için internet bağlantısı gerekiyor. Bağlantını kontrol edip tekrar dene.'
         );
         haptic.error();
     }, []);
@@ -594,6 +741,11 @@ export default function SesYapScreen() {
     // Mikrofon press
     const handleMicPress = useCallback(async () => {
         try {
+            if (isGuidedSesYapStep && guidedSentenceMissing) {
+                haptic.warning();
+                return;
+            }
+
             if (isRecording) {
                 if (timerRef.current) clearTimeout(timerRef.current);
                 if (countdownRef.current) clearInterval(countdownRef.current);
@@ -697,9 +849,9 @@ export default function SesYapScreen() {
             setPendingMicStart(false);
             setMicModalState('startFailed');
         }
-    }, [isComplete, isRecording, ensureInternetForSesYap]);
+    }, [isComplete, isRecording, ensureInternetForSesYap, isGuidedSesYapStep, guidedSentenceMissing]);
 
-    // KayÄ±dÄ± iÅŸleÃƒâ€Ã‚Â± iÃƒâ€¦Ã…Â¸le
+    // Kayd ile işle
     const processRecording = useCallback(async () => {
         if (!isRecording && !isRecordingRef.current) return;
         if (isProcessingRef.current) return;
@@ -713,7 +865,7 @@ export default function SesYapScreen() {
         setIsRecording(false);
         setIsProcessing(true);
         haptic.light();
-        // Ã„Å¸Ã…Â¸Ã¢â‚¬ÂºÃ‚Â¡ÃƒÂ¯Ã‚Â¸Ã‚Â KayÃƒâ€Ã‚Â±t bitti, audio mode deÃƒâ€Ã…Â¸iÃƒâ€¦Ã…Â¸ebilir
+        //  Kayt bitti, audio mode deişebilir
         sound.setRecordingActive?.(false);
 
         try {
@@ -735,13 +887,13 @@ export default function SesYapScreen() {
                 return;
             }
 
-            // KarÃƒâ€¦Ã…Â¸Ãƒâ€Ã‚Â±laÃƒâ€¦Ã…Â¸tÃƒâ€Ã‚Â±r
+            // Karşlaştr
             const comparison = compareSentences(speechResult.transcript, sentence.example_en);
 
-            // KullanÃƒâ€Ã‚Â±cÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â±n sÃƒÆ’Ã‚Â¶ylediÃƒâ€Ã…Â¸ini kaydet
+            // Kullanicinin soyledisini kaydet
             setTranscript(speechResult.transcript);
 
-            // Her kelimeyi kontrol et ve slot'lara yerleÃƒâ€¦Ã…Â¸tir
+            // Her kelimeyi kontrol et ve slot'lara yerleştir
             const newFilledWords = new Map(filledWords);
             let newCorrectCount = 0;
 
@@ -764,14 +916,14 @@ export default function SesYapScreen() {
 
             setFilledWords(newFilledWords);
 
-            // Skor gÃƒÆ’Ã‚Â¼ncelle
+            // Skor guncelle
             if (newCorrectCount > 0) {
-                // Ã„Å¸Ã…Â¸Ã…â€™Ã‚Â¾ Tarlaya gÃƒÆ’Ã‚Â¶nder + combo-based premium haptic!
+                //  Tarlaya gonder + combo-based premium haptic!
                 sound.playPlant();
 
-                // Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â® Combo-based premium haptic!
+                //  Combo-based premium haptic!
                 if (newCorrectCount >= 5) {
-                    haptic.masterCelebration(); // TÃƒÆ’Ã‚Â¼m kelimeleri sÃƒÆ’Ã‚Â¶yledi!
+                    haptic.masterCelebration(); // Tum kelimeleri soyledi!
                 } else if (newCorrectCount >= 3) {
                     haptic.rigid();
                     setTimeout(() => haptic.heavy(), 50);
@@ -791,31 +943,43 @@ export default function SesYapScreen() {
                 setCombo(0);
             }
 
-            // TamamlandÃƒâ€Ã‚Â± mÃƒâ€Ã‚Â±?
+            // Tamamlandi mi?
             if (newFilledWords.size === sentenceWords.length) {
                 const allCorrect = Array.from(newFilledWords.values()).every(v => v.isCorrect);
                 setIsComplete(true);
                 setQuestionCount(prev => prev + 1);
 
-                // Ã„Å¸Ã…Â¸Ã¢â‚¬Å“Ã…Â¡ Tarla geÃƒÆ’Ã‚Â§miÃƒâ€¦Ã…Â¸ine kaydet (store'a persist edilir)
+                //  Tarla gemişine kaydet (store'a persist edilir)
                 if (sentence) {
-                    addSesyapHistory({
+                    const historyEntry = {
                         word: normalizeDisplayText(sentence.word),
+                        wordId: sentence.wordId,
                         meaning_tr: normalizeDisplayText(sentence.meaning_tr),
                         example_en: normalizeDisplayText(sentence.example_en),
                         example_tr: normalizeDisplayText(sentence.example_tr),
                         correct: allCorrect,
                         timestamp: Date.now(),
-                    });
+                    };
+
+                    if (isGuidedSesYapStep) {
+                        if (allCorrect) {
+                            setPendingGuidedHistoryEntry(historyEntry);
+                            setGuidedCompletionModalVisible(true);
+                        } else {
+                            setPendingGuidedHistoryEntry(null);
+                        }
+                    } else {
+                        addSesyapHistory(historyEntry);
+                    }
                 }
 
                 if (allCorrect) {
-                    // Ã„Å¸Ã…Â¸Ã‚ÂÃ¢â‚¬Â  MÃƒÆ’Ã‚Â¼kemmel - epik hasat! Premium kutlama!
+                    // s-> Mukemmel - epik hasat! Premium kutlama!
                     haptic.masterCelebration();
                     sound.playEpicHarvest();
                     setScore(prev => prev + 50); // Bonus
                     addSesyapScore(50); // Store bonus
-                    updateQuestProgress('SPEECH_PRACTICE', 1); // Ã„Å¸Ã…Â¸Ã‚ÂÃ‚Â¯ GÃƒÆ’Ã‚Â¼nlÃƒÆ’Ã‚Â¼k gÃƒÆ’Ã‚Â¶rev
+                    queueQuestProgress('SPEECH_PRACTICE', 1, 'add');
                 }
             }
         } catch (error) {
@@ -826,14 +990,23 @@ export default function SesYapScreen() {
             isRecordingRef.current = false;
             setRemainingTime(RECORDING_DURATION_MS / 1000);
         }
-    }, [isRecording, sentence, filledWords, sentenceWords, addSesyapHistory, addSesyapScore, ensureInternetForSesYap]);
+    }, [isRecording, sentence, filledWords, sentenceWords, addSesyapHistory, addSesyapScore, ensureInternetForSesYap, queueQuestProgress, isGuidedSesYapStep]);
 
     // Sonraki soru
     const handleNext = useCallback(() => {
+        if (isGuidedSesYapStep) {
+            if (!allCorrect || !pendingGuidedHistoryEntry) {
+                haptic.warning();
+                return;
+            }
+            setGuidedCompletionModalVisible(true);
+            return;
+        }
+
         haptic.medium();
         setTimeout(() => haptic.light(), 50);
         loadNewSentence();
-    }, [loadNewSentence]);
+    }, [isGuidedSesYapStep, allCorrect, pendingGuidedHistoryEntry, loadNewSentence]);
 
     // Tekrar dene
     const handleRetry = useCallback(() => {
@@ -845,6 +1018,7 @@ export default function SesYapScreen() {
     }, []);
 
     const openTarlaSentence = useCallback((item: { word: string; meaning_tr: string; example_en: string; example_tr: string; }) => {
+        if (isGuidedSesYapStep) return;
         if (isProcessing || isRecordingRef.current) return;
 
         haptic.light();
@@ -869,20 +1043,46 @@ export default function SesYapScreen() {
         silenceCheckRunningRef.current = false;
         silenceStartRef.current = null;
         hasSpokenRef.current = false;
-    }, [isProcessing]);
+    }, [isProcessing, isGuidedSesYapStep]);
 
-    // Ã„Å¸Ã…Â¸Ã¢â‚¬ÂÃ…Â  CÃƒÆ’Ã‚Â¼mleyi seslendir
+    //  Cumleyi seslendir
     const handleSpeakSentence = useCallback(() => {
         if (!sentence?.example_en) return;
         haptic.medium();
         sound.speakSentence(sentence.example_en, 'en-US');
     }, [sentence]);
 
-    // Geri - GÃƒÆ’Ã‚Â¼ÃƒÆ’Ã‚Â§lendirilmiÃƒâ€¦Ã…Â¸ navigasyon (DailyQuestsPanel'den gelse de ÃƒÆ’Ã‚Â§alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸Ãƒâ€Ã‚Â±r)
+    // Geri - Glendirilmiş navigasyon (DailyQuestsPanel'den gelse de alşr)
     const handleBack = useCallback(() => {
+        if (isGuidedSesYapStep) {
+            Alert.alert(
+                'Müfredatı Sonlandır',
+                'Yönlendirmeli SesYap adımını bitirmeden çıkarsan akış sonlanacak.',
+                [
+                    { text: 'Vazgeç', style: 'cancel' },
+                    {
+                        text: 'Sonlandır',
+                        style: 'destructive',
+                        onPress: () => {
+                            haptic.medium();
+                            stopGuidedMode();
+                            navigation.dispatch(
+                                CommonActions.reset({
+                                    index: 0,
+                                    routes: [{ name: 'Home' as never }],
+                                })
+                            );
+                        },
+                    },
+                ],
+                { cancelable: true }
+            );
+            return;
+        }
+
         haptic.medium();
 
-        // ÃƒÆ’Ã¢â‚¬â€œnce goBack dene, eÃƒâ€Ã…Â¸er ÃƒÆ’Ã‚Â§alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸mazsa Home'a git
+        // nce goBack dene, eer alşmazsa Home'a git
         if (navigation.canGoBack()) {
             navigation.goBack();
         } else {
@@ -894,7 +1094,36 @@ export default function SesYapScreen() {
                 })
             );
         }
-    }, [navigation]);
+    }, [isGuidedSesYapStep, navigation, stopGuidedMode]);
+
+    const handleGuidedMissingExit = useCallback(() => {
+        haptic.medium();
+        stopGuidedMode();
+        setGuidedSentenceMissing(false);
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Home' as never }],
+            })
+        );
+    }, [navigation, stopGuidedMode]);
+
+    const handleGuidedCompletionConfirm = useCallback(() => {
+        if (!pendingGuidedHistoryEntry) {
+            setGuidedCompletionModalVisible(false);
+            return;
+        }
+        haptic.success();
+        addSesyapHistory(pendingGuidedHistoryEntry);
+        setPendingGuidedHistoryEntry(null);
+        setGuidedCompletionModalVisible(false);
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Home' as never }],
+            })
+        );
+    }, [addSesyapHistory, navigation, pendingGuidedHistoryEntry]);
 
     const handleMicPermissionConfirm = useCallback(async () => {
         const requested = await requestMicrophonePermission();
@@ -927,12 +1156,12 @@ export default function SesYapScreen() {
         Linking.openSettings().catch(() => {});
     }, []);
 
-    const micModalConfig = useMemo(() => {
+        const micModalConfig = useMemo(() => {
         if (micModalState === 'needPermission') {
             return {
                 visible: true,
                 title: 'Mikrofon İzni',
-                titleEmoji: '\u{1F399}\uFE0F',
+                titleEmoji: '\u{1F399}️',
                 message: 'SesYap için mikrofon izni gerekiyor. İzin verirsen telaffuz kontrolü başlayacak.',
                 secondaryMessage: 'İzin olmadan konuşma kaydı alınamaz.',
                 type: 'warning' as const,
@@ -962,7 +1191,7 @@ export default function SesYapScreen() {
             return {
                 visible: true,
                 title: 'Mikrofon Başlatılamadı',
-                titleEmoji: '\u{26A0}\uFE0F',
+                titleEmoji: '\u{26A0}️',
                 message: 'Kayıt başlatılamadı. Lütfen tekrar dene.',
                 secondaryMessage: 'Sorun sürerse uygulamayı yeniden açıp tekrar dene.',
                 type: 'error' as const,
@@ -983,19 +1212,27 @@ export default function SesYapScreen() {
         };
     }, [micModalState, handleMicPermissionConfirm, handleMicModalClose, handleOpenSettings]);
 
-    // Loading
+        // Loading
     if (!sentence) {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={COLORS.accent} />
                 <Text style={styles.loadingText}>Yükleniyor...</Text>
+                <JuicyModal
+                    visible={guidedSentenceMissing}
+                    onClose={() => {}}
+                    title="Hedef Cümle Bulunamadı"
+                    titleEmoji={'⚠️'}
+                    message="Bu guided adım için hedef kelimenin örnek cümlebulunamadı."
+                    secondaryMessage="Akış güvenli şekilde sonlandırılabilir."
+                    type="error"
+                    buttons={[
+                        { text: 'Müfredatı Sonlandır', type: 'primary', onPress: handleGuidedMissingExit },
+                    ]}
+                />
             </View>
         );
     }
-
-    const allFilled = filledWords.size === sentenceWords.length;
-    const allCorrect = allFilled && Array.from(filledWords.values()).every(v => v.isCorrect);
-
     return (
         <View style={styles.container}>
             <LinearGradient
@@ -1020,44 +1257,52 @@ export default function SesYapScreen() {
                         </View>
                     </View>
 
-                    {/* Mod SeÃƒÆ’Ã‚Â§ici */}
                     <View style={styles.modeSelector}>
-                        <TouchableOpacity
-                            style={[
-                                styles.modeTab,
-                                activeMode === 'calis' && styles.modeTabActive,
-                            ]}
+                        <Pressable
+                            style={[styles.modeTab, activeMode === 'calis' && styles.modeTabActive]}
                             onPress={() => {
-                                haptic.light();
-                                setActiveMode('calis');
+                                if (activeMode !== 'calis') {
+                                    haptic.light();
+                                    setActiveMode('calis');
+                                }
                             }}
                         >
-                            <BookOpen size={16} color={activeMode === 'calis' ? '#FFFFFF' : COLORS.textMuted} />
-                            <Text style={[
-                                styles.modeTabText,
-                                activeMode === 'calis' && styles.modeTabTextActive,
-                            ]}>Çalış</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
+                            <BookOpen
+                                size={16}
+                                color={activeMode === 'calis' ? '#FFFFFF' : COLORS.textMuted}
+                            />
+                            <Text style={[styles.modeTabText, activeMode === 'calis' && styles.modeTabTextActive]}>
+                                Çalış
+                            </Text>
+                        </Pressable>
+                        <Pressable
                             style={[
                                 styles.modeTab,
                                 activeMode === 'tarla' && styles.modeTabActive,
-                                activeMode === 'tarla' && { backgroundColor: '#22C55E' },
+                                isGuidedSesYapStep && styles.modeTabLocked,
                             ]}
                             onPress={() => {
-                                haptic.light();
-                                setActiveMode('tarla');
+                                if (isGuidedSesYapStep) {
+                                    haptic.warning();
+                                    return;
+                                }
+                                if (activeMode !== 'tarla') {
+                                    haptic.light();
+                                    setActiveMode('tarla');
+                                }
                             }}
+                            disabled={isGuidedSesYapStep}
                         >
-                            <Wheat size={16} color={activeMode === 'tarla' ? '#FFFFFF' : COLORS.textMuted} />
-                            <Text style={[
-                                styles.modeTabText,
-                                activeMode === 'tarla' && styles.modeTabTextActive,
-                            ]}>Tarla</Text>
-                        </TouchableOpacity>
+                            <Wheat
+                                size={16}
+                                color={activeMode === 'tarla' ? '#FFFFFF' : COLORS.textMuted}
+                            />
+                            <Text style={[styles.modeTabText, activeMode === 'tarla' && styles.modeTabTextActive]}>
+                                Tarla
+                            </Text>
+                        </Pressable>
                     </View>
 
-                    {/* Ãƒâ€Ã‚Â°lerleme - sadece ÃƒÆ’Ã‚Â§alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸ modunda */}
                     {activeMode === 'calis' && (
                         <View style={styles.progressRow}>
                             <Text style={styles.progressText}>Soru {questionCount + 1}</Text>
@@ -1069,7 +1314,14 @@ export default function SesYapScreen() {
                         </View>
                     )}
 
-                    {/* Ana iÃƒÆ’Ã‚Â§erik - ÃƒÆ’Ã¢â‚¬Â¡alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸ modu */}
+                    {isGuidedSesYapStep && (
+                        <View style={styles.guidedInfoBanner}>
+                            <Text style={styles.guidedInfoText}>
+                                Hedef kelime: "{normalizeDisplayText(sentence.word)}". Cümleyi birebir doğru söyle, sonra adımı tamamla.
+                            </Text>
+                        </View>
+                    )}
+
                     {activeMode === 'calis' ? (
                         <ScrollView
                             style={styles.calisScrollView}
@@ -1083,7 +1335,7 @@ export default function SesYapScreen() {
                                 { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
                             ]}
                         >
-                            {/* Hedef kelime kartÃƒâ€Ã‚Â± */}
+                            {/* Hedef kelime karti */}
                             <View style={styles.targetCard}>
                                 <LinearGradient
                                     colors={['rgba(139, 92, 246, 0.15)', 'rgba(139, 92, 246, 0.05)']}
@@ -1095,7 +1347,7 @@ export default function SesYapScreen() {
                                 </LinearGradient>
                             </View>
 
-                            {/* CÃƒÆ’Ã‚Â¼mle alanÃƒâ€Ã‚Â± - Yapboz tarzÃƒâ€Ã‚Â± slot'lar */}
+                            {/* Cumle alani - Yapboz tarzi slot'lar */}
                             <View style={styles.sentenceArea}>
                                 <Text style={styles.sentenceLabel}>Bu cümleyi söyle:</Text>
 
@@ -1120,9 +1372,9 @@ export default function SesYapScreen() {
                                 <Text style={styles.translationHint}>İpucu: {normalizeDisplayText(sentence.example_tr)}</Text>
                             </View>
 
-                            {/* Mikrofon veya sonuÃƒÆ’Ã‚Â§ butonlarÃƒâ€Ã‚Â± */}
+                            {/* Mikrofon veya sonuc butonlari */}
                             <View style={styles.actionArea}>
-                                {/* SÃƒÆ’Ã‚Â¶ylediÃƒâ€Ã…Â¸in */}
+                                {/* Soyledisin */}
                                 {transcript ? (
                                     <View style={styles.transcriptBox}>
                                         <Text style={styles.transcriptLabel}>Sen:</Text>
@@ -1132,7 +1384,7 @@ export default function SesYapScreen() {
 
                                 {isComplete ? (
                                     <View style={styles.resultArea}>
-                                        {/* SonuÃƒÆ’Ã‚Â§ gÃƒÆ’Ã‚Â¶sterimi */}
+                                        {/* Sonuc gosterimi */}
                                         <View style={[
                                             styles.resultBadge,
                                             { backgroundColor: allCorrect ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }
@@ -1155,12 +1407,12 @@ export default function SesYapScreen() {
                                                 <Text style={styles.retryButtonText}>Tekrar</Text>
                                             </TouchableOpacity>
 
-                                            <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                                            <TouchableOpacity style={[styles.nextButton, isGuidedSesYapStep && !allCorrect && { opacity: 0.5 }]} onPress={handleNext} disabled={isGuidedSesYapStep && !allCorrect}>
                                                 <LinearGradient
                                                     colors={['#22C55E', '#16A34A']}
                                                     style={styles.nextButtonGradient}
                                                 >
-                                                    <Text style={styles.nextButtonText}>Sonraki</Text>
+                                                    <Text style={styles.nextButtonText}>{isGuidedSesYapStep ? 'Adımı Tamamla' : 'Sonraki'}</Text>
                                                     <SkipForward size={18} color="#FFFFFF" />
                                                 </LinearGradient>
                                             </TouchableOpacity>
@@ -1185,12 +1437,10 @@ export default function SesYapScreen() {
                         </Animated.View>
                         </ScrollView>
                     ) : (
-                        /* Tarla modu - GeÃƒÆ’Ã‚Â§miÃƒâ€¦Ã…Â¸ cÃƒÆ’Ã‚Â¼mleler */
+                        /* Tarla modu - Gemiş cmleler */
                         <ScrollView style={styles.tarlaContent} contentContainerStyle={styles.tarlaContentContainer}>
                             <View style={styles.tarlaGuideCard}>
-                                <Text style={styles.tarlaGuideText}>
-                                    SesYap'ta mükemmel bildiklerin meyvedir, bilemediklerin tohumdur. Buradan seçerek hem bilemediklerine hem bildiklerine çalışabilirsin.
-                                </Text>
+                                <Text style={styles.tarlaGuideText}>SesYap'ta mükemmel bildiklerin meyvedir, bilemediklerin tohumdur. Buradan seçerek hem bilemediklerine hem bildiklerine çalışabilirsin.</Text>
                             </View>
 
                             <View style={styles.tarlaHeader}>
@@ -1206,8 +1456,8 @@ export default function SesYapScreen() {
                             {sesyapHistory.length === 0 ? (
                                 <View style={styles.tarlaEmpty}>
                                     <Text style={styles.tarlaEmptyEmoji}>{'\u{1F331}'}</Text>
-                                    <Text style={styles.tarlaEmptyText}>Çalış modunda pratik yap,</Text>
-                                    <Text style={styles.tarlaEmptyText}>tarlan dolsun!</Text>
+                                    <Text style={styles.tarlaEmptyText}>Çalış modunda pratik yap.</Text>
+                                    <Text style={styles.tarlaEmptyText}>Kartlardan birini seçerek cümleyi tekrar et.</Text>
                                 </View>
                             ) : (
                                 <View style={styles.tarlaGrid}>
@@ -1324,6 +1574,22 @@ export default function SesYapScreen() {
 
                         </ScrollView>
                     )}
+                    <JuicyModal
+                        visible={guidedCompletionModalVisible}
+                        onClose={() => {}}
+                        title="SesYap Adımı Tamamlandı"
+                        titleEmoji={'\u{1F389}'}
+                        message="Hedef cümleyi doğru tamamladın. Devam ile yönlendirmeli akış bitecek."
+                        secondaryMessage={
+                            pendingGuidedHistoryEntry
+                                ? `Kelime: ${normalizeDisplayText(pendingGuidedHistoryEntry.word)}`
+                                : ''
+                        }
+                        type="success"
+                        buttons={[
+                            { text: 'Devam', type: 'primary', onPress: handleGuidedCompletionConfirm },
+                        ]}
+                    />
 
                     <JuicyModal
                         visible={micModalConfig.visible}
@@ -1430,7 +1696,7 @@ const styles = StyleSheet.create({
         color: '#F97316',
     },
 
-    // ÃƒÆ’Ã¢â‚¬Â¡alÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸ modu ScrollView
+    // alş modu ScrollView
     calisScrollView: {
         flex: 1,
     },
@@ -1559,7 +1825,7 @@ const styles = StyleSheet.create({
 
     // Action Area
     actionArea: {
-        paddingBottom: IS_SMALL_DEVICE ? 100 : 120, // Navbar iÃƒÆ’Ã‚Â§in daha fazla alan
+        paddingBottom: IS_SMALL_DEVICE ? 100 : 120, // Navbar icin daha fazla alan
         alignItems: 'center',
     },
 
@@ -1708,7 +1974,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
 
-    // Mod seÃƒÆ’Ã‚Â§ici
+    // Mod secici
     modeSelector: {
         flexDirection: 'row',
         marginHorizontal: 16,
@@ -1729,6 +1995,9 @@ const styles = StyleSheet.create({
     modeTabActive: {
         backgroundColor: COLORS.accent,
     },
+    modeTabLocked: {
+        opacity: 0.45,
+    },
     modeTabText: {
         fontSize: 14,
         fontWeight: '700',
@@ -1736,6 +2005,22 @@ const styles = StyleSheet.create({
     },
     modeTabTextActive: {
         color: '#FFFFFF',
+    },
+    guidedInfoBanner: {
+        marginHorizontal: 16,
+        marginBottom: 8,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(34, 197, 94, 0.55)',
+        backgroundColor: 'rgba(21, 128, 61, 0.16)',
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+    },
+    guidedInfoText: {
+        fontSize: 12,
+        lineHeight: 18,
+        color: '#DCFCE7',
+        fontWeight: '700',
     },
 
     // Tarla modu

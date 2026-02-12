@@ -402,7 +402,7 @@ class SoundManager {
     this.playSound('pop', 0.4);
   }
 
-  // �🔧 Ayarlar
+  // 🔧 Ayarlar
   async setEnabled(enabled: boolean) {
     this.isEnabled = enabled;
     try {
@@ -585,7 +585,7 @@ class HapticManager {
     setTimeout(() => this.success(), 600);
   }
 
-  // � 25 COMBO - Telefonu titreten ağır haptic (2.5 saniye)
+  //  25 COMBO - Telefonu titreten ağır haptic (2.5 saniye)
   combo25() {
     if (!this.isEnabled) return;
     this.megaVibration(2);
@@ -649,7 +649,7 @@ class HapticManager {
     if (!this.isEnabled) return;
     this.megaVibration(durationSeconds);
   }
-  // �🌋🔥💥 MEGA VİBRASYON - COMBO MİLESTONE'LAR İÇİN TELEFONU PATLAT!
+  // 🌋🔥💥 MEGA VİBRASYON - COMBO MİLESTONE'LAR İÇİN TELEFONU PATLAT!
   megaVibration(durationSeconds: number) {
     if (!this.isEnabled) return;
     

@@ -133,7 +133,7 @@ const WarningScreen: React.FC<{
         {/* Rules */}
         <View style={styles.rulesContainer}>
           <View style={styles.ruleItem}>
-            <Text style={{ fontSize: 18 }}>�</Text>
+            <Text style={{ fontSize: 18 }}>🐛</Text>
             <Text style={styles.ruleText}>
               <Text style={styles.ruleBold}>MASTER</Text> yanlış → Böcek ısırdı, tarlaya düşer
             </Text>

@@ -485,7 +485,7 @@ export const TutorialOverlay = memo(({ visible }: { visible: boolean }) => {
   const dialog = useMemo(() => TUTORIAL_DIALOGS[tutorialStep] || { lines: [] }, [tutorialStep]);
   const shouldShow = visible && dialog.lines.length > 0 && dialog.fullScreen && !isTransitioning;
   
-  // � Swipe right to skip gesture - Instagram story style
+  //  Swipe right to skip gesture - Instagram story style
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,

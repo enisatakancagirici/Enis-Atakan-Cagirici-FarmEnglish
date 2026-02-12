@@ -149,7 +149,8 @@ export interface LeaderboardEntry {
     collocationsScore?: number; // Collocations puanı
     idiomsScore?: number;       // Deyimler puanı
     ydsScore?: number;          // 🎓 YDS puanı
-    wordFormsScore?: number;    // 📝 Kelime Formları puanı
+    wordFormsScore?: number; // 📝 Kelime Formları puanı
+    quizComboScore?: number;
     totalPracticeScore?: number; // 📊 Toplam Pratik Puanı (Tüm pratiklerin toplamı)
     generalScore?: number;       // ⭐ Genel Sıralama Puanı (composit)
 }
@@ -380,7 +381,7 @@ export async function findOpponent(
             const entry = doc.data() as MatchmakingEntry;
             const entryTime = entry.createdAt?.toMillis ? entry.createdAt.toMillis() : (entry.createdAt?.seconds * 1000 || 0);
 
-            // ⏰ ZOMBI KONTROLÜ: 60 saniyeden eski kayıtları yoksay!
+            //  ZOMBI KONTROLÜ: 60 saniyeden eski kayıtları yoksay!
             if (now - entryTime > 60000) {
                 console.log(`[Matchmaking] Zombi kayıt atlandı: ${entry.nickname} (${Math.round((now - entryTime) / 1000)}sn önce)`);
                 // İstersen burada deleteDoc ile temizleyebilirsin ama async gerek
@@ -455,7 +456,7 @@ export function listenToMatchmaking(
 }
 
 // ===============================
-// 🏠 ARKADAŞLA SAVAŞ (ODA SİSTEMİ)
+//  ARKADALA SAVA (ODA SİSTEMİ)
 // ===============================
 
 /**
@@ -586,7 +587,7 @@ export async function abandonBattle(
         const battleRef = doc(db, 'battles', battleId);
         // Terk eden kaybeder, diğeri kazanır
         // Kalan kişinin ID'sini bulmak için store'daki state kullanılabilir ama 
-        // burada server-side logic daha güvenli olurdu. Şimdilik basitleştiriyoruz.
+        // burada server-side logic daha güvenli olurdu. imdilik basitleştiriyoruz.
 
         await updateDoc(battleRef, {
             status: 'abandoned',
@@ -661,7 +662,7 @@ export async function joinBattleRoom(
 }
 
 // ===============================
-// ⚔️ SAVAŞ İŞLEMLERİ
+// ⚔ SAVA İLEMLERİ
 // ===============================
 
 /**
@@ -700,7 +701,7 @@ export async function getBattleFresh(battleId: string): Promise<BattleRoom | nul
 }
 
 /**
- * 🎭 Savaş sırasında emoji gönder
+ *  Savaş sırasında emoji gönder
  */
 export async function sendBattleEmoji(
     battleId: string,
@@ -851,7 +852,7 @@ export async function submitAnswer(
                     // FALLBACK: Trust answers array length if progress count lags
                     const effectiveOppProg = Math.max(oppProg, oppAnsLen);
 
-                    console.log(`[Battle] 🛡️ Duplicate Check Debug - MyProg: ${myProg}, OppProg: ${oppProg}, OppAnsLen: ${oppAnsLen}, Total: ${totalQ}, Status: ${battle.status}`);
+                    console.log(`[Battle] 🛡 Duplicate Check Debug - MyProg: ${myProg}, OppProg: ${oppProg}, OppAnsLen: ${oppAnsLen}, Total: ${totalQ}, Status: ${battle.status}`);
 
                     if (myProg >= totalQ && effectiveOppProg >= totalQ) {
                         console.log('[Battle] 🛡️ Deadlock detected (Both finished), forcing FINISH...');
@@ -899,16 +900,16 @@ export async function submitAnswer(
                         };
                         transaction.update(battleRef, finishUpdates);
 
-                        // 🛡️ SIMPLIFICATION: Do NOT update stats in deadlock resolution
+                        // 🛡 SIMPLIFICATION: Do NOT update stats in deadlock resolution
                         // Stats will be handled by finishBattleWithRewards after settle delay
                         if (isLateUpdate && winnerChanged) {
-                            console.log(`[Battle] ⚖️ DEADLOCK RE-EVAL (OldWinner: ${oldWinnerId} -> NewWinner: ${wId}). Skipping stat updates.`);
+                            console.log(`[Battle] ⚖ DEADLOCK RE-EVAL (OldWinner: ${oldWinnerId} -> NewWinner: ${wId}). Skipping stat updates.`);
                         }
 
                         return { success: true, isCorrect: false, newScore: battle[scoreKey] || 0, message: 'DEADLOCK_RESOLVED' };
                     }
 
-                    console.log(`[Battle] ℹ️ Duplicate answer ignored (Idempotent): Q${questionIndex}`);
+                    console.log(`[Battle]  Duplicate answer ignored (Idempotent): Q${questionIndex}`);
                     return {
                         success: true,
                         isCorrect: false, // Doesn't matter, ignored
@@ -947,7 +948,7 @@ export async function submitAnswer(
                     [`${isHost ? 'host' : 'guest'}LastActiveAt`]: serverTimestamp()
                 };
 
-                // 🏁 GAME OVER CHECK
+                //  GAME OVER CHECK
                 const myProgress = questionIndex + 1;
                 const oppProgressKey = isHost ? 'guestProgress' : 'hostProgress';
                 const opponentProgress = battle[oppProgressKey] || 0;
@@ -974,13 +975,13 @@ export async function submitAnswer(
                     const hostNick = hostDoc.exists() ? (hostDoc.data() as BattleUser).nickname : 'Host';
                     const guestNick = (guestDoc && guestDoc.exists()) ? (guestDoc.data() as BattleUser).nickname : 'Guest';
 
-                    console.log(`[Battle] 🏁 FINISH CHECK: ${hostNick} (${finalHostScore}) vs ${guestNick} (${finalGuestScore}) -> Winner: ${newWinnerId === battle.hostId ? hostNick : (newWinnerId ? guestNick : 'DRAW')}`);
+                    console.log(`[Battle]  FINISH CHECK: ${hostNick} (${finalHostScore}) vs ${guestNick} (${finalGuestScore}) -> Winner: ${newWinnerId === battle.hostId ? hostNick : (newWinnerId ? guestNick : 'DRAW')}`);
 
                     if (isLateUpdate && winnerChanged) {
-                        // 🛡️ SIMPLIFICATION: Do NOT update stats in late answer transactions
+                        // 🛡 SIMPLIFICATION: Do NOT update stats in late answer transactions
                         // This was causing transaction contention due to winner flip-flopping
                         // Stats will be handled by finishBattleWithRewards after settle delay
-                        console.log(`[Battle] ⚖️ LATE ANSWER detected (OldWinner: ${oldWinnerId} -> NewWinner: ${newWinnerId}). Skipping stat updates to avoid contention.`);
+                        console.log(`[Battle] ⚖ LATE ANSWER detected (OldWinner: ${oldWinnerId} -> NewWinner: ${newWinnerId}). Skipping stat updates to avoid contention.`);
                     }
 
                     // Always update current status if not late, or update winnerId if changed
@@ -995,7 +996,7 @@ export async function submitAnswer(
                         }
                     }
 
-                    // 🏆 STANDARD STATS CALCULATION (Only for Fresh Finish)
+                    //  STANDARD STATS CALCULATION (Only for Fresh Finish)
                     if (!isLateUpdate) {
                         if (hostDoc.exists()) {
                             const hostData = hostDoc.data() as BattleUser;
@@ -1049,15 +1050,15 @@ export async function submitAnswer(
             if (isContention && attempt < 4) {
                 attempt++;
                 const delay = Math.random() * 500 * attempt;
-                console.warn(`[Battle] ⚠️ Contention detected, retrying (${attempt}/5)...`);
+                console.warn(`[Battle] ⚠ Contention detected, retrying (${attempt}/5)...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
                 continue;
             }
 
             if (error.message === 'BATTLE_NOT_ACTIVE') {
-                console.log('[Battle] ℹ️ Submit skipped: Battle not active');
+                console.log('[Battle]  Submit skipped: Battle not active');
             } else {
-                console.error('[Battle] ❌ Submit answer error:', error.message);
+                console.error('[Battle]  Submit answer error:', error.message);
             }
             return {
                 success: false,
@@ -1111,7 +1112,7 @@ export async function handleDisconnect(
 }
 
 /**
- * 🏁 FINISH BATTLE WITH REWARDS
+ *  FINISH BATTLE WITH REWARDS
  * Calculates winner and distributes trophies
  */
 export async function finishBattleWithRewards(
@@ -1141,7 +1142,7 @@ export async function finishBattleWithRewards(
                 guestDoc = await transaction.get(guestRef);
             }
 
-            // 🛡️ IDEMPOTENCY CHECK: If already finished, return existing result without changes
+            // 🛡 IDEMPOTENCY CHECK: If already finished, return existing result without changes
             if (battle.status === 'finished') {
                 return {
                     winnerId: battle.winnerId || null,
@@ -1152,7 +1153,7 @@ export async function finishBattleWithRewards(
             }
 
             // 2. 🧮 LOGIC & CALCULATIONS
-            // 🛡️ RACE CONDITION FIX: Calculate scores from ANSWERS array (more reliable than raw score fields)
+            // 🛡 RACE CONDITION FIX: Calculate scores from ANSWERS array (more reliable than raw score fields)
             // Raw scores might be stale due to sync delays, but answers array is always consistent
             const calculateScore = (answers: AnswerRecord[] = []) => answers.filter(a => a.isCorrect).length * 100;
 
@@ -1174,14 +1175,14 @@ export async function finishBattleWithRewards(
             }
             // winnerId = null means draw
 
-            // 3. ✍️ WRITE UPDATES (Strict Order: Writes after Reads)
+            // 3.  WRITE UPDATES (Strict Order: Writes after Reads)
 
             // Update battle status (including corrected scores for race condition fix)
             transaction.update(battleRef, {
                 status: 'finished',
                 winnerId,
                 finishedAt: serverTimestamp(),
-                // 🛡️ Write back calculated scores to ensure consistency
+                // 🛡 Write back calculated scores to ensure consistency
                 hostScore: finalHostScore,
                 guestScore: finalGuestScore
             });
@@ -1219,13 +1220,13 @@ export async function finishBattleWithRewards(
         });
 
         if (result.alreadyFinished) {
-            console.log('[Battle] ℹ️ Battle was already finished.');
+            console.log('[Battle]  Battle was already finished.');
         } else {
             // Cleanup room code (Non-transactional cleanup is fine)
             if ((result as any).roomCode) {
                 // ...
             }
-            console.log(`[Battle] 🏁 Battle finished Transactionally: Winner=${result.winnerId}`);
+            console.log(`[Battle]  Battle finished Transactionally: Winner=${result.winnerId}`);
         }
 
         return result;
@@ -1266,7 +1267,7 @@ export async function finishBattle(
 }
 
 // ===============================
-// 🏆 LİDERLİK TABLOSU
+//  LİDERLİK TABLOSU
 // ===============================
 
 /**
@@ -1308,6 +1309,7 @@ function mapDocToEntry(data: BattleUser & {
     idiomsScore?: number;
     ydsScore?: number;
     wordFormsScore?: number;
+    quizComboScore?: number;
     totalPracticeScore?: number;
 }): LeaderboardEntry {
     const entry: LeaderboardEntry = {
@@ -1327,6 +1329,7 @@ function mapDocToEntry(data: BattleUser & {
         idiomsScore: data.idiomsScore || 0,
         ydsScore: data.ydsScore || 0,
         wordFormsScore: data.wordFormsScore || 0,
+        quizComboScore: data.quizComboScore || 0,
         totalPracticeScore: data.totalPracticeScore || 0,
     };
     entry.generalScore = computeGeneralScore(entry);
@@ -1431,7 +1434,7 @@ export function listenToLeaderboard(
 }
 
 // ===============================
-// 🛠️ YARDIMCI FONKSİYONLAR
+// 🛠 YARDIMCI FONKSİYONLAR
 // ===============================
 
 /**
@@ -1526,6 +1529,7 @@ const PRACTICE_SCORE_FIELDS: Record<PracticeType, string> = {
 
 const MAX_PRACTICE_SCORE_INCREMENT = 100000;
 const PRACTICE_LEADERBOARD_MULTIPLIER = 0.25;
+const QUIZ_COMBO_LEADERBOARD_MULTIPLIER = 0.5;
 
 /**
  * Pratik Merkezi skorunu güncelle
@@ -1583,6 +1587,52 @@ export async function updatePracticeScore(
 }
 
 /**
+ * Quiz sonucu combo puanını liderlik tablosuna tek seferde yansıt
+ * - Liderlik katkısı: combo * 0.5
+ * - Genel sıralamada görünmesi için totalPracticeScore ve totalScore da güncellenir
+ */
+export async function updateQuizComboScore(
+    odId: string,
+    comboValue: number
+): Promise<{ success: boolean; error?: string; applied?: number }> {
+    try {
+        const safeOdId = typeof odId === 'string' ? odId.trim() : '';
+        if (!safeOdId) {
+            return { success: false, error: 'Gecersiz kullanici' };
+        }
+
+        const numericCombo = Number.isFinite(comboValue) ? Math.floor(comboValue) : 0;
+        if (numericCombo <= 0) {
+            return { success: true, applied: 0 };
+        }
+
+        const safeCombo = Math.min(numericCombo, MAX_PRACTICE_SCORE_INCREMENT);
+        const leaderboardScoreDelta = Math.max(
+            1,
+            Math.round(safeCombo * QUIZ_COMBO_LEADERBOARD_MULTIPLIER)
+        );
+
+        const userRef = doc(db, 'users', safeOdId);
+        const userDoc = await getDoc(userRef);
+        if (!userDoc.exists()) {
+            return { success: false, error: 'Kullanici bulunamadi' };
+        }
+
+        await updateDoc(userRef, {
+            quizComboScore: increment(leaderboardScoreDelta),
+            totalPracticeScore: increment(leaderboardScoreDelta),
+            totalScore: increment(leaderboardScoreDelta),
+            lastActiveAt: serverTimestamp(),
+        });
+
+        return { success: true, applied: leaderboardScoreDelta };
+    } catch (error) {
+        console.error('Quiz combo skor guncelleme hatasi:', error);
+        return { success: false, error: 'Quiz combo skoru guncellenemedi' };
+    }
+}
+
+/**
  * Pratik Merkezi skorunu getir
  * @param odId - Kullanıcı ID
  * @param practiceType - Pratik tipi
@@ -1617,4 +1667,5 @@ export async function getPracticeScore(
 }
 
 export { db };
+
 

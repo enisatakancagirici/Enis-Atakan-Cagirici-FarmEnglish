@@ -26,9 +26,10 @@ import { Swords, Shield, Trophy, Flame, Zap, Crown, Star } from 'lucide-react-na
 import {
   getMilitaryRank,
   getRandomBattleTip,
-  type MilitaryRank,
   type PlayerTitle,
 } from '../utils/titleSystem';
+import { haptic } from '../utils/sound';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const IS_SMALL = SH < 700;
@@ -86,13 +87,27 @@ const PlayerCard = memo<{
   side: 'left' | 'right';
   slideAnim: Animated.Value;
   fadeAnim: Animated.Value;
-}>(({ nickname, rank, wins, losses, bestStreak, level, title, side, slideAnim, fadeAnim }) => {
+  duelAnim: Animated.Value;
+}>(({ nickname, rank, wins, losses, bestStreak, level, title, side, slideAnim, fadeAnim, duelAnim }) => {
   const militaryRank = getMilitaryRank(rank || 999);
   const isLeft = side === 'left';
+  const safeNickname = normalizeDisplayText(nickname) || '???';
+  const safeRankTitle = normalizeDisplayText(militaryRank.title);
+  const safeTitle = title ? normalizeDisplayText(title.title) : '';
 
   const translateX = slideAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [isLeft ? -SW : SW, 0],
+  });
+
+  const duelShift = duelAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, isLeft ? (IS_SMALL ? 18 : 24) : (IS_SMALL ? -18 : -24)],
+  });
+
+  const duelScale = duelAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.07],
   });
 
   return (
@@ -102,7 +117,7 @@ const PlayerCard = memo<{
         isLeft ? styles.playerCardLeft : styles.playerCardRight,
         {
           opacity: fadeAnim,
-          transform: [{ translateX }],
+          transform: [{ translateX: Animated.add(translateX, duelShift) }, { scale: duelScale }],
         },
       ]}
     >
@@ -117,19 +132,19 @@ const PlayerCard = memo<{
         numberOfLines={1}
         adjustsFontSizeToFit
       >
-        {nickname || '???'}
+        {safeNickname}
       </Text>
 
       {/* Rütbe ismi */}
       <Text style={[styles.rankTitle, { color: militaryRank.color, textAlign: isLeft ? 'left' : 'right' }]}>
-        {militaryRank.title}
+        {safeRankTitle}
       </Text>
 
       {/* Ünvan (Top 5 ise) */}
       {title && (
         <View style={[styles.titleBadge, { backgroundColor: `${title.color}20`, borderColor: `${title.color}60` }]}>
           <Text style={styles.titleEmoji}>{title.emoji}</Text>
-          <Text style={[styles.titleText, { color: title.color }]}>{title.title}</Text>
+          <Text style={[styles.titleText, { color: title.color }]}>{safeTitle}</Text>
         </View>
       )}
 
@@ -254,8 +269,17 @@ export const BattleLoadingScreen: React.FC<BattleLoadingScreenProps> = memo(({
   const countdownScaleAnim = useRef(new Animated.Value(0)).current;
   const shimmerAnim = useRef(new Animated.Value(-1)).current;
   const searchPulseAnim = useRef(new Animated.Value(1)).current;
+  const duelChargeAnim = useRef(new Animated.Value(0)).current;
+  const battleStartTextAnim = useRef(new Animated.Value(0)).current;
+  const introHapticPlayedRef = useRef(false);
 
-  const tip = useMemo(() => getRandomBattleTip(), []);
+  const tip = useMemo(() => normalizeDisplayText(getRandomBattleTip()), []);
+  const headerLabel =
+    status === 'searching'
+      ? '⚔️ Savaşçı Aranıyor...'
+      : status === 'countdown'
+        ? '🔥 HAZIR OL!'
+        : '⚔️ Rakip Bulundu!';
 
   // ─── ARAMA ANİMASYONU ──────────────────────────
   useEffect(() => {
@@ -367,8 +391,42 @@ export const BattleLoadingScreen: React.FC<BattleLoadingScreenProps> = memo(({
           useNativeDriver: true,
         })
       ).start();
+
+      duelChargeAnim.setValue(0);
+      Animated.spring(duelChargeAnim, {
+        toValue: 1,
+        friction: 6,
+        tension: 65,
+        useNativeDriver: true,
+      }).start();
+
+      battleStartTextAnim.setValue(0);
+      Animated.sequence([
+        Animated.timing(battleStartTextAnim, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.delay(700),
+        Animated.timing(battleStartTextAnim, {
+          toValue: 0.85,
+          duration: 260,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      if (!introHapticPlayedRef.current) {
+        introHapticPlayedRef.current = true;
+        haptic.heavy();
+        setTimeout(() => haptic.rigid(), 45);
+        setTimeout(() => haptic.success(), 120);
+      }
+    } else {
+      introHapticPlayedRef.current = false;
+      duelChargeAnim.setValue(0);
+      battleStartTextAnim.setValue(0);
     }
-  }, [status]);
+  }, [status, duelChargeAnim, battleStartTextAnim]);
 
   // ─── GERİ SAYIM ANİMASYONU ─────────────────────
   useEffect(() => {
@@ -431,11 +489,41 @@ export const BattleLoadingScreen: React.FC<BattleLoadingScreenProps> = memo(({
           <Shield size={IS_SMALL ? 20 : 24} color="#8b5cf6" strokeWidth={2} />
         </Animated.View>
         <Text style={styles.headerTitle}>
-          {status === 'searching' ? '⚔️ Savaşçı Aranıyor...' : status === 'countdown' ? '🔥 HAZIR OL!' : '⚔️ Rakip Bulundu!'}
+          {headerLabel}
         </Text>
       </View>
 
       {/* Oyuncu Kartları + VS */}
+      {(status === 'matched' || status === 'countdown') && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.battleStartBanner,
+            {
+              opacity: battleStartTextAnim,
+              transform: [
+                {
+                  scale: battleStartTextAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.84, 1.04],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <LinearGradient
+            colors={['rgba(239,68,68,0.2)', 'rgba(245,158,11,0.26)', 'rgba(239,68,68,0.22)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.battleStartBannerGradient}
+          >
+            <Text style={styles.battleStartBannerTitle}>SAVAŞ BAŞLIYOR</Text>
+            <Text style={styles.battleStartBannerSubtitle}>Hazır ol, güçlü bir başlangıç geliyor</Text>
+          </LinearGradient>
+        </Animated.View>
+      )}
+
       <View style={styles.battleField}>
         {/* Sol: Ben */}
         <PlayerCard
@@ -449,6 +537,7 @@ export const BattleLoadingScreen: React.FC<BattleLoadingScreenProps> = memo(({
           side="left"
           slideAnim={leftSlideAnim}
           fadeAnim={leftFadeAnim}
+          duelAnim={duelChargeAnim}
         />
 
         {/* Orta: VS Badge */}
@@ -480,6 +569,7 @@ export const BattleLoadingScreen: React.FC<BattleLoadingScreenProps> = memo(({
             side="right"
             slideAnim={rightSlideAnim}
             fadeAnim={rightFadeAnim}
+            duelAnim={duelChargeAnim}
           />
         ) : (
           <Animated.View style={[styles.playerCard, styles.playerCardRight, { opacity: 0.3 }]}>
@@ -570,6 +660,32 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#e2e8f0',
     letterSpacing: 0.5,
+  },
+  battleStartBanner: {
+    marginBottom: IS_SMALL ? 12 : 16,
+    width: SW - 36,
+    maxWidth: 420,
+    borderRadius: 14,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(245,158,11,0.3)',
+  },
+  battleStartBannerGradient: {
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+  },
+  battleStartBannerTitle: {
+    color: '#fef3c7',
+    fontWeight: '900',
+    letterSpacing: 1,
+    fontSize: IS_SMALL ? 14 : 16,
+  },
+  battleStartBannerSubtitle: {
+    color: '#fde68a',
+    marginTop: 2,
+    fontWeight: '600',
+    fontSize: IS_SMALL ? 10 : 11,
   },
 
   // Battle Field (Oyuncular + VS)

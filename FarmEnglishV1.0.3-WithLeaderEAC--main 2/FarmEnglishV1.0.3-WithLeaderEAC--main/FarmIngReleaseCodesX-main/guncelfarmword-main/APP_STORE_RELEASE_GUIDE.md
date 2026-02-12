@@ -225,7 +225,7 @@ Email: support@machinexus.com
 Happy Farming!
 ```
 ```
-� Oyun Oynayarak İngilizce Öğren - FarmEnglish
+ Oyun Oynayarak İngilizce Öğren - FarmEnglish
 
 YDS, TOEFL, IELTS'e mi hazırlanıyorsun? 4000+ kelime, phrasal verbs ve cümle kurma alıştırmaları ile vocabulary'ni katla! Çiftlik temalı oyunla öğrenme sıkıcı olmaktan çıkıyor.
 

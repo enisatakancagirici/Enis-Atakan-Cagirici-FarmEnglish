@@ -11,17 +11,26 @@ import type {
 import { applyHintBonus, getPhrasalDiscountFactor } from '../utils/storePerks';
 import { getFruitType, getTierReward, TIER_SESSION_REQUIREMENTS, calculateFruitGrowthStage, type FruitType } from '../utils/fruitSystem';
 import { isNicknameClean } from '../utils/nicknameModeration';
+import { traceEvent } from '../utils/debugTrace';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 // Re-entry guard for harvestWord double-swipe protection
 const _harvestInFlight = new Set<string>();
 const _puzzleHarvestInFlight = new Set<string>();
 const _claimQuestInFlight = new Set<string>();
 const _plantInFlight = new Set<string>();
+let _lastQuestClaimAt = 0;
 
 // Prevent duplicate daily quest resets from multiple screens/focus effects firing together
 let dailyQuestResetInFlight = false;
 let lastQuestCheckTime = 0; // Debounce: at most every 30s
 let questInitInFlight = false; // Guard for initializeAllQuests re-entry
+let dailyQuestGenerationInFlight = false;
+let lastDailyQuestGenerationAt = 0;
+type QuestProgressMode = 'add' | 'max';
+const QUEST_PROGRESS_FLUSH_MS = 180;
+const _questProgressQueue = new Map<QuestType, { amount: number; mode: QuestProgressMode }>();
+let _questProgressFlushTimer: ReturnType<typeof setTimeout> | null = null;
 
 // 🔄 Cached Firebase updateUserStats — dynamic import her hasat'ta yapılmasın
 let _cachedUpdateUserStats: ((odId: string, updates: any) => Promise<void>) | null = null;
@@ -145,6 +154,121 @@ function toSafeObjectArray<T = any>(value: unknown): T[] {
   return value.filter((item) => !!item && typeof item === 'object') as T[];
 }
 
+function normalizeUiText(value: unknown, fallback = ''): string {
+  const normalized = normalizeDisplayText(value);
+  return normalized || fallback;
+}
+const BROKEN_ICON_PATTERN = /[A-Za-z-]/;
+const QUEST_TYPE_ICON_MAP: Partial<Record<QuestType, string>> = {
+  PLANT_WORDS: '🌱',
+  HARVEST_WORDS: '🌾',
+  HARVEST_PHRASAL: '📚',
+  COMPLETE_PUZZLE: '🧩',
+  SPEECH_PRACTICE: '🎤',
+  COMPLETE_QUIZ: '📝',
+  WIN_BATTLE: '⚔️',
+  REACH_COMBO: '🔥',
+  EARN_COINS: '💰',
+};
+function normalizeQuestIcon(value: unknown, type?: QuestType): string {
+  const normalized = normalizeUiText(value, '');
+  const isLikelyBroken = !normalized || BROKEN_ICON_PATTERN.test(normalized) || normalized.length > 5;
+  if (!isLikelyBroken) return normalized;
+  if (type && QUEST_TYPE_ICON_MAP[type]) return QUEST_TYPE_ICON_MAP[type] as string;
+  return '🎯';
+}
+
+function normalizeGuidedMatchKey(value: unknown): string {
+  return normalizeDisplayText(value).trim().toLowerCase();
+}
+
+function isGuidedTargetMatch(
+  targetWordId?: string,
+  targetWordText?: string,
+  wordId?: string,
+  wordText?: string
+): boolean {
+  const safeTargetId = typeof targetWordId === 'string' ? targetWordId.trim() : '';
+  const safeWordId = typeof wordId === 'string' ? wordId.trim() : '';
+  if (safeTargetId && safeWordId && safeTargetId === safeWordId) return true;
+
+  const targetTextKey = normalizeGuidedMatchKey(targetWordText);
+  const wordTextKey = normalizeGuidedMatchKey(wordText);
+  return !!targetTextKey && !!wordTextKey && targetTextKey === wordTextKey;
+}
+
+function queueQuestProgressInternal(type: QuestType, amount: number, mode: QuestProgressMode) {
+  const safeAmount = toSafeNumber(amount, 0);
+  if (safeAmount <= 0) return;
+
+  const current = _questProgressQueue.get(type);
+  if (!current) {
+    _questProgressQueue.set(type, { amount: safeAmount, mode });
+    return;
+  }
+
+  if (mode === 'max' || current.mode === 'max') {
+    _questProgressQueue.set(type, {
+      amount: Math.max(current.amount, safeAmount),
+      mode: 'max',
+    });
+    return;
+  }
+
+  _questProgressQueue.set(type, {
+    amount: current.amount + safeAmount,
+    mode: 'add',
+  });
+}
+
+function flushQuestProgressQueue(getFn: () => FarmStore) {
+  if (_questProgressQueue.size === 0) return;
+  const entries = Array.from(_questProgressQueue.entries());
+  _questProgressQueue.clear();
+
+  for (const [type, payload] of entries) {
+    try {
+      getFn().updateQuestProgress(type, payload.amount, payload.mode);
+    } catch (error) {}
+  }
+}
+
+function scheduleQuestProgressFlush(getFn: () => FarmStore) {
+  if (_questProgressFlushTimer) return;
+  _questProgressFlushTimer = setTimeout(() => {
+    _questProgressFlushTimer = null;
+    flushQuestProgressQueue(getFn);
+  }, QUEST_PROGRESS_FLUSH_MS);
+}
+
+function sanitizeQuestRecord<T extends Record<string, any>>(quest: T): T {
+  if (!quest || typeof quest !== 'object') return quest;
+  const next: any = { ...quest };
+  if ('title' in next) next.title = normalizeUiText(next.title, 'Görev');
+  if ('description' in next) next.description = normalizeUiText(next.description, '');
+  if ('icon' in next) next.icon = normalizeQuestIcon(next.icon, next.type as QuestType | undefined);
+  if ('hint' in next) next.hint = normalizeUiText(next.hint, '');
+  if ('tutorialText' in next) next.tutorialText = normalizeUiText(next.tutorialText, '');
+  if ('unlockRequirement' in next) next.unlockRequirement = normalizeUiText(next.unlockRequirement, '');
+  return next as T;
+}
+
+function sanitizeQuestCollection<T extends Record<string, any>>(value: unknown): T[] {
+  return toSafeObjectArray<T>(value).map((quest) => sanitizeQuestRecord(quest));
+}
+
+function sanitizeMasteryPathCollection(value: unknown): MasteryPath[] {
+  return toSafeObjectArray<MasteryPath>(value).map((path) => ({
+    ...path,
+    name: normalizeUiText((path as any)?.name, ''),
+    icon: normalizeUiText((path as any)?.icon, ''),
+    description: normalizeUiText((path as any)?.description, ''),
+    levels: toSafeObjectArray<any>((path as any)?.levels).map((level) => ({
+      ...level,
+    })),
+  }));
+}
+
 function toSafeWordArray(value: unknown): WordModel[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is WordModel => (
@@ -210,6 +334,13 @@ export type TutorialStep =
   | 'STEP_19_FINAL_QUIZ_WRONG' // Final quiz sonuç (yanlış)
   | 'STEP_20_CELEBRATION'   // Tutorial tamamlandı kutlaması
   | 'COMPLETED';            // Tutorial tamamlandı
+
+export type GuidedModeStep =
+  | 'QUIZ_UNTIL_WRONG'
+  | 'FARM_MASTER_TARGET'
+  | 'PUZZLE_PRACTICE'
+  | 'SESYAP_PRACTICE'
+  | 'COMPLETED';
 
 export type TransferEvent = {
   id: string;
@@ -353,6 +484,16 @@ interface FarmStore {
   skipTutorial: () => void;
   resetTutorial: () => void; // 🎓 Tutorial'ı sıfırla
 
+  // 🧭 Guided Mode (ayrı müfredat)
+  guidedModeActive: boolean;
+  guidedModeStep: GuidedModeStep;
+  guidedModeTargetWordId?: string;
+  guidedModeTargetWordText?: string;
+  startGuidedMode: () => void;
+  stopGuidedMode: () => void;
+  setGuidedModeStep: (step: GuidedModeStep) => void;
+  setGuidedModeTarget: (wordId?: string, wordText?: string) => void;
+
   // Actions
   startQuiz: () => void;
   answerQuiz: (wordId: string, correct: boolean) => void;
@@ -400,7 +541,7 @@ interface FarmStore {
   // 🧩 YAPBOZ & 🎤 SESYAP Actions
   addPuzzleScore: (points: number) => void;
   addSesyapScore: (points: number) => void;
-  addSesyapHistory: (entry: { word: string; meaning_tr: string; example_en: string; example_tr: string; correct: boolean; timestamp: number }) => void;
+  addSesyapHistory: (entry: { word: string; wordId?: string; meaning_tr: string; example_en: string; example_tr: string; correct: boolean; timestamp: number }) => void;
   clearSesyapHistory: () => void;
 
   // 🎯 KAPSAMLI GÖREV SİSTEMİ Actions
@@ -431,7 +572,8 @@ interface FarmStore {
   checkMasteryProgress: () => void;
 
   // Ortak Actions
-  updateQuestProgress: (type: QuestType, amount?: number) => void;
+  updateQuestProgress: (type: QuestType, amount?: number, mode?: QuestProgressMode) => void;
+  queueQuestProgress: (type: QuestType, amount?: number, mode?: QuestProgressMode) => void;
   claimQuestReward: (questId: string, questType: 'daily' | 'weekly' | 'repeatable' | 'story' | 'achievement' | 'mastery') => boolean;
 
   // Combo Actions (ikiye ayrıldı: Quiz vs Phrasal)
@@ -553,7 +695,7 @@ const INITIAL_ACHIEVEMENTS: Achievement[] = [
   { id: 'first_wrong', title: 'Hata Yapma Hakkı', description: 'İlk yanlış cevabını ver', icon: '💪', requirement: 1, reward: { coins: 5, xp: 10 }, claimed: false, unlocked: false },
   { id: 'first_harvest', title: 'İlk Hasat', description: 'İlk kelimeni hasat et', icon: '🌾', requirement: 1, reward: { coins: 15, xp: 30 }, claimed: false, unlocked: false },
   { id: 'first_quiz', title: 'Quiz Başlangıcı', description: 'İlk quizini tamamla', icon: '📝', requirement: 1, reward: { coins: 10, xp: 20 }, claimed: false, unlocked: false },
-  { id: 'first_master', title: 'İlk Master', description: 'İlk master kelimeni oluştur', icon: '⭐', requirement: 1, reward: { coins: 20, xp: 50 }, claimed: false, unlocked: false },
+  { id: 'first_master', title: 'İlk Master', description: 'İlk master kelimeni oluştur', icon: 'P', requirement: 1, reward: { coins: 20, xp: 50 }, claimed: false, unlocked: false },
 
   // 🔥 COMBO MASTER SERİSİ (8)
   { id: 'combo_3', title: 'Combo Başlangıç', description: '3 combo yap', icon: '🔥', requirement: 3, reward: { coins: 10, xp: 20 }, claimed: false, unlocked: false },
@@ -567,7 +709,7 @@ const INITIAL_ACHIEVEMENTS: Achievement[] = [
 
   // ⭐ SEVİYE SERİSİ (10)
   { id: 'level_2', title: 'Çaylak', description: 'Level 2\'ye ulaş', icon: '🌱', requirement: 2, reward: { coins: 10, xp: 20 }, claimed: false, unlocked: false },
-  { id: 'level_5', title: 'Yükselen Yıldız', description: 'Level 5\'e ulaş', icon: '⭐', requirement: 5, reward: { coins: 40, xp: 100 }, claimed: false, unlocked: false },
+  { id: 'level_5', title: 'Yükselen Yıldız', description: 'Level 5\'e ulaş', icon: 'P', requirement: 5, reward: { coins: 40, xp: 100 }, claimed: false, unlocked: false },
   { id: 'level_10', title: 'Deneyimli', description: 'Level 10\'a ulaş', icon: '🌙', requirement: 10, reward: { coins: 100, xp: 200 }, claimed: false, unlocked: false },
   { id: 'level_15', title: 'Gelişen', description: 'Level 15\'e ulaş', icon: '🌟', requirement: 15, reward: { coins: 150, xp: 300 }, claimed: false, unlocked: false },
   { id: 'level_20', title: 'Yetkin', description: 'Level 20\'ye ulaş', icon: '💫', requirement: 20, reward: { coins: 200, xp: 400 }, claimed: false, unlocked: false },
@@ -628,6 +770,29 @@ const INITIAL_ACHIEVEMENTS: Achievement[] = [
   { id: 'coins_50000', title: 'Multimilyoner', description: '50000 coin kazan', icon: '👑', requirement: 50000, reward: { coins: 1000, xp: 2000 }, claimed: false, unlocked: false },
   { id: 'coins_100000', title: 'Milyarder', description: '100000 coin kazan', icon: '👑', requirement: 100000, reward: { coins: 2000, xp: 5000 }, claimed: false, unlocked: false },
 ];
+
+function sanitizeAchievementCollection(value: unknown): Achievement[] {
+  const persistedById = new Map<string, Partial<Achievement>>();
+
+  for (const item of toSafeObjectArray<Partial<Achievement>>(value)) {
+    const id = typeof item?.id === 'string' ? item.id.trim() : '';
+    if (!id) continue;
+    persistedById.set(id, item);
+  }
+
+  return INITIAL_ACHIEVEMENTS.map((base) => {
+    const persisted = persistedById.get(base.id);
+    const claimed = persisted?.claimed === true;
+    const unlocked = claimed || persisted?.unlocked === true;
+
+    // Keep progress flags from persist, always rebuild display fields from clean canonical source.
+    return {
+      ...base,
+      claimed,
+      unlocked,
+    };
+  });
+}
 
 export const useFarmStore = create<FarmStore>()(
   persist(
@@ -728,7 +893,7 @@ export const useFarmStore = create<FarmStore>()(
         }
       },
 
-      // �📊 LIFETIME STATS - Achievement tracking
+      // 📊 LIFETIME STATS - Achievement tracking
       lifetimeHarvests: 0,
       learnedWordIds: [],
 
@@ -781,7 +946,7 @@ export const useFarmStore = create<FarmStore>()(
       setIsAuthenticated: (authenticated) => set({ isAuthenticated: authenticated }),
 
       // ===============================
-      // ⚔️ BATTLE MODE STATE
+      //  BATTLE MODE STATE
       // ===============================
       battleState: 'idle' as const,
       battleId: null,
@@ -926,7 +1091,7 @@ export const useFarmStore = create<FarmStore>()(
         });
       },
 
-      // 🎓 TUTORIAL STATE (14 adımlık interaktif rehber)
+      //  TUTORIAL STATE (14 adımlık interaktif rehber)
       tutorialStep: 'NOT_STARTED' as TutorialStep,
       tutorialFirstWrongWord: undefined,
       tutorialHighlightedWordId: undefined,
@@ -959,7 +1124,7 @@ export const useFarmStore = create<FarmStore>()(
         tutorialGreenCardSession: undefined, // Tutorial bitti, session ayarını temizle
         showNicknameModal: true,
       }),
-      // 🎓 Tutorial'ı sıfırla (test için veya kullanıcı isterse)
+      //  Tutorial'ı sıfırla (test için veya kullanıcı isterse)
       resetTutorial: () => set({
         tutorialStep: 'STEP_1_WELCOME',
         tutorialFirstWrongWord: undefined,
@@ -969,6 +1134,31 @@ export const useFarmStore = create<FarmStore>()(
         phrasalHintShown: false,
         tutorialInterrupted: false,
         tutorialGreenCardSession: undefined, // Tutorial reset, session ayarını temizle
+      }),
+
+      guidedModeActive: false,
+      guidedModeStep: 'QUIZ_UNTIL_WRONG' as GuidedModeStep,
+      guidedModeTargetWordId: undefined,
+      guidedModeTargetWordText: undefined,
+      startGuidedMode: () => set({
+        guidedModeActive: true,
+        guidedModeStep: 'QUIZ_UNTIL_WRONG',
+        guidedModeTargetWordId: undefined,
+        guidedModeTargetWordText: undefined,
+      }),
+      stopGuidedMode: () => set({
+        guidedModeActive: false,
+        guidedModeStep: 'COMPLETED',
+        guidedModeTargetWordId: undefined,
+        guidedModeTargetWordText: undefined,
+      }),
+      setGuidedModeStep: (step) => set({
+        guidedModeStep: step,
+        guidedModeActive: step !== 'COMPLETED',
+      }),
+      setGuidedModeTarget: (wordId, wordText) => set({
+        guidedModeTargetWordId: typeof wordId === 'string' && wordId.trim().length > 0 ? wordId.trim() : undefined,
+        guidedModeTargetWordText: typeof wordText === 'string' && wordText.trim().length > 0 ? wordText.trim() : undefined,
       }),
 
       loadWords: (words) => set((state) => {
@@ -1042,7 +1232,7 @@ export const useFarmStore = create<FarmStore>()(
         let historySnapshot = state.recentQuizWordIds;
 
         // If we exhausted the pool (not enough fresh words), reuse entire pool but reset history
-        // 🔥 IMPROVED: Reset when less than 30% of pool is fresh (not just 20 words)
+        //  IMPROVED: Reset when less than 30% of pool is fresh (not just 20 words)
         const freshThreshold = Math.max(20, Math.floor(basePool.length * 0.3));
         if (candidatePool.length < freshThreshold && basePool.length >= 20) {
           candidatePool = basePool;
@@ -1070,7 +1260,7 @@ export const useFarmStore = create<FarmStore>()(
           dedupedHistory.push(id);
         }
 
-        // 🔥 IMPROVED: Keep history at 70% of pool for better variety
+        //  IMPROVED: Keep history at 70% of pool for better variety
         // This ensures ~30% fresh words before reset, maximizing coverage
         const maxHistory = Math.floor((state.pool.length || 1000) * 0.7);
         const boundedHistory = dedupedHistory.slice(-maxHistory);
@@ -1086,6 +1276,20 @@ export const useFarmStore = create<FarmStore>()(
         const w = safePool.find(w => w.id === wordId);
         if (!w) return;
 
+        if (state.guidedModeActive && state.guidedModeStep === 'QUIZ_UNTIL_WRONG' && !correct) {
+          set({
+            guidedModeStep: 'FARM_MASTER_TARGET',
+            guidedModeTargetWordId: w.id,
+            guidedModeTargetWordText: w.text,
+          });
+          traceEvent('guided_mode_step', {
+            from: 'QUIZ_UNTIL_WRONG',
+            to: 'FARM_MASTER_TARGET',
+            wordId: w.id,
+            wordText: normalizeDisplayText(w.text),
+          });
+        }
+
         // Calculate streak and rewards
         const currentStreak = correct ? toSafeNumber(state.streak, 0) + 1 : 0;
         const streakBonus = Math.floor(currentStreak / 5) * 10;
@@ -1098,9 +1302,9 @@ export const useFarmStore = create<FarmStore>()(
         // Check if word is already in farm
         const already = safeFarm.some(f => f.id === wordId);
         if (!already) {
-          // 🎯 RENK SİSTEMİ:
-          // ✅ Doğru cevap → YEŞİL (wrongCount=3, hasat edilebilir meyve) 
-          // 🔴 Yanlış cevap → KIRMIZI (wrongCount=0, tohum - en düşük seviye)
+          //  RENK SİSTEMİ:
+          // ✅ Doğru cevap → YEİL (wrongCount=3, hasat edilebilir meyve) 
+          //  Yanlış cevap → KIRMIZI (wrongCount=0, tohum - en düşük seviye)
           set(state => ({
             farm: [...toSafeWordArray(state.farm), {
               ...w,
@@ -1120,10 +1324,8 @@ export const useFarmStore = create<FarmStore>()(
             }]
           }));
 
-          // 🎯 GÜNLÜK GÖREV - Quiz'den kelime farm'a eklendi! (crash-safe)
-          setTimeout(() => {
-            try { state.updateQuestProgress('PLANT_WORDS', 1); } catch(e) {}
-          }, 0);
+          //  GÜNLÜK GÖREV - Quiz'den kelime farm'a eklendi! (crash-safe)
+          try { state.queueQuestProgress('PLANT_WORDS', 1, 'add'); } catch(e) {}
         } else {
           // 📊 Zaten farm'da olan kelime - istatistikleri güncelle + lastPlantedAt
           set(state => ({
@@ -1210,16 +1412,16 @@ export const useFarmStore = create<FarmStore>()(
         try {
         const state = get();
 
-        // 🔍 Önce AKTİF (görünür) kartı bulmaya çalış, yoksa herhangi birini al (duplicate bug fix)
+        //  Önce AKTİF (görünür) kartı bulmaya çalış, yoksa herhangi birini al (duplicate bug fix)
         const normalWord = state.farm.find(f => f.id === wordId && !(f as any).normalHarvested) || state.farm.find(f => f.id === wordId);
         const phrasalWord = state.phrasalVerbFarm.find(f => f.id === wordId && !(f as any).normalHarvested) || state.phrasalVerbFarm.find(f => f.id === wordId);
-        // 🔍 INVENTORY'DE DE ARA! Yeşil kartlar envanterde olabilir!
+        //  INVENTORY'DE DE ARA! Yeşil kartlar envanterde olabilir!
         const foundInInventory = state.inventory.find(f => f.id === wordId);
         const foundInPhrasalInventory = state.phrasalVerbInventory.find(f => f.id === wordId);
 
         const farmWord = normalWord || phrasalWord || foundInInventory || foundInPhrasalInventory;
         if (!farmWord) {
-          // console.log('❌ answerMiniQuiz: word not found!', wordId);
+          // console.log(' answerMiniQuiz: word not found!', wordId);
           return set({ miniQuizFor: undefined });
         }
 
@@ -1259,20 +1461,20 @@ export const useFarmStore = create<FarmStore>()(
         };
 
         const moveWordToInventory = (inventoryWord: WordModel, extra: ExtraUpdater = {}) => {
-          // ⚠️ NORMAL TARLA HASADI - Kelime farm'da KALIR ama normalHarvested: true olur
+          // ⚠ NORMAL TARLA HASADI - Kelime farm'da KALIR ama normalHarvested: true olur
           // Normal tarlada GÖRÜNMEZ, ama yapbozda puzzleHarvested değilse GÖRÜNÜR!
-          // YAPBOZ SİSTEMİ TAMAMEN BAĞIMSIZ - etkilenmez!
+          // YAPBOZ SİSTEMİ TAMAMEN BAIMSIZ - etkilenmez!
 
           if (isPhrasal) {
             set(state => ({
               ...resolveExtra(extra, state),
               // 🌾 Kelime farm'da KALIR - normalHarvested: true ile işaretle
-              // 🏆 masterLevel ve wrongCount da güncellenir!
+              //  masterLevel ve wrongCount da güncellenir!
               phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === wordId ? {
                 ...f,
                 normalHarvested: true, // Normal tarlada GÖRÜNMEZ!
-                masterLevel: inventoryWord.masterLevel, // 🏆 MASTER LEVELİ GÜNCELLE!
-                wrongCount: inventoryWord.wrongCount, // 🎨 Renk için wrongCount
+                masterLevel: inventoryWord.masterLevel, //  MASTER LEVELİ GÜNCELLE!
+                wrongCount: inventoryWord.wrongCount, //  Renk için wrongCount
                 totalHarvests: inventoryWord.totalHarvests, // 📊 Toplam hasat
                 // Yapboz için puzzleStats ve puzzleHarvested KORUNUYOR!
               } : f),
@@ -1282,12 +1484,12 @@ export const useFarmStore = create<FarmStore>()(
             set(state => ({
               ...resolveExtra(extra, state),
               // 🌾 Kelime farm'da KALIR - normalHarvested: true ile işaretle
-              // 🏆 masterLevel ve wrongCount da güncellenir!
+              //  masterLevel ve wrongCount da güncellenir!
               farm: state.farm.map(f => f.id === wordId ? {
                 ...f,
                 normalHarvested: true, // Normal tarlada GÖRÜNMEZ!
-                masterLevel: inventoryWord.masterLevel, // 🏆 MASTER LEVELİ GÜNCELLE!
-                wrongCount: inventoryWord.wrongCount, // 🎨 Renk için wrongCount
+                masterLevel: inventoryWord.masterLevel, //  MASTER LEVELİ GÜNCELLE!
+                wrongCount: inventoryWord.wrongCount, //  Renk için wrongCount
                 totalHarvests: inventoryWord.totalHarvests, // 📊 Toplam hasat
                 // Yapboz için puzzleStats ve puzzleHarvested KORUNUYOR!
               } : f),
@@ -1312,11 +1514,11 @@ export const useFarmStore = create<FarmStore>()(
         const globalStreak = correct ? state.streak + 1 : 0;
         const streakBonus = Math.floor(globalStreak / 5) * 10;
 
-        // 🎯 YANLIŞ CEVAP
+        //  YANLI CEVAP
         if (!correct) {
-          // 🏆 MASTER KARTLAR SEVİYE DÜŞMEMELİ!
+          //  MASTER KARTLAR SEVİYE DÜMEMELİ!
           if (masterLevel > 0) {
-            // console.log('❌ Master kart yanlış cevap - seviye korunuyor, sessions reset!');
+            // console.log(' Master kart yanlış cevap - seviye korunuyor, sessions reset!');
             updateWord(f => ({
               ...f,
               consecutiveCorrect: 0,
@@ -1332,7 +1534,7 @@ export const useFarmStore = create<FarmStore>()(
             return;
           }
 
-          // 🎓 TUTORIAL: Yeşil karttan kırmızıya düşen kart için session 1 yapacağız
+          //  TUTORIAL: Yeşil karttan kırmızıya düşen kart için session 1 yapacağız
           const isGreenCard = wrongCount >= 2; // wrongCount >= 2 = yeşil
           const isTutorialActive = state.tutorialStep !== 'COMPLETED' && state.tutorialStep !== 'NOT_STARTED';
 
@@ -1341,7 +1543,7 @@ export const useFarmStore = create<FarmStore>()(
             set({ tutorialGreenCardSession: { wordId, originalSessions: TIER_SESSION_REQUIREMENTS[0] || 3 } });
           }
 
-          // 🔴 YANLIŞ CEVAP = BİR ÖNCEKİ SEVİYEYE DÜŞ!
+          //  YANLI CEVAP = BİR ÖNCEKİ SEVİYEYE DÜ!
           // Yeşil -> Sarı, Sarı -> Kırmızı (wrongCount - 1)
           const newColorLevel = Math.max(0, wrongCount - 1); // Bir önceki seviyeye düş
 
@@ -1361,7 +1563,7 @@ export const useFarmStore = create<FarmStore>()(
           return;
         }
 
-        // 🎯 DOĞRU CEVAP - correctCount kadar streak ekle
+        //  DORU CEVAP - correctCount kadar streak ekle
         const actualCorrectCount = correctCount || 1;
         const newStreak = currentStreak + actualCorrectCount;
 
@@ -1378,17 +1580,17 @@ export const useFarmStore = create<FarmStore>()(
         // Yeşil kart (colorLevel>=2) veya master kartlar - 3 streak ile başarılı session
         if (currentColor === 'green' || masterLevel > 0) {
           if (newStreak >= 3) {
-            // 🏆 BAŞARILI SESSİON! consecutiveMasterSessions artır + meyve büyüt
+            //  BAARILI SESSİON! consecutiveMasterSessions artır + meyve büyüt
             const currentSessions = farmWord.consecutiveMasterSessions || 0;
             const newSessions = currentSessions + 1;
 
-            // 🏆 HASAT HAZIR MI? - Her tier için farklı session gerekli:
+            //  HASAT HAZIR MI? - Her tier için farklı session gerekli:
             // Yeşil (masterLevel 0) → Master: 3 session
             // Master (masterLevel 1) → Ultra: 4 session  
             // Ultra (masterLevel 2) → Perfect: 5 session
             // Perfect (masterLevel 3): İLK HASAT için 6 SESSION, ÖDÜL ALINDIKTAN SONRA 1 SESSION!
 
-            // 🎓 TUTORIAL ÖZEL: tutorialFirstWrongWord için yeşil karttan master'a 1 session yeterli
+            //  TUTORIAL ÖZEL: tutorialFirstWrongWord için yeşil karttan master'a 1 session yeterli
             const isTutorialActive = state.tutorialStep !== 'COMPLETED' && state.tutorialStep !== 'NOT_STARTED';
             const isTutorialCard = isTutorialActive && state.tutorialFirstWrongWord?.id === wordId;
 
@@ -1399,10 +1601,10 @@ export const useFarmStore = create<FarmStore>()(
             // 🌾 Tüm kartlar hasat edilebilir! Perfect dahil (masterLevel <= 3)
             const isNowHarvestReady = newSessions >= requiredSessions;
 
-            // 🍎 Meyve büyüme aşamasını hesapla (tier'a göre değişen session sayısına göre)
+            //  Meyve büyüme aşamasını hesapla (tier'a göre değişen session sayısına göre)
             const newGrowthStage = calculateFruitGrowthStage(newSessions, requiredSessions);
 
-            // 🍎 Meyve tipini belirle (ilk kez yeşilden master'a geçerken)
+            //  Meyve tipini belirle (ilk kez yeşilden master'a geçerken)
             const isPhrasal = !!farmWord.isPhrasalVerb;
             const fruitType = farmWord.fruitType || getFruitType(farmWord.difficulty, isPhrasal);
 
@@ -1413,7 +1615,7 @@ export const useFarmStore = create<FarmStore>()(
               consecutiveMasterSessions: newSessions,
               correctCount: (f.correctCount || 0) + actualCorrectCount,
               lastAnswerCorrect: true,
-              // 🍎 Meyve sistemi
+              //  Meyve sistemi
               fruitType: fruitType,
               fruitGrowthStage: newGrowthStage,
               isHarvestReady: isNowHarvestReady,
@@ -1446,7 +1648,7 @@ export const useFarmStore = create<FarmStore>()(
             }));
           }
         } else {
-          // 🎨 Kırmızı/Sarı kartlar - SESSION bazlı ilerleme
+          //  Kırmızı/Sarı kartlar - SESSION bazlı ilerleme
           // Kırmızı: 1 session (3 doğru) → Sarı
           // Sarı: 2 session (6 doğru) → Yeşil
           // Session = 3 doğru cevap art arda (streak)
@@ -1455,7 +1657,7 @@ export const useFarmStore = create<FarmStore>()(
             const currentSessions = farmWord.consecutiveMasterSessions || 0;
             const newSessions = currentSessions + 1;
 
-            // 🎓 TUTORIAL ÖZEL: tutorialFirstWrongWord için tüm session gereksinimleri 1
+            //  TUTORIAL ÖZEL: tutorialFirstWrongWord için tüm session gereksinimleri 1
             const isTutorialActive = state.tutorialStep !== 'COMPLETED' && state.tutorialStep !== 'NOT_STARTED';
             const isTutorialCard = isTutorialActive && state.tutorialFirstWrongWord?.id === wordId;
 
@@ -1793,7 +1995,7 @@ export const useFarmStore = create<FarmStore>()(
 
       consumeTransferEvent: () => set({ transferEvent: undefined }),
 
-      // 🔥 SERİ (STREAK) SİSTEMİ - TAKVİM GÜNÜ BAZLI (00:00'da yenilenir)
+      //  SERİ (STREAK) SİSTEMİ - TAKVİM GÜNÜ BAZLI (00:00'da yenilenir)
       checkDailyStreak: () => {
         const { lastStreakCheckDate, dailyStreak, user } = get();
         
@@ -1801,7 +2003,7 @@ export const useFarmStore = create<FarmStore>()(
         const now = new Date();
         const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         
-        // 🔒 Bugün zaten kontrol edilmiş mi?
+        //  Bugün zaten kontrol edilmiş mi?
         if (lastStreakCheckDate === todayStr) {
           return { isNewDay: false, currentStreak: dailyStreak, reward: 0, alreadyChecked: true };
         }
@@ -1900,6 +2102,8 @@ export const useFarmStore = create<FarmStore>()(
       },
 
       addSesyapHistory: (entry) => {
+        let guidedCompletedPayload: { wordId?: string; wordText?: string } | null = null;
+
         set(state => {
           const incomingWord = toSafeLowerText(entry?.word);
           if (!incomingWord) {
@@ -1914,6 +2118,38 @@ export const useFarmStore = create<FarmStore>()(
             correct: !!entry?.correct,
             timestamp: toSafeNumber(entry?.timestamp, Date.now()),
           };
+          const safeEntryWordId = typeof entry?.wordId === 'string' ? entry.wordId.trim() : '';
+          const guidedTargetMatched = isGuidedTargetMatch(
+            state.guidedModeTargetWordId,
+            state.guidedModeTargetWordText,
+            safeEntryWordId || undefined,
+            safeEntry.word
+          );
+
+          const guidedCompleted =
+            state.guidedModeActive &&
+            state.guidedModeStep === 'SESYAP_PRACTICE' &&
+            safeEntry.correct &&
+            guidedTargetMatched;
+          if (guidedCompleted) {
+            guidedCompletedPayload = {
+              wordId: safeEntryWordId || state.guidedModeTargetWordId,
+              wordText: normalizeDisplayText(safeEntry.word || state.guidedModeTargetWordText),
+            };
+          } else if (
+            state.guidedModeActive &&
+            state.guidedModeStep === 'SESYAP_PRACTICE' &&
+            safeEntry.correct
+          ) {
+            traceEvent('guided_mode_step_blocked', {
+              from: 'SESYAP_PRACTICE',
+              to: 'COMPLETED',
+              wordId: safeEntryWordId,
+              wordText: normalizeDisplayText(safeEntry.word),
+              targetWordId: state.guidedModeTargetWordId,
+              targetWordText: state.guidedModeTargetWordText,
+            }, 'warn');
+          }
 
           const safeHistory = Array.isArray(state.sesyapHistory) ? state.sesyapHistory : [];
           // Aynı kelime zaten varsa güncelle, yoksa ekle
@@ -1941,18 +2177,62 @@ export const useFarmStore = create<FarmStore>()(
 
           // Performans için son 50 kaydı tut
           if (newHistory.length > 50) {
-            return { sesyapHistory: newHistory.slice(newHistory.length - 50) };
+            return {
+              sesyapHistory: newHistory.slice(newHistory.length - 50),
+              ...(guidedCompleted
+                ? {
+                    guidedModeActive: false,
+                    guidedModeStep: 'COMPLETED' as GuidedModeStep,
+                    guidedModeTargetWordId: undefined,
+                    guidedModeTargetWordText: undefined,
+                  }
+                : {}),
+            };
           }
-          return { sesyapHistory: newHistory };
+          return {
+            sesyapHistory: newHistory,
+            ...(guidedCompleted
+              ? {
+                  guidedModeActive: false,
+                  guidedModeStep: 'COMPLETED' as GuidedModeStep,
+                  guidedModeTargetWordId: undefined,
+                  guidedModeTargetWordText: undefined,
+                }
+              : {}),
+          };
         });
+
+        if (guidedCompletedPayload !== null) {
+          const payload = guidedCompletedPayload as { wordId?: string; wordText?: string };
+          traceEvent('guided_mode_step', {
+            from: 'SESYAP_PRACTICE',
+            to: 'COMPLETED',
+            wordId: payload.wordId,
+            wordText: payload.wordText,
+          });
+          traceEvent('guided_mode_completed', { source: 'sesyap' });
+        } else if (entry?.correct && get().guidedModeStep === 'COMPLETED') {
+          traceEvent('guided_mode_completed', { source: 'sesyap' });
+        }
       },
 
       clearSesyapHistory: () => {
         set({ sesyapHistory: [] });
       },
 
-      // 🎯 GÜNLÜK GÖREVLER Actions
+      //  GÜNLÜK GÖREVLER Actions
       generateDailyQuests: () => {
+        const startedAt = Date.now();
+        if (dailyQuestGenerationInFlight) {
+          traceEvent('daily_quests_generate_skipped', { reason: 'in_flight' }, 'warn');
+          return;
+        }
+        if (startedAt - lastDailyQuestGenerationAt < 2500) {
+          traceEvent('daily_quests_generate_skipped', { reason: 'throttle' }, 'warn');
+          return;
+        }
+        dailyQuestGenerationInFlight = true;
+        try {
         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
         const state = get();
 
@@ -1960,19 +2240,20 @@ export const useFarmStore = create<FarmStore>()(
         const safeDailyQuests = Array.isArray(state.dailyQuests) ? state.dailyQuests : [];
         const unclaimedQuests = safeDailyQuests.filter(q => q && typeof q === 'object' && q.date === today && !q.claimed);
         if (unclaimedQuests.length > 0) {
+          traceEvent('daily_quests_generate_skipped', { reason: 'has_unclaimed', count: unclaimedQuests.length });
           return; // Zaten bugünün claimed olmayan görevleri var
         }
 
-        // 🎯 42 KAPSAMLI GÖREV PROFİLİ - 6 haftalık rotasyon
+        //  42 KAPSAMLI GÖREV PROFİLİ - 6 haftalık rotasyon
         // Profil 0-13: Kolay (4 görev)
         // Profil 14-27: Orta (5 görev)  
         // Profil 28-41: Zor (6 görev)
         type QuestDef = { type: QuestType; title: string; description: string; icon: string; target: number; reward: { trophy: number; coins: number; xp: number }; screen: string; hint: string };
 
         const questProfiles: QuestDef[][] = [
-          // ═══════════════════════════════════════════════════════════════
+          // 
           // 🌱 KOLAY PROFİLLER (0-13) - 4 görev, düşük hedefler
-          // ═══════════════════════════════════════════════════════════════
+          // 
 
           // Profil 0: Yeni Başlayanlar (Kolay)
           [
@@ -2073,9 +2354,9 @@ export const useFarmStore = create<FarmStore>()(
             { type: 'LEARN_IDIOMS', title: '🎭 Deyim Öğren', description: 'Pratik Merkezi\'nde 3 deyim öğren', icon: '🎭', target: 3, reward: { trophy: 20, coins: 1000, xp: 400 }, screen: 'Idioms', hint: 'break the ice, piece of cake... gibi deyimler!' },
           ],
 
-          // ═══════════════════════════════════════════════════════════════
+          // 
           // ⚡ ORTA PROFİLLER (14-27) - 5 görev, orta hedefler
-          // ═══════════════════════════════════════════════════════════════
+          // 
 
           // Profil 14: Dengeli (Orta)
           [
@@ -2190,9 +2471,9 @@ export const useFarmStore = create<FarmStore>()(
             { type: 'WIN_BATTLE', title: '⚔️ Battle Kazan', description: 'Battle modunda rakibini yenerek 1 maç kazan', icon: '⚔️', target: 1, reward: { trophy: 40, coins: 2600, xp: 1040 }, screen: 'Battle', hint: 'Battle sekmesine git ve rakibinle yarış!' },
           ],
 
-          // ═══════════════════════════════════════════════════════════════
-          // 🔥 ZOR PROFİLLER (28-41) - 6 görev, yüksek hedefler
-          // ═══════════════════════════════════════════════════════════════
+          // 
+          //  ZOR PROFİLLER (28-41) - 6 görev, yüksek hedefler
+          // 
 
           // Profil 28: Dengeli (Zor)
           [
@@ -2345,7 +2626,7 @@ export const useFarmStore = create<FarmStore>()(
 
         // Seçilen görevleri oluştur
         const selectedQuests: DailyQuest[] = selectedProfile.map((quest, idx) => ({
-          ...quest,
+          ...sanitizeQuestRecord(quest),
           id: `quest-${today}-${idx}-${profileIndex}`,
           progress: 0,
           completed: false,
@@ -2357,16 +2638,37 @@ export const useFarmStore = create<FarmStore>()(
           dailyQuests: selectedQuests,
           lastQuestResetDate: today
         });
+        lastDailyQuestGenerationAt = Date.now();
+        traceEvent('daily_quests_generated', { count: selectedQuests.length });
+        } catch (error) {
+          traceEvent('daily_quests_generate_error', { error: String(error) }, 'error');
+        } finally {
+          dailyQuestGenerationInFlight = false;
+        }
       },
 
-      updateQuestProgress: (type: QuestType, amount: number = 1) => {
+      queueQuestProgress: (type: QuestType, amount: number = 1, mode: QuestProgressMode = 'add') => {
+        const safeAmount = toSafeNumber(amount, 0);
+        if (safeAmount <= 0) return;
+        const safeMode: QuestProgressMode = mode === 'max' ? 'max' : 'add';
+        queueQuestProgressInternal(type, safeAmount, safeMode);
+        scheduleQuestProgressFlush(get);
+      },
+
+      updateQuestProgress: (type: QuestType, amount: number = 1, mode: QuestProgressMode = 'add') => {
         try {
-        // 🛡️ NaN/undefined guard
+        // 🛡 NaN/undefined guard
         const safeAmount = (typeof amount === 'number' && !isNaN(amount)) ? amount : 1;
+        const safeMode: QuestProgressMode =
+          mode === 'max' || (type === 'REACH_COMBO' && mode !== 'add') ? 'max' : 'add';
+        const nextQuestProgress = (currentProgress: number, target: number) =>
+          safeMode === 'max'
+            ? Math.max(currentProgress, Math.min(safeAmount, target))
+            : Math.min(currentProgress + safeAmount, target);
         const state = get();
         const today = new Date().toISOString().split('T')[0];
 
-        // 🛡️ Null-safe quest array references
+        // 🛡 Null-safe quest array references
         const safeDailyQuests = Array.isArray(state.dailyQuests) ? state.dailyQuests : [];
         const safeWeeklyQuests = Array.isArray(state.weeklyQuests) ? state.weeklyQuests : [];
         const safeRepeatableQuests = Array.isArray(state.repeatableQuests) ? state.repeatableQuests : [];
@@ -2389,7 +2691,7 @@ export const useFarmStore = create<FarmStore>()(
             batchedUpdate.lifetimePuzzlesCompleted = (state.lifetimePuzzlesCompleted || 0) + safeAmount;
             break;
           case 'HARVEST_WORDS':
-            // lifetimeHarvests harvestWord() içinde zaten artırılıyor — burada ARTIRMA (çift artış bug'ı)
+            // lifetimeHarvests harvestWord() içinde zaten artırılıyor  burada ARTIRMA (çift artış bug'ı)
             break;
           case 'HARVEST_PHRASAL':
             batchedUpdate.lifetimePhrasalHarvested = (state.lifetimePhrasalHarvested || 0) + safeAmount;
@@ -2415,13 +2717,11 @@ export const useFarmStore = create<FarmStore>()(
               if (quest.type === type && !quest.completed) {
                 const safeTarget = Math.max(1, toSafePositiveInt(quest.target));
                 const safeCurrentProgress = Math.max(0, toSafePositiveInt(quest.progress));
-                const newProgress = type === 'REACH_COMBO' 
-                  ? Math.max(safeCurrentProgress, Math.min(safeAmount, safeTarget))
-                  : Math.min(safeCurrentProgress + safeAmount, safeTarget);
+                const newProgress = nextQuestProgress(safeCurrentProgress, safeTarget);
                 const isCompleted = newProgress >= safeTarget;
                 if (isCompleted && !questCompleted) {
                   questCompleted = true;
-                  completedQuestTitle = quest.title;
+                  completedQuestTitle = normalizeUiText(quest.title, 'Görev tamamlandı');
                 }
                 return { ...quest, progress: newProgress, completed: isCompleted };
               }
@@ -2438,13 +2738,11 @@ export const useFarmStore = create<FarmStore>()(
               if (quest.type === type && !quest.completed) {
                 const safeTarget = Math.max(1, toSafePositiveInt(quest.target));
                 const safeCurrentProgress = Math.max(0, toSafePositiveInt(quest.progress));
-                const newProgress = type === 'REACH_COMBO'
-                  ? Math.max(safeCurrentProgress, Math.min(safeAmount, safeTarget))
-                  : Math.min(safeCurrentProgress + safeAmount, safeTarget);
+                const newProgress = nextQuestProgress(safeCurrentProgress, safeTarget);
                 const isCompleted = newProgress >= safeTarget;
                 if (isCompleted && !questCompleted) {
                   questCompleted = true;
-                  completedQuestTitle = quest.title + ' (Haftalık)';
+                  completedQuestTitle = `${normalizeUiText(quest.title, 'Grev tamamland')} (Haftalık)`;
                 }
                 return { ...quest, progress: newProgress, completed: isCompleted };
               }
@@ -2453,7 +2751,7 @@ export const useFarmStore = create<FarmStore>()(
           }
         }
 
-        // 🔄 Tekrarlanabilir görevleri güncelle
+        //  Tekrarlanabilir görevleri güncelle
         if (safeRepeatableQuests.length > 0) {
           const hasMatchingQuest = safeRepeatableQuests.some(q => q.type === type && !q.completed && !q.claimed);
           if (hasMatchingQuest) {
@@ -2461,9 +2759,7 @@ export const useFarmStore = create<FarmStore>()(
               if (quest.type === type && !quest.completed && !quest.claimed) {
                 const safeTarget = Math.max(1, toSafePositiveInt(quest.target));
                 const safeCurrentProgress = Math.max(0, toSafePositiveInt(quest.progress));
-                const newProgress = type === 'REACH_COMBO'
-                  ? Math.max(safeCurrentProgress, Math.min(safeAmount, safeTarget))
-                  : Math.min(safeCurrentProgress + safeAmount, safeTarget);
+                const newProgress = nextQuestProgress(safeCurrentProgress, safeTarget);
                 return { ...quest, progress: newProgress, completed: newProgress >= safeTarget };
               }
               return quest;
@@ -2479,13 +2775,11 @@ export const useFarmStore = create<FarmStore>()(
               if (quest.type === type && quest.isUnlocked && !quest.completed && !quest.claimed) {
                 const safeTarget = Math.max(1, toSafePositiveInt(quest.target));
                 const safeCurrentProgress = Math.max(0, toSafePositiveInt(quest.progress));
-                const newProgress = type === 'REACH_COMBO'
-                  ? Math.max(safeCurrentProgress, Math.min(safeAmount, safeTarget))
-                  : Math.min(safeCurrentProgress + safeAmount, safeTarget);
+                const newProgress = nextQuestProgress(safeCurrentProgress, safeTarget);
                 const isCompleted = newProgress >= safeTarget;
                 if (isCompleted && !questCompleted) {
                   questCompleted = true;
-                  completedQuestTitle = quest.title + ' (Hikaye)';
+                  completedQuestTitle = `${normalizeUiText(quest.title, 'Görev tamamlandı')} (Hikaye)`;
                 }
                 return { ...quest, progress: newProgress, completed: isCompleted };
               }
@@ -2494,24 +2788,24 @@ export const useFarmStore = create<FarmStore>()(
           }
         }
 
-        // ⚡ TEK SET ÇAĞRISI - Tüm değişiklikler bir seferde
+        // ⚡ TEK SET ÇARISI - Tüm değişiklikler bir seferde
         if (Object.keys(batchedUpdate).length > 0) {
           set(batchedUpdate);
         }
 
-        // 🎉 Görev tamamlandıysa toast göster — güvenli ve crash-safe
+        //  Görev tamamlandıysa toast göster  güvenli ve crash-safe
         if (questCompleted) {
-          // 🛡️ Quest completion toast — quiz aktifken GÖSTERMEYİZ (kasma ve odak bozma engeli)
+          // 🛡 Quest completion toast  quiz aktifken GÖSTERMEYİZ (kasma ve odak bozma engeli)
           const isQuizActive = !!(get().miniQuizFor || get().feedVisible || get().quizActive);
           if (!isQuizActive) {
             setTimeout(() => {
               try {
-                safeShowRewardToast('quest', 1, completedQuestTitle);
+                safeShowRewardToast('quest', 1, normalizeUiText(completedQuestTitle, 'Görev tamamlandı'));
               } catch (e) {}
             }, 1500);
           }
 
-          // 🏆 Achievement ve Mastery progress kontrolü — debounced, crash-safe
+          //  Achievement ve Mastery progress kontrolü  debounced, crash-safe
           if (_achievementCheckTimer) clearTimeout(_achievementCheckTimer);
           _achievementCheckTimer = setTimeout(() => {
             _achievementCheckTimer = null;
@@ -2533,12 +2827,19 @@ export const useFarmStore = create<FarmStore>()(
         try {
         const safeQuestId = typeof questId === 'string' ? questId.trim() : '';
         if (!safeQuestId) return false;
+        const now = Date.now();
+        if (now - _lastQuestClaimAt < 120) {
+          traceEvent('quest_claim_throttled', { questId: safeQuestId, questType: questType || 'daily' }, 'warn');
+          return false;
+        }
+        _lastQuestClaimAt = now;
 
         const state = get();
         const type = questType || 'daily';
         inFlightKey = `${type}:${safeQuestId}`;
         if (_claimQuestInFlight.has(inFlightKey)) return false;
         _claimQuestInFlight.add(inFlightKey);
+        traceEvent('quest_claim_start', { questId: safeQuestId, questType: type });
 
         const safeDailyQuests = toSafeObjectArray<any>(state.dailyQuests);
         const safeWeeklyQuests = toSafeObjectArray<any>(state.weeklyQuests);
@@ -2582,9 +2883,7 @@ export const useFarmStore = create<FarmStore>()(
         const rewardCoins = toSafePositiveInt(quest.reward?.coins);
         const rewardXp = toSafePositiveInt(quest.reward?.xp);
         const rewardTrophy = toSafePositiveInt(quest.reward?.trophy);
-        const safeQuestTitle = (typeof quest.title === 'string' && quest.title.trim().length > 0)
-          ? quest.title
-          : 'Gorev odulu';
+        const safeQuestTitle = normalizeUiText(quest.title, 'Görev ödülü');
 
         set(prev => {
           const updates: any = {
@@ -2648,6 +2947,22 @@ export const useFarmStore = create<FarmStore>()(
         ].filter(Boolean).join(' • ');
         safeShowRewardToast('quest', 1, rewardSummary ? `${safeQuestTitle} • ${rewardSummary}` : safeQuestTitle);
 
+        if (type === 'daily') {
+          const refreshedDailyQuests = toSafeObjectArray<any>(get().dailyQuests);
+          const today = new Date().toISOString().split('T')[0];
+          const allClaimedToday = refreshedDailyQuests.length > 0 &&
+            refreshedDailyQuests.every(q => q.date === today && q.claimed === true);
+          if (allClaimedToday) {
+            setTimeout(() => {
+              try {
+                get().checkAndResetDailyQuests();
+              } catch (error) {
+                traceEvent('quest_claim_postcheck_error', { error: String(error) }, 'error');
+              }
+            }, 350);
+          }
+        }
+
         if (_questRewardSyncTimer) clearTimeout(_questRewardSyncTimer);
         _questRewardSyncTimer = setTimeout(() => {
           _questRewardSyncTimer = null;
@@ -2663,8 +2978,16 @@ export const useFarmStore = create<FarmStore>()(
             }
           } catch (e) {}
         }, 900);
+        traceEvent('quest_claim_success', {
+          questId: safeQuestId,
+          questType: type,
+          rewardCoins,
+          rewardXp,
+          rewardTrophy,
+        });
         return true;
         } catch (e) {
+          traceEvent('quest_claim_error', { questId: questId, questType, error: String(e) }, 'error');
           console.error('[claimQuestReward] Error:', e);
           return false;
         } finally {
@@ -2675,10 +2998,16 @@ export const useFarmStore = create<FarmStore>()(
       },
 
       checkAndResetDailyQuests: () => {
-        if (dailyQuestResetInFlight) return;
+        if (dailyQuestResetInFlight) {
+          traceEvent('daily_quest_check_skipped', { reason: 'in_flight' }, 'warn');
+          return;
+        }
         // Debounce: en fazla 30 saniyede bir kontrol et
         const now = Date.now();
-        if (now - lastQuestCheckTime < 30000) return;
+        if (now - lastQuestCheckTime < 30000) {
+          traceEvent('daily_quest_check_skipped', { reason: 'debounce' }, 'warn');
+          return;
+        }
         lastQuestCheckTime = now;
         dailyQuestResetInFlight = true;
         try {
@@ -2688,6 +3017,7 @@ export const useFarmStore = create<FarmStore>()(
 
           // Gün değişti mi ya da quest listesi boş mu?
           if (state.lastQuestResetDate !== today || safeDailyQuests.length === 0) {
+            traceEvent('daily_quest_check_regenerate', { reason: 'date_or_empty' });
             get().generateDailyQuests();
             return;
           }
@@ -2696,18 +3026,20 @@ export const useFarmStore = create<FarmStore>()(
           const allClaimedToday = safeDailyQuests.length > 0 &&
             safeDailyQuests.every(q => q.date === today && q.claimed);
           if (allClaimedToday) {
+            traceEvent('daily_quest_check_regenerate', { reason: 'all_claimed' });
             get().generateDailyQuests();
           }
         } catch (e) {
+          traceEvent('daily_quest_check_error', { error: String(e) }, 'error');
           console.error('[checkAndResetDailyQuests] Error:', e);
         } finally {
           dailyQuestResetInFlight = false;
         }
       },
 
-      // ═══════════════════════════════════════════════════════════════
+      // 
       // 📅 HAFTALIK GÖREVLER - Her Pazartesi sıfırlanır
-      // ═══════════════════════════════════════════════════════════════
+      // 
       generateWeeklyQuests: () => {
         const state = get();
         const today = new Date();
@@ -2775,7 +3107,7 @@ export const useFarmStore = create<FarmStore>()(
         const selectedQuests = weeklyQuestSets[weekType];
 
         const weeklyQuests: WeeklyQuest[] = selectedQuests.map((quest, idx) => ({
-          ...quest,
+          ...sanitizeQuestRecord(quest),
           id: `weekly-${weekStartDate}-${idx}`,
           progress: 0,
           completed: false,
@@ -2811,9 +3143,9 @@ export const useFarmStore = create<FarmStore>()(
         }
       },
 
-      // ═══════════════════════════════════════════════════════════════
-      // 🔄 TEKRARLANAB&İLİR GÖREVLER - Bitince yenisi gelir
-      // ═══════════════════════════════════════════════════════════════
+      // 
+      //  TEKRARLANAB&İLİR GÖREVLER - Bitince yenisi gelir
+      // 
       generateRepeatableQuest: (category: 'fast' | 'medium' | 'long') => {
         const state = get();
 
@@ -2866,7 +3198,7 @@ export const useFarmStore = create<FarmStore>()(
         if (existingQuest) return;
 
         const newQuest: RepeatableQuest = {
-          ...selectedQuest,
+          ...sanitizeQuestRecord(selectedQuest),
           id: `repeatable-${category}-${Date.now()}`,
           progress: 0,
           completed: false,
@@ -2886,9 +3218,9 @@ export const useFarmStore = create<FarmStore>()(
         }
       },
 
-      // ═══════════════════════════════════════════════════════════════
+      // 
       // 📖 HİKAYE GÖREVLERİ - Oyunu öğreten sıralı görevler
-      // ═══════════════════════════════════════════════════════════════
+      // 
       initializeStoryQuests: () => {
         const state = get();
 
@@ -2974,7 +3306,7 @@ export const useFarmStore = create<FarmStore>()(
         ];
 
         const storyQuests: StoryQuest[] = storyQuestDefs.map((quest, idx) => ({
-          ...quest,
+          ...sanitizeQuestRecord(quest),
           id: `story-${quest.chapter}-${quest.order}`,
           progress: 0,
           completed: false,
@@ -3016,9 +3348,9 @@ export const useFarmStore = create<FarmStore>()(
         set({ storyQuests: updatedQuests });
       },
 
-      // ═══════════════════════════════════════════════════════════════
-      // 🏆 BAŞARI GÖREVLERİ - Ömür boyu hedefler
-      // ═══════════════════════════════════════════════════════════════
+      // 
+      //  BAARI GÖREVLERİ - Ömür boyu hedefler
+      // 
       initializeAchievementQuests: () => {
         const state = get();
 
@@ -3104,13 +3436,13 @@ export const useFarmStore = create<FarmStore>()(
         ];
 
         const achievementQuests: AchievementQuest[] = achievementDefs.map((quest) => ({
-          ...quest,
+          ...sanitizeQuestRecord(quest),
           id: `achievement-${quest.category}-${quest.tier}`,
           progress: 0,
           completed: false,
           claimed: false,
           screen: 'Quiz',
-          hint: `${quest.target} hedefine ulaş!`,
+          hint: `${quest.target} hedefine ulas!`,
           nextTierId: quest.tier < 6 ? `achievement-${quest.category}-${quest.tier + 1}` : undefined
         }));
 
@@ -3164,9 +3496,9 @@ export const useFarmStore = create<FarmStore>()(
         }
       },
 
-      // ═══════════════════════════════════════════════════════════════
-      // 🚀 TOPLU QUEST BAŞLATMA - Tek seferde tüm görevleri kontrol et
-      // ═══════════════════════════════════════════════════════════════
+      // 
+      // 🚀 TOPLU QUEST BALATMA - Tek seferde tüm görevleri kontrol et
+      // 
       initializeAllQuests: () => {
         if (questInitInFlight) return;
         questInitInFlight = true;
@@ -3211,9 +3543,9 @@ export const useFarmStore = create<FarmStore>()(
         }
       },
 
-      // ═══════════════════════════════════════════════════════════════
-      // 🎯 MASTERY PATHS - 5 uzmanlaşma yolu
-      // ═══════════════════════════════════════════════════════════════
+      // 
+      //  MASTERY PATHS - 5 uzmanlaşma yolu
+      // 
       initializeMasteryPaths: () => {
         const state = get();
 
@@ -3354,10 +3686,8 @@ export const useFarmStore = create<FarmStore>()(
         const newCombo = get().currentQuizCombo + 1;
         set({ currentQuizCombo: newCombo });
 
-        // 🎯 GÜNLÜK GÖREV - Combo arttı, quest'i güncelle! (crash-safe)
-        setTimeout(() => {
-          try { get().updateQuestProgress('REACH_COMBO', newCombo); } catch(e) {}
-        }, 0);
+        //  GÜNLÜK GÖREV - Combo arttı, quest'i güncelle! (crash-safe)
+        try { get().queueQuestProgress('REACH_COMBO', newCombo, 'max'); } catch(e) {}
 
         return newCombo;
       },
@@ -3369,10 +3699,8 @@ export const useFarmStore = create<FarmStore>()(
         const newCombo = get().currentPhrasalCombo + 1;
         set({ currentPhrasalCombo: newCombo });
 
-        // 🎯 GÜNLÜK GÖREV - Combo arttı, quest'i güncelle! (crash-safe)
-        setTimeout(() => {
-          try { get().updateQuestProgress('REACH_COMBO', newCombo); } catch(e) {}
-        }, 0);
+        //  GÜNLÜK GÖREV - Combo arttı, quest'i güncelle! (crash-safe)
+        try { get().queueQuestProgress('REACH_COMBO', newCombo, 'max'); } catch(e) {}
 
         return newCombo;
       },
@@ -3385,43 +3713,73 @@ export const useFarmStore = create<FarmStore>()(
       // Kırmızı (0) → Turuncu (1) → Sarı (2) → Yeşil (3) → Master/Altın (4+) → Ultra/Elmas → Perfect/Kraliyet
       // Master'dan önce 1 doğru = 1 session, Master'dan sonra 2 ardışık doğru = 1 session
       updateWordPuzzleStat: (wordId: string, correct: boolean) => {
+        const safeWordId = typeof wordId === 'string' ? wordId.trim() : '';
+        if (!safeWordId) return;
         const state = get();
+        const safeFarm = toSafeWordArray(state.farm);
+        const safePhrasalFarm = toSafeWordArray(state.phrasalVerbFarm);
 
-        // 🎯 Önce farm'da ara, yoksa phrasalVerbFarm'da ara
-        const wordInFarm = state.farm.find(f => f.id === wordId);
-        const wordInPhrasal = state.phrasalVerbFarm.find(f => f.id === wordId);
+        //  Önce farm'da ara, yoksa phrasalVerbFarm'da ara
+        const wordInFarm = safeFarm.find(f => f.id === safeWordId);
+        const wordInPhrasal = safePhrasalFarm.find(f => f.id === safeWordId);
         const word = wordInFarm || wordInPhrasal;
         const isPhrasalVerb = !wordInFarm && !!wordInPhrasal;
 
         if (!word) return;
 
-        // � Hasat bekleyen karta tekrar cevap verilmemeli!
+        //  Hasat bekleyen karta tekrar cevap verilmemeli!
         if ((word as any).readyForPuzzleHarvest) {
           console.log('⚠️ Puzzle: Kart hasat bekliyor, session artırılmadı');
           return;
         }
 
-        // �🎯 YAPBOZ İÇİN AYRI SİSTEM - Tarla'yı ETKİLEMEZ!
-        // ⚠️ originalMasterLevel: Kelime tarlaya ilk geldiğindeki masterLevel - DEĞİŞMEMELİ!
+        //  YAPBOZ İÇİN AYRI SİSTEM - Tarla'yı ETKİLEMEZ!
+        // ⚠ originalMasterLevel: Kelime tarlaya ilk geldiğindeki masterLevel - DEİMEMELİ!
         const originalMasterLevel = (word as any).originalMasterLevel ?? word.masterLevel ?? 0;
         const currentStats = (word as any).puzzleStats || { sessions: 0, totalCorrect: 0, totalWrong: 0, consecutiveCorrect: 0, puzzleMasterLevel: 0, puzzleTotalHarvests: 0 };
         const currentPuzzleMasterLevel = currentStats.puzzleMasterLevel || 0;
         // 👑 Perfect ödülü alındı mı?
         const puzzleRewardClaimedPerfect = (word as any).puzzleRewardClaimedPerfect === true;
+        const safeWordText = normalizeDisplayText((word as any)?.text || (word as any)?.verb || '');
+        const guidedTargetMatched = isGuidedTargetMatch(
+          state.guidedModeTargetWordId,
+          state.guidedModeTargetWordText,
+          safeWordId,
+          safeWordText
+        );
 
         if (correct) {
+          if (state.guidedModeActive && state.guidedModeStep === 'PUZZLE_PRACTICE' && guidedTargetMatched) {
+            set({ guidedModeStep: 'SESYAP_PRACTICE' });
+            traceEvent('guided_mode_step', {
+              from: 'PUZZLE_PRACTICE',
+              to: 'SESYAP_PRACTICE',
+              wordId: safeWordId,
+              wordText: safeWordText,
+            });
+          } else if (state.guidedModeActive && state.guidedModeStep === 'PUZZLE_PRACTICE') {
+            traceEvent('guided_mode_step_blocked', {
+              from: 'PUZZLE_PRACTICE',
+              to: 'SESYAP_PRACTICE',
+              wordId: safeWordId,
+              wordText: safeWordText,
+              targetWordId: state.guidedModeTargetWordId,
+              targetWordText: state.guidedModeTargetWordText,
+            }, 'warn');
+          }
+
           // Doğru cevap - session'ı artır
-          // 🎯 Her doğru cevap = 1 session (master veya normal fark etmez!)
+          //  Her doğru cevap = 1 session (master veya normal fark etmez!)
           const newSessions = currentStats.sessions + 1;
 
-          // 🏆 PUZZLE MASTER LEVEL - HER SEVİYE İÇİN AYRI SESSION GEREKSİNİMİ
+          //  PUZZLE MASTER LEVEL - HER SEVİYE İÇİN AYRI SESSION GEREKSİNİMİ
           // Level 0→1: 3 session = Master hasat
           // Level 1→2: 2 session = Ultra hasat (session 0'dan başlar)
           // Level 2→3: 2 session = Perfect hasat (session 0'dan başlar)
           // Level 3: 3 session (ilk hasat) veya 1 session (ödül alındıktan sonra)
           let newPuzzleMasterLevel = currentPuzzleMasterLevel;
 
-          // HER SEVİYEDE SESSION 0'DAN BAŞLIYOR!
+          // HER SEVİYEDE SESSION 0'DAN BALIYOR!
           if (currentPuzzleMasterLevel === 0 && newSessions >= 3) {
             newPuzzleMasterLevel = 1; // 3 session = Master!
           } else if (currentPuzzleMasterLevel === 1 && newSessions >= 2) {
@@ -3431,7 +3789,7 @@ export const useFarmStore = create<FarmStore>()(
           }
           // Level 3 (Perfect/Kraliyet): Ödül alınmamışsa 3 session, alınmışsa 1 session
 
-          // 🌾 HASAT KOŞULLARI - HER SEVİYE İÇİN AYRI
+          // 🌾 HASAT KOULLARI - HER SEVİYE İÇİN AYRI
           // 1. Normal kartlar (Level 0): 3 session = Master hasat!
           // 2. Master (Level 1): 2 session = Ultra hasat
           // 3. Ultra (Level 2): 2 session = Perfect hasat
@@ -3443,16 +3801,16 @@ export const useFarmStore = create<FarmStore>()(
             newPuzzleMasterLevel > currentPuzzleMasterLevel || // Seviye atlama
             (currentPuzzleMasterLevel === 3 && newSessions >= perfectRequiredSessions); // 👑 Kraliyet: 3 veya 1 session!
 
-          // 🎯 Phrasal verb veya normal kelime için doğru array'i güncelle
+          //  Phrasal verb veya normal kelime için doğru array'i güncelle
           if (isPhrasalVerb) {
             if (shouldHarvest) {
               // 🌾 YAPBOZ HASADA HAZIR! Artık OTOMATİK envantere gitmez, MANUEL hasat gerekir!
-              // ⚠️ readyForPuzzleHarvest: true ayarla - kullanıcı manuel hasat edecek
+              // ⚠ readyForPuzzleHarvest: true ayarla - kullanıcı manuel hasat edecek
               set(state => ({
-                phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === wordId ? {
+                phrasalVerbFarm: toSafeWordArray(state.phrasalVerbFarm).map(f => f.id === safeWordId ? {
                   ...f,
                   readyForPuzzleHarvest: true, // 🌾 HASAT BEKLIYOR! Manuel hasat edilmeli
-                  pendingPuzzleMasterLevel: newPuzzleMasterLevel, // 🎯 Hasat sonrası bu seviyeye geçecek
+                  pendingPuzzleMasterLevel: newPuzzleMasterLevel, //  Hasat sonrası bu seviyeye geçecek
                   puzzleStats: {
                     sessions: newSessions,
                     totalCorrect: currentStats.totalCorrect + 1,
@@ -3464,9 +3822,9 @@ export const useFarmStore = create<FarmStore>()(
                 } : f),
               }));
             } else {
-              // 🎯 Seviye atladığında lastPlantedAt GÜNCELLENMESİN - sıralama bozulmasın!
+              //  Seviye atladığında lastPlantedAt GÜNCELLENMESİN - sıralama bozulmasın!
               set(state => ({
-                phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === wordId ? {
+                phrasalVerbFarm: toSafeWordArray(state.phrasalVerbFarm).map(f => f.id === safeWordId ? {
                   ...f,
                   puzzleStats: {
                     sessions: newSessions,
@@ -3483,12 +3841,12 @@ export const useFarmStore = create<FarmStore>()(
           } else {
             if (shouldHarvest) {
               // 🌾 YAPBOZ HASADA HAZIR! Artık OTOMATİK envantere gitmez, MANUEL hasat gerekir!
-              // ⚠️ readyForPuzzleHarvest: true ayarla - kullanıcı manuel hasat edecek
+              // ⚠ readyForPuzzleHarvest: true ayarla - kullanıcı manuel hasat edecek
               set(state => ({
-                farm: state.farm.map(f => f.id === wordId ? {
+                farm: toSafeWordArray(state.farm).map(f => f.id === safeWordId ? {
                   ...f,
                   readyForPuzzleHarvest: true, // 🌾 HASAT BEKLIYOR! Manuel hasat edilmeli
-                  pendingPuzzleMasterLevel: newPuzzleMasterLevel, // 🎯 Hasat sonrası bu seviyeye geçecek
+                  pendingPuzzleMasterLevel: newPuzzleMasterLevel, //  Hasat sonrası bu seviyeye geçecek
                   puzzleStats: {
                     sessions: newSessions,
                     totalCorrect: currentStats.totalCorrect + 1,
@@ -3500,9 +3858,9 @@ export const useFarmStore = create<FarmStore>()(
                 } : f),
               }));
             } else {
-              // 🎯 Seviye atladığında lastPlantedAt GÜNCELLENMESİN - sıralama bozulmasın!
+              //  Seviye atladığında lastPlantedAt GÜNCELLENMESİN - sıralama bozulmasın!
               set(state => ({
-                farm: state.farm.map(f => f.id === wordId ? {
+                farm: toSafeWordArray(state.farm).map(f => f.id === safeWordId ? {
                   ...f,
                   puzzleStats: {
                     sessions: newSessions,
@@ -3518,10 +3876,10 @@ export const useFarmStore = create<FarmStore>()(
             }
           }
         } else {
-          // ❌ Yanlış cevap - consecutiveCorrect sıfırla, totalWrong artır
+          //  Yanlış cevap - consecutiveCorrect sıfırla, totalWrong artır
           if (isPhrasalVerb) {
             set(state => ({
-              phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === wordId ? {
+              phrasalVerbFarm: toSafeWordArray(state.phrasalVerbFarm).map(f => f.id === safeWordId ? {
                 ...f,
                 puzzleStats: {
                   ...currentStats,
@@ -3532,7 +3890,7 @@ export const useFarmStore = create<FarmStore>()(
             }));
           } else {
             set(state => ({
-              farm: state.farm.map(f => f.id === wordId ? {
+              farm: toSafeWordArray(state.farm).map(f => f.id === safeWordId ? {
                 ...f,
                 puzzleStats: {
                   ...currentStats,
@@ -3545,14 +3903,18 @@ export const useFarmStore = create<FarmStore>()(
         }
       },
 
-      // 🍎 MEYVE SİSTEMİ - Manuel Hasat Fonksiyonu
+      //  MEYVE SİSTEMİ - Manuel Hasat Fonksiyonu
       // Kullanıcı "Hasat Et" butonuna bastığında çağrılır
       harvestWord: (wordId: string) => {
         const safeWordId = typeof wordId === 'string' ? wordId.trim() : '';
         if (!safeWordId) return null;
         // Re-entry guard: double-swipe'i engelle
-        if (_harvestInFlight.has(safeWordId)) return null;
+        if (_harvestInFlight.has(safeWordId)) {
+          traceEvent('harvest_word_skipped', { wordId: safeWordId, reason: 'in_flight' }, 'warn');
+          return null;
+        }
         _harvestInFlight.add(safeWordId);
+        traceEvent('harvest_word_start', { wordId: safeWordId });
 
         try {
         const state = get();
@@ -3560,7 +3922,7 @@ export const useFarmStore = create<FarmStore>()(
         const safePhrasalFarm = toSafeWordArray(state.phrasalVerbFarm);
 
         // Kelimeyi bul (farm veya phrasalVerbFarm'da)
-        // 🔍 Önce AKTİF (görünür) kartı bulmaya çalış, yoksa herhangi birini al
+        //  Önce AKTİF (görünür) kartı bulmaya çalış, yoksa herhangi birini al
         const normalWord = safeFarm.find(f => f.id === safeWordId && !(f as any).normalHarvested) || safeFarm.find(f => f.id === safeWordId);
         const phrasalWord = safePhrasalFarm.find(f => f.id === safeWordId && !(f as any).normalHarvested) || safePhrasalFarm.find(f => f.id === safeWordId);
         const farmWord = normalWord || phrasalWord;
@@ -3573,13 +3935,13 @@ export const useFarmStore = create<FarmStore>()(
 
         const currentMasterLevel = farmWord.masterLevel || 0;
 
-        // 🎯 Perfect tier için ÖZEL MANTIK:
+        //  Perfect tier için ÖZEL MANTIK:
         // Perfect kartlar SONSUZ hasat edilebilir ama ödül SADECE 1 KEZ verilir
         const isPerfectCard = currentMasterLevel >= 3;
         const willBecomePerfect = currentMasterLevel === 2; // Ultra→Perfect geçişi
         const alreadyClaimedPerfect = farmWord.rewardClaimedPerfect === true;
 
-        // 🎯 Yeni tier hesapla (perfect'te aynı kalır)
+        //  Yeni tier hesapla (perfect'te aynı kalır)
         const newMasterLevel = isPerfectCard ? 3 : Math.min(currentMasterLevel + 1, 3);
 
         // 💰 Ödül hesapla:
@@ -3594,7 +3956,7 @@ export const useFarmStore = create<FarmStore>()(
         if (isPerfectCard) {
           // Perfect kart hasat ediliyor
           if (!alreadyClaimedPerfect) {
-            // 🏆 Perfect kartın İLK HASATI = tier 4 ödülü (700/1000)
+            //  Perfect kartın İLK HASATI = tier 4 ödülü (700/1000)
             shouldGiveReward = true;
             rewardTier = 4;
           } else {
@@ -3610,7 +3972,7 @@ export const useFarmStore = create<FarmStore>()(
 
         const rewards = shouldGiveReward ? getTierReward(rewardTier) : { coins: 0, xp: 0 };
 
-        // 🍎 Meyve tipini güncelle
+        //  Meyve tipini güncelle
         const isPhrasalVerb = !!farmWord.isPhrasalVerb;
         const fruitType = farmWord.fruitType || getFruitType(farmWord.difficulty, isPhrasalVerb);
 
@@ -3620,19 +3982,19 @@ export const useFarmStore = create<FarmStore>()(
 
         const inventoryWord: WordModel = {
           ...farmWord,
-          id: uniqueInventoryId, // 🔑 UNIQUE ID - duplicate key hatası çözümü
-          originalWordId: farmWord.id, // 🔗 Orijinal kelimeye referans - Tekrar Ek için!
+          id: uniqueInventoryId, //  UNIQUE ID - duplicate key hatası çözümü
+          originalWordId: farmWord.id, //  Orijinal kelimeye referans - Tekrar Ek için!
           level: 10,
           consecutiveCorrect: 0,
           consecutiveMasterSessions: 0, // Reset sessions
           lastAnswerCorrect: true,
           totalHarvests: newTotalHarvests,
           masterLevel: newMasterLevel,
-          // 🍎 Meyve sistemi - yeni tier için reset
+          //  Meyve sistemi - yeni tier için reset
           fruitType: fruitType,
           fruitGrowthStage: 0, // Yeni tier'da baştan başla
           isHarvestReady: false,
-          // 🏆 Perfect ödül flag:
+          //  Perfect ödül flag:
           // - Ultra→Perfect: FALSE (Perfect ilk hasatı henüz yapılmadı, tier 4 ödülü bekliyor)
           // - Perfect hasatı: TRUE (tier 4 ödülü alındı, sonraki hasatlar ödülsüz)
           rewardClaimedPerfect: isPerfectCard ? true : false,
@@ -3660,7 +4022,7 @@ export const useFarmStore = create<FarmStore>()(
                 fruitGrowthStage: 0,
                 isHarvestReady: false,
                 consecutiveMasterSessions: 0,
-                // 🎯 FIX: Sadece ZATEN Perfect olan kartlar için true, Ultra→Perfect geçişinde false kalmalı!
+                //  FIX: Sadece ZATEN Perfect olan kartlar için true, Ultra→Perfect geçişinde false kalmalı!
                 rewardClaimedPerfect: isPerfectCard ? true : f.rewardClaimedPerfect,
               } : f),
               phrasalVerbInventory: [inventoryWord, ...safePhrasalVerbInventory],
@@ -3710,7 +4072,7 @@ export const useFarmStore = create<FarmStore>()(
                 fruitGrowthStage: 0,
                 isHarvestReady: false,
                 consecutiveMasterSessions: 0,
-                // 🎯 FIX: Sadece ZATEN Perfect olan kartlar için true, Ultra→Perfect geçişinde false kalmalı!
+                //  FIX: Sadece ZATEN Perfect olan kartlar için true, Ultra→Perfect geçişinde false kalmalı!
                 rewardClaimedPerfect: isPerfectCard ? true : f.rewardClaimedPerfect,
               } : f),
               inventory: [inventoryWord, ...safeInventory],
@@ -3742,17 +4104,15 @@ export const useFarmStore = create<FarmStore>()(
           });
         }
 
-        // 🎯 GÜNLÜK GÖREV - Hasat edildi!
+        //  GÜNLÜK GÖREV - Hasat edildi!
         // setTimeout ile sarmalıyoruz ki mevcut set() tamamlansın
-        setTimeout(() => {
-          try {
-            state.updateQuestProgress(isPhrasal ? 'HARVEST_PHRASAL' : 'HARVEST_WORDS', 1);
-          } catch (e) {
-            console.log('Quest progress update error:', e);
-          }
-        }, 0);
+        try {
+          state.queueQuestProgress(isPhrasal ? 'HARVEST_PHRASAL' : 'HARVEST_WORDS', 1, 'add');
+        } catch (e) {
+          console.log('Quest progress update error:', e);
+        }
 
-        // 🔄 Firebase'e lifetimeHarvests sync — debounced, cached import
+        //  Firebase'e lifetimeHarvests sync  debounced, cached import
         setTimeout(() => {
           try {
             const user = get().user;
@@ -3769,8 +4129,49 @@ export const useFarmStore = create<FarmStore>()(
           } catch(e) {}
         }, 200);
 
-        // Başarımları kontrol et — debounced, üst üste çağrılar birleşir
+        // Başarımları kontrol et  debounced, üst üste çağrılar birleşir
         debouncedCheckAchievements(get);
+
+        const guidedFarmTargetMatched = isGuidedTargetMatch(
+          state.guidedModeTargetWordId,
+          state.guidedModeTargetWordText,
+          safeWordId,
+          farmWord.text
+        );
+        if (
+          state.guidedModeActive &&
+          state.guidedModeStep === 'FARM_MASTER_TARGET' &&
+          guidedFarmTargetMatched
+        ) {
+          set({
+            guidedModeStep: 'PUZZLE_PRACTICE',
+            guidedModeTargetWordId: safeWordId,
+            guidedModeTargetWordText: farmWord.text || state.guidedModeTargetWordText,
+          });
+          traceEvent('guided_mode_step', {
+            from: 'FARM_MASTER_TARGET',
+            to: 'PUZZLE_PRACTICE',
+            wordId: safeWordId,
+            wordText: normalizeDisplayText(farmWord.text),
+          });
+        } else if (state.guidedModeActive && state.guidedModeStep === 'FARM_MASTER_TARGET') {
+          traceEvent('guided_mode_step_blocked', {
+            from: 'FARM_MASTER_TARGET',
+            to: 'PUZZLE_PRACTICE',
+            wordId: safeWordId,
+            wordText: normalizeDisplayText(farmWord.text),
+            targetWordId: state.guidedModeTargetWordId,
+            targetWordText: state.guidedModeTargetWordText,
+          }, 'warn');
+        }
+
+        traceEvent('harvest_word_success', {
+          wordId: safeWordId,
+          isPhrasal,
+          rewardCoins: rewards.coins,
+          rewardXp: rewards.xp,
+          newMasterLevel,
+        });
 
         return {
           success: true,
@@ -3779,6 +4180,7 @@ export const useFarmStore = create<FarmStore>()(
           newTier: newMasterLevel,
         };
         } catch (error) {
+          traceEvent('harvest_word_error', { wordId: safeWordId, error: String(error) }, 'error');
           console.error('[harvestWord] Error:', error);
           return null;
         } finally {
@@ -3813,7 +4215,7 @@ export const useFarmStore = create<FarmStore>()(
         const newPuzzleTotalHarvests = (currentStats.puzzleTotalHarvests || 0) + 1;
         const currentPuzzleMasterLevel = currentStats.puzzleMasterLevel || 0;
 
-        // 🎯 ÖDÜL SEVİYESİ HESAPLAMA - TARLA İLE AYNI!
+        //  ÖDÜL SEVİYESİ HESAPLAMA - TARLA İLE AYNI!
         // Yeşil→Master (0→1): Tier 1 = 150 coin, 300 xp
         // Master→Ultra (1→2): Tier 2 = 300 coin, 500 xp
         // Ultra→Perfect (2→3): Tier 3 = 500 coin, 800 xp
@@ -3827,19 +4229,19 @@ export const useFarmStore = create<FarmStore>()(
         // 💰 YAPBOZ HASAT ÖDÜLLERİ!
         // pendingPuzzleMasterLevel = geçilecek seviye
         // Perfect HASAT (zaten Perfect olan kartın hasadı) = Tier 4
-        // Perfect'E GEÇİŞ (Ultra→Perfect) = Tier 3
+        // Perfect'E GEÇİ (Ultra→Perfect) = Tier 3
         const rewardTier = isPerfectHarvest ? 4 : pendingPuzzleMasterLevel;
         const puzzleReward = shouldGiveReward ? getTierReward(rewardTier) : { coins: 0, xp: 0 };
         const puzzleCoins = puzzleReward.coins;
         const puzzleXp = puzzleReward.xp;
 
-        const puzzleHarvestId = `${safeWordId}-puzzle-${Date.now()}`; // 🎯 Benzersiz ID!
+        const puzzleHarvestId = `${safeWordId}-puzzle-${Date.now()}`; //  Benzersiz ID!
 
         const harvestedWord = {
           ...farmWord,
-          id: puzzleHarvestId, // 🎯 Farklı ID - çakışma olmaz!
-          originalWordId: safeWordId, // 🔗 Orijinal kelimeye referans
-          masterLevel: pendingPuzzleMasterLevel, // 🎯 YAPBOZ SEVİYESİ - Altın(1), Elmas(2), Kraliyet(3)!
+          id: puzzleHarvestId, //  Farklı ID - çakışma olmaz!
+          originalWordId: safeWordId, //  Orijinal kelimeye referans
+          masterLevel: pendingPuzzleMasterLevel, //  YAPBOZ SEVİYESİ - Altın(1), Elmas(2), Kraliyet(3)!
           isPuzzleHarvested: true, // SADECE yapboz filtresinde görünsün!
           puzzleStats: {
             sessions: currentStats.sessions,
@@ -3937,7 +4339,7 @@ export const useFarmStore = create<FarmStore>()(
           });
         }
 
-        // Başarımları kontrol et — debounced, üst üste çağrılar birleşir
+        // Başarımları kontrol et  debounced, üst üste çağrılar birleşir
         debouncedCheckAchievements(get);
 
         return {
@@ -3958,7 +4360,7 @@ export const useFarmStore = create<FarmStore>()(
         const state = get();
         let updated = false;
 
-        // 🛡️ Null-safe array guards — bozuk persist state'i crash yapmaz
+        // 🛡 Null-safe array guards  bozuk persist state'i crash yapmaz
         const safeAchievements = Array.isArray(state.achievements) ? state.achievements : [];
         const safeInventory = Array.isArray(state.inventory) ? state.inventory : [];
         const safeFarm = Array.isArray(state.farm) ? state.farm : [];
@@ -3973,7 +4375,7 @@ export const useFarmStore = create<FarmStore>()(
         const totalHarvested = state.lifetimeHarvests || (safeInventory.length + safePhrasalInv.length);
         // 📚 learnedWordIds kullan - benzersiz öğrenilmiş kelime sayısı (phrasal verb'ler de dahil)
         const learnedWords = safeLearnedIds.length;
-        // 🎓 Phrasal verb sayısı — O(N) precomputed Set ile, O(N×M) spread/find döngüsü YOK
+        //  Phrasal verb sayısı  O(N) precomputed Set ile, O(N×M) spread/find döngüsü YOK
         const phrasalIdSet = new Set([...safePhrasalFarm, ...safePhrasalInv].flatMap(w => [w.id, (w as any).originalWordId].filter(Boolean)));
         const phrasalVerbCount = safeLearnedIds.filter(id => phrasalIdSet.has(id)).length;
         const masterCount = safeInventory.filter(w => (w.masterLevel || 0) >= 1).length;
@@ -3985,14 +4387,14 @@ export const useFarmStore = create<FarmStore>()(
 
           let shouldUnlock = false;
 
-          // 🎯 Başlangıç (5)
+          //  Başlangıç (5)
           if (ach.id === 'first_correct') shouldUnlock = state.totalCorrect >= 1;
           if (ach.id === 'first_wrong') shouldUnlock = state.totalWrong >= 1;
           if (ach.id === 'first_harvest') shouldUnlock = totalHarvested >= 1;
           if (ach.id === 'first_quiz') shouldUnlock = state.totalQuizzes >= 1;
           if (ach.id === 'first_master') shouldUnlock = masterCount >= 1;
 
-          // 🔥 Combo serisi (8)
+          //  Combo serisi (8)
           if (ach.id === 'combo_3') shouldUnlock = state.bestStreak >= 3;
           if (ach.id === 'combo_5') shouldUnlock = state.bestStreak >= 5;
           if (ach.id === 'combo_10') shouldUnlock = state.bestStreak >= 10;
@@ -4002,7 +4404,7 @@ export const useFarmStore = create<FarmStore>()(
           if (ach.id === 'combo_75') shouldUnlock = state.bestStreak >= 75;
           if (ach.id === 'combo_100') shouldUnlock = state.bestStreak >= 100;
 
-          // ⭐ Level serisi (10)
+          //  Level serisi (10)
           if (ach.id === 'level_2') shouldUnlock = state.level >= 2;
           if (ach.id === 'level_5') shouldUnlock = state.level >= 5;
           if (ach.id === 'level_10') shouldUnlock = state.level >= 10;
@@ -4032,7 +4434,7 @@ export const useFarmStore = create<FarmStore>()(
           if (ach.id === 'words_500') shouldUnlock = learnedWords >= 500;
           if (ach.id === 'words_1000') shouldUnlock = learnedWords >= 1000;
 
-          // � Master serisi (7)
+          //  Master serisi (7)
           if (ach.id === 'master_1') shouldUnlock = masterCount >= 1;
           if (ach.id === 'master_5') shouldUnlock = masterCount >= 5;
           if (ach.id === 'master_25') shouldUnlock = masterCount >= 25;
@@ -4040,7 +4442,7 @@ export const useFarmStore = create<FarmStore>()(
           if (ach.id === 'master_100') shouldUnlock = masterCount >= 100;
           if (ach.id === 'master_200') shouldUnlock = masterCount >= 200;
 
-          // 💎 Perfect serisi (6)
+          //  Perfect serisi (6)
           if (ach.id === 'perfect_1') shouldUnlock = perfectCount >= 1;
           if (ach.id === 'perfect_5') shouldUnlock = perfectCount >= 5;
           if (ach.id === 'perfect_10') shouldUnlock = perfectCount >= 10;
@@ -4048,7 +4450,7 @@ export const useFarmStore = create<FarmStore>()(
           if (ach.id === 'perfect_50') shouldUnlock = perfectCount >= 50;
           if (ach.id === 'perfect_100') shouldUnlock = perfectCount >= 100;
 
-          // 🎓 Phrasal Verb serisi (6)
+          //  Phrasal Verb serisi (6)
           if (ach.id === 'phrasal_5') shouldUnlock = phrasalVerbCount >= 5;
           if (ach.id === 'phrasal_10') shouldUnlock = phrasalVerbCount >= 10;
           if (ach.id === 'phrasal_25') shouldUnlock = phrasalVerbCount >= 25;
@@ -4106,9 +4508,7 @@ export const useFarmStore = create<FarmStore>()(
         if (safeAmount > 0) {
           const progress = Math.floor(safeAmount / 10);
           if (progress > 0) {
-            setTimeout(() => {
-              try { get().updateQuestProgress('EARN_COINS', progress); } catch(e) {}
-            }, 0);
+            try { get().queueQuestProgress('EARN_COINS', progress, 'add'); } catch(e) {}
           }
         }
       },
@@ -4178,9 +4578,7 @@ export const useFarmStore = create<FarmStore>()(
         if (newSeeds.length === 0) return 0;
 
         set(s => ({ farm: [...s.farm, ...newSeeds] }));
-        setTimeout(() => {
-          try { get().updateQuestProgress('PLANT_WORDS', newSeeds.length); } catch(e) {}
-        }, 0);
+        try { get().queueQuestProgress('PLANT_WORDS', newSeeds.length, 'add'); } catch(e) {}
         return newSeeds.length;
       },
 
@@ -4249,9 +4647,9 @@ export const useFarmStore = create<FarmStore>()(
         return true;
       },
 
-      // ═══════════════════════════════════════════════════════════════
-      // � KENDİ KELİME KARTI SİSTEMİ Actions (Özerk Tarla)
-      // ═══════════════════════════════════════════════════════════════
+      // 
+      //  KENDİ KELİME KARTI SİSTEMİ Actions (Özerk Tarla)
+      // 
       addCustomWord: ({ text, meaning, example, exampleTr, difficulty }) => {
         const state = get();
         const CUSTOM_WORD_PRICE = 2800;
@@ -4261,7 +4659,7 @@ export const useFarmStore = create<FarmStore>()(
           return { success: false, message: 'Yeterli coinin yok! (2800 coin gerekli)' };
         }
 
-        // 🔒 Normalize — case-insensitive kontrol
+        //  Normalize  case-insensitive kontrol
         const normalizedText = toSafeLowerText(text);
         if (!normalizedText || normalizedText.length < 2) {
           return { success: false, message: 'Kelime en az 2 karakter olmalı.' };
@@ -4282,13 +4680,13 @@ export const useFarmStore = create<FarmStore>()(
           return { success: false, message: `Bu tohum zaten envanterde var! 📦` };
         }
 
-        // 🏪 Tohum pazarında (pool'da) var mı kontrol et — daha ucuza alabilir
+        //  Tohum pazarında (pool'da) var mı kontrol et  daha ucuza alabilir
         const inPool = state.pool.some(w => toSafeLowerText((w as any)?.text) === normalizedText);
         if (inPool) {
           return { success: false, message: `Bu kelime tohum pazarında var! Oradan daha ucuza satın alabilirsin. 🏪` };
         }
 
-        // ✅ Oluştur — benzersiz ID, normal tarlaya ekle
+        // ✅ Oluştur  benzersiz ID, normal tarlaya ekle
         const wordId = `custom-${normalizedText}-${Date.now()}`;
         const newWord: WordModel = {
           id: wordId,
@@ -4320,9 +4718,9 @@ export const useFarmStore = create<FarmStore>()(
         return { success: true, message: 'Kelimen tarlaya tohum olarak eklendi! 🌱' };
       },
 
-      // ═══════════════════════════════════════════════════════════════
-      // �🎨 KART TEMA SİSTEMİ Actions
-      // ═══════════════════════════════════════════════════════════════
+      // 
+      //  KART TEMA SİSTEMİ Actions
+      // 
       purchaseCardTheme: (themeId) => {
         const state = get();
         const theme = getThemeOverlay(themeId);
@@ -4576,7 +4974,7 @@ export const useFarmStore = create<FarmStore>()(
       toggleFavorite: (wordId) => {
         const now = Date.now();
         set(state => {
-          // 🎯 OrijinalID bulma - wordId ya kendisi ya da originalWordId
+          //  OrijinalID bulma - wordId ya kendisi ya da originalWordId
           const originalId = (() => {
             // Farm'da ara
             const farmWord = state.farm.find(w => w.id === wordId || (w as any).originalWordId === wordId);
@@ -4597,7 +4995,7 @@ export const useFarmStore = create<FarmStore>()(
             return wordId; // Fallback
           })();
 
-          // 🎯 TOGGLE DURUMUNU BEL - orijinalID'nin mevcut isFavorite state'i
+          //  TOGGLE DURUMUNU BEL - orijinalID'nin mevcut isFavorite state'i
           let isFavoriteNow = false;
           const farmWord = state.farm.find(w => w.id === originalId);
           if (farmWord) isFavoriteNow = farmWord.isFavorite || false;
@@ -4693,7 +5091,7 @@ export const useFarmStore = create<FarmStore>()(
       // 📚 Phrasal Verb Actions
       loadPhrasalVerbs: () => {
         try {
-          // 🎯 PHARASAL_VERBS_EXAMPLE.json kullan - example_tr içeriyor!
+          //  PHARASAL_VERBS_EXAMPLE.json kullan - example_tr içeriyor!
           const data = require('../../assets/data/PHARASAL_VERBS_EXAMPLE.json');
           if (!Array.isArray(data)) return;
 
@@ -4702,7 +5100,7 @@ export const useFarmStore = create<FarmStore>()(
 
             const normalized = data.map((pv: PhrasalVerb) => ({
               ...pv,
-              text: pv.verb, // 🎯 verb'ı text olarak da ekle (uyumluluk için)
+              text: pv.verb, //  verb'ı text olarak da ekle (uyumluluk için)
               mastery: pv.mastery ?? 0,
               correctCount: pv.correctCount ?? 0,
               wrongCount: pv.wrongCount ?? 0,
@@ -4764,7 +5162,7 @@ export const useFarmStore = create<FarmStore>()(
         const wrongDelta = wasCorrect === false ? 1 : 0;
 
         if (existing) {
-          // 🎨 RENK SİSTEMİ: Normal kelime gibi çalışsın
+          //  RENK SİSTEMİ: Normal kelime gibi çalışsın
           // Doğru cevap → wrongCount +1 (yeşile doğru)
           // Yanlış cevap → wrongCount -1 (kırmızıya doğru)
           const currentWrongCount = existing.wrongCount || 0;
@@ -4797,7 +5195,7 @@ export const useFarmStore = create<FarmStore>()(
           return;
         }
 
-        // 🎨 Yeni kelime - renk sistemine göre başlat
+        //  Yeni kelime - renk sistemine göre başlat
         // Doğru cevap → wrongCount = 3 (yeşil - hasat edilebilir)
         // Yanlış cevap → wrongCount = 0 (kırmızı - en düşük seviye)
         const newWord: WordModel = {
@@ -4807,7 +5205,7 @@ export const useFarmStore = create<FarmStore>()(
           verb: verb.verb,
           meaning: verb.meaning,
           example: verb.example,
-          example_tr: (verb as any).example_tr, // 🎯 Türkçe örnek cümle ekle!
+          example_tr: (verb as any).example_tr, //  Türkçe örnek cümle ekle!
           difficulty: verb.difficulty,
           type: 'phrasal',
           level: wasCorrect ? 1 : 0,
@@ -4991,13 +5389,13 @@ export const useFarmStore = create<FarmStore>()(
         merged.activeBoosts = toSafeObjectArray<ActiveBoost>(persisted.activeBoosts ?? merged.activeBoosts);
         merged.battleHistory = toSafeObjectArray<any>(persisted.battleHistory ?? merged.battleHistory);
         merged.sesyapHistory = toSafeObjectArray<any>(persisted.sesyapHistory ?? merged.sesyapHistory);
-        merged.dailyQuests = toSafeObjectArray<any>(persisted.dailyQuests ?? merged.dailyQuests);
-        merged.weeklyQuests = toSafeObjectArray<any>(persisted.weeklyQuests ?? merged.weeklyQuests);
-        merged.repeatableQuests = toSafeObjectArray<any>(persisted.repeatableQuests ?? merged.repeatableQuests);
-        merged.storyQuests = toSafeObjectArray<any>(persisted.storyQuests ?? merged.storyQuests);
-        merged.achievementQuests = toSafeObjectArray<any>(persisted.achievementQuests ?? merged.achievementQuests);
-        merged.masteryPaths = toSafeObjectArray<any>(persisted.masteryPaths ?? merged.masteryPaths);
-        merged.achievements = toSafeObjectArray<Achievement>(persisted.achievements ?? merged.achievements);
+        merged.dailyQuests = sanitizeQuestCollection<any>(persisted.dailyQuests ?? merged.dailyQuests);
+        merged.weeklyQuests = sanitizeQuestCollection<any>(persisted.weeklyQuests ?? merged.weeklyQuests);
+        merged.repeatableQuests = sanitizeQuestCollection<any>(persisted.repeatableQuests ?? merged.repeatableQuests);
+        merged.storyQuests = sanitizeQuestCollection<any>(persisted.storyQuests ?? merged.storyQuests);
+        merged.achievementQuests = sanitizeQuestCollection<any>(persisted.achievementQuests ?? merged.achievementQuests);
+        merged.masteryPaths = sanitizeMasteryPathCollection(persisted.masteryPaths ?? merged.masteryPaths);
+        merged.achievements = sanitizeAchievementCollection(persisted.achievements ?? merged.achievements);
         merged.cardCustomization = { ...DEFAULT_CUSTOMIZATION, ...(persisted.cardCustomization as any || merged.cardCustomization || {}) };
         merged.user = sanitizePersistedUser(persisted.user ?? merged.user);
         merged.isAuthenticated = !!merged.user && !!persisted.isAuthenticated;
@@ -5009,6 +5407,15 @@ export const useFarmStore = create<FarmStore>()(
         merged.bestStreak = toSafePositiveInt(persisted.bestStreak ?? merged.bestStreak);
         merged.lifetimeHarvests = toSafePositiveInt(persisted.lifetimeHarvests ?? merged.lifetimeHarvests);
         merged.cardsAddedSinceInsecticide = toSafePositiveInt(persisted.cardsAddedSinceInsecticide ?? merged.cardsAddedSinceInsecticide);
+        merged.guidedModeActive = !!persisted.guidedModeActive;
+        const persistedGuidedStep = typeof persisted.guidedModeStep === 'string' ? persisted.guidedModeStep : 'QUIZ_UNTIL_WRONG';
+        merged.guidedModeStep = merged.guidedModeActive ? persistedGuidedStep : 'COMPLETED';
+        merged.guidedModeTargetWordId = typeof persisted.guidedModeTargetWordId === 'string'
+          ? persisted.guidedModeTargetWordId
+          : undefined;
+        merged.guidedModeTargetWordText = typeof persisted.guidedModeTargetWordText === 'string'
+          ? persisted.guidedModeTargetWordText
+          : undefined;
         return merged;
       },
       partialize: (state) => ({
@@ -5049,22 +5456,26 @@ export const useFarmStore = create<FarmStore>()(
         nickname: state.nickname,
         phrasalHintShown: state.phrasalHintShown,
         cloudTipsDismissed: state.cloudTipsDismissed,
-        // � Günlük görevler
+        //  Günlük görevler
         dailyQuests: state.dailyQuests,
         trophies: state.trophies,
         lastQuestResetDate: state.lastQuestResetDate,
-        // 🎤 SesYap tarla geçmişi
+        //  SesYap tarla geçmişi
         sesyapHistory: state.sesyapHistory,
-        // 🔥 Günlük seri (streak) sistemi
+        //  Günlük seri (streak) sistemi
         dailyStreak: state.dailyStreak,
         lastStreakCheckDate: state.lastStreakCheckDate,
-        // �🎓 Tutorial state - persist edilmeli!
+        //  Tutorial state - persist edilmeli!
         tutorialStep: state.tutorialStep,
         tutorialMiniQuizShown: state.tutorialMiniQuizShown,
         tutorialEnvShown: state.tutorialEnvShown,
         tutorialFirstWrongWord: state.tutorialFirstWrongWord,
         tutorialHighlightedWordId: state.tutorialHighlightedWordId,
-        // ⚔️ Battle mode user data - persist!
+        guidedModeActive: state.guidedModeActive,
+        guidedModeStep: state.guidedModeStep,
+        guidedModeTargetWordId: state.guidedModeTargetWordId,
+        guidedModeTargetWordText: state.guidedModeTargetWordText,
+        //  Battle mode user data - persist!
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         // Battle stats
@@ -5103,7 +5514,7 @@ export const useFarmStore = create<FarmStore>()(
 
       }),
       onRehydrateStorage: () => (state) => {
-        // �️ QUEST ARRAY VALIDATION: Corrupted AsyncStorage protection
+        //  QUEST ARRAY VALIDATION: Corrupted AsyncStorage protection
         if (state) {
           state.farm = toSafeWordArray(state.farm);
           state.inventory = toSafeWordArray(state.inventory);
@@ -5113,7 +5524,7 @@ export const useFarmStore = create<FarmStore>()(
           state.recentQuizWordIds = toSafeArray<string>(state.recentQuizWordIds);
           state.ownedItems = toSafeArray<string>(state.ownedItems);
           state.activeBoosts = toSafeObjectArray<ActiveBoost>(state.activeBoosts);
-          state.achievements = toSafeObjectArray<Achievement>(state.achievements);
+          state.achievements = sanitizeAchievementCollection(state.achievements);
           state.user = sanitizePersistedUser(state.user);
           state.isAuthenticated = !!state.user && !!state.isAuthenticated;
           state.coins = toSafePositiveInt(state.coins);
@@ -5151,31 +5562,18 @@ export const useFarmStore = create<FarmStore>()(
             }
             delete (state as any).customInventory;
           }
-          // 🎨 Card theme arrays
+          //  Card theme arrays
           if (!Array.isArray(state.ownedCardThemes)) state.ownedCardThemes = [];
           if (!Array.isArray(state.collectedCards)) state.collectedCards = [];
           if (!state.activeCardTheme) state.activeCardTheme = 'default';
           state.cardCustomization = { ...DEFAULT_CUSTOMIZATION, ...(state.cardCustomization || {}) };
         }
-        // �🔥 MİGRATION: Başarımları temizle ve güncelle
-        if (state && state.achievements) {
-          // Valid başarım ID'lerini çıkar
-          const validIds = new Set(INITIAL_ACHIEVEMENTS.map(a => a.id));
-
-          // Mevcut başarımları ID'ye göre map'le (sadece valid olanlar)
-          const existingMap = new Map(
-            state.achievements
-              .filter(a => validIds.has(a.id))
-              .map(a => [a.id, a])
-          );
-
-          // Tüm başarımları ekle, var olanları koru
-          state.achievements = INITIAL_ACHIEVEMENTS.map(ach => {
-            const existing = existingMap.get(ach.id);
-            return existing || { ...ach };
-          });
+        if (state) {
+          state.achievements = sanitizeAchievementCollection(state.achievements);
         }
       },
     }
   )
 );
+
+

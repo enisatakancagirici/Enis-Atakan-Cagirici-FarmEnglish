@@ -1,4 +1,4 @@
-﻿const NICKNAME_BLOCKLIST = [
+const NICKNAME_BLOCKLIST = [
     'admin',
     'moderator',
     'support',

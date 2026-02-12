@@ -54,11 +54,11 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const NOTCH_HEIGHT = Platform.OS === 'ios' ? 50 : (StatusBar.currentHeight || 24);
 const IS_SMALL_SCREEN = SCREEN_HEIGHT < 700;
 
-// ğŸ“± Tablet detection
+// 📱 Tablet detection
 const IS_TABLET = SCREEN_WIDTH > 768;
 const FEED_CARD_MAX_WIDTH = IS_TABLET ? 500 : SCREEN_WIDTH - 40;
 
-// ğŸ¨ Renk paleti
+//  Renk paleti
 const COLORS = {
   background: '#050810',
   backgroundAlt: '#0a0f1a',
@@ -70,7 +70,7 @@ const COLORS = {
   border: 'rgba(51, 65, 85, 0.5)',
 };
 
-// ğŸ” TÃ¼rkÃ§e Ã§eviri lookup
+//  Türkçe çeviri lookup
 const getTurkishMeaning = (wordText: string): string | null => {
   if (!wordText) return null;
   try {
@@ -101,7 +101,7 @@ const getPhrasalTurkishExample = (verbId: string, verbText: string): string | nu
   } catch { return null; }
 };
 
-// ğŸ¯ Puzzle Theme
+//  Puzzle Theme
 type PuzzleTheme = {
   gradient: readonly [string, string, string];
   border: string;
@@ -173,34 +173,34 @@ const getPuzzleTheme = (puzzleSessions: number, masterLevel: number = 0): Puzzle
   return { gradient: ['#7f1d1d', '#991b1b', '#7f1d1d'] as const, border: '#ef4444', accent: '#f87171', glow: '#ef4444', emoji: '\u{1F534}', label: 'KIRMIZI', textMain: '#fecaca', textSecondary: '#fca5a5' };
 };
 
-// ğŸ“Š Oturum GÃ¶sterimi: x/y formatÄ±
-// Her seviyede session 0'dan baÅŸlÄ±yor (hasat sonrasÄ± sÄ±fÄ±rlanÄ±yor)
+// 📊 Oturum Gösterimi: x/y format
+// Her seviyede session 0'dan başlyor (hasat sonras sfrlanyor)
 // - Normal (Level 0): 3 session = Master hasat
 // - Master (Level 1): 2 session = Ultra hasat
 // - Ultra (Level 2): 2 session = Perfect hasat
-// - Perfect (Level 3): 3 session (ilk) veya 1 session (Ã¶dÃ¼l alÄ±ndÄ±ktan sonra)
+// - Perfect (Level 3): 3 session (ilk) veya 1 session (ödül alndktan sonra)
 const getSessionDisplay = (puzzleSessions: number, puzzleMasterLevel: number = 0, readyForPuzzleHarvest: boolean = false, puzzleRewardClaimedPerfect: boolean = false): string => {
-  // ğŸŒ¾ Hasat hazÄ±rsa "✓" gÃ¶ster
+  // 🌾 Hasat hazirsa checkmark goster
   if (readyForPuzzleHarvest) {
-    return '✓';
+    return '\u2705 Hasat';
   }
 
   if (puzzleMasterLevel === 0) {
-    // Normal kartlar: 3 session = Master hasat (0/3 â†’ 1/3 â†’ 2/3 â†’ hasat)
+    // Normal kartlar: 3 session = Master hasat (0/3 → 1/3 → 2/3 → hasat)
     return `${puzzleSessions}/3`;
   } else if (puzzleMasterLevel === 1) {
-    // Master kartlar: 2 session = Ultra hasat (0/2 â†’ 1/2 â†’ hasat)
+    // Master kartlar: 2 session = Ultra hasat (0/2 -> 1/2 -> hasat)
     return `${puzzleSessions}/2`;
   } else if (puzzleMasterLevel === 2) {
-    // Ultra kartlar: 2 session = Perfect hasat (0/2 â†’ 1/2 â†’ hasat)
+    // Ultra kartlar: 2 session = Perfect hasat (0/2 -> 1/2 -> hasat)
     return `${puzzleSessions}/2`;
   } else {
-    // ğŸ‘‘ Perfect/Kraliyet:
+    // s Perfect/Kraliyet:
     if (puzzleRewardClaimedPerfect) {
-      // Ã–dÃ¼l alÄ±ndÄ±ktan sonra: 1 session yeterli (0/1 â†’ hasat)
+      // Odul alindiktan sonra: 1 session yeterli (0/1 -> hasat)
       return `${puzzleSessions}/1`;
     } else {
-      // Ä°lk hasat: 3 session gerekli (0/3 â†’ 1/3 â†’ 2/3 â†’ hasat)
+      // Ilk hasat: 3 session gerekli (0/3 -> 1/3 -> 2/3 -> hasat)
       return `${puzzleSessions}/3`;
     }
   }
@@ -232,7 +232,7 @@ const getPuzzleSeedVisual = (puzzleSessions: number): { source: any; size: numbe
   };
 };
 
-// ğŸŒ¾ Grid Swipe Wrapper
+//  Grid Swipe Wrapper
 const GridSwipeWrapper: React.FC<{ disabled?: boolean; onSwipeRight: () => void; children: React.ReactNode }> = ({ disabled, onSwipeRight, children }) => {
   const hasTriggeredRef = useRef(false);
   const panResponder = useMemo(() => PanResponder.create({
@@ -246,7 +246,7 @@ const GridSwipeWrapper: React.FC<{ disabled?: boolean; onSwipeRight: () => void;
   return <View {...panResponder.panHandlers}>{children}</View>;
 };
 
-// ğŸ§© Puzzle Grid Card
+// sc© Puzzle Grid Card
 const PuzzleGridCard: React.FC<{
   word: any;
   onPress: () => void;
@@ -256,7 +256,7 @@ const PuzzleGridCard: React.FC<{
   activeThemeId: string;
   cardCustomization?: CardCustomization;
 }> = React.memo(({ word, onPress, onQuizPress, index, cardWidth, activeThemeId, cardCustomization }) => {
-  // ğŸ® PERFORMANS AYARLARI
+  //  PERFORMANS AYARLARI
   const config = usePerformanceStore(s => s.config);
   const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
   const cardScaleMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
@@ -270,22 +270,22 @@ const PuzzleGridCard: React.FC<{
   const cardFeedback = useFarmStore(s => s.cardFeedback);
   const setCardFeedback = useFarmStore(s => s.setCardFeedback);
 
-  // ğŸ’§ FEEDBACK ANÄ°MASYON STATE
+  // FEEDBACK ANIMASYON STATE
   const [showFeedback, setShowFeedback] = useState<'levelUp' | 'levelDown' | 'protected' | null>(null);
   const feedbackAnim = useRef(new Animated.Value(0)).current;
   const feedbackProcessedRef = useRef<string | null>(null);
 
-  // ğŸ’§ CardFeedback dinle - bu kart iÃ§in feedback geldi mi?
+  // CardFeedback dinle - bu kart icin feedback geldi mi?
   useEffect(() => {
     if (cardFeedback && cardFeedback.wordId === word.id && config.enableCardFeedbackAnimations) {
-      // AynÄ± feedback'i tekrar iÅŸleme
+      // Ayni feedback'i tekrar isleme
       const feedbackKey = `${cardFeedback.wordId}-${cardFeedback.type}-${Date.now()}`;
       if (feedbackProcessedRef.current === feedbackKey) return;
       feedbackProcessedRef.current = feedbackKey;
 
       setShowFeedback(cardFeedback.type);
 
-      // Animasyonu baÅŸlat
+      // Animasyonu baslat
       feedbackAnim.setValue(0);
       Animated.sequence([
         Animated.timing(feedbackAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
@@ -304,51 +304,51 @@ const PuzzleGridCard: React.FC<{
   const puzzleStats = word.puzzleStats || {};
   const puzzleSessions = puzzleStats.sessions ?? 0;
   const puzzleMasterLevel = puzzleStats.puzzleMasterLevel ?? 0;
-  // ğŸ‘‘ Perfect Ã¶dÃ¼lÃ¼ alÄ±ndÄ± mÄ±?
+  // s Perfect odulu alindi mi?
   const puzzleRewardClaimedPerfect = word.puzzleRewardClaimedPerfect === true;
-  // ğŸ¯ Master = puzzleMasterLevel > 0 VEYA pendingPuzzleMasterLevel > 0 (hasat bekleyen)
+  //  Master = puzzleMasterLevel > 0 VEYA pendingPuzzleMasterLevel > 0 (hasat bekleyen)
   const isMaster = puzzleMasterLevel > 0 || (readyForPuzzleHarvest && pendingPuzzleMasterLevel > 0);
   const seedVisual = useMemo(() => getPuzzleSeedVisual(puzzleSessions), [puzzleSessions]);
-  // ğŸ¯ HASAT HAZIR OLSA DA MEVCUT SEVÄ°YEYÄ° GÃ–STER! Yeni seviye SADECE envanterde gÃ¶rÃ¼necek!
+  //  HASAT HAZIR OLSA DA MEVCUT SEVIYEYI GOSTER! Yeni seviye SADECE envanterde gorunecek!
   const theme = useMemo(
     () => applyPuzzleThemeCustomization(getPuzzleTheme(puzzleSessions, puzzleMasterLevel), activeThemeId, safeCustomization),
     [puzzleSessions, puzzleMasterLevel, activeThemeId, safeCustomization]
   );
 
-  // ğŸŒ¾ Hasat fonksiyonu
+  //  Hasat fonksiyonu
   const handleHarvest = useCallback(() => {
     haptic.heavy();
     sound.playHarvest?.();
     harvestPuzzleWord(word.id);
   }, [word.id, harvestPuzzleWord]);
 
-  // ğŸ Meyve sistemi - Master kartlar iÃ§in
+  // s Meyve sistemi - Master kartlar icin
   const fruitType: FruitType = useMemo(() => {
     if (!isMaster && !readyForPuzzleHarvest) return 'apple';
     return getFruitType(word.difficulty, !!word.isPhrasalVerb);
   }, [isMaster, readyForPuzzleHarvest, word.difficulty, word.isPhrasalVerb]);
 
-  // ğŸŒ± Puzzle iÃ§in meyve bÃ¼yÃ¼me aÅŸamasÄ± hesaplama
-  // Master kartlarda session'a gÃ¶re bÃ¼yÃ¼me gÃ¶ster
+  // Puzzle icin meyve buyume asamahesaplama
+  // Master kartlarda session'a gore buyume goster
   const fruitGrowthStage = useMemo(() => {
-    // Hasat hazÄ±rsa tam olgunlaÅŸmÄ±ÅŸ gÃ¶ster
+    // Hasat hazirsa tam olgunlasmis goster
     if (readyForPuzzleHarvest) return 3;
-    // Master deÄŸilse gÃ¶sterme
+    // Master desilse gosterme
     if (!isMaster) return 0;
 
-    // Master kartlar iÃ§in: session'a gÃ¶re bÃ¼yÃ¼me
-    // 0 session = stage 1 (kÃ¼Ã§Ã¼k), 1 session = stage 2, 2 session = stage 3 (hasat hazÄ±r)
+    // Master kartlar icin: session'a gore buyume
+    // 0 session = stage 1 (kucuk), 1 session = stage 2, 2 session = stage 3 (hasat hazir)
     return Math.min(puzzleSessions + 1, 3);
   }, [isMaster, readyForPuzzleHarvest, puzzleSessions]);
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const fadeAnim = useRef(new Animated.Value(1)).current; // ğŸš€ BaÅŸlangÄ±Ã§ta 1 - tab deÄŸiÅŸiminde blur Ã¶nleme
+  const fadeAnim = useRef(new Animated.Value(1)).current; //  Baslangicta 1 - tab desisiminde blur onleme
   const shimmerAnim = useRef(new Animated.Value(-1)).current;
   const glowAnim = useRef(new Animated.Value(0.3)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // ğŸš€ Animasyon devre dÄ±ÅŸÄ± - kartlar hemen gÃ¶rÃ¼nÃ¼r
+    //  Animasyon devre di- kartlar hemen gorunur
     fadeAnim.setValue(1);
   }, [index]);
 
@@ -384,24 +384,24 @@ const PuzzleGridCard: React.FC<{
 
   const shimmerTranslate = shimmerAnim.interpolate({ inputRange: [-1, 1], outputRange: [-cardWidth, cardWidth * 2] });
 
-  // ğŸ Meyve boyutu hesaplama - UltimateWordCard ile aynÄ± mantÄ±k!
+  // s Meyve boyutu hesaplama - UltimateWordCard ile ayni mantik!
   const fruitSize = useMemo(() => {
     if (!isMaster && !readyForPuzzleHarvest) return 0;
 
-    // ğŸ“ Ekran boyutuna gÃ¶re BASE meyve boyutu (UltimateWordCard ile aynÄ±)
+    // s Ekran boyutuna gore BASE meyve boyutu (UltimateWordCard ile ayni)
     const isTinyScreen = SCREEN_HEIGHT < 680;
     const isSmallScreen = SCREEN_HEIGHT >= 680 && SCREEN_HEIGHT < 750;
 
     let cardMaxSize: number;
     if (fruitType === 'watermelon') {
-      // ğŸ‰ KARPUZ - TÃœM SEVÄ°YELERDE KÃœÃ‡ÃœK
+      //  KARPUZ - TUM SEVIYELERDE KUCUK
       cardMaxSize = isTinyScreen ? 180 : isSmallScreen ? 200 : 240;
     } else {
-      // ğŸŒ DÄ°ÄER MEYVELER (Muz, Kiraz, Ã‡ilek, ÃœzÃ¼m, Elma) - NORMAL BOYUT
+      // s DIER MEYVELER (Muz, Kiraz, Cilek, Uzum, Elma) - NORMAL BOYUT
       cardMaxSize = isTinyScreen ? 250 : isSmallScreen ? 290 : 340;
     }
 
-    // ğŸ‘‘ Perfect iÃ§in Ã¶zel boyut
+    // s Perfect icin ozel boyut
     if (puzzleMasterLevel === 3) {
       let perfectMultiplier: number;
       if (fruitType === 'watermelon') {
@@ -414,7 +414,7 @@ const PuzzleGridCard: React.FC<{
       return Math.round(cardMaxSize * perfectMultiplier);
     }
 
-    // ğŸŒ± TIER 1-3: Growth multipliers (UltimateWordCard ile aynÄ±)
+    // TIER 1-3: Growth multipliers (UltimateWordCard ile ayni)
     let growthMultipliers: number[];
     if (fruitType === 'watermelon') {
       growthMultipliers = [0.62, 0.78, 0.94, 1.08];
@@ -444,7 +444,7 @@ const PuzzleGridCard: React.FC<{
           <LinearGradient colors={theme.gradient} style={StyleSheet.absoluteFill} />
           {(isMaster || readyForPuzzleHarvest) && config.enableShimmer && <Animated.View style={[gridCardStyles.shimmerEffect, { transform: [{ translateX: shimmerTranslate }], opacity: config.enableGlow ? glowAnim : 0.6 }]} />}
 
-          {/* ğŸ’§ FEEDBACK ANÄ°MASYONU - "BÜYÜYOR!" + damla efekti */}
+          {/* FEEDBACK ANIMASYONU - "BUYUYOR!" + damla efekti */}
           {showFeedback === 'levelUp' && config.enableCardFeedbackText && (
             <Animated.View style={[gridCardStyles.feedbackOverlay, { opacity: feedbackAnim }]}>
               <Text style={gridCardStyles.feedbackText}>BÜYÜYOR!</Text>
@@ -460,7 +460,7 @@ const PuzzleGridCard: React.FC<{
             </Text>
           </View>
 
-          {/* ğŸ MEYVE veya ï¿½ BUÄDAY - UltimateWordCard gibi DEV! */}
+          {/* s MEYVE veya  BUDAY - UltimateWordCard gibi DEV! */}
           {(isMaster || readyForPuzzleHarvest) ? (
             <View style={[gridCardStyles.seedling, { opacity: 0.9 }]}>
               <Image
@@ -484,26 +484,26 @@ const PuzzleGridCard: React.FC<{
             </View>
           )}
 
-          <Text style={[gridCardStyles.word, { color: theme.textMain }, fontStyleOverride]} numberOfLines={2}>{word.text}</Text>
+          <Text style={[gridCardStyles.word, { color: theme.textMain }, fontStyleOverride]} numberOfLines={2}>{normalizeDisplayText(word.text)}</Text>
           {safeCustomization.showProgressBar && (
             <View style={[gridCardStyles.sessionCounter, { backgroundColor: `${theme.accent}25`, borderColor: theme.border }]}>
               <Puzzle size={14} color={theme.accent} />
               <Text style={[gridCardStyles.sessionText, { color: theme.textMain }, fontStyleOverride]}>{getSessionDisplay(puzzleSessions, puzzleMasterLevel, readyForPuzzleHarvest, puzzleRewardClaimedPerfect)}</Text>
-              {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && <Text style={gridCardStyles.masterIcon}>{'\u2B50'}</Text>}
+              {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && <Text style={gridCardStyles.masterIcon}>{'\u{1F3C6}'}</Text>}
             </View>
           )}
 
-          {/* ğŸŒ¾ HASAT HAZIR - Manuel hasat butonu */}
+          {/*  HASAT HAZIR - Manuel hasat butonu */}
           {readyForPuzzleHarvest ? (
             <TouchableOpacity onPress={handleHarvest} activeOpacity={0.85}>
               <LinearGradient colors={['#22c55e', '#16a34a']} style={gridCardStyles.button}>
-                <Text style={[gridCardStyles.buttonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🌾 HASAT ET' : 'HASAT ET'}</Text>
+                <Text style={[gridCardStyles.buttonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '\u{1F33E} HASAT ET' : 'HASAT ET'}</Text>
               </LinearGradient>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity onPress={onQuizPress} activeOpacity={0.85}>
               <LinearGradient colors={[theme.accent, theme.border]} style={gridCardStyles.button}>
-                <Text style={[gridCardStyles.buttonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🧩 YAPBOZ' : 'YAPBOZ'}</Text>
+                <Text style={[gridCardStyles.buttonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '\u{1F9E9} YAPBOZ' : 'YAPBOZ'}</Text>
               </LinearGradient>
             </TouchableOpacity>
           )}
@@ -520,19 +520,19 @@ const gridCardStyles = StyleSheet.create({
   favorite: { position: 'absolute', top: 8, right: 8, zIndex: 10 },
   badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, marginBottom: 8 },
   badgeText: { fontSize: 11, fontWeight: '700', color: '#fff' },
-  seedling: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', zIndex: 0 }, // UltimateWordCard gibi ortalanmÄ±ÅŸ
+  seedling: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', zIndex: 0 }, // UltimateWordCard gibi ortalanmis
   word: { fontSize: 18, fontWeight: '800', marginBottom: 8, letterSpacing: -0.5 },
   sessionCounter: { flexDirection: 'row', alignItems: 'center', alignSelf: 'center', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, borderWidth: 1, marginBottom: 10, gap: 6 },
   sessionText: { fontSize: 22, fontWeight: '800' },
   masterIcon: { fontSize: 14, marginLeft: 2 },
   button: { paddingVertical: 8, borderRadius: 10, alignItems: 'center' },
   buttonText: { fontSize: 11, fontWeight: '700', color: '#000' },
-  // ğŸ’§ FEEDBACK ANÄ°MASYONU STÄ°LLERÄ°
+  // FEEDBACK ANIMASYONU STILLERI
   feedbackOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(34, 197, 94, 0.3)', zIndex: 100, borderRadius: 14 },
   feedbackText: { fontSize: 16, fontWeight: '900', color: '#22c55e', textShadowColor: 'rgba(0,0,0,0.8)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 },
 });
 
-// ğŸ Puzzle Feed Card - HASAT VE REPLANT DESTEÄÄ°!
+// s Puzzle Feed Card - HASAT VE REPLANT DESTEI!
 const PuzzleFeedCard: React.FC<{
   word: any;
   isQuizActive: boolean;
@@ -544,7 +544,7 @@ const PuzzleFeedCard: React.FC<{
   activeThemeId: string;
   cardCustomization?: CardCustomization;
 }> = React.memo(({ word, isQuizActive, onQuizStart, onToggleFavorite, onHarvest, justHarvested = false, onReplant, activeThemeId, cardCustomization }) => {
-  // ğŸ“± Dinamik ekran boyutu - tablet rotation destekli
+  // si Dinamik ekran boyutu - tablet rotation destekli
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const isTablet = windowWidth > 768;
   const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
@@ -559,11 +559,11 @@ const PuzzleFeedCard: React.FC<{
   const isMaster = puzzleMasterLevel > 0;
   const readyForPuzzleHarvest = word.readyForPuzzleHarvest || false;
   const pendingPuzzleMasterLevel = word.pendingPuzzleMasterLevel || 0;
-  // ğŸ‘‘ Perfect Ã¶dÃ¼lÃ¼ alÄ±ndÄ± mÄ±? (0/3 vs 0/1 iÃ§in)
+  // s Perfect odulu alindi mi? (0/3 vs 0/1 icin)
   const puzzleRewardClaimedPerfect = word.puzzleRewardClaimedPerfect === true;
   const hasTriggeredRef = useRef(false);
 
-  // ğŸ¯ HASAT EDÄ°LMÄ°ÅSE SÄ°YAH TEMA!
+  //  HASAT EDILMISE SIYAH TEMA!
   const HARVESTED_THEME = {
     gradient: ['#1a1a1a', '#2d2d2d'] as const,
     accent: '#6b7280',
@@ -575,7 +575,7 @@ const PuzzleFeedCard: React.FC<{
     label: 'Envanterde'
   };
 
-  // Hasat edilmiÅŸse siyah tema, deÄŸilse kiÅŸiselleÅŸtirilmiÅŸ puzzle temasÄ±
+  // Hasat edilmisse siyah tema, desilse kisisellestirilmis puzzle temasi
   const theme = useMemo(() => {
     if (justHarvested) return HARVESTED_THEME;
     return applyPuzzleThemeCustomization(getPuzzleTheme(puzzleSessions, puzzleMasterLevel), activeThemeId, safeCustomization);
@@ -596,10 +596,10 @@ const PuzzleFeedCard: React.FC<{
   useEffect(() => { if ((isMaster || readyForPuzzleHarvest) && config.enableGlow) { const g = Animated.loop(Animated.sequence([Animated.timing(glowAnim, { toValue: 0.9, duration: 900, useNativeDriver: true }), Animated.timing(glowAnim, { toValue: 0.4, duration: 900, useNativeDriver: true })])); g.start(); return () => g.stop(); } }, [isMaster, readyForPuzzleHarvest, config.enableGlow]);
   useEffect(() => { if ((isMaster || readyForPuzzleHarvest) && config.enablePulseAnimations) { const p = Animated.loop(Animated.sequence([Animated.timing(pulseAnim, { toValue: 1.07, duration: 560, useNativeDriver: true }), Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true })])); p.start(); return () => p.stop(); } }, [isMaster, readyForPuzzleHarvest, config.enablePulseAnimations]);
 
-  // ğŸŒ¾ Swipe handler - hasat hazÄ±rsa hasat et, hasat edilmiÅŸse replant, deÄŸilse quiz aÃ§
+  //  Swipe handler - hasat hazirsa hasat et, hasat edilmisse replant, desilse quiz ac
   const handleSwipeAction = useCallback(() => {
     if (justHarvested && onReplant) {
-      // ğŸŒ± Hasat edilmiÅŸse: SaÄŸa kaydÄ±r = Tarlaya geri ek
+      // Hasat edilmisse: Sasa kaydir = Tarlaya geri ek
       onReplant(word);
     } else if (readyForPuzzleHarvest) {
       onHarvest(word);
@@ -639,43 +639,43 @@ const PuzzleFeedCard: React.FC<{
         <View style={[styles.appleBadge, { backgroundColor: `${theme.accent}25` }]}>
           {safeCustomization.showEmoji && <Text style={styles.appleBadgeEmoji}>{theme.emoji}</Text>}
           <Text style={[styles.appleBadgeText, { color: theme.textSecondary }, fontStyleOverride]}>{theme.label}</Text>
-          {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && !justHarvested && <Text style={{ fontSize: 10 }}>â­</Text>}
-          {(word as any).isCustom && <Text style={{ fontSize: 10 }}>{'\u270F\uFE0F'}</Text>}
+          {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && !justHarvested && <Text style={{ fontSize: 10 }}>{'\u{1F3C6}'}</Text>}
+          {(word as any).isCustom && <Text style={{ fontSize: 10 }}>{'✏️'}</Text>}
         </View>
-        <Text style={[styles.appleWord, { color: theme.textMain }, fontStyleOverride]}>{word.text}</Text>
-        <Text style={[styles.appleMeaning, { color: theme.textSecondary }, fontStyleOverride]}>{turkishMeaning || word.meaning || 'Anlam yukleniyor...'}</Text>
+        <Text style={[styles.appleWord, { color: theme.textMain }, fontStyleOverride]}>{normalizeDisplayText(word.text)}</Text>
+        <Text style={[styles.appleMeaning, { color: theme.textSecondary }, fontStyleOverride]}>{normalizeDisplayText(turkishMeaning || word.meaning || 'Anlam yükleniyor...')}</Text>
         {turkishExample && <Text style={[styles.appleExample, { color: `${theme.textSecondary}cc` }, fontStyleOverride]} numberOfLines={3}>"{turkishExample}"</Text>}
-        {!turkishExample && word.example && <Text style={[styles.appleExample, { color: `${theme.textSecondary}cc`, opacity: 0.7 }, fontStyleOverride]} numberOfLines={3}>"{word.example}"</Text>}
-        {/* ğŸ“¦ Envanterde (justHarvested) iken session gÃ¶sterme */}
+        {!turkishExample && word.example && <Text style={[styles.appleExample, { color: `${theme.textSecondary}cc`, opacity: 0.7 }, fontStyleOverride]} numberOfLines={3}>"{normalizeDisplayText(word.example)}"</Text>}
+        {/* s Envanterde (justHarvested) iken session gosterme */}
         {!justHarvested && safeCustomization.showProgressBar && (
           <View style={[styles.appleSessionCounter, { backgroundColor: `${theme.accent}25`, borderColor: theme.border }]}>
             <Puzzle size={18} color={theme.accent} />
             <Text style={[styles.appleSessionNum, { color: theme.textMain }, fontStyleOverride]}>{getSessionDisplay(puzzleSessions, puzzleMasterLevel, readyForPuzzleHarvest, puzzleRewardClaimedPerfect)}</Text>
-            {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && <Text style={{ fontSize: 14, marginLeft: 4 }}>â­</Text>}
+            {safeCustomization.showEmoji && (isMaster || readyForPuzzleHarvest) && <Text style={{ fontSize: 14, marginLeft: 4 }}>{'\u{1F3C6}'}</Text>}
           </View>
         )}
-        {/* ğŸ“Š Stats - Envanterde iken gizle */}
+        {/* s Stats - Envanterde iken gizle */}
         {!justHarvested && (
           <View style={styles.appleStats}>
             <View style={styles.appleStat}>
               <Text style={[styles.appleStatNum, { color: '#22c55e' }, fontStyleOverride]}>{puzzleStats.totalCorrect || 0}</Text>
-              <Text style={[styles.appleStatLabel, { color: theme.textSecondary }, fontStyleOverride]}>dogru</Text>
+              <Text style={[styles.appleStatLabel, { color: theme.textSecondary }, fontStyleOverride]}>doğru</Text>
             </View>
           </View>
         )}
 
-        {/* ğŸŒ¾ Hasat hazÄ±rsa Hasat Et, envanterde ise Tekrar Ek, deÄŸilse Yapboz */}
+        {/*  Hasat hazirsa Hasat Et, envanterde ise Tekrar Ek, desilse Yapboz */}
         {readyForPuzzleHarvest ? (
           <TouchableOpacity style={[styles.appleButton, { backgroundColor: '#22c55e' }]} activeOpacity={0.8} onPress={() => { haptic.harvestCelebration ? haptic.harvestCelebration() : haptic.heavy(); onHarvest(word); }}>
-            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🌾 Hasat Et' : 'Hasat Et'}</Text>
+            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '\u{1F33E} Hasat Et' : 'Hasat Et'}</Text>
           </TouchableOpacity>
         ) : justHarvested && onReplant ? (
           <TouchableOpacity style={[styles.appleButton, { backgroundColor: '#8b5cf6' }]} activeOpacity={0.8} onPress={() => { haptic.medium(); onReplant(word); }}>
-            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🌱 Tekrar Ek' : 'Tekrar Ek'}</Text>
+            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '\u{1F331} Tekrar Ek' : 'Tekrar Ek'}</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={[styles.appleButton, { backgroundColor: theme.accent }]} activeOpacity={0.8} onPress={() => { haptic.medium(); onQuizStart(word); }}>
-            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '🧩 Yapboz' : 'Yapboz'}</Text>
+            <Text style={[styles.appleButtonText, fontStyleOverride]}>{safeCustomization.showEmoji ? '\u{1F9E9} Yapboz' : 'Yapboz'}</Text>
           </TouchableOpacity>
         )}
       </Animated.View>
@@ -683,10 +683,10 @@ const PuzzleFeedCard: React.FC<{
   );
 });
 
-// ğŸ¯ Filter Types - FarmScreen ile UYUMLU!
+//  Filter Types - FarmScreen ile UYUMLU!
 type FilterType = 'all' | 'ready' | 'study' | 'master' | 'favorites';
 
-// ğŸ¯ Props - PhrasalVerbFarmScreen ile AYNI!
+//  Props - PhrasalVerbFarmScreen ile AYNI!
 interface WordPuzzleScreenProps {
   embedded?: boolean;
   initialFilter?: FilterType;
@@ -695,7 +695,7 @@ interface WordPuzzleScreenProps {
   onParentScroll?: (offsetY: number) => void;
 }
 
-// ğŸ¯ Ana Component - FarmScreen'e TAM ENTEGRE!
+//  Ana Component - FarmScreen'e TAM ENTEGRE!
 export default function WordPuzzleScreen({
   embedded = false,
   initialFilter = 'all',
@@ -723,9 +723,28 @@ export default function WordPuzzleScreen({
   const phrasalVerbInventory = useFarmStore((state) => state.phrasalVerbInventory);
   const cloudTipsDismissed = useFarmStore((state) => state.cloudTipsDismissed);
   const setCloudTipDismissed = useFarmStore((state) => state.setCloudTipDismissed);
+  const guidedModeActive = useFarmStore((state) => state.guidedModeActive);
+  const guidedModeStep = useFarmStore((state) => state.guidedModeStep);
+  const guidedModeTargetWordId = useFarmStore((state) => state.guidedModeTargetWordId);
+  const guidedModeTargetWordText = useFarmStore((state) => state.guidedModeTargetWordText);
   const activeCardTheme = useFarmStore((state) => state.activeCardTheme);
   const cardCustomization = useFarmStore((state) => state.cardCustomization);
   const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
+  const isGuidedPuzzleStep = guidedModeActive && guidedModeStep === 'PUZZLE_PRACTICE';
+  const guidedTargetWordKey = useMemo(
+    () => normalizeDisplayText(guidedModeTargetWordText).toLowerCase(),
+    [guidedModeTargetWordText]
+  );
+  const isGuidedTargetWord = useCallback((word: any) => {
+    const safeId = typeof word?.id === 'string' ? word.id.trim() : '';
+    if (guidedModeTargetWordId && safeId && safeId === guidedModeTargetWordId) return true;
+    const safeText = normalizeDisplayText(word?.text || word?.verb).toLowerCase();
+    return !!guidedTargetWordKey && !!safeText && safeText === guidedTargetWordKey;
+  }, [guidedModeTargetWordId, guidedTargetWordKey]);
+  const guidedTargetLabel = useMemo(
+    () => normalizeDisplayText(guidedModeTargetWordText || 'hedef kelime'),
+    [guidedModeTargetWordText]
+  );
   const cardScaleMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
   const gridColumns = safeCustomization.largeMode ? 1 : safeCustomization.compactMode ? 3 : 2;
   const CALCULATED_CARD_WIDTH = useMemo(() => {
@@ -736,7 +755,7 @@ export default function WordPuzzleScreen({
     return Math.max(132, baseWidth * cardScaleMultiplier);
   }, [windowWidth, GRID_PADDING, CARD_OUTER_MARGIN, gridColumns, cardScaleMultiplier]);
 
-  // State - embedded modda dÄ±ÅŸarÄ±dan gelen searchVisible kullan
+  // State - embedded modda disaridan gelen searchVisible kullan
   const [internalSearchVisible, setInternalSearchVisible] = useState(false);
   const searchVisible = embedded && externalSearchVisible !== undefined ? externalSearchVisible : internalSearchVisible;
   const setSearchVisible = embedded && setExternalSearchVisible ? setExternalSearchVisible : setInternalSearchVisible;
@@ -750,15 +769,16 @@ export default function WordPuzzleScreen({
   const [puzzleDialogVisible, setPuzzleDialogVisible] = useState(false);
   const [puzzleWords, setPuzzleWords] = useState<any[]>([]);
   const [showHint, setShowHint] = useState(false);
+  const [guidedPuzzleTipVisible, setGuidedPuzzleTipVisible] = useState(true);
   const [lastHarvestedWordId, setLastHarvestedWordId] = useState<string | null>(null);
   const [showReplantToast, setShowReplantToast] = useState(false);
-  // ğŸŒ¾ Feed'de hasat edilmiÅŸ kelimeleri takip et - siyah tema iÃ§in!
+  //  Feed'de hasat edilmis kelimeleri takip et - siyah tema icin!
   const [harvestedWordIds, setHarvestedWordIds] = useState<Set<string>>(new Set());
 
-  // â˜ï¸ CloudTip - Persist state'den al
+  // ˜ CloudTip - Persist state'den al
   const showCloudTip = !cloudTipsDismissed['puzzle'];
 
-  // ğŸ¯ Filter - embedded modda dÄ±ÅŸarÄ±dan, standalone modda internal
+  //  Filter - embedded modda disaridan, standalone modda internal
   const [internalFilter, setInternalFilter] = useState<FilterType>('all');
   const filter = embedded ? initialFilter : internalFilter;
   const setFilter = embedded ? () => {} : setInternalFilter;
@@ -769,47 +789,54 @@ export default function WordPuzzleScreen({
   const isQuizOpeningRef = useRef(false);
   const feedWordsRef = useRef<any[]>([]);
 
-  // ğŸ“š TÃ¼m puzzle kelimeleri (farm + phrasal)
-  // ğŸŒ¾ Filtreler:
-  // - puzzleHarvested: true â†’ GÃ–RÃœNMEZ (yapbozdan hasat edilmiÅŸ)
-  // - excludeFromPuzzle: true â†’ GÃ–RÃœNMEZ (envanterden dikilmiÅŸ)
-  // - forPuzzleOnly: true â†’ GÃ–RÃœNÃœR (yapboz envanterinden geri gelmiÅŸ)
-  // NOT: Sadece QUIZ ve TOHUM PAZARI'ndan gelen kelimeler puzzle'da gÃ¶rÃ¼nÃ¼r!
+  // s Tum puzzle kelimeleri (farm + phrasal)
+  //  Filtreler:
+  // - puzzleHarvested: true -> GORUNMEZ (yapbozdan hasat edilmis)
+  // - excludeFromPuzzle: true -> GORUNMEZ (envanterden dikilmis)
+  // - forPuzzleOnly: true -> GORUNUR (yapboz envanterinden geri gelmis)
+  // NOT: Sadece QUIZ ve TOHUM PAZARI'ndan gelen kelimeler puzzle'da gorunur!
   const puzzleWords_all = useMemo(() => {
     const farmWords = (farm || [])
-      .filter(w => (w as any).isCustom || (w.example && w.example.length > 10)) // âœï¸ Custom kelimeler Ã¶rnek olmadan da yapboza girer
-      .filter(w => !(w as any).puzzleHarvested) // ğŸŒ¾ Hasat edilmiÅŸleri filtrele!
-      .filter(w => !(w as any).excludeFromPuzzle); // ğŸ§© Envanterden dikilenleri filtrele!
+      .filter(w => (w as any).isCustom || (w.example && w.example.length > 10)) // U Custom kelimeler ornek olmadan da yapboza girer
+      .filter(w => !(w as any).puzzleHarvested) //  Hasat edilmisleri filtrele!
+      .filter(w => !(w as any).excludeFromPuzzle); // sc© Envanterden dikilenleri filtrele!
     const phrasalWords = (phrasalVerbFarm || [])
-      .filter(w => !(w as any).puzzleHarvested) // ğŸŒ¾ Hasat edilmiÅŸleri filtrele!
-      .filter(w => !(w as any).excludeFromPuzzle) // ğŸ§© Envanterden dikilenleri filtrele!
+      .filter(w => !(w as any).puzzleHarvested) //  Hasat edilmisleri filtrele!
+      .filter(w => !(w as any).excludeFromPuzzle) // sc© Envanterden dikilenleri filtrele!
       .map(w => {
         const englishExample = (w as any).example || w.example;
         let turkishExample = (w as any).example_tr;
         if (!turkishExample) turkishExample = getPhrasalTurkishExample(w.id, w.text || (w as any).verb);
         return { ...w, isPhrasalVerb: true, text: w.text || (w as any).verb, example: englishExample, example_tr: turkishExample };
       }).filter(w => w.example && w.example.length > 10);
-    return [...farmWords, ...phrasalWords];
-  }, [farm, phrasalVerbFarm]);
+    const allWords = [...farmWords, ...phrasalWords];
+    if (!isGuidedPuzzleStep) return allWords;
+    const guidedWords = allWords.filter(isGuidedTargetWord);
+    return guidedWords.slice(0, 1);
+  }, [farm, phrasalVerbFarm, isGuidedPuzzleStep, isGuidedTargetWord]);
 
-  // ğŸ¯ Filter mapping - FarmScreen filter'larÄ± â†’ Puzzle renkleri
-  // all = tÃ¼mÃ¼, ready = yeÅŸil (3+ session), study = kÄ±rmÄ±zÄ±+turuncu (0-1 session), master = master, favorites = favoriler
+  //  Filter mapping - FarmScreen filter'lari -> Puzzle renkleri
+  // all = tumu, ready = yesil (3+ session), study = kirmizi+turuncu (0-1 session), master = master, favorites = favoriler
   const puzzleWords_filtered = useMemo(() => {
+    if (isGuidedPuzzleStep) {
+      return [...puzzleWords_all];
+    }
+
     let filtered = puzzleWords_all.filter(w => {
       const puzzleStats = (w as any).puzzleStats || { sessions: 0, puzzleMasterLevel: 0 };
       const sessions = puzzleStats.sessions || 0;
       const puzzleMasterLevel = puzzleStats.puzzleMasterLevel || 0;
 
-      // ğŸ” Search filter
+      // s Search filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         if (!w.text?.toLowerCase().includes(q) && !w.meaning?.toLowerCase().includes(q)) return false;
       }
 
       switch (filter) {
-        case 'ready': // YeÅŸil = 3+ session (hasat hazÄ±r)
+        case 'ready': // Yesil = 3+ session (hasat hazir)
           return puzzleMasterLevel === 0 && sessions >= 3;
-        case 'study': // Ã‡alÄ±ÅŸmalÄ±yÄ±m = 0-2 session (kÄ±rmÄ±zÄ±, turuncu, sarÄ±)
+        case 'study': // Calismaliyim = 0-2 session (kirmizi, turuncu, sari)
           return puzzleMasterLevel === 0 && sessions < 3;
         case 'master':
           return puzzleMasterLevel > 0;
@@ -824,9 +851,9 @@ export default function WordPuzzleScreen({
     const favorites = filtered.filter(w => w.isFavorite).sort((a, b) => (b.favoriteAddedAt || 0) - (a.favoriteAddedAt || 0));
     const nonFavorites = filtered.filter(w => !w.isFavorite).sort((a, b) => (b.lastPlantedAt || 0) - (a.lastPlantedAt || 0));
     return [...favorites, ...nonFavorites];
-  }, [puzzleWords_all, filter, searchQuery]);
+  }, [puzzleWords_all, filter, searchQuery, isGuidedPuzzleStep]);
 
-  // Stats - FarmScreen StatsHeader iÃ§in
+  // Stats - FarmScreen StatsHeader icin
   const stats = useMemo(() => {
     const total = puzzleWords_all.length;
     const ready = puzzleWords_all.filter(w => (((w as any).puzzleStats?.puzzleMasterLevel || 0) === 0) && (((w as any).puzzleStats?.sessions || 0) >= 3)).length;
@@ -845,13 +872,52 @@ export default function WordPuzzleScreen({
     checkFirstTime();
   }, [puzzleWords_all.length]);
 
+  useEffect(() => {
+    if (isGuidedPuzzleStep) {
+      setGuidedPuzzleTipVisible(true);
+    }
+  }, [isGuidedPuzzleStep, guidedModeTargetWordId]);
+
+  useEffect(() => {
+    if (!isGuidedPuzzleStep) return;
+    if (searchVisible) {
+      setSearchVisible(false);
+      setSearchQuery('');
+    }
+    if (feedVisible) {
+      setFeedVisible(false);
+      setFeedQuizWordId(null);
+    }
+    if (puzzleDialogVisible && puzzleWords.length > 0 && !isGuidedTargetWord(puzzleWords[0])) {
+      setPuzzleDialogVisible(false);
+      setPuzzleWords([]);
+    }
+    if (!embedded && filter !== 'all') {
+      setInternalFilter('all');
+    }
+  }, [isGuidedPuzzleStep, searchVisible, feedVisible, puzzleDialogVisible, puzzleWords, isGuidedTargetWord, embedded, filter, setSearchVisible, setSearchQuery, setInternalFilter]);
+
   const handleWordPress = useCallback((word: any) => {
+    if (isGuidedPuzzleStep && !isGuidedTargetWord(word)) {
+      haptic.light();
+      return;
+    }
+    if (isGuidedPuzzleStep) {
+      haptic.medium();
+      const currentWord =
+        farm?.find(w => w.id === word.id) ||
+        phrasalVerbFarm?.find(w => w.id === word.id) ||
+        word;
+      setPuzzleWords([currentWord]);
+      setPuzzleDialogVisible(true);
+      return;
+    }
     haptic.medium();
 
-    // ğŸ¯ Feed'e girerken konumu kaydet - Ã§Ä±kÄ±nca buraya scroll et!
+    //  Feed'e girerken konumu kaydet - cikinca buraya scroll et!
     setLastViewedWordId(word.id);
 
-    // TÄ±klanan kelimeyi baÅŸa koy, diÄŸerlerini shuffle et
+    // Tiklanan kelimeyi basa koy, diserlerini shuffle et
     const otherWords = puzzleWords_filtered.filter(w => w.id !== word.id);
     const shuffledOthers = [...otherWords];
 
@@ -861,70 +927,77 @@ export default function WordPuzzleScreen({
       [shuffledOthers[i], shuffledOthers[j]] = [shuffledOthers[j], shuffledOthers[i]];
     }
 
-    // TÄ±klanan kelime baÅŸta, sonra shuffle edilmiÅŸ diÄŸerleri
+    // Tiklanan kelime basta, sonra shuffle edilmis diserleri
     const feedData = [word, ...shuffledOthers];
     setShuffledFeedData(feedData);
     feedWordsRef.current = feedData;
     setFeedStartIndex(0);
     currentFeedIndexRef.current = 0;
     InteractionManager.runAfterInteractions(() => setFeedVisible(true));
-  }, [puzzleWords_filtered]);
+  }, [puzzleWords_filtered, isGuidedPuzzleStep, isGuidedTargetWord, farm, phrasalVerbFarm]);
 
   const handleCloseFeed = useCallback(() => {
     haptic.light();
     setFeedVisible(false);
     setFeedQuizWordId(null);
 
-    // ğŸ¯ Feed'den çıkınca grid'de tÄ±klanan karta scroll et
+    //  Feed'den knca grid'de tiklanan karta scroll et
     if (lastViewedWordId && gridListRef.current) {
       const wordIndex = puzzleWords_filtered.findIndex(w => w.id === lastViewedWordId);
       if (wordIndex >= 0) {
-        // Modal kapatÄ±ldÄ±ktan sonra interaction baÅŸlarsa scroll et
+        // Modal kapatildiktan sonra interaction baslarsa scroll et
         InteractionManager.runAfterInteractions(() => {
           try {
             if (gridListRef.current) {
               gridListRef.current.scrollToIndex({ index: wordIndex, animated: true, viewPosition: 0.5 });
             }
           } catch (e) {
-            // Scroll hatasÄ± gÃ¶rmezden gel
+            // Scroll hatagormezden gel
           }
         });
       }
     }
   }, [lastViewedWordId, puzzleWords_filtered]);
 
-  const handleFeedQuizStart = useCallback((wordId: string) => { haptic.medium(); setFeedQuizWordId(wordId); }, []);
+  const handleFeedQuizStart = useCallback((wordId: string) => {
+    if (isGuidedPuzzleStep) {
+      haptic.light();
+      return;
+    }
+    haptic.medium();
+    setFeedQuizWordId(wordId);
+  }, [isGuidedPuzzleStep]);
 
   const handleFeedHarvest = useCallback((word: any) => {
-    // ğŸ® GÃ¼Ã§lÃ¼ hasat kutlamasÄ± - FarmScreen ile aynÄ±!
+    //  Guclu hasat kutlama- FarmScreen ile ayni!
     haptic.harvestCelebration ? haptic.harvestCelebration() : haptic.heavy();
     sound.playEpicHarvest ? sound.playEpicHarvest() : sound.playHarvest?.();
     const result = harvestPuzzleWord(word.id);
     if (result?.success) {
-      // ğŸŒ± Hasat baÅŸarÄ±lÄ± - envantere gitti
+      // Hasat basarili - envantere gitti
       setLastHarvestedWordId(word.id);
-      // ğŸ¯ Feed'de siyah tema için harvestedWordIds'e ekle!
+      //  Feed'de siyah tema iin harvestedWordIds'e ekle!
       setHarvestedWordIds(prev => new Set([...prev, word.id]));
 
-      // ğŸ’° Toast gÃ¶ster - Coin veya XP varsa gÃ¶ster, ikisi de 0 sa default mesaj gÃ¶ster
+      // sI Toast goster - Coin veya XP varsa goster, ikide 0 sa default mesaj goster
       const hasCoinOrXp = (result.coins ?? 0) > 0 || (result.xp ?? 0) > 0;
 
       if (result.coins > 0) {
-        showRewardToast('coin', result.coins, `🌾 Hasat! +${result.coins} coin`);
+        showRewardToast('coin', result.coins, `\u{1F33E} Hasat! +${result.coins} coin`);
         setTimeout(() => {
-          showRewardToast('coin', result.coins, `🌾 Hasat! +${result.coins} coin`);
+          showRewardToast('coin', result.coins, `\u{1F33E} Hasat! +${result.coins} coin`);
         }, 100);
       }
       if (result.xp > 0) {
-        showRewardToast('xp', result.xp, `📚 +${result.xp} XP`);
+        showRewardToast('xp', result.xp, `\u{2728} +${result.xp} XP`);
         setTimeout(() => {
-          showRewardToast('xp', result.xp, `📚 +${result.xp} XP`);
+          showRewardToast('xp', result.xp, `\u{2728} +${result.xp} XP`);
         }, 150);
       }
 
-      // EÄŸer ne coin ne xp yoksa, baÅŸarÄ± mesajÄ± gÃ¶ster
+      // Eser ne coin ne xp yoksa, basari mesaji goster
       if (!hasCoinOrXp) {
-        showRewardToast('harvest', 1, '🌾 Hasat tamamlandi!');
+        showRewardToast('harvest', 1, '\u{1F33E} Hasat tamamlandı!');
       }
 
       setShowReplantToast(true);
@@ -932,17 +1005,17 @@ export default function WordPuzzleScreen({
     }
   }, [harvestPuzzleWord]);
 
-  // ğŸŒ± Tekrar Ek - hasat edilen kelimeyi tarlaya geri gÃ¶nder
+  // Tekrar Ek - hasat edilen kelimeyi tarlaya geri gonder
   const handleReplant = useCallback(() => {
     if (!lastHarvestedWordId) return;
-    // Envanterdeki en yeni puzzle kelimesini bul (az Ã¶nce hasat ettik)
+    // Envanterdeki en yeni puzzle kelimesini bul (az once hasat ettik)
     const allPuzzleInventory = [...inventory, ...phrasalVerbInventory].filter((w: any) => w.isPuzzleHarvested);
     const latestHarvested = allPuzzleInventory.find((w: any) => w.originalWordId === lastHarvestedWordId);
     if (latestHarvested) {
       haptic.heavy();
       sound.playPlant?.();
       plantFromInventory(latestHarvested.id);
-      // ğŸ¯ harvestedWordIds'den Ã§Ä±kar!
+      //  harvestedWordIds'den cikar!
       setHarvestedWordIds(prev => {
         const next = new Set(prev);
         next.delete(lastHarvestedWordId);
@@ -953,16 +1026,16 @@ export default function WordPuzzleScreen({
     setLastHarvestedWordId(null);
   }, [lastHarvestedWordId, inventory, phrasalVerbInventory, plantFromInventory]);
 
-  // ğŸŒ± Feed iÃ§inden Tekrar Ek - word parametresiyle
+  // Feed icinden Tekrar Ek - word parametresiyle
   const handleFeedReplant = useCallback((word: any) => {
-    // Envanterdeki en yeni puzzle kelimesini bul (az Ã¶nce hasat ettik)
+    // Envanterdeki en yeni puzzle kelimesini bul (az once hasat ettik)
     const allPuzzleInventory = [...inventory, ...phrasalVerbInventory].filter((w: any) => w.isPuzzleHarvested);
     const latestHarvested = allPuzzleInventory.find((w: any) => w.originalWordId === word.id);
     if (latestHarvested) {
       haptic.heavy();
       sound.playPlant?.();
       plantFromInventory(latestHarvested.id);
-      // ğŸ¯ harvestedWordIds'den Ã§Ä±kar!
+      //  harvestedWordIds'den cikar!
       setHarvestedWordIds(prev => {
         const next = new Set(prev);
         next.delete(word.id);
@@ -983,18 +1056,22 @@ export default function WordPuzzleScreen({
     setTimeout(() => { isQuizOpeningRef.current = false; }, 500);
   }, [farm]);
 
-  // ğŸŒ¾ Grid swipe - hasat hazÄ±rsa hasat et, deÄŸilse quiz aÃ§ - ğŸ¯ GÃœÃ‡LENDÄ°RÄ°LMÄ°Å HAPTÄ°K!
+  //  Grid swipe - hasat hazirsa hasat et, desilse quiz ac -  GUCLENDIRILMI HAPTIK!
   const handleGridSwipeQuiz = useCallback((word: any) => {
+    if (isGuidedPuzzleStep && !isGuidedTargetWord(word)) {
+      haptic.light();
+      return;
+    }
     const currentWord = farm?.find(w => w.id === word.id) || phrasalVerbFarm?.find(w => w.id === word.id) || word;
     if (currentWord.readyForPuzzleHarvest) {
-      // ğŸ® GÃ¼Ã§lÃ¼ hasat kutlamasÄ± - FarmScreen ile aynÄ±!
+      //  Guclu hasat kutlama- FarmScreen ile ayni!
       haptic.harvestCelebration ? haptic.harvestCelebration() : haptic.heavy();
       sound.playEpicHarvest ? sound.playEpicHarvest() : sound.playHarvest?.();
       harvestPuzzleWord(currentWord.id);
     } else {
       handleQuizStart(word);
     }
-  }, [farm, phrasalVerbFarm, harvestPuzzleWord, handleQuizStart]);
+  }, [farm, phrasalVerbFarm, harvestPuzzleWord, handleQuizStart, isGuidedPuzzleStep, isGuidedTargetWord]);
 
   const handleToggleFavorite = useCallback((wordId: string) => { haptic.medium(); toggleFavorite(wordId); }, [toggleFavorite]);
 
@@ -1009,7 +1086,7 @@ export default function WordPuzzleScreen({
         if (feedQuizWordId) setFeedQuizWordId(currentItem?.id);
       }
 
-      // ğŸ¯ O anda gÃ¶rÃ¼nen kartÄ± kaydet - feed Ã§Ä±kÄ±nca buraya scroll et!
+      //  O anda gorunen karti kaydet - feed cikinca buraya scroll et!
       if (currentItem?.id) {
         setLastViewedWordId(currentItem.id);
       }
@@ -1018,25 +1095,31 @@ export default function WordPuzzleScreen({
 
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 }).current;
   const handleQuizClose = useCallback(() => { setPuzzleDialogVisible(false); setPuzzleWords([]); }, []);
+  const isPuzzleUiLocked = isGuidedPuzzleStep;
 
-  const renderWordCard = useCallback(({ item, index }: { item: any; index: number }) => (
-    <GridSwipeWrapper disabled={feedVisible || puzzleDialogVisible} onSwipeRight={() => handleGridSwipeQuiz(item)}>
-      <PuzzleGridCard
-        word={item}
-        onPress={() => handleWordPress(item)}
-        onQuizPress={() => handleGridSwipeQuiz(item)}
-        index={index}
-        cardWidth={CALCULATED_CARD_WIDTH}
-        activeThemeId={activeCardTheme}
-        cardCustomization={safeCustomization}
-      />
-    </GridSwipeWrapper>
-  ), [handleWordPress, handleGridSwipeQuiz, feedVisible, puzzleDialogVisible, CALCULATED_CARD_WIDTH, activeCardTheme, safeCustomization]);
+  const renderWordCard = useCallback(({ item, index }: { item: any; index: number }) => {
+    const isLocked = isGuidedPuzzleStep && !isGuidedTargetWord(item);
+    return (
+      <GridSwipeWrapper disabled={feedVisible || puzzleDialogVisible || isLocked} onSwipeRight={() => handleGridSwipeQuiz(item)}>
+        <View style={isLocked ? { opacity: 0.35 } : undefined}>
+          <PuzzleGridCard
+            word={item}
+            onPress={() => !isLocked && handleWordPress(item)}
+            onQuizPress={() => !isLocked && handleGridSwipeQuiz(item)}
+            index={index}
+            cardWidth={CALCULATED_CARD_WIDTH}
+            activeThemeId={activeCardTheme}
+            cardCustomization={safeCustomization}
+          />
+        </View>
+      </GridSwipeWrapper>
+    );
+  }, [handleWordPress, handleGridSwipeQuiz, feedVisible, puzzleDialogVisible, CALCULATED_CARD_WIDTH, activeCardTheme, safeCustomization, isGuidedPuzzleStep, isGuidedTargetWord]);
 
   const renderFeedItem = useCallback(({ item }: { item: any }) => {
     const currentWord = farm?.find(w => w.id === item.id) || phrasalVerbFarm?.find(w => w.id === item.id) || inventory?.find(w => w.id === item.id || (w as any).originalWordId === item.id) || phrasalVerbInventory?.find(w => w.id === item.id || (w as any).originalWordId === item.id) || item;
     const isQuizActive = feedQuizWordId === item.id;
-    // ğŸ¯ Bu kelime hasat edilmiÅŸ mi? Feed'de siyah tema ve replant iÃ§in!
+    //  Bu kelime hasat edilmis mi? Feed'de siyah tema ve replant icin!
     const justHarvested = harvestedWordIds.has(item.id);
     return (
       <View style={[styles.feedItem, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
@@ -1065,23 +1148,31 @@ export default function WordPuzzleScreen({
     onParentScroll(y);
   }, [onParentScroll]);
 
-  // ğŸ”„ EMBEDDED MODE - FarmScreen'deki tab iÃ§in (PhrasalVerbFarmScreen gibi)
+  // s EMBEDDED MODE - FarmScreen'deki tab icin (PhrasalVerbFarmScreen gibi)
   if (embedded) {
     return (
       <View style={styles.embeddedContainer}>
-        {/* ğŸ” Inline Search */}
+        {/* s Inline Search */}
         {searchVisible && (
           <View style={styles.searchBarContainer}>
             <View style={styles.inlineSearchWrapper}>
               <Search size={16} color="rgba(255,255,255,0.5)" style={{ marginRight: 8 }} />
               <TextInput style={styles.inlineSearchInput} placeholder="Kelime ara..." placeholderTextColor="rgba(255,255,255,0.3)" value={searchQuery} onChangeText={setSearchQuery} autoFocus selectionColor="#a855f7" />
-              {searchQuery.length > 0 && <TouchableOpacity style={styles.inlineSearchClear} onPress={() => setSearchQuery('')}><Text style={styles.inlineSearchClearIcon}>✕</Text></TouchableOpacity>}
-              <TouchableOpacity style={styles.inlineSearchClose} onPress={() => { setSearchVisible(false); setSearchQuery(''); }}><Text style={styles.inlineSearchCloseIcon}>✕</Text></TouchableOpacity>
+              {searchQuery.length > 0 && <TouchableOpacity style={styles.inlineSearchClear} onPress={() => setSearchQuery('')}><Text style={styles.inlineSearchClearIcon}>{'✕'}</Text></TouchableOpacity>}
+              <TouchableOpacity style={styles.inlineSearchClose} onPress={() => { setSearchVisible(false); setSearchQuery(''); }}><Text style={styles.inlineSearchCloseIcon}>{'✕'}</Text></TouchableOpacity>
             </View>
           </View>
         )}
 
-        {/* ğŸ“Š Grid */}
+        {/* s Grid */}
+        {isGuidedPuzzleStep && (
+          <CuteCloudTip
+            visible={guidedPuzzleTipVisible}
+            message={`Hedef kelime: "${guidedTargetLabel}".\nBu adımda yalnızca bu kart aktif.\nCümleyi doğru kurunca bir sonraki aşamaya geçeceğiz.`}
+            onDismiss={() => setGuidedPuzzleTipVisible(false)}
+            accentColor="#f97316"
+          />
+        )}
         {puzzleWords_filtered.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Puzzle size={64} color={COLORS.textMuted} />
@@ -1104,7 +1195,7 @@ export default function WordPuzzleScreen({
           />
         )}
 
-        {/* ğŸ“– Feed Modal */}
+        {/* sO Feed Modal */}
         <Modal visible={feedVisible} transparent animationType="fade" onRequestClose={handleCloseFeed}>
           <View style={styles.feedContainer}>
             <RewardToastContainer />
@@ -1126,45 +1217,60 @@ export default function WordPuzzleScreen({
           </View>
         </Modal>
 
-        {/* ğŸ§© Grid Puzzle Dialog */}
+        {/* sc© Grid Puzzle Dialog */}
         {puzzleDialogVisible && puzzleWords.length > 0 && <WordPuzzleDialog words={puzzleWords} visible={puzzleDialogVisible} onClose={handleQuizClose} />}
       </View>
     );
   }
 
-  // ğŸ¯ STANDALONE MODE - AyrÄ± ekran olarak aÃ§Ä±ldÄ±ÄŸÄ±nda
+  //  STANDALONE MODE - Ayri ekran olarak acildisinda
   return (
     <View style={styles.container}>
       <LinearGradient colors={[COLORS.background, COLORS.backgroundAlt, COLORS.background]} style={StyleSheet.absoluteFillObject} />
 
-      {/* ğŸ·ï¸ Header - Standalone modda */}
+      {/* s· Header - Standalone modda */}
       <View style={styles.header}>
         <LinearGradient colors={['rgba(18, 18, 20, 0.98)', 'rgba(28, 28, 30, 0.95)', 'rgba(18, 18, 20, 0.98)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFillObject} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.premiumFilterScroll}>
-          <TouchableOpacity style={styles.premiumFilterBtn} onPress={() => navigation.navigate('Home')}><X size={IS_SMALL_SCREEN ? 14 : 16} color="#fff" strokeWidth={2.5} /></TouchableOpacity>
-          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'all' && styles.premiumFilterBtnActive]} onPress={() => { setFilter('all'); haptic.light(); }}>
+          <TouchableOpacity
+            style={[styles.premiumFilterBtn, isPuzzleUiLocked && { opacity: 0.45 }]}
+            disabled={isPuzzleUiLocked}
+            onPress={() => {
+              if (isPuzzleUiLocked) return;
+              navigation.navigate('Home');
+            }}
+          ><X size={IS_SMALL_SCREEN ? 14 : 16} color="#fff" strokeWidth={2.5} /></TouchableOpacity>
+          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'all' && styles.premiumFilterBtnActive, isPuzzleUiLocked && { opacity: 0.45 }]} disabled={isPuzzleUiLocked} onPress={() => { if (isPuzzleUiLocked) return; setFilter('all'); haptic.light(); }}>
             <Sprout size={IS_SMALL_SCREEN ? 14 : 16} color={filter === 'all' ? "#34C759" : "#888"} strokeWidth={2.5} />
             <Text style={[styles.premiumFilterCount, filter === 'all' && styles.premiumFilterCountActive]}>{stats.total}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'ready' && styles.premiumFilterBtnActive]} onPress={() => { setFilter('ready'); haptic.light(); }}>
+          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'ready' && styles.premiumFilterBtnActive, isPuzzleUiLocked && { opacity: 0.45 }]} disabled={isPuzzleUiLocked} onPress={() => { if (isPuzzleUiLocked) return; setFilter('ready'); haptic.light(); }}>
             <Wheat size={IS_SMALL_SCREEN ? 14 : 16} color={filter === 'ready' ? "#FFCC00" : "#888"} strokeWidth={2.5} />
             <Text style={[styles.premiumFilterCount, filter === 'ready' && { color: '#FFCC00' }]}>{stats.ready}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'study' && styles.premiumFilterBtnActive]} onPress={() => { setFilter('study'); haptic.light(); }}>
+          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'study' && styles.premiumFilterBtnActive, isPuzzleUiLocked && { opacity: 0.45 }]} disabled={isPuzzleUiLocked} onPress={() => { if (isPuzzleUiLocked) return; setFilter('study'); haptic.light(); }}>
             <AlertCircle size={IS_SMALL_SCREEN ? 14 : 16} color={filter === 'study' ? "#FF453A" : "#888"} strokeWidth={2.5} />
             <Text style={[styles.premiumFilterCount, filter === 'study' && { color: '#FF453A' }]}>{stats.study}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'master' && styles.premiumFilterBtnActive]} onPress={() => { setFilter('master'); haptic.light(); }}>
+          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'master' && styles.premiumFilterBtnActive, isPuzzleUiLocked && { opacity: 0.45 }]} disabled={isPuzzleUiLocked} onPress={() => { if (isPuzzleUiLocked) return; setFilter('master'); haptic.light(); }}>
             <Crown size={IS_SMALL_SCREEN ? 14 : 16} color={filter === 'master' ? "#BF5AF2" : "#888"} strokeWidth={2.5} />
             <Text style={[styles.premiumFilterCount, filter === 'master' && { color: '#BF5AF2' }]}>{stats.master}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'favorites' && styles.premiumFilterBtnActive]} onPress={() => { setFilter('favorites'); haptic.light(); }}>
+          <TouchableOpacity style={[styles.premiumFilterBtn, filter === 'favorites' && styles.premiumFilterBtnActive, isPuzzleUiLocked && { opacity: 0.45 }]} disabled={isPuzzleUiLocked} onPress={() => { if (isPuzzleUiLocked) return; setFilter('favorites'); haptic.light(); }}>
             <Heart size={IS_SMALL_SCREEN ? 14 : 16} color={filter === 'favorites' ? "#FF2D55" : "#888"} strokeWidth={2.5} fill={filter === 'favorites' ? "#FF2D55" : "transparent"} />
           </TouchableOpacity>
         </ScrollView>
       </View>
 
-      {showHint && <View style={styles.hintBanner}><Text style={styles.hintText}>Karta tikla, detay gor | Saga kaydir, yapboz coz</Text></View>}
+      {isGuidedPuzzleStep && (
+        <CuteCloudTip
+          visible={guidedPuzzleTipVisible}
+          message={`Hedef kelime: "${guidedTargetLabel}".\nSadece bu kart açık.\nDoğru cümle kurunca SesYap adımına geçeceğiz.`}
+          onDismiss={() => setGuidedPuzzleTipVisible(false)}
+          accentColor="#f97316"
+        />
+      )}
+      {showHint && <View style={styles.hintBanner}><Text style={styles.hintText}>Karta tıkla, detay gör | Sağa kaydır, yapboz çöz</Text></View>}
 
       {puzzleWords_filtered.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -1214,7 +1320,7 @@ export default function WordPuzzleScreen({
   );
 }
 
-// ğŸ¨ Export stats for FarmScreen
+// s¨ Export stats for FarmScreen
 export function usePuzzleStats() {
   const farm = useFarmStore((state) => state.farm);
   const phrasalVerbFarm = useFarmStore((state) => state.phrasalVerbFarm);

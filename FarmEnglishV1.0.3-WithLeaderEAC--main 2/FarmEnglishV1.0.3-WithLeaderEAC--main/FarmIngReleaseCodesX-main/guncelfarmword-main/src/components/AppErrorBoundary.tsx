@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { traceEvent } from '../utils/debugTrace';
 
 type Props = {
   children: React.ReactNode;
@@ -21,6 +22,15 @@ export class AppErrorBoundary extends React.Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     try {
       console.error('[AppErrorBoundary]', error, errorInfo);
+      traceEvent(
+        'react_error_boundary',
+        {
+          message: error?.message || 'unknown',
+          stack: error?.stack ? String(error.stack).slice(0, 800) : undefined,
+          componentStack: errorInfo?.componentStack ? String(errorInfo.componentStack).slice(0, 800) : undefined,
+        },
+        'error',
+      );
     } catch {}
   }
 

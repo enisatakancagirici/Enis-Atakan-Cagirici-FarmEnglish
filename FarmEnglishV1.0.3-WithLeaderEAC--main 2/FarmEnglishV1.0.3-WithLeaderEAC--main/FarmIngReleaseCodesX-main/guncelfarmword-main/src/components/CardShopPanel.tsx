@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+﻿import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -28,6 +28,7 @@ import {
   type CardBorderStyle,
   type CardBackgroundStyle,
 } from '../data/cardThemes';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -37,9 +38,9 @@ interface CardShopPanelProps {
   onClose?: () => void;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// � TOPRAK RENK PALETİ
-// ═══════════════════════════════════════════════════════════════
+// ================================================================
+//  TOPRAK RENK PALETI
+// ================================================================
 const SOIL_COLORS = {
   darkSoil: '#2C1810',
   richSoil: '#3E2723',
@@ -57,9 +58,80 @@ const SOIL_COLORS = {
   clayOrange: '#BF360C',
 };
 
-// ═══════════════════════════════════════════════════════════════
-// 🎨 Kart Önizleme Bileşeni
-// ═══════════════════════════════════════════════════════════════
+type ShopPreviewFx = {
+  glowColor: string;
+  sweep: readonly [string, string, string];
+  rainbow?: readonly [string, string, string, string];
+  sparkle?: string;
+};
+
+const DEFAULT_SHOP_FX: ShopPreviewFx = {
+  glowColor: '#f5d0fe',
+  sweep: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.35)', 'rgba(255,255,255,0)'],
+  sparkle: '#ffffff',
+};
+
+const txt = (value: unknown, fallback = ''): string => {
+  const normalized = normalizeDisplayText(value);
+  return normalized || fallback;
+};
+
+function getShopPreviewFx(themeId: string): ShopPreviewFx {
+  switch (themeId) {
+    case 'holographic':
+      return {
+        glowColor: '#fde047',
+        sweep: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0)'],
+        rainbow: ['rgba(255,0,122,0.2)', 'rgba(0,194,255,0.2)', 'rgba(166,255,0,0.16)', 'rgba(255,189,0,0.2)'],
+        sparkle: '#fef08a',
+      };
+    case 'royal':
+      return {
+        glowColor: '#c084fc',
+        sweep: ['rgba(255,255,255,0)', 'rgba(216,180,254,0.7)', 'rgba(255,255,255,0)'],
+        rainbow: ['rgba(192,132,252,0.16)', 'rgba(139,92,246,0.22)', 'rgba(167,139,250,0.16)', 'rgba(192,132,252,0.2)'],
+        sparkle: '#e9d5ff',
+      };
+    case 'diamond':
+      return {
+        glowColor: '#67e8f9',
+        sweep: ['rgba(255,255,255,0)', 'rgba(125,211,252,0.7)', 'rgba(255,255,255,0)'],
+        rainbow: ['rgba(125,211,252,0.18)', 'rgba(45,212,191,0.18)', 'rgba(191,219,254,0.16)', 'rgba(125,211,252,0.18)'],
+        sparkle: '#e0f2fe',
+      };
+    case 'cyberpunk':
+      return {
+        glowColor: '#22d3ee',
+        sweep: ['rgba(255,255,255,0)', 'rgba(34,211,238,0.75)', 'rgba(255,255,255,0)'],
+        rainbow: ['rgba(34,211,238,0.16)', 'rgba(236,72,153,0.2)', 'rgba(34,211,238,0.14)', 'rgba(236,72,153,0.16)'],
+        sparkle: '#67e8f9',
+      };
+    case 'neon':
+      return {
+        glowColor: '#00ffd5',
+        sweep: ['rgba(255,255,255,0)', 'rgba(0,255,213,0.72)', 'rgba(255,255,255,0)'],
+        sparkle: '#5eead4',
+      };
+    case 'dragon':
+      return {
+        glowColor: '#fb7185',
+        sweep: ['rgba(255,255,255,0)', 'rgba(248,113,113,0.7)', 'rgba(255,255,255,0)'],
+        sparkle: '#fecaca',
+      };
+    case 'phoenix':
+      return {
+        glowColor: '#fbbf24',
+        sweep: ['rgba(255,255,255,0)', 'rgba(251,191,36,0.72)', 'rgba(255,255,255,0)'],
+        sparkle: '#fde68a',
+      };
+    default:
+      return DEFAULT_SHOP_FX;
+  }
+}
+
+// ================================================================
+// Kart Onizleme Bileseni
+// ================================================================
 const ThemePreviewCard: React.FC<{
   theme: CardThemeOverlay;
   isOwned: boolean;
@@ -72,6 +144,7 @@ const ThemePreviewCard: React.FC<{
 }> = ({ theme, isOwned, isActive, isUnlockable, coins, onBuy, onEquip, onClaim }) => {
   const rarity = RARITY_COLORS[theme.rarity];
   const canAfford = theme.price === 0 || coins >= theme.price;
+  const previewFx = useMemo(() => getShopPreviewFx(theme.id), [theme.id]);
 
   return (
     <View style={[styles.themeCard, { borderColor: rarity.border }]}>
@@ -106,60 +179,84 @@ const ThemePreviewCard: React.FC<{
           colors={[...theme.gradientTint] as [string, string]}
           style={[StyleSheet.absoluteFill, { opacity: 0.6 }]}
         />
+        {previewFx.rainbow && (
+          <LinearGradient
+            colors={[...previewFx.rainbow] as [string, string, string, string]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[StyleSheet.absoluteFill, { opacity: 0.92 }]}
+          />
+        )}
+        <View style={[styles.themePreviewAura, { borderColor: previewFx.glowColor, shadowColor: previewFx.glowColor }]} />
+        <View style={styles.themePreviewSweep}>
+          <LinearGradient
+            colors={[...previewFx.sweep] as [string, string, string]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+        </View>
+        {previewFx.sparkle && (
+          <>
+            <View style={[styles.themePreviewSpark, { left: '14%', top: '18%', backgroundColor: previewFx.sparkle, shadowColor: previewFx.sparkle }]} />
+            <View style={[styles.themePreviewSpark, { left: '82%', top: '26%', width: 4, height: 4, borderRadius: 2, backgroundColor: previewFx.sparkle, shadowColor: previewFx.sparkle }]} />
+            <View style={[styles.themePreviewSpark, { left: '69%', top: '70%', width: 5, height: 5, borderRadius: 2.5, backgroundColor: previewFx.sparkle, shadowColor: previewFx.sparkle }]} />
+          </>
+        )}
         {/* Üstte çimen şeridi */}
         <View style={styles.grassStripe} />
         {/* Card content preview */}
-        <Text style={styles.themeEmoji}>{theme.emoji}</Text>
+        <Text style={styles.themeEmoji}>{txt(theme.emoji)}</Text>
         <Text style={[styles.themePreviewWord, { color: theme.borderGlow }]}>
-          Example
+          {txt('Example')}
         </Text>
         <Text style={[styles.themePreviewMeaning, { color: theme.borderColor }]}>
-          Örnek
+          {txt('Örnek')}
         </Text>
         {/* Border glow effect */}
         <View style={[styles.themeBorderGlow, {
           borderColor: theme.borderColor,
-          shadowColor: theme.borderGlow,
+          shadowColor: previewFx.glowColor,
         }]} />
       </LinearGradient>
 
       {/* Info section - toprak tonlu arka plan */}
       <View style={styles.themeInfo}>
         <View style={styles.themeNameRow}>
-          <Text style={styles.themeName}>{theme.name}</Text>
+          <Text style={styles.themeName}>{txt(theme.name)}</Text>
           <View style={[styles.rarityBadge, { backgroundColor: rarity.bg }]}>
             <Text style={[styles.rarityText, { color: rarity.text }]}>
-              {rarity.label}
+              {txt(rarity.label)}
             </Text>
           </View>
         </View>
-        <Text style={styles.themeDesc}>{theme.description}</Text>
+        <Text style={styles.themeDesc}>{txt(theme.description)}</Text>
 
         {/* Action button */}
         {isActive ? (
           <View style={[styles.themeBtn, styles.themeBtnActive]}>
-            <Text style={styles.themeBtnActiveText}>✓ Aktif</Text>
+            <Text style={styles.themeBtnActiveText}>{txt('✓ Aktif')}</Text>
           </View>
         ) : isOwned ? (
           <TouchableOpacity
             style={[styles.themeBtn, styles.themeBtnEquip]}
             onPress={onEquip}
           >
-            <Text style={styles.themeBtnEquipText}>Kullan</Text>
+            <Text style={styles.themeBtnEquipText}>{txt('Kullan')}</Text>
           </TouchableOpacity>
         ) : theme.price === 0 && isUnlockable ? (
-          // Şart sağlanmış - hemen al butonu
+          // art sağlanmış - hemen al butonu
           <TouchableOpacity
             style={[styles.themeBtn, styles.themeBtnClaim]}
             onPress={onClaim}
           >
-            <Text style={styles.themeBtnClaimText}>🎉 Hemen Al!</Text>
+            <Text style={styles.themeBtnClaimText}>{txt('🎉 Hemen Al!')}</Text>
           </TouchableOpacity>
         ) : theme.price === 0 ? (
-          // Şart henüz sağlanmamış
+          // art henüz sağlanmamış
           <View style={[styles.themeBtn, styles.themeBtnLocked]}>
             <Text style={styles.themeBtnLockedText}>
-              🔒 {theme.unlockDescription || 'Başarı ile aç'}
+              {txt(`🔒 ${theme.unlockDescription || 'Başarı ile aç'}`)}
             </Text>
           </View>
         ) : (
@@ -172,7 +269,7 @@ const ThemePreviewCard: React.FC<{
             disabled={!canAfford}
           >
             <Text style={canAfford ? styles.themeBtnBuyText : styles.themeBtnCantAffordText}>
-              💰 {theme.price.toLocaleString()}
+              {txt(`💰 ${theme.price.toLocaleString()}`)}
             </Text>
           </TouchableOpacity>
         )}
@@ -181,9 +278,9 @@ const ThemePreviewCard: React.FC<{
   );
 };
 
-// ═══════════════════════════════════════════════════════════════
-// 🏆 Koleksiyon Kartı Bileşeni
-// ═══════════════════════════════════════════════════════════════
+// ================================================================
+//  Koleksiyon Karti Bileseni
+// ================================================================
 const CollectibleCardItem: React.FC<{
   card: CollectibleCard;
   isUnlocked: boolean;
@@ -228,30 +325,30 @@ const CollectibleCardItem: React.FC<{
       ))}
       <View style={styles.collectibleTop}>
         <Text style={styles.collectibleEmoji}>
-          {isUnlocked ? card.emoji : conditionMet ? '🎁' : '🔒'}
+          {isUnlocked ? txt(card.emoji) : conditionMet ? txt('🎁') : txt('🔒')}
         </Text>
         <View style={[styles.rarityBadge, { backgroundColor: rarity.bg }]}>
           <Text style={[styles.rarityText, { color: rarity.text }]}>
-            {rarity.label}
+            {txt(rarity.label)}
           </Text>
         </View>
       </View>
       <Text style={[styles.collectibleName, !isUnlocked && !conditionMet && styles.collectibleNameLocked]}>
-        {isUnlocked ? card.name : conditionMet ? card.name : '???'}
+        {isUnlocked ? txt(card.name) : conditionMet ? txt(card.name) : txt('???')}
       </Text>
       <Text style={styles.collectibleDesc}>
-        {isUnlocked ? card.description : conditionMet ? '✅ Şart sağlandı!' : card.unlockCondition}
+        {isUnlocked ? txt(card.description) : conditionMet ? txt('✅ Şart sağlandı!') : txt(card.unlockCondition)}
       </Text>
       {/* Unlocked badge */}
       {isUnlocked && (
         <View style={styles.collectibleUnlockedBadge}>
-          <Text style={styles.collectibleUnlockedText}>{'✓ Koleksiyonda'}</Text>
+          <Text style={styles.collectibleUnlockedText}>{txt('✓ Koleksiyonda')}</Text>
         </View>
       )}
       {isUnlocked && card.rewardThemeId && (
         <View style={styles.collectibleThemeReward}>
           <Text style={styles.collectibleThemeRewardText}>
-            {`🎨 Tema: ${rewardThemeName || card.rewardThemeId}`}
+            {txt(`🎨 Tema: ${rewardThemeName || card.rewardThemeId}`)}
           </Text>
         </View>
       )}
@@ -261,7 +358,7 @@ const CollectibleCardItem: React.FC<{
           onPress={onEquipTheme}
           activeOpacity={0.7}
         >
-          <Text style={styles.collectibleEquipText}>{'🎨 Tasarımı Kullan'}</Text>
+          <Text style={styles.collectibleEquipText}>{txt('🎨 Tasarımı Kullan')}</Text>
         </TouchableOpacity>
       )}
       {isUnlocked && card.rewardThemeId && !isThemeOwned && onClaimTheme && (
@@ -270,20 +367,20 @@ const CollectibleCardItem: React.FC<{
           onPress={onClaimTheme}
           activeOpacity={0.7}
         >
-          <Text style={styles.collectibleClaimText}>{'🎁 Tasarımı Al'}</Text>
+          <Text style={styles.collectibleClaimText}>{txt('🎁 Tasarımı Al')}</Text>
         </TouchableOpacity>
       )}
-      {/* Collect button — condition met but not yet collected */}
+      {/* Collect button -- condition met but not yet collected */}
       {!isUnlocked && conditionMet && onCollect && (
         <TouchableOpacity
           style={styles.collectibleClaimBtn}
           onPress={() => onCollect(card.id)}
           activeOpacity={0.7}
         >
-          <Text style={styles.collectibleClaimText}>{'🎉 Topla!'}</Text>
+          <Text style={styles.collectibleClaimText}>{txt('🎉 Topla!')}</Text>
         </TouchableOpacity>
       )}
-      {/* Progress bar — only for not-yet-met conditions */}
+      {/* Progress bar -- only for not-yet-met conditions */}
       {!isUnlocked && !conditionMet && (
         <View style={styles.collectibleProgressBg}>
           <View style={[styles.collectibleProgressFill, {
@@ -291,7 +388,7 @@ const CollectibleCardItem: React.FC<{
             backgroundColor: rarity.border,
           }]} />
           <Text style={styles.collectibleProgressText}>
-            {`${progress}/${card.unlockTarget}`}
+            {txt(`${progress}/${card.unlockTarget}`)}
           </Text>
         </View>
       )}
@@ -299,9 +396,9 @@ const CollectibleCardItem: React.FC<{
   );
 };
 
-// ═══════════════════════════════════════════════════════════════
-// 🎛️ ANA BİLEŞEN
-// ═══════════════════════════════════════════════════════════════
+// ================================================================
+//  ANA BILESEN
+// ================================================================
 export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<ShopTab>('themes');
   const [filterRarity, setFilterRarity] = useState<CardRarity | 'all'>('all');
@@ -321,7 +418,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
     }
   }, []);
 
-  // Stats for unlock checks — individual primitives avoid new-object-per-render
+  // Stats for unlock checks -- individual primitives avoid new-object-per-render
   const lifetimeHarvests = useFarmStore(s => s.lifetimeHarvests || 0);
   const lifetimeQuizAnswered = useFarmStore(s => s.lifetimeQuizAnswered || 0);
   const bestStreak = useFarmStore(s => s.bestStreak || 0);
@@ -366,7 +463,10 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
     if (theme.price === 0 && theme.unlockRequirement) {
       const unlocked = checkThemeUnlock(theme.id, stats);
       if (!unlocked) {
-        Alert.alert('🔒 Kilitli', theme.unlockDescription || 'Bu temayı açmak için başarıyı tamamla');
+        Alert.alert(
+          txt('🔒 Kilitli'),
+          txt(theme.unlockDescription || 'Bu temayı açmak için başarıyı tamamla')
+        );
         return;
       }
       // Free unlock
@@ -379,19 +479,22 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
 
     // Coin ile satın al
     Alert.alert(
-      `${theme.emoji} ${theme.name}`,
-      `Bu temayı ${theme.price.toLocaleString()} coin'e satın almak istiyor musun?`,
+      txt(`${theme.emoji} ${theme.name}`),
+      txt(`Bu temayı ${theme.price.toLocaleString()} coin'e satın almak istiyor musun?`),
       [
-        { text: 'İptal', style: 'cancel' },
+        { text: txt('İptal'), style: 'cancel' },
         {
-          text: `💰 ${theme.price.toLocaleString()} Satın Al`,
+          text: txt(`💰 ${theme.price.toLocaleString()} Satın Al`),
           onPress: () => {
             const success = useFarmStore.getState().purchaseCardTheme(theme.id);
             if (success) {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             } else {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-              Alert.alert('Yetersiz Coin', 'Bu temayı almak için yeterli coinin yok');
+              Alert.alert(
+                txt('Yetersiz Coin'),
+                txt('Bu temayı almak için yeterli coinin yok')
+              );
             }
           },
         },
@@ -410,12 +513,15 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
     }
   }, []);
 
-  // Şartı sağlanmış achievement temayı ücretsiz al
+  // artı sağlanmış achievement temayı ücretsiz al
   const handleClaimTheme = useCallback((theme: CardThemeOverlay) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     const success = useFarmStore.getState().purchaseCardTheme(theme.id);
     if (success) {
-      Alert.alert('🎉 Tebrikler!', `${theme.emoji} ${theme.name} teması açıldı ve aktif edildi!`);
+      Alert.alert(
+        txt('🎉 Tebrikler!'),
+        txt(`${theme.emoji} ${theme.name} teması açıldı ve aktif edildi!`)
+      );
     }
   }, []);
 
@@ -426,7 +532,10 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
     const newCards = useFarmStore.getState().checkCollectibleCards();
     if (newCards.length > 0) {
       const card = COLLECTIBLE_CARDS.find(c => c.id === cardId);
-      Alert.alert('🎉 Kart Toplandı!', `${card?.emoji || '🏆'} ${card?.name || 'Kart'} koleksiyonuna eklendi!`);
+      Alert.alert(
+        txt('🎉 Kart Toplandı!'),
+        txt(`${card?.emoji || '🏆'} ${card?.name || 'Kart'} koleksiyonuna eklendi!`)
+      );
     } else {
       // checkCollectibleCards bulmadıysa, manuel olarak ekle
       const state = useFarmStore.getState();
@@ -445,7 +554,10 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
             ? [...state.ownedCardThemes, rewardThemeId]
             : state.ownedCardThemes,
         });
-        Alert.alert('🎉 Kart Toplandı!', `${card?.emoji || '🏆'} ${card?.name || 'Kart'} koleksiyonuna eklendi!`);
+        Alert.alert(
+          txt('🎉 Kart Toplandı!'),
+          txt(`${card?.emoji || '🏆'} ${card?.name || 'Kart'} koleksiyonuna eklendi!`)
+        );
       }
     }
   }, []);
@@ -466,7 +578,10 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
       activeCardTheme: rewardTheme.id,
     });
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    Alert.alert('Tema Acildi', `${rewardTheme.emoji} ${rewardTheme.name} artik kullanima hazir!`);
+    Alert.alert(
+      txt('Tema Açıldı'),
+      txt(`${rewardTheme.emoji} ${rewardTheme.name} artık kullanıma hazır!`)
+    );
   }, [handleEquipTheme]);
 
   // Tema için unlock kontrolü (her tema için hesapla)
@@ -500,17 +615,17 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
   }, []);
 
   const tabs = useMemo(() => [
-    { id: 'themes' as ShopTab, label: 'Temalar', icon: '🎨', count: CARD_THEME_OVERLAYS.length },
-    { id: 'collection' as ShopTab, label: 'Koleksiyon', icon: '🏆', count: `${collectedCards.length}/${COLLECTIBLE_CARDS.length}` },
-    { id: 'customize' as ShopTab, label: 'Kişiselleştir', icon: '⚙️', count: null },
+    { id: 'themes' as ShopTab, label: txt('Temalar'), icon: txt('🎨'), count: CARD_THEME_OVERLAYS.length },
+    { id: 'collection' as ShopTab, label: txt('Koleksiyon'), icon: txt('🏆'), count: txt(`${collectedCards.length}/${COLLECTIBLE_CARDS.length}`) },
+    { id: 'customize' as ShopTab, label: txt('Kişiselleştir'), icon: txt('⚙️'), count: null },
   ], [collectedCards.length]);
 
   const rarityFilters: { id: CardRarity | 'all'; label: string; color: string }[] = [
-    { id: 'all', label: 'Hepsi', color: '#fff' },
-    { id: 'common', label: 'Sıradan', color: RARITY_COLORS.common.text },
-    { id: 'rare', label: 'Nadir', color: RARITY_COLORS.rare.text },
-    { id: 'epic', label: 'Epik', color: RARITY_COLORS.epic.text },
-    { id: 'legendary', label: 'Efsanevi', color: RARITY_COLORS.legendary.text },
+    { id: 'all', label: txt('Hepsi'), color: '#fff' },
+    { id: 'common', label: txt('Sıradan'), color: RARITY_COLORS.common.text },
+    { id: 'rare', label: txt('Nadir'), color: RARITY_COLORS.rare.text },
+    { id: 'epic', label: txt('Epik'), color: RARITY_COLORS.epic.text },
+    { id: 'legendary', label: txt('Efsanevi'), color: RARITY_COLORS.legendary.text },
   ];
 
   return (
@@ -522,10 +637,10 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
-        <Text style={styles.headerTitle}>🌾 Kart Pazarı</Text>
+        <Text style={styles.headerTitle}>{txt('🌾 Kart Pazarı')}</Text>
         <View style={styles.headerRight}>
           <View style={styles.coinContainer}>
-          <Text style={styles.coinIcon}>💰</Text>
+          <Text style={styles.coinIcon}>{txt('💰')}</Text>
           <Text style={styles.coinCount}>{coins.toLocaleString()}</Text>
           </View>
           {/* ✕ KAPAT BUTONU */}
@@ -538,7 +653,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
             activeOpacity={0.7}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
-            <Text style={styles.closeButtonText}>✕</Text>
+            <Text style={styles.closeButtonText}>{txt('✕')}</Text>
           </TouchableOpacity>
         </View>
       </LinearGradient>
@@ -568,7 +683,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
       </ScrollView>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* ═══ TEMALAR SEKME ═══ */}
+        {/* === TEMALAR SEKME === */}
         {activeTab === 'themes' && (
           <View>
             {/* Default theme option */}
@@ -577,7 +692,9 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
               onPress={() => handleEquipTheme('default')}
             >
               <Text style={styles.defaultThemeBtnText}>
-                {activeTheme === 'default' ? '✓ Varsayılan Tema (Aktif)' : 'Varsayılan Temaya Dön'}
+                {activeTheme === 'default'
+                  ? txt('✓ Varsayılan Tema (Aktif)')
+                  : txt('Varsayılan Temaya Dön')}
               </Text>
             </TouchableOpacity>
 
@@ -615,14 +732,14 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
           </View>
         )}
 
-        {/* ═══ KOLEKSİYON SEKME ═══ */}
+        {/*  KOLEKSİYON SEKME  */}
         {activeTab === 'collection' && (
           <View>
             <Text style={styles.sectionTitle}>
-              🏆 Koleksiyon ({collectedCards.length}/{COLLECTIBLE_CARDS.length})
+              {txt(`🏆 Koleksiyon (${collectedCards.length}/${COLLECTIBLE_CARDS.length})`)}
             </Text>
             <Text style={styles.sectionSubtitle}>
-              Başarılarınla özel kartlar kazan!
+              {txt('Başarılarınla özel kartlar kazan!')}
             </Text>
             <View style={styles.collectibleGrid}>
               {COLLECTIBLE_CARDS.map((card) => {
@@ -647,11 +764,11 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
           </View>
         )}
 
-        {/* ═══ KİŞİSELLEŞTİRME SEKME ═══ */}
+        {/*  KİİSELLETİRME SEKME  */}
         {activeTab === 'customize' && (
           <View>
             {/* Font Style */}
-            <Text style={styles.sectionTitle}>✏️ Yazı Tipi</Text>
+            <Text style={styles.sectionTitle}>{txt('✏️ Yazı Tipi')}</Text>
             <View style={styles.optionRow}>
               {(Object.keys(FONT_STYLES) as CardFontStyle[]).map((key) => (
                 <TouchableOpacity
@@ -668,14 +785,14 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
                     key === 'serif' && { fontFamily: 'serif' },
                     key === 'mono' && { fontFamily: 'monospace' },
                   ]}>
-                    {FONT_STYLES[key].label}
+                    {txt(FONT_STYLES[key].label)}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Border Style */}
-            <Text style={styles.sectionTitle}>🔲 Çerçeve Stili</Text>
+            <Text style={styles.sectionTitle}>{txt('🔲 Çerçeve Stili')}</Text>
             <View style={styles.optionRow}>
               {(Object.keys(BORDER_STYLES) as CardBorderStyle[]).map((key) => (
                 <TouchableOpacity
@@ -690,18 +807,18 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
                     styles.optionChipText,
                     cardCustomization.borderStyle === key && styles.optionChipTextActive,
                   ]}>
-                    {BORDER_STYLES[key].label}
+                    {txt(BORDER_STYLES[key].label)}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Background Style */}
-            <Text style={styles.sectionTitle}>🌾 Arka Plan</Text>
+            <Text style={styles.sectionTitle}>{txt('🌾 Arka Plan')}</Text>
             <View style={styles.optionRow}>
               {([
-                { key: 'default', label: 'Varsayilan' },
-                { key: 'soil', label: 'Toprak' },
+                { key: 'default', label: txt('Varsayılan') },
+                { key: 'soil', label: txt('Toprak') },
               ] as { key: CardBackgroundStyle; label: string }[]).map((option) => (
                 <TouchableOpacity
                   key={option.key}
@@ -722,13 +839,13 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
             </View>
 
             {/* Toggle options */}
-            <Text style={styles.sectionTitle}>🎛️ Görünüm Seçenekleri</Text>
+            <Text style={styles.sectionTitle}>{txt('🎛️ Görünüm Seçenekleri')}</Text>
             {[
-              { key: 'showEmoji', label: 'Emoji Göster', desc: 'Kartlarda seviye emojisini göster' },
-              { key: 'showProgressBar', label: 'İlerleme Çubuğu', desc: 'Hasat ilerlemesini göster' },
-              { key: 'showLevel', label: 'Seviye Göster', desc: 'Kart seviyesini göster' },
-              { key: 'compactMode', label: 'Kompakt Mod', desc: 'Kartları daha küçük göster' },
-              { key: 'largeMode', label: 'Büyük Kart Modu', desc: 'Kartları daha büyük göster' },
+              { key: 'showEmoji', label: txt('Emoji Göster'), desc: txt('Kartlarda seviye emojisini göster') },
+              { key: 'showProgressBar', label: txt('İlerleme Çubuğu'), desc: txt('Hasat ilerlemesini göster') },
+              { key: 'showLevel', label: txt('Seviye Göster'), desc: txt('Kart seviyesini göster') },
+              { key: 'compactMode', label: txt('Kompakt Mod'), desc: txt('Kartları daha küçük göster') },
+              { key: 'largeMode', label: txt('Büyük Kart Modu'), desc: txt('Kartları daha büyük göster') },
             ].map((opt) => (
               <TouchableOpacity
                 key={opt.key}
@@ -763,9 +880,9 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════════
-// 🎨 STİLLER
-// ═══════════════════════════════════════════════════════════════
+// ================================================================
+//  STILLER
+// ================================================================
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -949,6 +1066,31 @@ const styles = StyleSheet.create({
   themeEmoji: { fontSize: 28, marginBottom: 2 },
   themePreviewWord: { fontSize: 16, fontWeight: '800' },
   themePreviewMeaning: { fontSize: 11, fontWeight: '600', marginTop: 1 },
+  themePreviewAura: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 1.4,
+    borderRadius: 14,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 14,
+  },
+  themePreviewSweep: {
+    position: 'absolute',
+    top: -18,
+    bottom: -18,
+    width: 52,
+    transform: [{ translateX: 38 }, { skewX: '-18deg' }],
+    opacity: 0.9,
+  },
+  themePreviewSpark: {
+    position: 'absolute',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.95,
+    shadowRadius: 8,
+  },
   themeBorderGlow: {
     ...StyleSheet.absoluteFillObject,
     borderWidth: 2,

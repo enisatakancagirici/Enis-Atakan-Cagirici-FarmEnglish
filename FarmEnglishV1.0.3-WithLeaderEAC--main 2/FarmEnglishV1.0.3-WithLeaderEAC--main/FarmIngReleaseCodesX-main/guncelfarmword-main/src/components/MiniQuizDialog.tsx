@@ -85,7 +85,7 @@ const getPerQuestionReward = (category: CategoryType, cefrLevel?: string): { coi
   };
 };
 
-// � KATEGORİ RENKLERİ - Toast ve UI'da kullanılıyor
+//  KATEGORİ RENKLERİ - Toast ve UI'da kullanılıyor
 const CATEGORY_COLORS: Record<CategoryType, {
   bg: readonly [string, string, string];
   border: string;
@@ -194,7 +194,7 @@ const getFontStyle = (fontStyle: CardFontStyle) => {
   return {};
 };
 
-// �🌱 MASCOT TEŞVİK MESAJLARI - Seviyeye göre
+// 🌱 MASCOT TEŞVİK MESAJLARI - Seviyeye göre
 const MASCOT_ENCOURAGEMENTS = {
   // Renk seviyeleri (wrongCount)
   red: {
@@ -1357,7 +1357,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
       backdropAnim.setValue(0);
       headerBounceAnim.setValue(1); // Hemen 1'e set et - sonra animasyon yapma
 
-      // � Ses ve haptic HEMEN çal - animasyon başlangıcında
+      //  Ses ve haptic HEMEN çal - animasyon başlangıcında
       haptic.quizOpen();
       sound.playQuizStart();
 
@@ -1859,7 +1859,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
           
           const nextWord = onNextWord();
           if (nextWord) {
-            // �🚀 Store güncellemesini arka planda yap
+            // 🚀 Store güncellemesini arka planda yap
             InteractionManager.runAfterInteractions(() => {
               onAnswer(false, undefined, currentWord?.id);
               if (feedbackWordId) {

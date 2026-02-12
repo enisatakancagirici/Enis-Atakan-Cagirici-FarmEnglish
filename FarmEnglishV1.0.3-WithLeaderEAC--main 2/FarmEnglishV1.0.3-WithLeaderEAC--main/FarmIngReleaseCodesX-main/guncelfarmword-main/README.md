@@ -107,3 +107,14 @@ Tüm renkler ve animasyonlar web versiyonuyla %100 uyumlu:
 ## 📝 Lisans
 
 MIT
+
+## Encoding Gate
+
+Bozuk karakter tespitinde standart akis:
+
+```bash
+npm run encoding:fix
+npm run encoding:audit
+```
+
+CI tarafinda `encoding:audit` zorunlu kosul olarak calisir.

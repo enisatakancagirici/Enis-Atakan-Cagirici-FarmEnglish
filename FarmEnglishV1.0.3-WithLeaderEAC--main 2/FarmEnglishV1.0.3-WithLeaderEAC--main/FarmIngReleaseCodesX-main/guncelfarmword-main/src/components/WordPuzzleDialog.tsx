@@ -13,6 +13,7 @@ import {
   StatusBar,
   TouchableOpacity,
   PanResponder,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -39,13 +40,13 @@ const IS_SMALL_SCREEN = SCREEN_HEIGHT < 750;
 
 // 🎯 COMBO MESSAGES - Apple/TikTok style minimal dopamine hits
 const COMBO_MESSAGES = [
-  { min: 1, emoji: '✨', text: 'Güzeeeel!', color: '#22c55e' },
+  { min: 1, emoji: '✨', text: 'Güzeeel!', color: '#22c55e' },
   { min: 2, emoji: '⚡', text: 'Harikaa!', color: '#3b82f6' },
-  { min: 3, emoji: '🔥', text: 'Yanıyooor!', color: '#f97316' },
-  { min: 5, emoji: '💜', text: 'Efsaneee!', color: '#a855f7' },
-  { min: 8, emoji: '👑', text: 'Krallık!', color: '#fbbf24' },
+  { min: 3, emoji: '\u{1F525}', text: 'Yanıyor!', color: '#f97316' },
+  { min: 5, emoji: '\u{1F49C}', text: 'Efsaneee!', color: '#a855f7' },
+  { min: 8, emoji: '\u{1F451}', text: 'Krallık!', color: '#fbbf24' },
   { min: 10, emoji: '\u{1F48E}', text: 'Mükemmel!', color: '#06b6d4' },
-  { min: 15, emoji: '🦄', text: 'Efsanevi!', color: '#ec4899' },
+  { min: 15, emoji: '\u{1F984}', text: 'Efsanevi!', color: '#ec4899' },
 ];
 
 const getComboMessage = (streak: number) => {
@@ -66,7 +67,7 @@ const CATEGORY_COLORS = {
     badgeBg: 'rgba(239, 68, 68, 0.3)',
     text: '#fecaca',
     label: 'KIRMIZI',
-    emoji: '🔴',
+    emoji: '\u{1F534}',
     glow: '#ff6b6b',
   },
   orange: {
@@ -76,7 +77,7 @@ const CATEGORY_COLORS = {
     badgeBg: 'rgba(249, 115, 22, 0.3)',
     text: '#fed7aa',
     label: 'TURUNCU',
-    emoji: '🟠',
+    emoji: '\u{1F7E0}',
     glow: '#ff9f43',
   },
   yellow: {
@@ -86,7 +87,7 @@ const CATEGORY_COLORS = {
     badgeBg: 'rgba(234, 179, 8, 0.3)',
     text: '#fef08a',
     label: 'SARI',
-    emoji: '🟡',
+    emoji: '\u{1F7E1}',
     glow: '#feca57',
   },
   green: {
@@ -125,8 +126,8 @@ const CATEGORY_COLORS = {
     badge: '#f472b6',
     badgeBg: 'rgba(244, 114, 182, 0.3)',
     text: '#fce7f3',
-    label: 'KRALİYET',
-    emoji: '👑',
+    label: 'KRAL?YET',
+    emoji: '\u{1F451}',
     glow: '#f472b6',
   },
 };
@@ -264,7 +265,7 @@ const PuzzleCardWaterDrops = memo<{
       }),
     ]);
 
-    // 🌱 "BYYOR!" yazısı animasyonu
+    // 🌱 "BUYUYOR!" yazisi animasyonu
     const textAnimation = Animated.sequence([
       Animated.timing(growTextAnim, {
         toValue: 1,
@@ -284,7 +285,7 @@ const PuzzleCardWaterDrops = memo<{
 
   return (
     <View style={puzzleCardAnimStyles.waterContainer} pointerEvents="none">
-      {/* 🌱 "BYYOR!" yazısı */}
+      {/* 🌱 "BUYUYOR!" yazisi */}
       <Animated.View
         style={[
           puzzleCardAnimStyles.growTextContainer,
@@ -359,7 +360,7 @@ const PuzzleCardWaterDrops = memo<{
           },
         ]}
       >
-        {'\u2728'}
+        {'('}
       </Animated.Text>
     </View>
   );
@@ -380,7 +381,7 @@ const PuzzleCardBugCrawl = memo<{
       endX: 20 + Math.random() * 60,
       y: 20 + i * 15,
       delay: i * 150,
-      emoji: ['\u{1F41B}', '\u{1FAB2}', '\u{1F41C}', '\u{1F577}\uFE0F', '\u{1F997}'][i % 5],
+      emoji: ['\u{1F41B}', '\u{1FAB2}', '\u{1F41C}', '\u{1F577}️', '\u{1F997}'][i % 5],
     }))
   ).current;
 
@@ -645,8 +646,8 @@ const PuzzleRewardToast = memo<{
         <View style={puzzleRewardToastStyles.content}>
           <Text style={puzzleRewardToastStyles.emoji}>{'\u{1F4B0}'}</Text>
           <Text style={[puzzleRewardToastStyles.text, { color: '#fbbf24' }]}>+{coin}</Text>
-          <Text style={puzzleRewardToastStyles.separator}>{'\u2022'}</Text>
-          <Text style={puzzleRewardToastStyles.emoji}>{'\u26A1'}</Text>
+          <Text style={puzzleRewardToastStyles.separator}>{'•'}</Text>
+          <Text style={puzzleRewardToastStyles.emoji}>{'⚡'}</Text>
           <Text style={[puzzleRewardToastStyles.text, { color: '#a78bfa' }]}>+{xp} XP</Text>
         </View>
       </LinearGradient>
@@ -905,7 +906,12 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
   const addXp = useFarmStore((state) => state.addXp);
   const setCardFeedback = useFarmStore((state) => state.setCardFeedback);
   const addPuzzleScore = useFarmStore((state) => state.addPuzzleScore);
-  const updateQuestProgress = useFarmStore((state) => state.updateQuestProgress);
+  const queueQuestProgress = useFarmStore((state) => state.queueQuestProgress);
+  const guidedModeActive = useFarmStore((state) => state.guidedModeActive);
+  const guidedModeStep = useFarmStore((state) => state.guidedModeStep);
+  const guidedModeTargetWordId = useFarmStore((state) => state.guidedModeTargetWordId);
+  const guidedModeTargetWordText = useFarmStore((state) => state.guidedModeTargetWordText);
+  const stopGuidedMode = useFarmStore((state) => state.stopGuidedMode);
   const activeCardTheme = useFarmStore((state) => state.activeCardTheme);
   const cardCustomization = useFarmStore((state) => state.cardCustomization);
   const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
@@ -948,6 +954,23 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
   });
 
   // Seçilen kelimeler (render için)
+  const isGuidedPuzzleStep = guidedModeActive && guidedModeStep === 'PUZZLE_PRACTICE';
+  const isGuidedPuzzleStepRef = useRef(isGuidedPuzzleStep);
+  const guidedTargetWordKey = useMemo(
+    () => normalizeDisplayText(guidedModeTargetWordText).trim().toLowerCase(),
+    [guidedModeTargetWordText]
+  );
+  const isGuidedTargetWord = useCallback((word?: WordModel | null) => {
+    const safeId = typeof (word as any)?.id === 'string' ? (word as any).id.trim() : '';
+    if (guidedModeTargetWordId && safeId && safeId === guidedModeTargetWordId) return true;
+    const safeText = normalizeDisplayText((word as any)?.text || (word as any)?.verb).trim().toLowerCase();
+    return !!guidedTargetWordKey && !!safeText && guidedTargetWordKey === safeText;
+  }, [guidedModeTargetWordId, guidedTargetWordKey]);
+
+  useEffect(() => {
+    isGuidedPuzzleStepRef.current = isGuidedPuzzleStep;
+  }, [isGuidedPuzzleStep]);
+
   const selectedWords = useMemo(() => selectedIndices.map(i => shuffledTokens[i]), [selectedIndices, shuffledTokens]);
 
   // 🎬 Animations
@@ -967,15 +990,21 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
     PanResponder.create({
       onStartShouldSetPanResponder: () => false, // Başlangıçta false - scroll'a öncelik
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Sadece yatay hareket belirgin olduÄŸunda pan'i al
+        if (isGuidedPuzzleStepRef.current) return false;
+        // Sadece yatay hareket belirgin olduğunda pan'i al
         const isHorizontal = Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 2;
         return isHorizontal && Math.abs(gestureState.dx) > 20;
       },
       onPanResponderTerminationRequest: () => true, // Scroll isterse bırak
       onPanResponderMove: (_, gestureState) => {
+        if (isGuidedPuzzleStepRef.current) return;
         swipeAnim.setValue(gestureState.dx);
       },
       onPanResponderRelease: (_, gestureState) => {
+        if (isGuidedPuzzleStepRef.current) {
+          Animated.spring(swipeAnim, { toValue: 0, friction: 6, tension: 100, useNativeDriver: true }).start();
+          return;
+        }
         const SWIPE_THRESHOLD = 80;
 
         if (gestureState.dx > SWIPE_THRESHOLD && currentWordIndex < words.length - 1) {
@@ -1165,10 +1194,32 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
 
   // 🚪 X butonuna basınca - direkt kapat (result screen yok)
   const handleExit = useCallback(() => {
+    if (isGuidedPuzzleStep) {
+      Alert.alert(
+        'Müfredatı Sonlandır',
+        'Hedef kelime adımı bitmeden çıkarsan yönlendirme akışı kapanır.',
+        [
+          { text: 'Vazgeç', style: 'cancel' },
+          {
+            text: 'Sonlandır',
+            style: 'destructive',
+            onPress: () => {
+              haptic.medium();
+              stopGuidedMode();
+              onComplete?.({ correct: totalCorrect, wrong: totalWrong, combo: maxCombo });
+              handleFinalClose();
+            },
+          },
+        ],
+        { cancelable: true }
+      );
+      return;
+    }
+
     haptic.medium();
     onComplete?.({ correct: totalCorrect, wrong: totalWrong, combo: maxCombo });
     handleFinalClose();
-  }, [totalCorrect, totalWrong, maxCombo, onComplete, handleFinalClose]);
+  }, [handleFinalClose, isGuidedPuzzleStep, maxCombo, onComplete, stopGuidedMode, totalCorrect, totalWrong]);
 
   // 🎯 Handle token selection from word bank (index bazlı)
   const handleTokenSelect = useCallback((tokenIndex: number) => {
@@ -1230,11 +1281,21 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
       setMaxCombo(prev => Math.max(prev, newCombo));
 
       // 🎯 GÜNLÜK GÖREV - Puzzle tamamlandı!
-      updateQuestProgress('COMPLETE_PUZZLE', 1);
+      setTimeout(() => {
+        try {
+          queueQuestProgress('COMPLETE_PUZZLE', 1, 'add');
+        } catch (error) {
+          console.error('[WordPuzzleDialog] updateQuestProgress failed:', error);
+        }
+      }, 0);
 
       // 🧩 PUZZLE STAT GÜNCELLE - Seviye atlama için!
       if (currentWord?.id) {
-        updateWordPuzzleStat(currentWord.id, true);
+        try {
+          updateWordPuzzleStat(currentWord.id, true);
+        } catch (error) {
+          console.error('[WordPuzzleDialog] updateWordPuzzleStat(correct) failed:', error);
+        }
 
         // 💧 SULAMA ANİMASYONU - Yapboz içi lokal animasyon
         setLevelFeedback({ type: 'levelUp', visible: true });
@@ -1328,8 +1389,34 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
       // Clean particles after celebration
       setTimeout(() => setParticles([]), 600);
 
-      // Auto-advance to next word - HIZLI GEÇİŞ
+      // Auto-advance to next word - guided adimda manuel onay zorunlu
       setTimeout(() => {
+        if (isGuidedPuzzleStep && isGuidedTargetWord(currentWord)) {
+          setShowCombo(false);
+          const guidedWordLabel = normalizeDisplayText(
+            (currentWord as any)?.text || (currentWord as any)?.verb || "hedef kelime"
+          );
+          Alert.alert(
+            'Adım Tamamlandı',
+            `"${guidedWordLabel}" için yapboz adımı bitti. Devam ile SesYap aşamasına geçeceğiz.`,
+            [
+              {
+                text: "Devam",
+                onPress: () => {
+                  onComplete?.({
+                    correct: totalCorrect + 1,
+                    wrong: totalWrong,
+                    combo: Math.max(maxCombo, newCombo),
+                  });
+                  handleFinalClose();
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+          return;
+        }
+
         setShowCombo(false);
 
         if (currentWordIndex < words.length - 1) {
@@ -1337,20 +1424,18 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
           haptic.light();
           setCurrentWordIndex(i => i + 1);
         } else {
-          // ✅ ALL WORDS COMPLETED! - Kısa kutlama ve direkt kapat
+          // ALL WORDS COMPLETED
           haptic.celebration();
           sound.playHarvest();
 
-          // Kısa finale haptic
           setTimeout(() => haptic.success(), 100);
 
-          // 🚀 Direkt kapat - uzun animasyon/screen yok
           setTimeout(() => {
             onComplete?.({ correct: totalCorrect + 1, wrong: totalWrong, combo: maxCombo });
             handleFinalClose();
           }, 300);
         }
-      }, 400); // Daha hızlı geçiş
+      }, 400); // Daha hizli gecis
 
     } else {
       // ❌ WRONG! - ULTRA INTENSE FEEDBACK
@@ -1364,7 +1449,11 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
 
       // 🧩 PUZZLE STAT GÜNCELLE - Yanlış cevap
       if (currentWord?.id) {
-        updateWordPuzzleStat(currentWord.id, false);
+        try {
+          updateWordPuzzleStat(currentWord.id, false);
+        } catch (error) {
+          console.error('[WordPuzzleDialog] updateWordPuzzleStat(wrong) failed:', error);
+        }
       }
 
       // Immediate double haptic burst
@@ -1392,7 +1481,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
         setSelectedIndices([]);
       }, 1600);
     }
-  }, [selectedWords, correctTokens, combo, maxCombo, currentWordIndex, words.length, totalCorrect, totalWrong, handleExit, handleFinalClose, onComplete, currentWord, updateWordPuzzleStat]);
+  }, [selectedWords, correctTokens, combo, maxCombo, currentWordIndex, words.length, totalCorrect, totalWrong, handleExit, handleFinalClose, onComplete, currentWord, updateWordPuzzleStat, queueQuestProgress, isGuidedPuzzleStep, isGuidedTargetWord]);
 
   // 🎯 Navigate between words (swipe simulation)
   const handlePrevWord = useCallback(() => {
@@ -1417,7 +1506,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
   if (!currentWord && !showResultScreen) {
     // Açılma sırasında kısa gecikme olabilir, Modal'ı render et ama içi boş
     return (
-      <Modal visible={visible} transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
+      <Modal visible={visible} transparent animationType="none" statusBarTranslucent onRequestClose={handleExit}>
         <View style={styles.backdrop}>
           <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
         </View>
@@ -1467,12 +1556,12 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
               <View style={styles.compactStatsRow}>
                 <View style={styles.compactStatItem}>
                   <Text style={[styles.compactStatNum, { color: '#4ade80' }]}>{totalCorrect}</Text>
-                  <Text style={styles.compactStatLabel}>{'\u2713'} Dogru</Text>
+                  <Text style={styles.compactStatLabel}>{'✓'} Dogru</Text>
                 </View>
                 <View style={styles.compactStatDivider} />
                 <View style={styles.compactStatItem}>
                   <Text style={[styles.compactStatNum, { color: '#f87171' }]}>{totalWrong}</Text>
-                  <Text style={styles.compactStatLabel}>{'\u2717'} Yanlis</Text>
+                  <Text style={styles.compactStatLabel}>{'✗'} Yanlis</Text>
                 </View>
                 <View style={styles.compactStatDivider} />
                 <View style={styles.compactStatItem}>
@@ -1516,7 +1605,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
                   activeOpacity={0.8}
                 >
                   <LinearGradient colors={resultGradient} style={styles.compactPrimaryGradient}>
-                    <Text style={styles.compactPrimaryText}>{'\u2713'} Tamamla</Text>
+                    <Text style={styles.compactPrimaryText}>{'✓'} Tamamla</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -1625,9 +1714,9 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
 	            >
                             {/* Header */}
               <View style={styles.header}>
-                {safeCustomization.showEmoji && <Text style={styles.headerEmoji}>🧩</Text>}
+                {safeCustomization.showEmoji && <Text style={styles.headerEmoji}>{'\u{1F9E9}'}</Text>}
                 <Text style={[styles.headerTitle, fontStyleOverride]}>KELİME YAPBOZU</Text>
-                {safeCustomization.showEmoji && <Text style={styles.headerEmoji}>🧩</Text>}
+                {safeCustomization.showEmoji && <Text style={styles.headerEmoji}>{'\u{1F9E9}'}</Text>}
               </View>
 
               {/* Close button */}
@@ -1806,7 +1895,7 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
                     {comboMessage.text}
                   </Text>
                   <View style={styles.comboStreakBadge}>
-                    <Text style={styles.comboStreakX}>{'\u00D7'}</Text>
+                    <Text style={styles.comboStreakX}>{'×'}</Text>
                     <Text style={styles.comboStreakNumber}>{combo}</Text>
                   </View>
                 </LinearGradient>

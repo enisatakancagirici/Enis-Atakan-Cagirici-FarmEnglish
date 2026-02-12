@@ -31,6 +31,7 @@ import { UltimateWordCard } from '../components/UltimateWordCard';
 import { SkeletonCardGrid } from '../components/SkeletonCard';
 import { TutorialFinalQuizPremium } from '../components/TutorialFinalQuizPremium';
 import { isTutorialFullScreenActive, FarmMascotCloudTip } from '../components/TutorialManagerFixed';
+import { CuteCloudTip } from '../components/CuteCloudTip';
 import { DailyQuestsPanel } from '../components/DailyQuestsPanel';
 import { CardShopPanel } from '../components/CardShopPanel';
 import { FlashList } from '@shopify/flash-list';
@@ -40,6 +41,8 @@ import PhrasalVerbFarmScreen from './PhrasalVerbFarmScreenNew';
 import WordPuzzleScreen, { usePuzzleStats } from './WordPuzzleScreen';
 import { globalTabState } from '../navigation/globalTabState';
 import { usePerformanceStore } from '../store/performanceStore';
+import { traceEvent } from '../utils/debugTrace';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -48,20 +51,20 @@ const IS_SMALL_SCREEN = SCREEN_HEIGHT < 700;
 const IS_TABLET = SCREEN_WIDTH > 768;
 const FEED_CARD_MAX_WIDTH = IS_TABLET ? 500 : SCREEN_WIDTH - 40;
 
-// ? �iftlik Tab Resimleri (yeni)
+// ? iftlik Tab Resimleri (yeni)
 const TAB_IMAGES = {
   words: require('../../assets/images/maskot/kelimeler_ciftlik_tab_yeni.webp'),
   phrasal: require('../../assets/images/maskot/pharasal_ciftlik_tab_yeni.webp'),
   puzzle: require('../../assets/images/maskot/yapboz_ciftlik_tab_yeni.webp'),
 };
 
-// ?? PREMIUM RENK PALET�
+// ?? PREMIUM RENK PALET
 const COLORS = {
   // Arka plan - derin koyu
   background: '#050810',
   backgroundAlt: '#0a0f1a',
 
-  // Y�zeyler
+  // Yzeyler
   surface: 'rgba(15, 23, 42, 0.8)',
   surfaceLight: 'rgba(30, 41, 59, 0.6)',
 
@@ -73,7 +76,7 @@ const COLORS = {
   danger: '#ef4444',
   dangerGlow: 'rgba(239, 68, 68, 0.3)',
 
-  // Alt�n
+  // Altn
   gold: '#fbbf24',
   goldGlow: 'rgba(251, 191, 36, 0.3)',
 
@@ -86,7 +89,7 @@ const COLORS = {
   textSecondary: '#94a3b8',
   textMuted: '#64748b',
 
-  // Kenarl�klar
+  // Kenarlklar
   border: 'rgba(51, 65, 85, 0.5)',
   borderLight: 'rgba(71, 85, 105, 0.3)',
 };
@@ -127,8 +130,8 @@ const ActionPill = ({
   );
 };
 
-// ?? Feed Card Component - SA�A KAYDIR = QUIZ A� (saf gesture, animasyon yok)
-// ?? TEMA S�STEM� - UltimateWordCard ile senkronize
+// ?? Feed Card Component - SAA KAYDIR = QUIZ A (saf gesture, animasyon yok)
+// ?? TEMA SSTEM - UltimateWordCard ile senkronize
 const FEED_THEMES = {
   red: {
     gradient: ['rgba(127, 29, 29, 0.95)', 'rgba(153, 27, 27, 0.9)', 'rgba(127, 29, 29, 0.95)'] as const,
@@ -195,7 +198,7 @@ const FEED_THEMES = {
   },
 };
 
-// 🎨 Tema seçici fonksiyon (TURUNCU KALDIRILDI)
+//  Tema seçici fonksiyon (TURUNCU KALDIRILDI)
 const getWordTheme = (word: any) => {
   const masterLevel = word.masterLevel || 0;
   const wrongCount = word.wrongCount || 0;
@@ -235,21 +238,21 @@ const FeedCard: React.FC<{
   justHarvested?: boolean; // ?? Az önce hasat edildi mi?
   pool: any[];
   isTutorialBlocking?: boolean; // ?? Tutorial fullscreen açıkken swipe engelle
-  performanceConfig?: any; // ?? Parent'tan gelen config — hook bypass
-  screenWidth?: number; // ?? Parent'tan gelen boyut — hook bypass
+  performanceConfig?: any; // ?? Parent'tan gelen config  hook bypass
+  screenWidth?: number; // ?? Parent'tan gelen boyut  hook bypass
   screenHeight?: number;
 }> = ({ word, isQuizActive, isInInventory, onQuizStart, onQuizAnswer, onQuizClose, onToggleFavorite, onSwipeStateChange, onPlantToFarm, onHarvest, onReplant, justHarvested, pool, isTutorialBlocking = false, performanceConfig, screenWidth, screenHeight }) => {
   // ?? PERFORMANS AYARLARI — parent'tan prop olarak gelir, hook çağrısı YOK
   const config = performanceConfig || { enableShimmer: true, enablePulseAnimations: true };
 
-  // ?? Ekran boyutu — parent'tan prop olarak gelir, useWindowDimensions hook'u YOK
+  // ?? Ekran boyutu  parent'tan prop olarak gelir, useWindowDimensions hook'u YOK
   const windowWidth = screenWidth || SCREEN_WIDTH;
   const windowHeight = screenHeight || SCREEN_HEIGHT;
   const isTablet = windowWidth > 768;
   const feedCardMaxWidth = isTablet ? 500 : windowWidth - 40;
 
   const hasTriggeredRef = useRef(false);
-  // ?? Tema: Hasat edildiyse veya Envanterdeyse � gri/siyah premium tema
+  // ?? Tema: Hasat edildiyse veya Envanterdeyse  gri/siyah premium tema
   const HARVESTED_THEME = {
     gradient: ['rgba(20, 20, 25, 0.98)', 'rgba(35, 35, 45, 0.95)', 'rgba(20, 20, 25, 0.98)'] as const,
     border: 'rgba(100, 116, 139, 0.6)',
@@ -257,11 +260,11 @@ const FeedCard: React.FC<{
     textMain: '#cbd5e1',
     textSecondary: '#94a3b8',
     accent: '#64748b',
-    emoji: '✨',
+    emoji: '(',
   };
   const theme = (justHarvested || isInInventory) ? HARVESTED_THEME : getWordTheme(word);
 
-  // ? Master kartlar i�in shimmer + bounce animasyonu (UltimateWordCard gibi)
+  // ? Master kartlar iin shimmer + bounce animasyonu (UltimateWordCard gibi)
   const masterLevel = word.masterLevel || 0;
   const isMaster = masterLevel >= 1 && !isInInventory && !justHarvested;
   const shimmerAnim = useRef(new Animated.Value(-1)).current;
@@ -319,7 +322,7 @@ const FeedCard: React.FC<{
   const panResponder = useMemo(() => PanResponder.create({
     onStartShouldSetPanResponder: () => !isQuizActive && !isTutorialBlocking,
     onMoveShouldSetPanResponder: (_, gesture) => {
-      // ?? Tutorial fullscreen a��kken swipe engelle
+      // ?? Tutorial fullscreen akken swipe engelle
       if (isTutorialBlocking) return false;
       // Daha fazla yatay bias - dikey scroll engelleme
       return !isQuizActive && gesture.dx > 20 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 3;
@@ -334,24 +337,24 @@ const FeedCard: React.FC<{
       if (gesture.dx > 50 && !hasTriggeredRef.current) {
         hasTriggeredRef.current = true;
         haptic.heavy();
-        // ? Az �nce hasat edilmi�se � Tarlaya geri ek (onReplant)
+        // ? Az nce hasat edilmise  Tarlaya geri ek (onReplant)
         if (justHarvested && onReplant) {
           if (haptic.plantToFarm) { haptic.plantToFarm(); } else { haptic.heavy(); }
           sound.playPlant?.();
           onReplant(word.id);
         }
-        // ?? Hasat haz�rsa � HASAT ET (miniquiz a�ma!)
+        // ?? Hasat hazrsa  HASAT ET (miniquiz ama!)
         else if (word.isHarvestReady && !isInInventory) {
           haptic.harvestCelebration?.();
           sound.playEpicHarvest?.();
           onHarvest?.(word.id);
         }
-        // ?? Envanterdeyse � Tarlaya ekle
+        // ?? Envanterdeyse  Tarlaya ekle
         else if (isInInventory && onPlantToFarm) {
           sound.playPlant?.();
           onPlantToFarm(word.id);
         }
-        // ?? Tarlada ve hasat haz�r de�ilse � Quiz ba�lat
+        // ?? Tarlada ve hasat hazr deilse  Quiz balat
         else if (!isInInventory && !word.isHarvestReady) {
           onQuizStart(word.id);
         }
@@ -372,7 +375,7 @@ const FeedCard: React.FC<{
             width: feedCardMaxWidth,
             borderColor: theme.border,
             shadowColor: theme.glow,
-            // Master kartlar i�in g��l� statik shadow (native driver uyumu i�in)
+            // Master kartlar iin gl statik shadow (native driver uyumu iin)
             shadowOpacity: isMaster ? 0.7 : 0.35,
             shadowRadius: isMaster ? 20 : 12,
             // ?? Bounce animasyonu
@@ -388,7 +391,7 @@ const FeedCard: React.FC<{
           style={StyleSheet.absoluteFill}
         />
 
-        {/* ? SHIMMER EFFECT - Master kartlar i�in kart�n i�inde kayan ���k + PERFORMANS KONTROL� */}
+        {/* ? SHIMMER EFFECT - Master kartlar iin kartn iinde kayan k + PERFORMANS KONTROL */}
         {isMaster && config.enableShimmer && (
           <Animated.View
             style={[
@@ -401,7 +404,7 @@ const FeedCard: React.FC<{
           />
         )}
 
-        {/* ?? Favorite - �st sol */}
+        {/* ?? Favorite - st sol */}
         <TouchableOpacity
           style={styles.appleFavorite}
           onPress={() => { haptic.medium(); onToggleFavorite(word.id); }}
@@ -412,7 +415,7 @@ const FeedCard: React.FC<{
             color={word.isFavorite ? '#ff375f' : 'rgba(255,255,255,0.5)'}
             fill={word.isFavorite ? '#ff375f' : 'transparent'}
           />
-          {/* ?? PV Badge - Phrasal Verb ise g�ster */}
+          {/* ?? PV Badge - Phrasal Verb ise gster */}
           {word.isPhrasalVerb && (
             <View style={styles.pvMiniBadgeFeed}>
               <Text style={styles.pvMiniBadgeFeedText}>PV</Text>
@@ -420,21 +423,21 @@ const FeedCard: React.FC<{
           )}
         </TouchableOpacity>
 
-        {/* ? Badge - �st sa� */}
+        {/* ? Badge - st sa */}
         <View style={[styles.appleBadge, { backgroundColor: `${theme.accent}25` }]}>
           <Text style={styles.appleBadgeEmoji}>{(justHarvested || isInInventory) ? '\u{1F331}' : theme.emoji}</Text>
           <Text style={[styles.appleBadgeText, { color: theme.textSecondary }]}>
-            {justHarvested ? 'Envanterde' : isInInventory ? 'Envanter' : masterLevel >= 3 ? 'Kraliyet' : masterLevel === 2 ? 'Elmas' : masterLevel === 1 ? 'Usta' : (word.wrongCount || 0) >= 2 ? 'Yesil' : (word.wrongCount || 0) >= 1 ? 'Sari' : 'Kirmizi'}
+            {justHarvested ? 'Envanterde' : isInInventory ? 'Envanter' : masterLevel >= 3 ? 'Kraliyet' : masterLevel === 2 ? 'Elmas' : masterLevel === 1 ? 'Usta' : (word.wrongCount || 0) >= 2 ? 'Yeşil' : (word.wrongCount || 0) >= 1 ? 'Sarı' : 'Kırmızı'}
           </Text>
         </View>
 
         {/* ?? Kelime */}
-        <Text style={[styles.appleWord, { color: theme.textMain }]}>{word.text}</Text>
+        <Text style={[styles.appleWord, { color: theme.textMain }]}>{normalizeDisplayText(word.text)}</Text>
 
-        {/* ?? �rnek c�mle */}
+        {/* ?? rnek cmle */}
         {!!word.example && (
           <Text style={[styles.appleExample, { color: `${theme.textSecondary}cc` }]}>
-            "{word.example}"
+            "{normalizeDisplayText(word.example)}"
           </Text>
         )}
 
@@ -442,12 +445,12 @@ const FeedCard: React.FC<{
         <View style={styles.appleStats}>
           <View style={styles.appleStat}>
             <Text style={[styles.appleStatNum, { color: '#22c55e' }]}>{'✓'}{word.quizCorrect || 0}</Text>
-            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>dogru</Text>
+            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>doğru</Text>
           </View>
           <View style={[styles.appleStatDivider, { backgroundColor: theme.accent }]} />
           <View style={styles.appleStat}>
             <Text style={[styles.appleStatNum, { color: '#ef4444' }]}>{'✗'}{word.quizWrong || 0}</Text>
-            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>yanlis</Text>
+            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>yanlış</Text>
           </View>
           <View style={[styles.appleStatDivider, { backgroundColor: theme.accent }]} />
           <View style={styles.appleStat}>
@@ -456,14 +459,14 @@ const FeedCard: React.FC<{
                 ? Math.round(((word.quizCorrect || 0) / ((word.quizCorrect || 0) + (word.quizWrong || 0))) * 100)
                 : 0
             }</Text>
-            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>basari</Text>
+            <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>başarı</Text>
           </View>
         </View>
 
-        {/* ?? Buton - justHarvested ise "Tekrar Ek", Hasat haz�rsa "Hasat Et", Envanterdeyse "Tarlaya Ekle", de�ilse "�al��" */}
+        {/* ?? Buton - justHarvested ise "Tekrar Ek", Hasat hazrsa "Hasat Et", Envanterdeyse "Tarlaya Ekle", deilse "al" */}
         {!isQuizActive && (
           justHarvested ? (
-            // ?? TEKRAR EK BUTONU - Premium tasar�m
+            // ?? TEKRAR EK BUTONU - Premium tasarm
             <TouchableOpacity
               style={[
                 styles.appleButton,
@@ -489,7 +492,7 @@ const FeedCard: React.FC<{
               <Text style={[styles.appleButtonHint, { color: 'rgba(16, 185, 129, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
             </TouchableOpacity>
           ) : word.isHarvestReady && !isInInventory ? (
-            // ?? HASAT ET BUTONU - Alt�n premium
+            // ?? HASAT ET BUTONU - Altn premium
             <TouchableOpacity
               style={[
                 styles.appleButton,
@@ -515,7 +518,7 @@ const FeedCard: React.FC<{
               <Text style={[styles.appleButtonHint, { color: 'rgba(245, 158, 11, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
             </TouchableOpacity>
           ) : isInInventory ? (
-            // ?? ENVANTER � TARLAYA EKLE BUTONU
+            // ?? ENVANTER  TARLAYA EKLE BUTONU
             <TouchableOpacity
               style={[
                 styles.appleButton,
@@ -541,7 +544,7 @@ const FeedCard: React.FC<{
               <Text style={[styles.appleButtonHint, { color: 'rgba(34, 197, 94, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
             </TouchableOpacity>
           ) : (
-            // ?? �ALI� BUTONU - Normal kart
+            // ?? ALI BUTONU - Normal kart
             <TouchableOpacity
               style={[styles.appleButton, { backgroundColor: theme.accent }]}
               activeOpacity={0.8}
@@ -574,9 +577,9 @@ const FeedCard: React.FC<{
   );
 };
 
-// ⚡ React.memo — sadece anlamlı prop değişikliğinde yeniden render
+// ⚡ React.memo  sadece anlaml prop deişikliinde yeniden render
 const MemoFeedCard = React.memo(FeedCard, (prev, next) => {
-  // word.id, quiz durumu, envanter durumu, hasat durumu değişmediyse re-render yapma
+  // word.id, quiz durumu, envanter durumu, hasat durumu deişmediyse re-render yapma
   return (
     prev.word?.id === next.word?.id &&
     prev.word?.masterLevel === next.word?.masterLevel &&
@@ -603,7 +606,7 @@ const GridSwipeWrapper: React.FC<{
         onStartShouldSetPanResponder: () => !disabled && !isProcessingRef.current,
         onMoveShouldSetPanResponder: (_, gesture) => {
           if (disabled || isProcessingRef.current) return false;
-          // Sa�a hareket + yatay (2x fark olmal� - dikey kaymay� engelle)
+          // Saa hareket + yatay (2x fark olmal - dikey kaymay engelle)
           return gesture.dx > 12 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 2;
         },
         onPanResponderGrant: () => {
@@ -613,18 +616,18 @@ const GridSwipeWrapper: React.FC<{
         },
         onPanResponderMove: (_, gesture) => {
           if (disabled || isProcessingRef.current) return;
-          // Sa�a 30px+ gidince tetikle (daha kesin)
+          // Saa 30px+ gidince tetikle (daha kesin)
           if (gesture.dx > 30 && !hasTriggeredRef.current) {
             hasTriggeredRef.current = true;
             isProcessingRef.current = true;
             haptic.heavy();
 
-            // ? Async olarak �al��t�r - UI donmas�n� �nle
+            // ? Async olarak altr - UI donmasn nle
             InteractionManager.runAfterInteractions(() => {
               try {
                 onSwipeRight();
               } finally {
-                // K�sa gecikme ile s�f�rla
+                // Ksa gecikme ile sfrla
                 setTimeout(() => {
                   isProcessingRef.current = false;
                 }, 100);
@@ -664,10 +667,11 @@ const StatsHeader: React.FC<{
   activeTab: 'words' | 'phrasal' | 'puzzle';
   filter: 'all' | 'ready' | 'study' | 'master' | 'favorites' | 'custom';
   onFilterChange: (filter: 'all' | 'ready' | 'study' | 'master' | 'favorites' | 'custom') => void;
-  tutorialStep?: string; // ?? Tutorial kilitli filtre kontrol�
-}> = ({ totalWords, harvestReady, studyCount, masterCount, onPressSearch, onPressSeedMarket, onPressPhrasalMenu, onPressPuzzle, onPressCardShop, activeTab, filter, onFilterChange, tutorialStep }) => {
-  // ?? Tutorial s�ras�nda sadece "all" filtresi aktif
-  const isFilterLocked = Boolean(tutorialStep && tutorialStep !== 'COMPLETED' && tutorialStep !== 'NOT_STARTED');
+  tutorialStep?: string; // ?? Tutorial kilitli filtre kontrol
+  guidedLocked?: boolean;
+}> = ({ totalWords, harvestReady, studyCount, masterCount, onPressSearch, onPressSeedMarket, onPressPhrasalMenu, onPressPuzzle, onPressCardShop, activeTab, filter, onFilterChange, tutorialStep, guidedLocked = false }) => {
+  // ?? Tutorial srasnda sadece "all" filtreaktif
+  const isFilterLocked = Boolean(guidedLocked || (tutorialStep && tutorialStep !== 'COMPLETED' && tutorialStep !== 'NOT_STARTED'));
 
   return (
     <View style={styles.statsHeader}>
@@ -684,7 +688,7 @@ const StatsHeader: React.FC<{
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.premiumFilterScroll}
       >
-        {/* ?? T�m� - Her zaman aktif */}
+        {/* ?? Tm - Her zaman aktif */}
         <TouchableOpacity
           style={[styles.premiumFilterBtn, filter === 'all' && styles.premiumFilterBtnActive]}
           onPress={() => { onFilterChange('all'); haptic.light(); }}
@@ -693,7 +697,7 @@ const StatsHeader: React.FC<{
           <Text style={[styles.premiumFilterCount, filter === 'all' && styles.premiumFilterCountActive]}>{totalWords}</Text>
         </TouchableOpacity>
 
-        {/* ?? Hasat Haz�r - Tutorial'da kilitli */}
+        {/* ?? Hasat Hazr - Tutorial'da kilitli */}
         <TouchableOpacity
           style={[styles.premiumFilterBtn, filter === 'ready' && styles.premiumFilterBtnActive, isFilterLocked && styles.premiumFilterBtnLocked]}
           onPress={() => {
@@ -708,7 +712,7 @@ const StatsHeader: React.FC<{
           <Text style={[styles.premiumFilterCount, filter === 'ready' && { color: '#FFCC00' }, isFilterLocked && { color: '#444' }]}>{harvestReady}</Text>
         </TouchableOpacity>
 
-        {/* ?? �al��mal�y�m - Tutorial'da kilitli */}
+        {/* ?? almalym - Tutorial'da kilitli */}
         <TouchableOpacity
           style={[styles.premiumFilterBtn, filter === 'study' && styles.premiumFilterBtnActive, isFilterLocked && styles.premiumFilterBtnLocked]}
           onPress={() => {
@@ -752,7 +756,7 @@ const StatsHeader: React.FC<{
           <Heart size={IS_SMALL_SCREEN ? 14 : 16} color={isFilterLocked ? "#444" : (filter === 'favorites' ? "#FF2D55" : "#888")} strokeWidth={2.5} fill={filter === 'favorites' ? "#FF2D55" : "transparent"} />
         </TouchableOpacity>
 
-        {/* ✏️ Kendi Kelimelerim - Tutorial'da kilitli */}
+        {/* Kendi Kelimelerim - Tutorial'da kilitli */}
         <TouchableOpacity
           style={[styles.premiumFilterBtn, filter === 'custom' && styles.premiumFilterBtnActive, isFilterLocked && styles.premiumFilterBtnLocked]}
           onPress={() => {
@@ -763,7 +767,7 @@ const StatsHeader: React.FC<{
           disabled={isFilterLocked}
         >
           {isFilterLocked && <Lock size={10} color="#666" style={{ position: 'absolute', top: 2, right: 2 }} />}
-          <Text style={{ fontSize: IS_SMALL_SCREEN ? 14 : 16 }}>{filter === 'custom' ? '✏️' : '✏️'}</Text>
+          <Text style={{ fontSize: IS_SMALL_SCREEN ? 14 : 16 }}>{'✏️'}</Text>
         </TouchableOpacity>
 
         {/* Divider */}
@@ -824,15 +828,21 @@ const StatsHeader: React.FC<{
           {isFilterLocked && <Lock size={8} color="#fff" style={{ position: 'absolute', top: 2, right: 2 }} />}
         </TouchableOpacity>
 
-        {/* 🎨 Card Shop */}
+        {/* s¨ Card Shop */}
         <TouchableOpacity
-          style={styles.premiumFilterBtn}
+          style={[styles.premiumFilterBtn, isFilterLocked && { opacity: 0.3 }]}
           onPress={() => {
+            if (isFilterLocked) {
+              haptic.light();
+              return;
+            }
             onPressCardShop?.();
             haptic.light();
           }}
+          disabled={isFilterLocked}
         >
-          <Text style={{ fontSize: IS_SMALL_SCREEN ? 14 : 16 }}>🎨</Text>
+          <Text style={{ fontSize: IS_SMALL_SCREEN ? 14 : 16 }}>{'\u{1F3A8}'}</Text>
+          {isFilterLocked && <Lock size={8} color="#fff" style={{ position: 'absolute', top: 2, right: 2 }} />}
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -943,20 +953,24 @@ export function FarmScreen() {
   const setActiveCardTheme = useFarmStore(state => state.setActiveCardTheme);
   const updateCardCustomization = useFarmStore(state => state.updateCardCustomization);
 
-  // ⚡ PERFORMANS — FeedCard'a prop olarak geçilecek (hook bypass)
+  // ⚡ PERFORMANS  FeedCard'a prop olarak geçilecek (hook bypass)
   const feedPerformanceConfig = usePerformanceStore(s => s.config);
 
-  // 🎯 GÜNLÜK GÖREVLER
+  //  GÜNLÜK GÖREVLER
   const checkAndResetDailyQuests = useFarmStore(state => state.checkAndResetDailyQuests);
-  const updateQuestProgress = useFarmStore(state => state.updateQuestProgress);
+  const queueQuestProgress = useFarmStore(state => state.queueQuestProgress);
 
-  // �🎓 TUTORIAL STATE
+  //  TUTORIAL STATE
   const tutorialStep = useFarmStore(state => state.tutorialStep);
   const tutorialFirstWrongWord = useFarmStore(state => state.tutorialFirstWrongWord);
   const tutorialHighlightedWordId = useFarmStore(state => state.tutorialHighlightedWordId);
   const setTutorialStep = useFarmStore(state => state.setTutorialStep);
   const setTutorialHighlightedWordId = useFarmStore(state => state.setTutorialHighlightedWordId);
   const isTutorialOverlayActive = useFarmStore(state => state.isTutorialOverlayActive);
+  const guidedModeActive = useFarmStore(state => state.guidedModeActive);
+  const guidedModeStep = useFarmStore(state => state.guidedModeStep);
+  const guidedModeTargetWordId = useFarmStore(state => state.guidedModeTargetWordId);
+  const guidedModeTargetWordText = useFarmStore(state => state.guidedModeTargetWordText);
 
   // ?? TAB SYSTEM - Kelimeler | Phrasal | Yapboz
   const [activeTab, setActiveTab] = useState<'words' | 'phrasal' | 'puzzle'>(globalTabState.current);
@@ -964,6 +978,22 @@ export function FarmScreen() {
   const [filter, setFilter] = useState<'all' | 'ready' | 'study' | 'master' | 'favorites' | 'custom'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
+  const [guidedFarmTipVisible, setGuidedFarmTipVisible] = useState(true);
+  const isGuidedFarmStep = guidedModeActive && guidedModeStep === 'FARM_MASTER_TARGET';
+  const guidedTargetWordKey = useMemo(
+    () => normalizeDisplayText(guidedModeTargetWordText).toLowerCase(),
+    [guidedModeTargetWordText]
+  );
+  const isGuidedTargetWord = useCallback((word: any) => {
+    const safeId = typeof word?.id === 'string' ? word.id.trim() : '';
+    if (guidedModeTargetWordId && safeId && safeId === guidedModeTargetWordId) return true;
+    const safeWordText = normalizeDisplayText(word?.text || word?.verb).toLowerCase();
+    return !!guidedTargetWordKey && !!safeWordText && safeWordText === guidedTargetWordKey;
+  }, [guidedModeTargetWordId, guidedTargetWordKey]);
+  const guidedTargetLabel = useMemo(
+    () => normalizeDisplayText(guidedModeTargetWordText || 'hedef kelime'),
+    [guidedModeTargetWordText]
+  );
   const gridColumns = cardCustomization?.largeMode ? 1 : cardCustomization?.compactMode ? 3 : 2;
   const isSoilQuickThemeActive = cardCustomization?.backgroundStyle === 'soil' || activeCardTheme === 'soil';
   const handleQuickThemeSwitch = useCallback((mode: 'default' | 'soil') => {
@@ -978,29 +1008,29 @@ export function FarmScreen() {
     setActiveCardTheme('default');
   }, [ownedCardThemes, setActiveCardTheme, updateCardCustomization]);
 
-  // 🎯 GÜNLÜK GÖREVLER PANEL
+  //  GÜNLÜK GÖREVLER PANEL
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
 
-  // 🎨 KART MAĞAZASI
+  // s¨ KART MAAZASI
   const [cardShopVisible, setCardShopVisible] = useState(false);
 
   // ?? Grid MiniQuiz (standalone)
   const [quizWordId, setQuizWordId] = useState<string | null>(null);
 
-  // ?? Feed - Instagram ke�fet ak��� + Quiz Feed
+  // ?? Feed - Instagram kefet ak + Quiz Feed
   const [feedVisible, setFeedVisible] = useState(false);
   const [feedStartIndex, setFeedStartIndex] = useState(0);
   const [feedQuizWordId, setFeedQuizWordId] = useState<string | null>(null);
   const [feedScrollEnabled, setFeedScrollEnabled] = useState(true);
 
   // ?? HASAT SONRASI "TEKRAR EK" STATE
-  // Hasat edilen kelimeler burada tutulur, "Tekrar Ek" butonu g�sterilir
+  // Hasat edilen kelimeler burada tutulur, "Tekrar Ek" butonu gsterilir
   const [harvestedWordIds, setHarvestedWordIds] = useState<Set<string>>(new Set());
 
-  // ?? Store'dan g�ncel quizWord'� �ek
+  // ?? Store'dan gncel quizWord' ek
   const quizWord = useMemo(() => {
     if (!quizWordId) return null;
-    // ?? FIX: �nce AKT�F (g�r�n�r) kart� bul, yoksa herhangi birini al
+    // ?? FIX: nce AKTF (grnr) kart bul, yoksa herhangi birini al
     return farm.find(w => w.id === quizWordId && !(w as any).normalHarvested) || farm.find(w => w.id === quizWordId) || null;
   }, [quizWordId, farm]);
 
@@ -1113,29 +1143,29 @@ export function FarmScreen() {
   }, [activeTab, setTopTabVisibility]);
 
   useEffect(() => {
-    // Veri y�klenince loading'i kapat - INSTANT
+    // Veri yklenince loading'i kapat - INSTANT
     if (farm && farm.length >= 0) {
-      setTimeout(() => setIsLoading(false), 50); // 100ms � 50ms
+      setTimeout(() => setIsLoading(false), 50); // 100ms  50ms
     }
 
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 200, // 300ms → 200ms ultra hızlı
+      duration: 200, // 300ms -> 200ms ultra hizli
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
   }, [farm]);
 
-  // 🎯 Günlük görevleri kontrol et ve gerekirse yenile
+  //  Günlük görevleri kontrol et ve gerekirse yenile
   useEffect(() => {
     checkAndResetDailyQuests();
-  }, []); // Sadece ilk mount'da çalış
+  }, []); // Sadece ilk mount'da çalş
 
-  // 📝 Route params ile gelen quizWordId'yi işle - Direkt MiniQuiz aç
+  //  Route params ile gelen quizWordId'yi işle - Direkt MiniQuiz aç
   useEffect(() => {
     const params = route.params as { quizWordId?: string; filter?: 'all' | 'ready' | 'study' | 'master' | 'favorites' } | undefined;
     if (params?.quizWordId && farm.length > 0) {
-      // Animasyon bittikten sonra quiz'i a�
+      // Animasyon bittikten sonra quiz'i a
       InteractionManager.runAfterInteractions(() => {
         const word = farm.find(w => w.id === params.quizWordId);
         if (word) {
@@ -1150,12 +1180,12 @@ export function FarmScreen() {
     }
   }, [route.params, farm, navigation, setStoreFeedVisible]);
 
-  // ?? Route params ile gelen filter ve tab'i i�le - SADECE params de�i�ti�inde
+  // ?? Route params ile gelen filter ve tab'i ile - SADECE params deitiinde
   useEffect(() => {
     const params = route.params as { filter?: 'all' | 'ready' | 'study' | 'master' | 'favorites'; tab?: 'words' | 'phrasal' | 'puzzle'; fromOnboarding?: boolean } | undefined;
     if (params?.filter) {
       setFilter(params.filter);
-      // Parametreyi temizle (bir kere uyguland�ktan sonra)
+      // Parametreyi temizle (bir kere uygulandktan sonra)
       navigation.setParams({ filter: undefined } as any);
     }
     if (params?.tab) {
@@ -1165,9 +1195,9 @@ export function FarmScreen() {
       navigation.setParams({ tab: undefined } as any);
     }
 
-    // ?? TUTORIAL: STEP_6 - K�rm�z� kart highlight (veya en d���k seviyeli)
+    // ?? TUTORIAL: STEP_6 - Krmz kart highlight (veya en dk seviyeli)
     if (tutorialStep === 'STEP_6_FARM_INTRO') {
-      // ?? T�M KELIMELER filtresine zorla
+      // ?? TM KELIMELER filtresine zorla
       if (filter !== 'all') {
         setFilter('all');
       }
@@ -1177,17 +1207,17 @@ export function FarmScreen() {
       );
 
       if (tutorialFirstWrongWord) {
-        // �lk yanl�� kelimeyi highlight et (k�rm�z� kart)
+        // lk yanl kelimeyi highlight et (krmz kart)
         setTutorialHighlightedWordId(tutorialFirstWrongWord.id);
       } else if (normalFarmFiltered.length > 0) {
-        // En D���K wrongCount'lu kelimeyi se� (k�rm�z�=0, turuncu=1, sar�=2, ye�il=3)
+        // En DK wrongCount'lu kelimeyi se (krmz=0, turuncu=1, sar=2, yeil=3)
         const sortedByWrongCount = [...normalFarmFiltered]
           .sort((a, b) => (a.wrongCount || 0) - (b.wrongCount || 0));
         setTutorialHighlightedWordId(sortedByWrongCount[0].id);
       }
     }
 
-    // ?? TUTORIAL: STEP_11'de (hasat bekleme) highlight korunmal� ve ready filtresine ge�meli
+    // ?? TUTORIAL: STEP_11'de (hasat bekleme) highlight korunmal ve ready filtresine gemeli
     if (tutorialStep === 'STEP_11_HARVEST' && tutorialHighlightedWordId) {
       // Ready filtresine zorla
       if (filter !== 'ready') {
@@ -1195,26 +1225,26 @@ export function FarmScreen() {
       }
     }
 
-    // ?? TUTORIAL: STEP_14'te Envanter'den geldiyse kart� highlight et - dialog g�sterilecek
+    // ?? TUTORIAL: STEP_14'te Envanter'den geldiyse kart highlight et - dialog gsterilecek
     if (tutorialStep === 'STEP_14_REPLANT') {
-      // ?? T�M KELIMELER filtresine zorla - kelime kaybolmas�n
+      // ?? TM KELIMELER filtresine zorla - kelime kaybolmasn
       if (filter !== 'all') {
         setFilter('all');
       }
-      // Kart� highlight et - kullan�c� g�rs�n
+      // Kart highlight et - kullanc grsn
       if (tutorialFirstWrongWord) {
         setTutorialHighlightedWordId(tutorialFirstWrongWord.id);
       }
-      // Dialog g�sterilecek (fullScreen: true), kullan�c� "Anlad�m" deyince Home'a gidecek
+      // Dialog gsterilecek (fullScreen: true), kullanc "Anladm" deyince Home'a gidecek
     }
 
     // ?? TUTORIAL: STEP_19'da (Final Quiz) highlight kelimesini ayarla
     if (tutorialStep === 'STEP_19_FINAL_QUIZ' && tutorialFirstWrongWord) {
-      // ?? T�M KELIMELER filtresine zorla - kelime kaybolmas�n
+      // ?? TM KELIMELER filtresine zorla - kelime kaybolmasn
       if (filter !== 'all') {
         setFilter('all');
       }
-      // Quiz i�in kelimeyi haz�rla
+      // Quiz iin kelimeyi hazrla
       if (tutorialHighlightedWordId !== tutorialFirstWrongWord.id) {
         setTutorialHighlightedWordId(tutorialFirstWrongWord.id);
       }
@@ -1222,12 +1252,37 @@ export function FarmScreen() {
   }, [route.params, navigation, tutorialStep, tutorialFirstWrongWord, setTutorialHighlightedWordId, tutorialHighlightedWordId, filter]);
 
   useEffect(() => {
+    if (isGuidedFarmStep) {
+      setGuidedFarmTipVisible(true);
+    }
+  }, [isGuidedFarmStep, guidedModeTargetWordId]);
+
+  useEffect(() => {
+    if (!isGuidedFarmStep) return;
+    if (activeTab !== 'words') {
+      setActiveTab('words');
+      globalTabState.current = 'words';
+    }
+    if (filter !== 'all') setFilter('all');
+    if (searchVisible) {
+      setSearchVisible(false);
+      setSearchQuery('');
+    }
+    if (feedVisible) {
+      setFeedVisible(false);
+      setStoreFeedVisible(false);
+      setFeedQuizWordId(null);
+    }
+    if (quizWordId) setQuizWordId(null);
+  }, [isGuidedFarmStep, activeTab, filter, searchVisible, feedVisible, quizWordId, setStoreFeedVisible]);
+
+  useEffect(() => {
     if (transferEvent?.type === 'harvest') {
-      // Feed açıkken TransferToast gösterme — Feed kendi RewardToast'ını gösteriyor
+      // Feed açkken TransferToast gösterme  Feed kendi RewardToast'n gösteriyor
       if (!feedVisible) {
         setActiveToast(transferEvent);
       }
-      // requestAnimationFrame ile ertele — aynı render cycle'da çift set() crash'i önle
+      // requestAnimationFrame ile ertele  ayn render cycle'da çift set() crash'i önle
       requestAnimationFrame(() => {
         consumeTransferEvent();
       });
@@ -1238,8 +1293,8 @@ export function FarmScreen() {
     if (!farm) return [];
 
     // ?? Normal tarla filtresi:
-    // - forPuzzleOnly olanlar� g�sterme (yapboz envanterinden gelmi�)
-    // - normalHarvested olanlar� g�sterme (normal tarladan hasat edilmi�, ama yapboz i�in farm'da)
+    // - forPuzzleOnly olanlar gsterme (yapboz envanterinden gelmi)
+    // - normalHarvested olanlar gsterme (normal tarladan hasat edilmi, ama yapboz iin farm'da)
     const normalFarm = farm.filter(w =>
       !(w as any).forPuzzleOnly &&
       !(w as any).normalHarvested
@@ -1251,29 +1306,29 @@ export function FarmScreen() {
         // Hasat: Sadece yeşil (wrongCount >= 2, masterLevel = 0) ve master kartlar (masterLevel > 0)
         result = normalFarm.filter(w => (w.wrongCount >= 2 && w.masterLevel === 0) || w.masterLevel > 0);
 
-        // ?? TUTORIAL FIX: E�er tutorial s�ras�nda kart ye�ilden d��erse bile listede kals�n
+        // ?? TUTORIAL FIX: Eer tutorial srasnda kart yeilden derse bile listede kalsn
         if (tutorialStep === 'STEP_11_HARVEST' && tutorialHighlightedWordId) {
           const tutorialWord = normalFarm.find(w => w.id === tutorialHighlightedWordId);
-          // E�er kelime listede yoksa ve normalFarm'da varsa ekle
+          // Eer kelime listede yoksa ve normalFarm'da varsa ekle
           if (tutorialWord && !result.find(w => w.id === tutorialHighlightedWordId)) {
             result = [tutorialWord, ...result];
           }
         }
         break;
       case 'study':
-        // �al��mal�y�m: Sadece k�rm�z�/sar�/turuncu (wrongCount < 3, masterLevel = 0)
+        // almalym: Sadece krmz/sar/turuncu (wrongCount < 3, masterLevel = 0)
         result = normalFarm.filter(w => w.wrongCount < 3 && w.masterLevel === 0);
         break;
       case 'master':
         result = normalFarm.filter(w => w.masterLevel > 0);
         break;
       case 'favorites':
-        // FAVOR�LER: En son eklenen en �stte (favoriteAddedAt timestamp'e g�re LIFO)
+        // FAVORLER: En son eklenen en stte (favoriteAddedAt timestamp'e gre LIFO)
         result = normalFarm.filter(w => w.isFavorite === true)
           .sort((a, b) => (b.favoriteAddedAt || 0) - (a.favoriteAddedAt || 0));
-        return result; // Favorilerde ek s�ralama yapma
+        return result; // Favorilerde ek sralama yapma
       case 'custom':
-        // ✏️ Kendi oluşturduğun kelimeler
+        //  Kendi oluşturduun kelimeler
         result = normalFarm.filter(w => (w as any).isCustom === true);
         break;
       default:
@@ -1310,16 +1365,16 @@ export function FarmScreen() {
       return scored;
     }
 
-    // ?? SIRALAMA ALGOR�TMASI:
-    // 1. Favoriler her zaman en �stte (FIFO - ilk eklenen favori en �stte)
-    // 2. Non-favoriler: Quiz, tohum, envanter, coin pazar�ndan yeni gelenler EN BA�TA (lastPlantedAt'e g�re)
+    // ?? SIRALAMA ALGORTMASI:
+    // 1. Favoriler her zaman en stte (FIFO - ilk eklenen favori en stte)
+    // 2. Non-favoriler: Quiz, tohum, envanter, coin pazarndan yeni gelenler EN BATA (lastPlantedAt'e gre)
 
-    // ? FAVOR�LER - favoriteAddedAt'e g�re FIFO s�ralama (ilk eklenen �stte)
+    // ? FAVORLER - favoriteAddedAt'e gre FIFO sralama (ilk eklenen stte)
     const favorites = result.filter(w => w.isFavorite)
       .sort((a, b) => (a.favoriteAddedAt || 0) - (b.favoriteAddedAt || 0));
 
-    // ?? D��ER KEL�MELER - lastPlantedAt'e g�re (en yeni �stte)
-    // Quiz sonucu lastPlantedAt de�i�mez, sadece tarlaya eklenme an�nda g�ncellenir
+    // ?? DER KELMELER - lastPlantedAt'e gre (en yeni stte)
+    // Quiz sonucu lastPlantedAt deimez, sadece tarlaya eklenme annda gncellenir
     const nonFavorites = result.filter(w => !w.isFavorite)
       .sort((a, b) => {
         const aPlanted = a.lastPlantedAt || 0;
@@ -1331,7 +1386,7 @@ export function FarmScreen() {
     return [...favorites, ...nonFavorites];
   }, [farm, filter, searchQuery, tutorialStep, tutorialHighlightedWordId]);
 
-  // ?? Normal tarla i�in forPuzzleOnly olanlar� ��kar
+  // ?? Normal tarla iin forPuzzleOnly olanlar kar
   const normalFarmForStats = useMemo(() => {
     return farm?.filter(w =>
       !(w as any).forPuzzleOnly &&
@@ -1347,7 +1402,7 @@ export function FarmScreen() {
     favorites: normalFarmForStats.filter(w => w.isFavorite === true).length,
   }), [normalFarmForStats]);
 
-  // ?? Phrasal i�in de forPuzzleOnly ve normalHarvested kontrol�
+  // ?? Phrasal iin de forPuzzleOnly ve normalHarvested kontrol
   const normalPhrasalFarmForStats = useMemo(() => {
     return phrasalVerbFarm?.filter(w =>
       !(w as any).forPuzzleOnly &&
@@ -1355,7 +1410,7 @@ export function FarmScreen() {
     ) || [];
   }, [phrasalVerbFarm]);
 
-  // ?? Phrasal Verb Stats - PhrasalVerbFarmScreenNew ile birebir ayn�
+  // ?? Phrasal Verb Stats - PhrasalVerbFarmScreenNew ile birebir ayn
   const phrasalStats = useMemo(() => ({
     total: normalPhrasalFarmForStats.length,
     ready: normalPhrasalFarmForStats.filter(w => ((w.wrongCount || 0) >= 2 && (w.masterLevel || 0) === 0) || (w.masterLevel || 0) > 0).length,
@@ -1368,34 +1423,30 @@ export function FarmScreen() {
   const puzzleStats = usePuzzleStats();
 
   const handleWordPress = useCallback((word: any) => {
-    // ?? TUTORIAL: Tutorial s�ras�nda feed a��lmamal�
+    if (isGuidedFarmStep) {
+      haptic.light();
+      return;
+    }
     if (tutorialStep && tutorialStep !== 'COMPLETED' && tutorialStep !== 'NOT_STARTED') {
-      return; // Tutorial s�ras�nda feed engellenmi�
+      return;
     }
 
     haptic.medium();
-
-    // ?? FEED: T�klanan kart ilk s�rada, geri kalan� rastgele
-    // 1. T�klanan kelimeyi ay�r
     const clickedWord = word;
     const otherWords = filteredWords.filter(w => w.id !== word.id);
-
-    // 2. Di�er kelimeleri shuffle et (Fisher-Yates)
     const shuffledOthers = [...otherWords];
     for (let i = shuffledOthers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffledOthers[i], shuffledOthers[j]] = [shuffledOthers[j], shuffledOthers[i]];
     }
 
-    // 3. T�klanan kelime ba�ta, sonra shuffle edilmi� di�erleri
     const feedDataWithClickedFirst = [clickedWord, ...shuffledOthers];
-
     setShuffledFeedData(feedDataWithClickedFirst);
     feedWordsRef.current = feedDataWithClickedFirst;
-    setFeedStartIndex(0); // �lk kart her zaman index 0
+    setFeedStartIndex(0);
     setFeedVisible(true);
-    setStoreFeedVisible(true); // Store'a bildir - swipe block
-  }, [filteredWords, setStoreFeedVisible, tutorialStep]);
+    setStoreFeedVisible(true);
+  }, [filteredWords, isGuidedFarmStep, setStoreFeedVisible, tutorialStep]);
 
   const handleCloseFeed = useCallback(() => {
     haptic.light();
@@ -1435,12 +1486,12 @@ export function FarmScreen() {
   const handleFeedQuizAnswer = useCallback((correct: boolean, count?: number) => {
     if (!feedQuizWordId) return;
 
-    // ?? �NCE quiz'i kapat - store g�ncellemesinden �NCE
-    // Bu sayede store g�ncellemesi FlatList'i re-render etti�inde isQuizActive zaten false olur
+    // ?? NCE quiz'i kapat - store gncellemesinden NCE
+    // Bu sayede store gncellemeFlatList'i re-render ettiinde isQuizActive zaten false olur
     const wordIdToAnswer = feedQuizWordId;
     setFeedQuizWordId(null);
 
-    // Sonra quiz cevab�n� i�le
+    // Sonra quiz cevabn ile
     answerMiniQuiz(wordIdToAnswer, correct, count || 1);
     haptic.light();
   }, [feedQuizWordId, answerMiniQuiz]);
@@ -1449,7 +1500,7 @@ export function FarmScreen() {
 
   const feedWordsRef = useRef<any[]>([]);
 
-  // ?? Feed'de kart de�i�ti�inde MiniQuiz de otomatik ge�sin
+  // ?? Feed'de kart deitiinde MiniQuiz de otomatik gesin
   const handleFeedViewableItemsChanged = useCallback(({ viewableItems }: any) => {
     if (viewableItems && viewableItems.length > 0) {
       const newIndex = viewableItems[0].index;
@@ -1457,10 +1508,10 @@ export function FarmScreen() {
         currentFeedIndexRef.current = newIndex;
         haptic.medium();
 
-        // ?? Quiz a��kken kart de�i�irse, yeni kart�n quiz'ini a�
+        // ?? Quiz akken kart deiirse, yeni kartn quiz'ini a
         const viewedWord = feedWordsRef.current[newIndex];
         if (viewedWord && feedQuizWordId) {
-          // Quiz zaten a��ksa, yeni karta ge�ince de quiz a��k kals�n
+          // Quiz zaten aksa, yeni karta geince de quiz ak kalsn
           setFeedQuizWordId(viewedWord.id);
         }
       }
@@ -1476,15 +1527,19 @@ export function FarmScreen() {
     itemVisiblePercentThreshold: 50,
   }).current;
 
-  // ?? Grid'den quiz'e t�kland���nda SADECE MiniQuiz a� (Feed a��lmaz)
+  // ?? Grid'den quiz'e tklandnda SADECE MiniQuiz a (Feed almaz)
   const handleQuizPress = useCallback((word: any) => {
+    if (isGuidedFarmStep && !isGuidedTargetWord(word)) {
+      haptic.light();
+      return;
+    }
     haptic.medium();
     setQuizWordId(word.id);
-  }, []);
+  }, [isGuidedFarmStep, isGuidedTargetWord]);
 
   // ?? Grid MiniQuiz cevap handler
   const handleQuizAnswer = useCallback((correct: boolean, count?: number, wordId?: string) => {
-    // Cevabı kaydet — TTS onClose'da speakFirstMeaning ile yapılıyor
+    // Cevabi kaydet  TTS onClose'da speakFirstMeaning ile yapiliyor
     const targetWordId = wordId || quizWordId;
     if (targetWordId) {
       answerMiniQuiz(targetWordId, correct, count || 1);
@@ -1502,10 +1557,10 @@ export function FarmScreen() {
     sound.speakWord(firstMeaning, 'tr-TR');
   }, []);
 
-  // ⚡ Feed callback'leri — renderItem dışında tanımlı, MemoFeedCard re-render'ı önler
+  // ⚡ Feed callback'leri  renderItem dşnda tanml, MemoFeedCard re-render' önler
   const handleFeedQuizClose = useCallback((wordId: string) => {
     haptic.light();
-    // Store'dan güncel meaning al (closure stale olmasın)
+    // Store'dan güncel meaning al (closure stale olmasn)
     const state = useFarmStore.getState();
     const w = state.farm.find((f: any) => f.id === wordId) || state.inventory.find((f: any) => f.id === wordId);
     speakFirstMeaning(w?.meaning);
@@ -1516,31 +1571,50 @@ export function FarmScreen() {
     haptic.heavy();
     sound.playPlant();
     plantFromInventory(wordId);
-    updateQuestProgress('PLANT_WORDS', 1);
+    queueQuestProgress('PLANT_WORDS', 1, 'add');
     const inv = useFarmStore.getState().inventory;
     const invWord = inv.find((w: any) => w.id === wordId || (w as any).originalWordId === wordId);
     speakFirstMeaning(invWord?.meaning);
-  }, [plantFromInventory, updateQuestProgress, speakFirstMeaning]);
+  }, [plantFromInventory, queueQuestProgress, speakFirstMeaning]);
 
   const handleFeedHarvest = useCallback((wordId: string) => {
-    const result = harvestWord(wordId);
-    if (result?.success) {
+    try {
+      traceEvent('farm_feed_harvest_start', { wordId });
+      const result = harvestWord(wordId);
+      if (!result?.success) {
+        traceEvent('farm_feed_harvest_skip', { wordId, reason: 'not_success' }, 'warn');
+        return;
+      }
+
+      const safeCoins = Number.isFinite(result.coins) ? Math.max(0, Math.floor(result.coins)) : 0;
+      const safeXp = Number.isFinite(result.xp) ? Math.max(0, Math.floor(result.xp)) : 0;
+
       const state = useFarmStore.getState();
       const w = state.inventory.find((f: any) => f.id === wordId || (f as any).originalWordId === wordId);
       speakFirstMeaning(w?.meaning);
+
       setTimeout(() => {
-        if (result.coins > 0) {
-          showRewardToast('coin', result.coins, 'Envantere gönderildi!');
-        } else if (result.xp > 0) {
-          showRewardToast('xp', result.xp, 'Envantere gönderildi!');
-        } else {
-          showRewardToast('harvest', 0, 'Envantere gönderildi!');
+        try {
+          if (safeCoins > 0) {
+            showRewardToast('coin', safeCoins, 'Envantere gönderildi!');
+          } else if (safeXp > 0) {
+            showRewardToast('xp', safeXp, 'Envantere gönderildi!');
+          } else {
+            showRewardToast('harvest', 0, 'Envantere gönderildi!');
+          }
+        } catch (toastError) {
+          traceEvent('farm_feed_harvest_toast_error', { wordId, error: String(toastError) }, 'error');
         }
       }, 100);
+
       setHarvestedWordIds(prev => new Set(prev).add(wordId));
       if (tutorialStep === 'STEP_10_TO_GREEN' || tutorialStep === 'STEP_11_HARVEST') {
         setTimeout(() => setTutorialStep('STEP_12_INVENTORY'), 500);
       }
+      traceEvent('farm_feed_harvest_success', { wordId, coins: safeCoins, xp: safeXp });
+    } catch (error) {
+      traceEvent('farm_feed_harvest_error', { wordId, error: String(error) }, 'error');
+      console.error('[FarmScreen] handleFeedHarvest failed:', error);
     }
   }, [harvestWord, speakFirstMeaning, tutorialStep, setTutorialStep]);
 
@@ -1570,7 +1644,7 @@ export function FarmScreen() {
     }
   }, [plantFromInventory, speakFirstMeaning]);
 
-  // ⚡ Feed word lookup Map — O(1) erişim, renderItem'da find() yapılmaz
+  // ⚡ Feed word lookup Map  O(1) erişim, renderItem'da find() yaplmaz
   const feedWordMap = useMemo(() => {
     const map = new Map<string, { word: any; isInInventory: boolean }>();
     if (!shuffledFeedData) return map;
@@ -1588,7 +1662,7 @@ export function FarmScreen() {
     return map;
   }, [shuffledFeedData, farm, inventory]);
 
-  // ⚡ Stabilized extraData — yeni array her render'da oluşmasın
+  // ⚡ Stabilized extraData  yeni array her render'da oluşmasn
   const feedExtraData = useMemo(
     () => [feedQuizWordId, harvestedWordIds.size, farm.length, inventory.length],
     [feedQuizWordId, harvestedWordIds.size, farm.length, inventory.length]
@@ -1596,40 +1670,48 @@ export function FarmScreen() {
 
   // ?? Swipe ile hasat handler
   const handleSwipeHarvest = useCallback((item: any) => {
+    if (isGuidedFarmStep && !isGuidedTargetWord(item)) {
+      haptic.light();
+      return;
+    }
     if (item.isHarvestReady) {
       haptic.harvestCelebration();
       sound.playEpicHarvest?.();
       harvestWord?.(item.id);
       speakFirstMeaning(item.meaning);
 
-      // ?? TUTORIAL: Hasat edilince STEP_12'ye ge� (envantere y�nlendir)
+      // ?? TUTORIAL: Hasat edilince STEP_12'ye ge (envantere ynlendir)
       if (tutorialStep === 'STEP_10_TO_GREEN' || tutorialStep === 'STEP_11_HARVEST') {
         setTimeout(() => setTutorialStep('STEP_12_INVENTORY'), 500);
       }
     }
-  }, [harvestWord, tutorialStep, setTutorialStep, speakFirstMeaning]);
+  }, [harvestWord, tutorialStep, setTutorialStep, speakFirstMeaning, isGuidedFarmStep, isGuidedTargetWord]);
 
-  // 🌱 STEP_16 CloudTip - "Anladım" butonu handler
+  // STEP_16 CloudTip - "Anladim" butonu handler
   const handleCloudTipContinue = useCallback(() => {
     setTutorialStep('STEP_15_MASTER_GRIND');
   }, [setTutorialStep]);
 
-  // ?? TUTORIAL: Aktif tutorial step'leri - di�er kartlar kilitli
-  // Tutorial tamamlanmadan T�M kartlar kilitli (sadece highlight edilen hari�)
+  // ?? TUTORIAL: Aktif tutorial step'leri - dier kartlar kilitli
+  // Tutorial tamamlanmadan TM kartlar kilitli (sadece highlight edilen hari)
   const isTutorialCardLockActive = useMemo(() => {
-    // Tutorial tamamland�ysa kilit yok
+    // Tutorial tamamlandysa kilit yok
     if (tutorialStep === 'COMPLETED' || tutorialStep === 'NOT_STARTED') {
       return false;
     }
-    // Tutorial devam ediyorsa t�m kartlar kilitli (highlight hari�)
+    // Tutorial devam ediyorsa tm kartlar kilitli (highlight hari)
     return true;
   }, [tutorialStep]);
 
   // ?? Memoized renderItem for FlashList performance
   const renderWordCard = useCallback(({ item, index }: { item: any; index: number }) => {
-    // ?? TUTORIAL: Sadece highlight edilen kart aktif, di�erleri kilitli
-    const isHighlighted = tutorialHighlightedWordId === item.id;
-    const isLocked = isTutorialCardLockActive && !isHighlighted;
+    // ?? TUTORIAL: Sadece highlight edilen kart aktif, dierleri kilitli
+    const tutorialHighlighted = tutorialHighlightedWordId === item.id;
+    const guidedHighlighted = isGuidedFarmStep && isGuidedTargetWord(item);
+    const isHighlighted = tutorialHighlighted || guidedHighlighted;
+    const tutorialLocked = isTutorialCardLockActive && !tutorialHighlighted;
+    const guidedLocked = isGuidedFarmStep && !guidedHighlighted;
+    const isLocked = tutorialLocked || guidedLocked;
 
     return (
       <GridSwipeWrapper
@@ -1647,10 +1729,17 @@ export function FarmScreen() {
         </View>
       </GridSwipeWrapper>
     );
-  }, [handleWordPress, handleQuizPress, handleSwipeHarvest, quizWordId, feedVisible, tutorialHighlightedWordId, isTutorialCardLockActive]);
+  }, [handleWordPress, handleQuizPress, handleSwipeHarvest, quizWordId, feedVisible, tutorialHighlightedWordId, isTutorialCardLockActive, isGuidedFarmStep, isGuidedTargetWord]);
 
   // ?? Memoized keyExtractor
-  const keyExtractor = useCallback((item: any) => item.text || item.id, []);
+  const keyExtractor = useCallback((item: any, index?: number) => {
+    const safeId = typeof item?.id === 'string' ? item.id.trim() : '';
+    if (safeId) return safeId;
+    const safeOriginalId = typeof item?.originalWordId === 'string' ? item.originalWordId.trim() : '';
+    if (safeOriginalId) return `${safeOriginalId}-${index ?? 0}`;
+    const safeText = typeof item?.text === 'string' ? item.text.trim() : 'word';
+    return `${safeText}-${index ?? 0}`;
+  }, []);
 
   const handleOpenStore = useCallback(() => {
     (navigation as any).navigate('Store');
@@ -1660,11 +1749,18 @@ export function FarmScreen() {
     setSearchVisible(true);
   }, []);
 
-  // Phrasal search i�in state
+  // Phrasal search iin state
   const [phrasalSearchVisible, setPhrasalSearchVisible] = useState(false);
 
-  // Puzzle search i�in state
+  // Puzzle search iin state
   const [puzzleSearchVisible, setPuzzleSearchVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isGuidedFarmStep) return;
+    if (phrasalSearchVisible) setPhrasalSearchVisible(false);
+    if (puzzleSearchVisible) setPuzzleSearchVisible(false);
+    if (cardShopVisible) setCardShopVisible(false);
+  }, [isGuidedFarmStep, phrasalSearchVisible, puzzleSearchVisible, cardShopVisible]);
 
   const handleOpenPhrasalSearch = useCallback(() => {
     setPhrasalSearchVisible(true);
@@ -1674,19 +1770,22 @@ export function FarmScreen() {
     setPuzzleSearchVisible(true);
   }, []);
 
-  // ?? Tab'a g�re search handler se�
+  // ?? Tab'a gre search handler se
   const getCurrentSearchHandler = useCallback(() => {
     if (activeTab === 'words') return handleOpenFarmSearch;
     if (activeTab === 'phrasal') return handleOpenPhrasalSearch;
     return handleOpenPuzzleSearch;
   }, [activeTab, handleOpenFarmSearch, handleOpenPhrasalSearch, handleOpenPuzzleSearch]);
 
-  // ?? Tab'a g�re stats se�
+  // ?? Tab'a gre stats se
   const getCurrentStats = useCallback(() => {
     if (activeTab === 'words') return stats;
     if (activeTab === 'phrasal') return phrasalStats;
     return puzzleStats;
   }, [activeTab, stats, phrasalStats, puzzleStats]);
+  const embeddedFilter = filter === 'custom' ? 'all' : filter;
+
+  const isSegmentLocked = tutorialStep !== 'COMPLETED' || isGuidedFarmStep;
 
   return (
     <View style={styles.container}>
@@ -1698,7 +1797,7 @@ export function FarmScreen() {
         end={{ x: 1, y: 1 }}
       />
 
-      {/* Stats Header - Premium Filter Bar - T�M TABLAR ���N */}
+      {/* Stats Header - Premium Filter Bar - TM TABLAR N */}
       <StatsHeader
         totalWords={getCurrentStats().total}
         harvestReady={getCurrentStats().ready}
@@ -1712,9 +1811,10 @@ export function FarmScreen() {
         filter={filter}
         onFilterChange={setFilter}
         tutorialStep={tutorialStep}
+        guidedLocked={isGuidedFarmStep}
       />
 
-      {/* � APPLE SEGMENT CONTROL - Premium Tab Bar */}
+      {/*  APPLE SEGMENT CONTROL - Premium Tab Bar */}
       <Animated.View
         style={[
           styles.topTabsAnimatedContainer,
@@ -1742,7 +1842,7 @@ export function FarmScreen() {
       >
       <View style={styles.segmentContainer}>
         <View style={styles.segmentTrack}>
-          {/* 🌾 Kelimeler Tab */}
+          {/*  Kelimeler Tab */}
           <TouchableOpacity
             style={[styles.segmentTab, activeTab === 'words' && styles.segmentTabActive]}
             onPress={() => { setActiveTab('words'); globalTabState.current = 'words'; setSearchVisible(false); setPhrasalSearchVisible(false); setPuzzleSearchVisible(false); haptic.selection(); sound.playTap(); }}
@@ -1760,17 +1860,17 @@ export function FarmScreen() {
             <Text style={[styles.segmentLabel, activeTab === 'words' && styles.segmentLabelActive]}>Kelimeler</Text>
           </TouchableOpacity>
 
-          {/* 🔗 Phrasal Tab */}
+          {/* s Phrasal Tab */}
           <TouchableOpacity
-            style={[styles.segmentTab, activeTab === 'phrasal' && styles.segmentTabActive, tutorialStep !== 'COMPLETED' && styles.segmentTabLocked]}
+            style={[styles.segmentTab, activeTab === 'phrasal' && styles.segmentTabActive, isSegmentLocked && styles.segmentTabLocked]}
             onPress={() => {
-              if (tutorialStep !== 'COMPLETED') { haptic.light(); return; }
+              if (isSegmentLocked) { haptic.light(); return; }
               setActiveTab('phrasal'); globalTabState.current = 'phrasal'; setSearchVisible(false); setPhrasalSearchVisible(false); setPuzzleSearchVisible(false); haptic.selection(); sound.playTap();
             }}
-            disabled={tutorialStep !== 'COMPLETED'}
+            disabled={isSegmentLocked}
             activeOpacity={0.8}
           >
-            {activeTab === 'phrasal' && tutorialStep === 'COMPLETED' && (
+            {activeTab === 'phrasal' && !isSegmentLocked && (
               <LinearGradient
                 colors={['#ec4899', '#db2777']}
                 start={{ x: 0, y: 0 }}
@@ -1778,22 +1878,22 @@ export function FarmScreen() {
                 style={styles.segmentActiveBackground}
               />
             )}
-            <Link2 size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'phrasal' ? '#fff' : tutorialStep !== 'COMPLETED' ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)'} strokeWidth={2.5} />
-            <Text style={[styles.segmentLabel, activeTab === 'phrasal' && styles.segmentLabelActive, tutorialStep !== 'COMPLETED' && { opacity: 0.35 }]}>Phrasal</Text>
-            {tutorialStep !== 'COMPLETED' && <View style={styles.segmentLockIcon}><Lock size={10} color="rgba(255,255,255,0.5)" /></View>}
+            <Link2 size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'phrasal' ? '#fff' : isSegmentLocked ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)'} strokeWidth={2.5} />
+            <Text style={[styles.segmentLabel, activeTab === 'phrasal' && styles.segmentLabelActive, isSegmentLocked && { opacity: 0.35 }]}>Phrasal</Text>
+            {isSegmentLocked && <View style={styles.segmentLockIcon}><Lock size={10} color="rgba(255,255,255,0.5)" /></View>}
           </TouchableOpacity>
 
-          {/* 🧩 Yapboz Tab */}
+          {/* sc© Yapboz Tab */}
           <TouchableOpacity
-            style={[styles.segmentTab, activeTab === 'puzzle' && styles.segmentTabActive, tutorialStep !== 'COMPLETED' && styles.segmentTabLocked]}
+            style={[styles.segmentTab, activeTab === 'puzzle' && styles.segmentTabActive, isSegmentLocked && styles.segmentTabLocked]}
             onPress={() => {
-              if (tutorialStep !== 'COMPLETED') { haptic.light(); return; }
+              if (isSegmentLocked) { haptic.light(); return; }
               setActiveTab('puzzle'); globalTabState.current = 'puzzle'; setSearchVisible(false); setPhrasalSearchVisible(false); setPuzzleSearchVisible(false); haptic.selection(); sound.playTap();
             }}
-            disabled={tutorialStep !== 'COMPLETED'}
+            disabled={isSegmentLocked}
             activeOpacity={0.8}
           >
-            {activeTab === 'puzzle' && tutorialStep === 'COMPLETED' && (
+            {activeTab === 'puzzle' && !isSegmentLocked && (
               <LinearGradient
                 colors={['#f97316', '#ea580c']}
                 start={{ x: 0, y: 0 }}
@@ -1801,9 +1901,9 @@ export function FarmScreen() {
                 style={styles.segmentActiveBackground}
               />
             )}
-            <Puzzle size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'puzzle' ? '#fff' : tutorialStep !== 'COMPLETED' ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)'} strokeWidth={2.5} />
-            <Text style={[styles.segmentLabel, activeTab === 'puzzle' && styles.segmentLabelActive, tutorialStep !== 'COMPLETED' && { opacity: 0.35 }]}>Yapboz</Text>
-            {tutorialStep !== 'COMPLETED' && <View style={styles.segmentLockIcon}><Lock size={10} color="rgba(255,255,255,0.5)" /></View>}
+            <Puzzle size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'puzzle' ? '#fff' : isSegmentLocked ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)'} strokeWidth={2.5} />
+            <Text style={[styles.segmentLabel, activeTab === 'puzzle' && styles.segmentLabelActive, isSegmentLocked && { opacity: 0.35 }]}>Yapboz</Text>
+            {isSegmentLocked && <View style={styles.segmentLockIcon}><Lock size={10} color="rgba(255,255,255,0.5)" /></View>}
           </TouchableOpacity>
         </View>
       </View>
@@ -1812,9 +1912,15 @@ export function FarmScreen() {
           style={[
             styles.quickThemeChip,
             !isSoilQuickThemeActive && styles.quickThemeChipActive,
+            isGuidedFarmStep && { opacity: 0.45 },
           ]}
-          activeOpacity={0.85}
+          activeOpacity={isGuidedFarmStep ? 1 : 0.85}
+          disabled={isGuidedFarmStep}
           onPress={() => {
+            if (isGuidedFarmStep) {
+              haptic.light();
+              return;
+            }
             haptic.selection();
             sound.playTap();
             handleQuickThemeSwitch('default');
@@ -1834,9 +1940,15 @@ export function FarmScreen() {
             styles.quickThemeChip,
             isSoilQuickThemeActive && styles.quickThemeChipActive,
             isSoilQuickThemeActive && styles.quickThemeChipActiveSoil,
+            isGuidedFarmStep && { opacity: 0.45 },
           ]}
-          activeOpacity={0.85}
+          activeOpacity={isGuidedFarmStep ? 1 : 0.85}
+          disabled={isGuidedFarmStep}
           onPress={() => {
+            if (isGuidedFarmStep) {
+              haptic.light();
+              return;
+            }
             haptic.selection();
             sound.playTap();
             handleQuickThemeSwitch('soil');
@@ -1857,7 +1969,7 @@ export function FarmScreen() {
       {/* ?? TAB CONTENT */}
       {activeTab === 'words' ? (
         <>
-          {/* ?? Inline Search - Filter'lar�n �st�nde ayr� sat�r */}
+          {/* ?? Inline Search - Filter'larn stnde ayr satr */}
           {searchVisible && (
             <View style={styles.searchBarContainer}>
               <View style={styles.inlineSearchWrapper}>
@@ -1910,13 +2022,17 @@ export function FarmScreen() {
                     end={{ x: 1, y: 1 }}
                   />
                   {filter === 'custom' ? (
-                    <Text style={{ fontSize: 48 }}>✏️</Text>
+                    <Text style={{ fontSize: 48 }}>{'✏️'}</Text>
                   ) : (
                     <Sprout size={56} color="#22c55e" />
                   )}
                 </View>
                 <Text style={styles.emptyTitle}>
-                  {filter === 'custom' ? '✏️ Kendi Kelime Kartın Yok' : farm.length === 0 ? '🌱 Tarlana Kelime Ek!' : '🔍 Kelime Bulunamadı'}
+                  {filter === 'custom'
+                    ? '✏️ Kendi Kelime Kartın Yok'
+                    : farm.length === 0
+                      ? '🌱 Tarlana Kelime Ekle!'
+                      : '🔍 Kelime Bulunamadı'}
                 </Text>
                 <Text style={styles.emptySubtitle}>
                   {filter === 'custom'
@@ -1935,7 +2051,9 @@ export function FarmScreen() {
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                   >
-                    <Text style={styles.emptyQuizButtonText}>{filter === 'custom' ? '✏️ Kelime Kartı Oluştur' : '🎯 Quiz Çöz'}</Text>
+                    <Text style={styles.emptyQuizButtonText}>
+                      {filter === 'custom' ? '✏️ Kelime Kartı Oluştur' : '🎯 Quiz Çöz'}
+                    </Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -1957,7 +2075,7 @@ export function FarmScreen() {
             )}
           </Animated.View>
 
-          {/* 📖 Feed Modal - Instagram keşfet akışı */}
+          {/*  Feed Modal - Instagram keşfet akş */}
           <Modal
             visible={feedVisible}
             transparent
@@ -1965,7 +2083,7 @@ export function FarmScreen() {
             onRequestClose={handleCloseFeed}
           >
             <View style={styles.feedContainer}>
-              {/* ?? Feed i�inde XP/Coin Toast g�ster */}
+              {/* ?? Feed iinde XP/Coin Toast gster */}
               <RewardToastContainer />
 
               <TouchableOpacity
@@ -1983,7 +2101,7 @@ export function FarmScreen() {
                 data={shuffledFeedData}
                 renderItem={({ item }) => {
                   const isQuizActive = feedQuizWordId === item.id;
-                  // ⚡ feedWordMap ile O(1) lookup — renderItem'da find() yok
+                  // ⚡ feedWordMap ile O(1) lookup  renderItem'da find() yok
                   const lookup = feedWordMap.get(item.id);
                   const currentWord = lookup?.word || item;
                   const isInInventory = lookup?.isInInventory || false;
@@ -2033,7 +2151,7 @@ export function FarmScreen() {
             </View>
           </Modal>
 
-          {/* 🎯 Grid MiniQuiz Dialog (standalone - Feed dışında) */}
+          {/*  Grid MiniQuiz Dialog (standalone - Feed dşnda) */}
           {quizWord && (
             <MiniQuizDialog
               key={quizWord.id}
@@ -2041,18 +2159,18 @@ export function FarmScreen() {
               allWords={pool || []}
               onAnswer={handleQuizAnswer}
               onClose={() => {
-                // 🔊 MiniQuiz kapanırken Türkçe anlamını seslendir (hasat ile birebir aynı)
+                //  MiniQuiz kapanrken Türkçe anlamn seslendir (hasat ile birebir ayn)
                 speakFirstMeaning(quizWord?.meaning);
                 setQuizWordId(null);
               }}
             />
           )}
 
-          {/* ?? TUTORIAL FINAL QUIZ PREMIUM - STEP_19'da g�ster */}
+          {/* ?? TUTORIAL FINAL QUIZ PREMIUM - STEP_19'da gster */}
           <TutorialFinalQuizPremium
             visible={tutorialStep === 'STEP_19_FINAL_QUIZ'}
             onComplete={() => {
-              // Final quiz tamamland�, celebration step'e ge�ilecek
+              // Final quiz tamamland, celebration step'e geilecek
             }}
           />
         </>
@@ -2060,7 +2178,7 @@ export function FarmScreen() {
         /* ?? PHRASAL TAB CONTENT */
         <PhrasalVerbFarmScreen
           embedded={true}
-          initialFilter={filter}
+          initialFilter={embeddedFilter}
           externalSearchVisible={phrasalSearchVisible}
           setExternalSearchVisible={setPhrasalSearchVisible}
           onParentScroll={handleEmbeddedTabScroll}
@@ -2069,7 +2187,7 @@ export function FarmScreen() {
         /* ?? YAPBOZ TAB CONTENT */
         <WordPuzzleScreen
           embedded={true}
-          initialFilter={filter}
+          initialFilter={embeddedFilter}
           externalSearchVisible={puzzleSearchVisible}
           setExternalSearchVisible={setPuzzleSearchVisible}
           onParentScroll={handleEmbeddedTabScroll}
@@ -2078,10 +2196,19 @@ export function FarmScreen() {
 
       <TransferToast event={activeToast} onHide={() => setActiveToast(null)} />
 
-      {/* 🌱 STEP_16 CloudTip - Master kartın eklendi mesajı */}
+      {/* STEP_16 CloudTip - Master kartin eklendi mesaji */}
       <FarmMascotCloudTip onContinue={handleCloudTipContinue} />
 
-      {/* 🎨 Card Shop Modal */}
+      {isGuidedFarmStep && (
+        <CuteCloudTip
+          visible={guidedFarmTipVisible}
+          message={`Hedefin: "${guidedTargetLabel}" kartını çalışıp hasat et.\nNeden: Bu adım kelimeyi pekiştirir ve yapbozu açar.\nBaşarı: Yalnızca bu kelime hasat edildiğinde bir sonraki adıma geçilir.`}
+          onDismiss={() => setGuidedFarmTipVisible(false)}
+          accentColor="#22c55e"
+        />
+      )}
+
+      {/* s¨ Card Shop Modal */}
       <Modal visible={cardShopVisible} animationType="slide" transparent>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <View style={{ flex: 1, marginTop: 60, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: 'hidden' }}>
@@ -2105,7 +2232,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  // � APPLE SEGMENT CONTROL STYLES - iOS Native Feel
+  //  APPLE SEGMENT CONTROL STYLES - iOS Native Feel
   segmentContainer: {
     marginHorizontal: IS_TABLET ? 20 : IS_SMALL_SCREEN ? 12 : 16,
     marginTop: IS_TABLET ? 10 : IS_SMALL_SCREEN ? 6 : 8,
@@ -2545,7 +2672,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
-  // ?? Search Bar Container - Ayr� sat�r
+  // ?? Search Bar Container - Ayr satr
   searchBarContainer: {
     paddingVertical: IS_SMALL_SCREEN ? 4 : 6,
     backgroundColor: 'rgba(18, 18, 20, 0.9)',
@@ -2630,7 +2757,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
   },
-  // ? SHIMMER EFFECT - Master kartlar i�in kart�n i�inde kayan ���k
+  // ? SHIMMER EFFECT - Master kartlar iin kartn iinde kayan k
   feedShimmerEffect: {
     position: 'absolute',
     top: 0,
@@ -2672,7 +2799,7 @@ const styles = StyleSheet.create({
     padding: 8,
     zIndex: 10,
   },
-  // ?? PV MINI BADGE - Feed kart i�in (favori butonunun yan�nda)
+  // ?? PV MINI BADGE - Feed kart iin (favori butonunun yannda)
   pvMiniBadgeFeed: {
     position: 'absolute',
     bottom: -3,
@@ -2971,3 +3098,6 @@ const styles = StyleSheet.create({
 });
 
 export default FarmScreen;
+
+
+

@@ -20,7 +20,7 @@ export interface ComparisonResult {
 }
 
 /**
- * � Sayıları kelimeye çevir (1 → one, 2 → two)
+ *  Sayıları kelimeye çevir (1 → one, 2 → two)
  */
 function convertNumbersToWords(text: string): string {
     const numberMap: { [key: string]: string } = {

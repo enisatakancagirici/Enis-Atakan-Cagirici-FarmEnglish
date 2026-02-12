@@ -5,6 +5,8 @@ import { useFarmStore } from '../store/farmStore';
 import * as Haptics from 'expo-haptics';
 import { useNavigation } from '@react-navigation/native';
 import { Play } from 'lucide-react-native';
+import { RewardToastContainer } from './RewardToast';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 // Tab tipleri
 type TabType = 'daily' | 'weekly' | 'repeatable' | 'story' | 'achievement';
@@ -14,7 +16,7 @@ interface DailyQuestsPanelProps {
   onNavigate?: (screen: string, params?: any) => void; // Navigation callback from parent with optional params
 }
 
-// Quest type → gradient renkleri mapping
+// Quest type -> gradient renkleri mapping
 const getQuestGradient = (type: string, completed: boolean): [string, string] => {
   if (completed) return ['#4CAF50', '#45a049'];
   
@@ -37,8 +39,9 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
   const [activeTab, setActiveTab] = useState<TabType>('daily');
   const claimingRef = useRef(new Set<string>());
   const lastClaimAtRef = useRef(0);
+  const t = (value: unknown, fallback = '') => normalizeDisplayText(value) || fallback;
   
-  // Store hooks — sadece data selectors (action'lar için getState() kullanılır)
+  // Store hooks - sadece data selectors
   const dailyQuests = useFarmStore(state => state.dailyQuests);
   const weeklyQuests = useFarmStore(state => state.weeklyQuests);
   const repeatableQuests = useFarmStore(state => state.repeatableQuests);
@@ -46,12 +49,12 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
   const achievementQuests = useFarmStore(state => state.achievementQuests);
   const trophies = useFarmStore(state => state.trophies);
 
-  // 🚀 Performans: Tek action ile tüm görevleri başlat (10 subscription → 0)
+  // Performans: Tek action ile tum gorevleri baslat
   useEffect(() => {
-    // Hızlı kontrol — hemen yap
+    // Hizli kontrol - hemen yap
     useFarmStore.getState().checkAndResetDailyQuests();
 
-    // 🔄 Ağır işlemleri UI render'dan sonra yap
+    // Agir islemleri UI render'dan sonra yap
     const handle = setTimeout(() => {
       useFarmStore.getState().initializeAllQuests();
     }, 100);
@@ -99,22 +102,22 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     } finally {
       setTimeout(() => {
         claimingRef.current.delete(claimKey);
-      }, 1000);
+      }, 600);
     }
   };
 
   // Quest'e tiklayinca ilgili ekrana yonlendir
   const handleStartQuest = (quest: any) => {
-    if (quest.completed) return; // Tamamlanmış göreve tıklanamaz
+    if (quest.completed) return; // Tamamlanmis goreve tiklanamaz
     
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     
-    console.log('🎯 handleStartQuest:', quest.screen, quest.title);
+    console.log('[DailyQuestsPanel] handleStartQuest:', quest.screen, quest.title);
     
-    // Modal'ı kapat
+    // Modali kapat
     onClose?.();
     
-    // Ekrana yönlendir - Puzzle ve PhrasalVerbFarm için Farm screen'e tab parametresiyle yönlendir
+    // Ekrana yonlendir - Puzzle ve PhrasalVerbFarm icin Farm screen'e tab parametresiyle
     const screenMap: Record<string, { screen: string; params?: any }> = {
       'Quiz': { screen: 'Quiz' },
       'Home': { screen: 'Home' },
@@ -127,7 +130,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     
     const target = screenMap[quest.screen] || { screen: 'Home' };
     
-    console.log('🎯 Navigating to:', target.screen, 'Params:', target.params, 'Has onNavigate:', !!onNavigate);
+    console.log('[DailyQuestsPanel] Navigating to:', target.screen, 'Params:', target.params, 'Has onNavigate:', !!onNavigate);
     
     // Parent callback varsa kullan, yoksa direct navigate
     if (typeof onNavigate === 'function') {
@@ -143,7 +146,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     }
   };
 
-  // Aktif tab'a göre görevleri al
+  // Aktif tab'a gore gorevleri al
   const getActiveQuests = (): any[] => {
     switch (activeTab) {
       case 'daily':
@@ -161,7 +164,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     }
   };
   
-  // ⚡ OPTIMIZE: useMemo ile gereksiz hesaplamaları önle
+  // OPTIMIZE: useMemo ile gereksiz hesaplamalari onle
   const activeQuests = useMemo(() => getActiveQuests(), [activeTab, dailyQuests, weeklyQuests, repeatableQuests, storyQuests, achievementQuests]);
   
   const { completedCount, claimedCount } = useMemo(() => ({
@@ -174,39 +177,39 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     [activeTab, dailyQuests]
   );
 
-  // 🔒 Guard: Son generate timestamp'i
+  // Guard: Son generate timestamp'i
   const lastGenerateRef = useRef<number>(0);
   
-  // Tüm görevler claimed olduysa yeni görevler generate et
-  // Not: checkAndResetDailyQuests zaten bu durumu kontrol ediyor,
-  // bu effect sadece panel açıkken claim sonrası UI güncellemesi için
+  // Tum gorevler claimed olduysa yeni gorevler generate et
+  // Not: checkAndResetDailyQuests zaten bu durumu kontrol eder
   useEffect(() => {
-    // Guard: 5 saniye içinde tekrar generate etme
+    // Guard: 8 saniye icinde tekrar generate etme
     const now = Date.now();
-    if (allClaimed && dailyQuests.length > 0 && (now - lastGenerateRef.current) > 5000) {
+    if (allClaimed && dailyQuests.length > 0 && (now - lastGenerateRef.current) > 8000) {
       lastGenerateRef.current = now;
       const handle = setTimeout(() => {
         try {
-          useFarmStore.getState().generateDailyQuests();
+          useFarmStore.getState().checkAndResetDailyQuests();
         } catch (e) {
-          console.log('[DailyQuestsPanel] generateDailyQuests error:', e);
+          console.log('[DailyQuestsPanel] checkAndResetDailyQuests error:', e);
         }
-      }, 1000);
+      }, 600);
       return () => clearTimeout(handle);
     }
   }, [allClaimed, dailyQuests.length]);
   
-  // ⚡ OPTIMIZE: Tab count'ları useMemo ile hesapla
+  // OPTIMIZE: Tab count'lari useMemo ile hesapla
   const tabs = useMemo(() => [
-    { id: 'daily' as TabType, label: 'Günlük', icon: '📋', count: dailyQuests.filter(q => !q.claimed).length },
-    { id: 'weekly' as TabType, label: 'Haftalık', icon: '📅', count: weeklyQuests.filter(q => !q.claimed).length },
-    { id: 'repeatable' as TabType, label: 'Tekrar', icon: '🔄', count: repeatableQuests.filter(q => !q.claimed).length },
-    { id: 'story' as TabType, label: 'Hikaye', icon: '📖', count: storyQuests.filter(q => q.isUnlocked && !q.claimed).length },
-    { id: 'achievement' as TabType, label: 'Başarı', icon: '🏆', count: achievementQuests.filter(q => q.completed && !q.claimed).length },
+    { id: 'daily' as TabType, label: t('Günlük', 'Günlük'), icon: t('📋', '📋'), count: dailyQuests.filter(q => !q.claimed).length },
+    { id: 'weekly' as TabType, label: t('Haftalık', 'Haftalık'), icon: t('📅', '📅'), count: weeklyQuests.filter(q => !q.claimed).length },
+    { id: 'repeatable' as TabType, label: t('Tekrar', 'Tekrar'), icon: t('🔁', '🔁'), count: repeatableQuests.filter(q => !q.claimed).length },
+    { id: 'story' as TabType, label: t('Hikaye', 'Hikaye'), icon: t('📖', '📖'), count: storyQuests.filter(q => q.isUnlocked && !q.claimed).length },
+    { id: 'achievement' as TabType, label: t('Başarı', 'Başarı'), icon: t('🏆', '🏆'), count: achievementQuests.filter(q => q.completed && !q.claimed).length },
   ], [dailyQuests, weeklyQuests, repeatableQuests, storyQuests, achievementQuests]);
 
   return (
     <View style={styles.container}>
+      <RewardToastContainer />
       {/* Header */}
       <LinearGradient
         colors={['#FFD700', '#FFA500']}
@@ -214,9 +217,9 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
-        <Text style={styles.headerTitle}>🎯 Görevler</Text>
+        <Text style={styles.headerTitle}>{t('🎯 Görevler', '🎯 Görevler')}</Text>
         <View style={styles.trophyContainer}>
-          <Text style={styles.trophyIcon}>🏆</Text>
+          <Text style={styles.trophyIcon}>{t('🏆', '🏆')}</Text>
           <Text style={styles.trophyCount}>{trophies}</Text>
         </View>
       </LinearGradient>
@@ -248,7 +251,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
       {/* Progress */}
       <View style={styles.progressContainer}>
         <Text style={styles.progressText}>
-          {completedCount}/{activeQuests.length} Görev Tamamlandı
+          {t(`${completedCount}/${activeQuests.length} Görev Tamamlandı`, `${completedCount}/${activeQuests.length} Görev Tamamlandı`)}
         </Text>
         <View style={styles.progressBar}>
           <View 
@@ -293,14 +296,14 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
                 <View style={styles.questRow}>
                   {/* Sol: Icon + Info */}
                   <View style={styles.questLeft}>
-                    <Text style={styles.questIcon}>{quest.icon}</Text>
+                    <Text style={styles.questIcon}>{t(quest.icon, '🎯')}</Text>
                     <View style={styles.questInfo}>
                       <Text style={[styles.questTitle, quest.completed && styles.completedText]} numberOfLines={1}>
-                        {quest.title}
+                        {t(quest.title, 'Görev')}
                       </Text>
-                      {/* Açıklama */}
+                      {/* Aciklama */}
                       <Text style={[styles.questDescription, quest.completed && styles.completedText]}>
-                        {quest.description}
+                        {t(quest.description)}
                       </Text>
                       {/* Mini Progress */}
                       <View style={styles.miniProgressRow}>
@@ -316,10 +319,10 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
                           {safeProgress}/{safeTarget}
                         </Text>
                       </View>
-                      {/* Hint - tamamlanmamış görevler için */}
+                      {/* Hint - tamamlanmamis gorevler icin */}
                       {!quest.completed && quest.hint && (
                         <Text style={styles.questHint} numberOfLines={1}>
-                          💡 {quest.hint}
+                          {t('💡', '💡')} {t(quest.hint)}
                         </Text>
                       )}
                     </View>
@@ -348,13 +351,13 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
                         style={styles.miniClaimBtn}
                         onPress={() => handleClaimReward(safeQuestId, activeTab)}
                       >
-                        <Text style={styles.miniClaimText}>Al</Text>
+                        <Text style={styles.miniClaimText}>{t('Al', 'Al')}</Text>
                       </TouchableOpacity>
                     )}
                     
                     {quest.claimed && (
                       <View style={styles.miniDoneIcon}>
-                        <Text style={styles.miniDoneText}>✓</Text>
+                        <Text style={styles.miniDoneText}>{'✓'}</Text>
                       </View>
                     )}
                   </View>
@@ -364,19 +367,19 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
           );
         })}
         
-        {/* Boş liste mesajı */}
+        {/* Bos liste mesaji */}
         {activeQuests.length === 0 && (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>🎉</Text>
-            <Text style={styles.emptyText}>Tüm görevler tamamlandı!</Text>
+            <Text style={styles.emptyIcon}>{t('🎉', '🎉')}</Text>
+            <Text style={styles.emptyText}>{t('Tüm görevler tamamlandı!', 'Tüm görevler tamamlandı!')}</Text>
           </View>
         )}
       </ScrollView>
 
-      {/* All Completed Celebration - Sadece daily tab için */}
+      {/* All Completed Celebration - Sadece daily tab icin */}
       {allClaimed && activeTab === 'daily' && (
         <View style={styles.celebrationBanner}>
-          <Text style={styles.celebrationText}>✨ Yeni görevler yükleniyor...</Text>
+          <Text style={styles.celebrationText}>{t('✨ Yeni görevler yükleniyor...', '✨ Yeni görevler yükleniyor...')}</Text>
         </View>
       )}
     </View>
@@ -720,7 +723,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  // 🎯 Yeni stiller - Hint ve Start Button
+  //  Yeni stiller - Hint ve Start Button
   hintContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -771,3 +774,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+

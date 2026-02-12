@@ -1,4 +1,4 @@
-﻿import React, {
+import React, {
   useMemo,
   useRef,
   useCallback,
@@ -59,11 +59,12 @@ import {
 } from "../utils/notifications";
 import { estimateCefrLevel } from "../utils/cefrEstimator";
 import { normalizeDisplayText } from "../utils/textNormalization";
+import { traceEvent } from "../utils/debugTrace";
 import NetInfo from "@react-native-community/netinfo";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-// Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â± RESPONSIVE SÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â°STEM - Apple Style
+// 📱 RESPONSIVE SİSTEM - Apple Style
 const IS_SMALL_DEVICE = SCREEN_HEIGHT < 700;
 const IS_MEDIUM_DEVICE = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
 const IS_TABLET_DEVICE = SCREEN_WIDTH >= 768;
@@ -89,24 +90,24 @@ const SPACING = {
 
 let homeVisualsPreloaded = false;
 
-// Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â PRELOAD ALL IMAGES - Optimized webp format for fast loading
+// 🖼️ PRELOAD ALL IMAGES - Optimized webp format for fast loading
 const PRELOADED_IMAGES = {
   logo: require("../../assets/logo.webp"),
-  quiz: require("../../assets/images/maskot/yeniTasar\u0131mlar/quizegelecek.png"),
-  farm: require("../../assets/images/maskot/yeniTasar\u0131mlar/ciftligegelecek.png"),
-  envanter: require("../../assets/images/maskot/yeniTasar\u0131mlar/envanteregelecek.png"),
-  puzzle: require("../../assets/images/maskot/yeniTasar\u0131mlar/yapbozagelecek.png"),
+  quiz: require("../../assets/images/maskot/yeniTasarımlar/quizegelecek.png"),
+  farm: require("../../assets/images/maskot/yeniTasarımlar/ciftligegelecek.png"),
+  envanter: require("../../assets/images/maskot/yeniTasarımlar/envanteregelecek.png"),
+  puzzle: require("../../assets/images/maskot/yeniTasarımlar/yapbozagelecek.png"),
   phrasal: require("../../assets/images/maskot/phrasal.webp"),
   soruIsareti: require("../../assets/images/maskot/soru_isareti.webp"),
   market: require("../../assets/images/maskot/market_anasayfa.webp"),
-  cardShop: require("../../assets/images/maskot/yeniTasar\u0131mlar/kartmagazasinagelecek.png"),
-  battle: require("../../assets/images/maskot/yeniTasar\u0131mlar/savasmodunagelecek.png"),
-  sesyap: require("../../assets/images/maskot/yeniTasar\u0131mlar/SesYapagelecek.png"),
-  pratik: require("../../assets/images/maskot/yeniTasar\u0131mlar/pratikmerkezinegelecek.png"),
-  customWord: require("../../assets/images/maskot/yeniTasar\u0131mlar/kendikelimekartiniolusturagelecek.png"),
+  cardShop: require("../../assets/images/maskot/yeniTasarımlar/kartmagazasinagelecek.png"),
+  battle: require("../../assets/images/maskot/yeniTasarımlar/savasmodunagelecek.png"),
+  sesyap: require("../../assets/images/maskot/yeniTasarımlar/SesYapagelecek.png"),
+  pratik: require("../../assets/images/maskot/yeniTasarımlar/pratikmerkezinegelecek.png"),
+  customWord: require("../../assets/images/maskot/yeniTasarımlar/kendikelimekartiniolusturagelecek.png"),
   // Market Modal Resimleri
   marketGuc: require("../../assets/images/maskot/guc_magazasi.webp"),
-  marketTohum: require("../../assets/images/maskot/tohum_pazar\u0131.webp"),
+  marketTohum: require("../../assets/images/maskot/tohum_pazarı.webp"),
   marketPhrasal: require("../../assets/images/maskot/market_pharasal.webp"),
 };
 
@@ -345,7 +346,7 @@ const TutorialDialog = ({
       icon: "\u{1F517}",
       title: "7. Phrasal Verbs",
       description:
-        "Give up, look after gibi yapilar icin ayri calisma akisi var. Gundelik Ingilizce icin kritik bir bolum.",
+        "Give up, look after gibi yapilar icin ayri calisma akivar. Gundelik Ingilizce icin kritik bir bolum.",
       color: "#10B981",
       tip: "Kısa tekrarlar akıcılığı hızlandırır.",
     },
@@ -685,7 +686,7 @@ const tutorialStyles = StyleSheet.create({
   },
 });
 
-// Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â¥ PREMIUM MENU CARD - Full Image Coverage + Shine + Glow + Bounce
+// s¥ PREMIUM MENU CARD - Full Image Coverage + Shine + Glow + Bounce
 const PremiumMenuCard = ({
   onPress,
   imageSource,
@@ -955,7 +956,7 @@ const PremiumMenuCard = ({
               />
             )}
 
-            {/* ÃƒÆ’Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Help Icon - Top Right */}
+            {/*  Help Icon - Top Right */}
             {helpText && (
               <TouchableOpacity
                 style={styles.helpIconContainer}
@@ -1095,7 +1096,7 @@ const PremiumGridMenu = ({
         />
       </View>
 
-      {/* Row 4: BATTLE - SavaÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸ Modu Butonu */}
+      {/* Row 4: BATTLE - Savaş Modu Butonu */}
       <TouchableOpacity
         style={[styles.marketContainer, { marginBottom: SPACING.md }]}
         onPress={onBattlePress}
@@ -1127,7 +1128,7 @@ const PremiumGridMenu = ({
         </View>
       </TouchableOpacity>
 
-      {/* Row 5: SesYap - KonuÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸ma Modu */}
+      {/* Row 5: SesYap - Konuşma Modu */}
       <TouchableOpacity
         style={[styles.marketContainer, { marginBottom: SPACING.md }]}
         onPress={onSesYapPress}
@@ -1159,7 +1160,7 @@ const PremiumGridMenu = ({
         </View>
       </TouchableOpacity>
 
-      {/* Row 5: MARKET - Tam geniÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸likte, Premium GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶rÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼m */}
+      {/* Row 5: MARKET - Tam genişlikte, Premium Görünüm */}
       <TouchableOpacity
         style={styles.marketContainer}
         onPress={onMarketPress}
@@ -1239,18 +1240,21 @@ export const HomeScreen = ({ navigation }: any) => {
     Array.isArray(state.activeBoosts) ? state.activeBoosts : [],
   );
   const harvestWord = useFarmStore((state) => state.harvestWord);
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Tutorial
+  // s Tutorial
   const tutorialStep = useFarmStore((state) => state.tutorialStep);
   const skipTutorial = useFarmStore((state) => state.skipTutorial);
   const tutorialInterrupted = useFarmStore((state) => state.tutorialInterrupted);
   const setTutorialInterrupted = useFarmStore((state) => state.setTutorialInterrupted);
+  const guidedModeActive = useFarmStore((state) => state.guidedModeActive);
+  const guidedModeStep = useFarmStore((state) => state.guidedModeStep);
+  const stopGuidedMode = useFarmStore((state) => state.stopGuidedMode);
   const showNicknameModal = useFarmStore((state) => !!state.showNicknameModal);
   const nickname = useFarmStore((state) => state.nickname);
   
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revler
+  //  Günlük Görevler
   const checkAndResetDailyQuests = useFarmStore((state) => state.checkAndResetDailyQuests);
 
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â Preload images on mount for performance
+  // sOuï Preload images on mount for performance
   useEffect(() => {
     if (homeVisualsPreloaded) return;
     const preloadImages = async () => {
@@ -1279,13 +1283,13 @@ export const HomeScreen = ({ navigation }: any) => {
   // MiniQuiz State
   const [quizWordId, setQuizWordId] = useState<string | null>(null);
 
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â® Tutorial State
+  //  Tutorial State
   const [showTutorial, setShowTutorial] = useState(false);
 
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Âª Market Modal State
+  //  Market Modal State
   const [showMarket, setShowMarket] = useState(false);
   
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ Quest Panel State
+  //  Quest Panel State
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
   const [cardShopVisible, setCardShopVisible] = useState(false);
   const [helpModalVisible, setHelpModalVisible] = useState(false);
@@ -1393,7 +1397,7 @@ export const HomeScreen = ({ navigation }: any) => {
       isNavigating.current = false;
       lastNavigationTime.current = 0;
       
-      // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revleri kontrol et ve yenile
+      //  Günlük görevleri kontrol et ve yenile
       try {
         checkAndResetDailyQuests();
       } catch (error) {
@@ -1417,7 +1421,7 @@ export const HomeScreen = ({ navigation }: any) => {
   );
   const isTutorialActive = tutorialStep !== "NOT_STARTED" && tutorialStep !== "COMPLETED";
   const isFullScreenTutorial = tutorialDialog.fullScreen === true;
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ Sadece uygulama arka plana gidip dÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼ldÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼yse kilit overlay'i gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶ster; devam et tÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±klanÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±nca kalksÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±n
+  //  Sadece uygulama arka plana gidip dönüldüyse kilit overlay'i göster; devam et tklannca kalksn
   const showHomeTutorialLock = isTutorialActive && !isFullScreenTutorial && tutorialInterrupted;
   const tutorialLockMessage = useMemo(() => {
     const lineText = (tutorialDialog.lines || []).filter(Boolean).join(" ");
@@ -1429,6 +1433,12 @@ export const HomeScreen = ({ navigation }: any) => {
       setTutorialInterrupted(false);
     }
   }, [tutorialStep, tutorialInterrupted, setTutorialInterrupted]);
+
+  useEffect(() => {
+    if (guidedModeActive) {
+      stopGuidedMode();
+    }
+  }, [guidedModeActive, stopGuidedMode]);
 
   // Word categories
   const learningWords = useMemo(() => {
@@ -1451,17 +1461,47 @@ export const HomeScreen = ({ navigation }: any) => {
   }, [farm, phrasalVerbFarm]);
 
   const favoriteWords = useMemo(() => {
-    // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ normalHarvested olanlarÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± filtrele (duplicate ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nleme)
+    //  normalHarvested olanlar filtrele (duplicate önleme)
     const activeFarm = [...farm, ...phrasalVerbFarm].filter(w => !(w as any).normalHarvested);
     return [...activeFarm, ...inventory, ...phrasalVerbInventory]
       .filter((w) => w.isFavorite === true)
       .slice(0, 10);
   }, [farm, inventory, phrasalVerbFarm, phrasalVerbInventory]);
 
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â© Puzzle kelimeleri - forPuzzleOnly olanlar
+  // sc© Puzzle kelimeleri - forPuzzleOnly olanlar
   const puzzleWords = useMemo(() => {
     return farm.filter((w) => (w as any).forPuzzleOnly === true).slice(0, 10);
   }, [farm]);
+
+  const getGuidedRouteBlockReason = useCallback((route: string, params?: any): string | null => {
+    if (!guidedModeActive) return null;
+    if (route === "Home") return null;
+
+    switch (guidedModeStep) {
+      case "QUIZ_UNTIL_WRONG":
+        if (route !== "Quiz") {
+          return "Müfredat aktif: önce yanlış yapana kadar Quiz çözmelisin.";
+        }
+        return null;
+      case "FARM_MASTER_TARGET":
+        if (route !== "Farm") {
+          return "Şimdi çiftlik adımındasın. Hedef kelimeyi hasat ederek ilerleyebilirsin.";
+        }
+        return null;
+      case "PUZZLE_PRACTICE":
+        if (route !== "Farm" || params?.tab !== "puzzle") {
+          return "Sıradaki adım Yapboz. Çiftlik > Yapboz sekmesine geçerek devam et.";
+        }
+        return null;
+      case "SESYAP_PRACTICE":
+        if (route !== "SesYap") {
+          return "Son adım SesYap. Bir doğru telaffuzla müfredatı tamamlayabilirsin.";
+        }
+        return null;
+      default:
+        return null;
+    }
+  }, [guidedModeActive, guidedModeStep]);
 
   const ensureInternetForRoute = useCallback(async (route: string) => {
     const internetRequiredRoutes = new Set(["SesYap", "BattleMenu", "Leaderboard"]);
@@ -1495,6 +1535,14 @@ export const HomeScreen = ({ navigation }: any) => {
       return;
     }
 
+    const guidedBlockReason = getGuidedRouteBlockReason(route, params);
+    if (guidedBlockReason) {
+      traceEvent("guided_nav_blocked", { route, step: guidedModeStep });
+      showHomeHelpModal("Müfredat Aktif", guidedBlockReason);
+      haptic.warning();
+      return;
+    }
+
     isNavigating.current = true;
 
     const canNavigate = await ensureInternetForRoute(route);
@@ -1507,13 +1555,19 @@ export const HomeScreen = ({ navigation }: any) => {
     lastNavigationTime.current = Date.now();
 
     haptic.medium();
+    traceEvent("home_nav", {
+      route,
+      tab: params?.tab,
+      guidedModeActive,
+      guidedModeStep,
+    });
     // Avoid InteractionManager deadlocks when continuous card animations are active.
     navigation.navigate(route, params);
 
     setTimeout(() => {
       isNavigating.current = false;
     }, 500);
-  }, [navigation, ensureInternetForRoute]);
+  }, [navigation, ensureInternetForRoute, getGuidedRouteBlockReason, guidedModeActive, guidedModeStep, showHomeHelpModal]);
 
   useEffect(() => {
     if (tutorialStep !== "COMPLETED") return;
@@ -1564,7 +1618,7 @@ export const HomeScreen = ({ navigation }: any) => {
       notificationRequestInFlightRef.current = false;
       showHomeHelpModal(
         "Bildirim İzni Bekleniyor",
-        "Sistem izin penceresi geç yanıt verdi. Ekran donmaz; devam edebilir veya daha sonra tekrar deneyebilirsin."
+        "Sistem izin penceregeç yanıt verdi. Ekran donmaz; devam edebilir veya daha sonra tekrar deneyebilirsin."
       );
     }, 10000);
 
@@ -1651,10 +1705,10 @@ export const HomeScreen = ({ navigation }: any) => {
 
   const handlePracticeNavigate = useCallback((route: string) => {
     setPracticeCenterVisible(false);
-    setTimeout(() => handleNav(route), 120);
+    handleNav(route);
   }, [handleNav]);
 
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â© PUZZLE -> Farm puzzle sekmesine yÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nlendir
+  //  PUZZLE -> Farm puzzle sekmesine yönlendir
   const handlePuzzlePress = () => {
     handleNav("Farm", { tab: "puzzle" });
   };
@@ -1683,7 +1737,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
   const handleQuizAnswer = useCallback(
     (correct: boolean, count?: number, wordId?: string) => {
-      // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ MiniQuizDialog'dan gelen wordId'yi ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶ncelikli kullan (closure sorunu ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nlenir)
+      //  MiniQuizDialog'dan gelen wordId'yi öncelikli kullan (closure sorunu önlenir)
       const targetWordId = wordId || quizWordId;
       if (targetWordId) {
         answerMiniQuiz(targetWordId, correct, count || 1);
@@ -1701,7 +1755,7 @@ export const HomeScreen = ({ navigation }: any) => {
     [toggleFavorite],
   );
 
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¾ HASAT ÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚ÂLEMÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â° - Haptic, ses ve ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶dÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼l gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶sterimi
+  //  HASAT LEM - Haptic, ses ve ödül gösterimi
   const handleHarvestWord = useCallback(
     (wordId: string) => {
       if (!harvestWord) return;
@@ -1712,6 +1766,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
         // Hasat islemi
         const result = harvestWord(wordId);
+        traceEvent("home_harvest_attempt", { wordId, success: !!result?.success });
 
         if (result && result.success) {
           // Basarili hasat sesi
@@ -1729,6 +1784,7 @@ export const HomeScreen = ({ navigation }: any) => {
           }
         }
       } catch (error) {
+        traceEvent("home_harvest_error", { wordId, error: String(error) }, "error");
         console.error("[HomeScreen] handleHarvestWord failed:", error);
       }
     },
@@ -1871,7 +1927,7 @@ export const HomeScreen = ({ navigation }: any) => {
               size="wide"
               textAlign="center"
               accentColor="#60A5FA"
-              delay={240}
+              delay={250}
               hasBounce={true}
               onHelpPress={showHomeHelpModal}
               helpText="Hasatların burada. Tarlaya buradan tekrar ektiğinde kart, seviye atlamış haliyle seni karşılar. 10 ve 10'un katlarında böcek saldırısı gelir; quiz çözerek defedersin. Bu döngü tekrarli öğrenmeyi kalıcılaştırır."
@@ -2016,7 +2072,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 haptic.light();
                 navigation.navigate(
                   "Farm" as never,
-                  { filter: "favorites" } as never,
+                  { filter: "favorite" } as never,
                 );
               }}
               onCardPress={handleStudyWord}
@@ -2137,7 +2193,7 @@ export const HomeScreen = ({ navigation }: any) => {
         />
       )}
       
-      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revler Modal */}
+      {/*  Günlük Görevler Modal */}
       <Modal
         visible={questsPanelVisible}
         transparent
@@ -2183,7 +2239,7 @@ export const HomeScreen = ({ navigation }: any) => {
         </View>
       </Modal>
 
-      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¨ Card Shop Modal */}
+      {/* s¨ Card Shop Modal */}
       <Modal
         visible={cardShopVisible}
         animationType="slide"
@@ -2225,7 +2281,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 activeOpacity={0.85}
               >
                 <Text style={styles.practiceModalButtonTitle}>Kelime Eşleştir</Text>
-                <Text style={styles.practiceModalButtonDesc}>Karışık kartlarda İngilizce-Türkçe çiftleri bularak hız ve doğruluk refleksi kazan.</Text>
+                <Text style={styles.practiceModalButtonDesc}>Karışık kartlarda İngilizce-Türkçe çiftleri bularak hız ve doğruluk reflekkazan.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2234,7 +2290,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 activeOpacity={0.85}
               >
                 <Text style={styles.practiceModalButtonTitle}>Boşluk Doldur</Text>
-                <Text style={styles.practiceModalButtonDesc}>Cümlede bağlama en uygun kelimeyi seçerek dilbilgisi ve anlam doğruluğunu geliştir.</Text>
+                <Text style={styles.practiceModalButtonDesc}>Cümlede bağlama en uygun kelimeyi seçerek dilbilgive anlam doğruluğunu geliştir.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2285,12 +2341,12 @@ export const HomeScreen = ({ navigation }: any) => {
         </View>
       </Modal>
 
-      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¹Ã…â€œ Tutorial Final Quiz Dialog */}
+      {/* s˜ Tutorial Final Quiz Dialog */}
       <JuicyModal
         visible={helpModalVisible}
         onClose={() => setHelpModalVisible(false)}
         title={helpModalTitle}
-        titleEmoji={'\u2753'}
+        titleEmoji={'S'}
         message={helpModalMessage}
         type="info"
         buttons={[
@@ -2326,25 +2382,25 @@ export const HomeScreen = ({ navigation }: any) => {
         visible={tutorialStep === "STEP_18_PERFECT_DONE"}
       />
 
-      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ Tutorial Final Quiz Premium - STEP_19 */}
+      {/*  Tutorial Final Quiz Premium - STEP_19 */}
       <TutorialFinalQuizPremium
         visible={tutorialStep === "STEP_19_FINAL_QUIZ"}
         onComplete={() => {
-          // Final quiz tamamlandÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±
+          // Final quiz tamamlandi
         }}
       />
 
-      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“Ãƒâ€šÃ‚Â¤ Nickname Modal - Tutorial sonrasÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± isim isteme */}
+      {/* s Nickname Modal - Tutorial sonraisim isteme */}
       <NicknameModal />
 
-      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â® Tutorial Dialog */}
+      {/*  Tutorial Dialog */}
       <TutorialDialog
         visible={showTutorial}
         onClose={() => setShowTutorial(false)}
       />
 
 
-      {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Âª Market Modal - Premium 3-Card Layout */}
+      {/*  Market Modal - Premium 3-Card Layout */}
       <Modal
         visible={showMarket}
         animationType="slide"
@@ -2373,7 +2429,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
               {/* Premium Market Cards */}
               <View style={styles.marketCardsContainer}>
-                {/* ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡Ãƒâ€šÃ‚Â¡ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ MaÃƒÆ’Ã¢â‚¬ÂÃƒâ€¦Ã‚Â¸azasÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± */}
+                {/* ⚡ Güç Maazas */}
                 <TouchableOpacity
                   style={styles.marketPremiumCard}
                   onPress={() => {
@@ -2409,7 +2465,7 @@ export const HomeScreen = ({ navigation }: any) => {
                   </View>
                 </TouchableOpacity>
 
-                {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â± Tohum PazarÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â± */}
+                {/* sUi Tohum Pazari */}
                 <TouchableOpacity
                   style={styles.marketPremiumCard}
                   onPress={() => {
@@ -2445,7 +2501,7 @@ export const HomeScreen = ({ navigation }: any) => {
                   </View>
                 </TouchableOpacity>
 
-                {/* Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¦Ã‚Â¡ Phrasal Verbs */}
+                {/* s Phrasal Verbs */}
                 <TouchableOpacity
                   style={styles.marketPremiumCard}
                   onPress={() => {
@@ -2472,7 +2528,7 @@ export const HomeScreen = ({ navigation }: any) => {
                     <View style={styles.marketCardTextOverlay}>
                       <Text style={styles.marketPremiumTitle}>Phrasal Verbs</Text>
                       <Text style={styles.marketPremiumSubtitle}>
-                        200+ phrasal verb ustasi ol!</Text>
+                        200+ phrasal verb ustaol!</Text>
                     </View>
                     <View style={styles.marketPremiumArrow}>
                       <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
@@ -2995,7 +3051,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Âª Market Container - Ana sayfa butonu (Premium Full Image)
+  //  Market Container - Ana sayfa butonu (Premium Full Image)
   marketContainer: {
     marginTop: GRID_GAP,
     borderRadius: CARD_BORDER_RADIUS,
@@ -3049,7 +3105,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
 
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Âª Market Modal Styles - Premium 3-Card Layout
+  //  Market Modal Styles - Premium 3-Card Layout
   marketModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.9)",
@@ -3221,7 +3277,7 @@ const styles = StyleSheet.create({
     color: "#3B82F6",
     letterSpacing: 0.5,
   },
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Tutorial gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼venlik kilidi (Home)
+  //  Tutorial güvenlik kilidi (Home)
   homeTutorialLock: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
@@ -3285,7 +3341,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revler Buton
+  //  Günlük Görevler Buton
   questsButton: {
     marginBottom: SPACING.lg,
     borderRadius: 16,
@@ -3374,7 +3430,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   
-  // Ãƒâ€Ã…Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¯ GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼nlÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼k GÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶revler Modal
+  //  Günlük Görevler Modal
   questsModalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -3388,7 +3444,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 8,
-    paddingBottom: 34, // Safe area iÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§in
+    paddingBottom: 34, // Safe area için
     maxHeight: '90%',
   },
   questsCloseButton: {

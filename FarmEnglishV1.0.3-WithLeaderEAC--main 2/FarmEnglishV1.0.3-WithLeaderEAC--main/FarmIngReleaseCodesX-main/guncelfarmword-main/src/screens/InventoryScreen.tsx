@@ -41,7 +41,7 @@ const TAB_IMAGES = {
   puzzle: require('../../assets/images/maskot/sekme_yapboz_envanter.webp'),
 };
 
-// � RESPONSIVE SYSTEM - Tüm iPhone modelleri için
+//  RESPONSIVE SYSTEM - Tüm iPhone modelleri için
 const getScreenType = () => {
   if (SCREEN_HEIGHT < 680) return 'tiny';      // iPhone SE, 8, mini
   if (SCREEN_HEIGHT < 750) return 'small';     // iPhone 11/12/13/14 standart
@@ -606,7 +606,7 @@ export default function InventoryScreen() {
         </View>
       </Animated.View>
 
-      {/* � APPLE SEGMENT CONTROL - Premium Tab Bar */}
+      {/*  APPLE SEGMENT CONTROL - Premium Tab Bar */}
       <View style={styles.segmentContainer}>
         <View style={styles.segmentTrack}>
           {/* 📚 Kelimeler Tab */}

@@ -233,7 +233,7 @@ const PhrasalFeedCard: React.FC<{
       if (gesture.dx > 50 && !hasTriggeredRef.current) {
         hasTriggeredRef.current = true;
         haptic.heavy();
-        // � Az önce hasat edilmişse → Tarlaya geri ek (onReplant)
+        //  Az önce hasat edilmişse → Tarlaya geri ek (onReplant)
         if (justHarvested && onReplant) {
           if (haptic.plantToFarm) { haptic.plantToFarm(); } else { haptic.heavy(); }
           sound.playPlant?.();
@@ -627,7 +627,7 @@ export default function PhrasalVerbFarmScreenNew({
     // Static - no idle animation
   }));
 
-  // � initialFilter değişirse filter'ı güncelle (FarmScreen'den geliyor olabilir)
+  //  initialFilter değişirse filter'ı güncelle (FarmScreen'den geliyor olabilir)
   useEffect(() => {
     if (initialFilter !== filter) {
       setFilter(initialFilter);

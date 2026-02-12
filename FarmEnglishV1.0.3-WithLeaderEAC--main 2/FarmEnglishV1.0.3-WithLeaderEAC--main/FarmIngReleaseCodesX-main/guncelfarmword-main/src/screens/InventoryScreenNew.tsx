@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback, useMemo, useRef, memo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useRef, memo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -35,10 +35,10 @@ import { usePerformanceStore } from '../store/performanceStore';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// � Tablet algılama
+//  Tablet algılama
 const IS_TABLET = SCREEN_WIDTH > 768;
 
-// �🖼️ PRELOAD INVENTORY TAB IMAGES
+// 🖼️ PRELOAD INVENTORY TAB IMAGES
 const INVENTORY_IMAGES = {
   kelimeler: require('../../assets/images/maskot/kelimeler_envanter_tab_yeni.webp'),
   phrasal: require('../../assets/images/maskot/pharasal_envanter_tab_yeni.webp'),
@@ -618,7 +618,7 @@ const SwipeableCard = memo(({
           borderRadius: 8,
           zIndex: 10,
         }}>
-          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>� KAYDIR</Text>
+          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>↔ KAYDIR</Text>
         </View>
       )}
       {/* 🃏 Main Card */}

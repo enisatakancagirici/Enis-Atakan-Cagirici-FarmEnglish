@@ -7,7 +7,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "start:tunnel:8090": "expo start --tunnel --port 8090"
+    "start:tunnel:8090": "expo start --tunnel --port 8090",
+    "encoding:fix": "node ./scripts/encoding/fix.mjs",
+    "encoding:audit": "node ./scripts/encoding/audit.mjs"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

@@ -60,6 +60,8 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 import { useFarmStore } from '../store/farmStore';
 import { BattleLoadingScreen } from '../components/BattleLoadingScreen';
 import { haptic, sound } from '../utils/sound';
+import { getPlayerTitle, type PlayerTitle } from '../utils/titleSystem';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 import {
 
@@ -92,12 +94,13 @@ import {
     getBattleFresh, // Yeni: Settle sonrası fresh data
 
     sendBattleEmoji, // 🎭 Emoji gönderme
+    getLeaderboard,
 
     type BattleRoom,
 
 } from '../utils/firebaseBattle';
 
-// ğŸ“± RESPONSIVE SYSTEM - QuizScreen'den alındı
+// 📱 RESPONSIVE SYSTEM - QuizScreen'den alnd
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -114,6 +117,7 @@ const getScreenType = () => {
 };
 
 const SCREEN_TYPE = getScreenType();
+const t = (value: unknown, fallback = '') => normalizeDisplayText(value) || fallback;
 
 // Responsive değerler
 
@@ -481,13 +485,13 @@ const BattleHeader = memo(({
 
     let messageColor = '#8b5cf6';
 
-    if (scoreDiff >= 200) { message = '🔥 Harika!'; messageColor = '#22c55e'; }
+    if (scoreDiff >= 200) { message = t('🔥 Harika!', '🔥 Harika!'); messageColor = '#22c55e'; }
 
-    else if (scoreDiff > 0) { message = '👍 Öndesin'; messageColor = '#22c55e'; }
+    else if (scoreDiff > 0) { message = t('👍 Öndesin', '👍 Öndesin'); messageColor = '#22c55e'; }
 
-    else if (scoreDiff <= -200) { message = '😰 Hızlan!'; messageColor = '#ef4444'; }
+    else if (scoreDiff <= -200) { message = t('😰 Hızlan!', '😰 Hızlan!'); messageColor = '#ef4444'; }
 
-    else if (scoreDiff < 0) { message = '⚡ Yakala!'; messageColor = '#f59e0b'; }
+    else if (scoreDiff < 0) { message = t('⚡ Yakala!', '⚡ Yakala!'); messageColor = '#f59e0b'; }
 
     return (
 
@@ -580,6 +584,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
     const battleScore = useFarmStore((s) => s.battleScore);
 
     const opponentInfo = useFarmStore((s) => s.opponentInfo);
+    const battleId = useFarmStore((s) => s.battleId);
 
     const user = useFarmStore((s) => s.user);
 
@@ -597,6 +602,8 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
     const battleWins = useFarmStore((s) => s.battleWins);
     const battleLosses = useFarmStore((s) => s.battleLosses);
     const bestBattleStreak = useFarmStore((s) => s.bestBattleStreak);
+    const safeUserId = typeof user?.odId === 'string' ? user.odId : '';
+    const safeOpponentId = typeof opponentInfo?.odId === 'string' ? opponentInfo.odId : '';
 
     // Actions
 
@@ -628,7 +635,12 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     const [timerKey, setTimerKey] = useState(0);
 
-    const [finishReason, setFinishReason] = useState<string>('Savaş Tamamlandı!');
+    const [finishReason, setFinishReason] = useState<string>(t('Savaş Tamamlandı!', 'Savaş Tamamlandı!'));
+    const [myBattleRank, setMyBattleRank] = useState<number | undefined>(undefined);
+    const [opponentBattleRank, setOpponentBattleRank] = useState<number | undefined>(undefined);
+    const [myBattleTitle, setMyBattleTitle] = useState<PlayerTitle | null>(null);
+    const [opponentBattleTitle, setOpponentBattleTitle] = useState<PlayerTitle | null>(null);
+    const [matchStartCountdown, setMatchStartCountdown] = useState<number | null>(null);
 
     // 🎭 Emoji sistemi
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -650,6 +662,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
     const endBattleCalledRef = useRef(false); // 🛡️ Prevent multiple endBattle calls
 
     const battleRef = useRef<BattleRoom | null>(null); // For Dead Man's Switch mount to prevent stale state
+    const introPlayedRef = useRef<string>('');
 
     // 🛡️ Safe endBattle wrapper - prevents multiple calls
     const safeEndBattle = useCallback((result: 'win' | 'loss' | 'draw', oppScore: number, isDisconnect: boolean = false) => {
@@ -702,18 +715,91 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     }, [resetBattle, navigation]);
 
+    // Loading ekranı için battle sıralaması + özel unvanları al
+    useEffect(() => {
+        if (battleState !== 'searching' && battleState !== 'matched') return;
+        if (!safeUserId) return;
+
+        let isCancelled = false;
+
+        const loadBattleRanks = async () => {
+            try {
+                const entries = await getLeaderboard('battle', 200);
+                if (isCancelled) return;
+
+                const resolveRank = (odId: string): number | undefined => {
+                    if (!odId) return undefined;
+                    const idx = entries.findIndex((entry) => entry.odId === odId);
+                    return idx >= 0 ? idx + 1 : undefined;
+                };
+
+                const myRank = resolveRank(safeUserId);
+                const opponentRank = resolveRank(safeOpponentId);
+
+                setMyBattleRank(myRank);
+                setOpponentBattleRank(opponentRank);
+                setMyBattleTitle(myRank ? getPlayerTitle(myRank, 'battle') : null);
+                setOpponentBattleTitle(opponentRank ? getPlayerTitle(opponentRank, 'battle') : null);
+            } catch (error) {
+                if (isCancelled) return;
+                console.warn('[Battle] Loading rank fetch failed:', error);
+                setMyBattleRank(undefined);
+                setOpponentBattleRank(undefined);
+                setMyBattleTitle(null);
+                setOpponentBattleTitle(null);
+            }
+        };
+
+        loadBattleRanks();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [battleState, safeUserId, safeOpponentId]);
+
+    // Eşleşme bulundu giriş animasyonu: geri sayım + güçlü haptic
+    useEffect(() => {
+        if (battleState !== 'matched') {
+            setMatchStartCountdown(null);
+            return;
+        }
+
+        const introKey = battleId || `${safeUserId}_${safeOpponentId || 'opponent'}`;
+        if (introPlayedRef.current === introKey) return;
+        introPlayedRef.current = introKey;
+
+        setMatchStartCountdown(3);
+        haptic.heavy();
+        setTimeout(() => haptic.rigid(), 70);
+        setTimeout(() => haptic.success(), 150);
+
+        let nextValue = 3;
+        const timer = setInterval(() => {
+            nextValue -= 1;
+            setMatchStartCountdown(nextValue >= 0 ? nextValue : null);
+            if (nextValue <= 0) clearInterval(timer);
+        }, 520);
+
+        return () => clearInterval(timer);
+    }, [battleState, battleId, safeUserId, safeOpponentId]);
+
     // 🎭 Emoji gönderme fonksiyonu
     const handleSendEmoji = useCallback(async (emoji: string) => {
         if (emojiCooldown || battleState !== 'inProgress') return;
 
         const battleId = useFarmStore.getState().battleId;
-        if (!battleId || !user) return;
+        const safeUserId = typeof user?.odId === 'string' ? user.odId.trim() : '';
+        if (!battleId || !safeUserId) return;
 
         setShowEmojiPicker(false);
         setEmojiCooldown(true);
         haptic.medium();
 
-        await sendBattleEmoji(battleId, user.odId, emoji);
+        try {
+            await sendBattleEmoji(battleId, safeUserId, emoji);
+        } catch (error) {
+            console.error('[Battle] send emoji failed:', error);
+        }
 
         // 3 saniye cooldown
         setTimeout(() => setEmojiCooldown(false), 3000);
@@ -862,7 +948,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     // ===============================
 
-    // âš”ï¸ INITIALIZATION & MATCHMAKING
+    // ⚔ INITIALIZATION & MATCHMAKING
 
     // ===============================
 
@@ -1072,7 +1158,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
             try {
 
-                // ğŸ›‘ RACE CONDITION PREVENTION: Wait for any previous cleanup to finish
+                // 🛑 RACE CONDITION PREVENTION: Wait for any previous cleanup to finish
 
                 await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -1264,9 +1350,9 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                     }
                 });
 
-                // ğŸ” 2. AKTIF: Ben birini bulayım (Search)
+                //  2. AKTIF: Ben birini bulaym (Search)
 
-                // ğŸ” 2. AKTIF: Ben birini bulayım (Search)
+                //  2. AKTIF: Ben birini bulaym (Search)
 
                 let isFinding = false;
 
@@ -1350,7 +1436,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                             }
 
-                            // BAÅARILI - Aramayı durdur
+                            // BASARILI - Aramayi durdur
 
                             clearInterval(searchInterval);
 
@@ -1376,7 +1462,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                             let safetyTimeout: NodeJS.Timeout;
 
-                            // ğŸš¨ CRITICAL: Detect if Guest abandons immediately
+                            // 🚨 CRITICAL: Detect if Guest abandons immediately
 
                             safetyUnsubscribe = onSnapshot(battleRef, (snap) => {
 
@@ -1434,7 +1520,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                 }
 
-                                // ğŸ›¡ï¸ FINAL SERVER CHECK before entering
+                                // 🛡 FINAL SERVER CHECK before entering
 
                                 try {
 
@@ -1533,7 +1619,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     // ===============================
 
-    // ğŸ“¡ REAL-TIME BATTLE SYNC
+    // 📡 REAL-TIME BATTLE SYNC
 
     // ===============================
 
@@ -1556,7 +1642,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
         console.log('[Battle] Sync started. I am host:', isUserHost, 'HostID:', hostId, 'MyID:', currentUser.odId);
 
-        // ğŸ›¡ï¸ LOCAL CONNECTION MONITORING
+        // 🛡 LOCAL CONNECTION MONITORING
 
         // Kullanıcının kendi interneti giderse
 
@@ -1564,7 +1650,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
             if (state.isConnected === false && battleState === 'inProgress') {
 
-                console.warn('[Battle] âš ï¸ Local connection lost!');
+                console.warn('[Battle] ⚠ Local connection lost!');
 
                 Alert.alert(
 
@@ -1590,15 +1676,21 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
         const heartbeat = setInterval(() => updateBattleHeartbeat(battleId, currentUser.odId, isUserHost), 3000);
 
-        // ğŸŸ¢ FORCE CLOSE HANDLING: AppState Listener
+        // 🟢 FORCE CLOSE HANDLING: AppState Listener
 
         const appStateSubscription = AppState.addEventListener("change", async (nextAppState) => {
 
             if (battleState === 'inProgress' && nextAppState === "background") {
 
-                console.log("[Battle] âš ï¸ App going background/inactive - Signaling abandon!");
+                console.log("[Battle] ⚠ App going background/inactive - Signaling abandon!");
 
-                await abandonBattle(battleId, user.odId, isUserHost);
+                try {
+                    if (currentUser?.odId) {
+                        await abandonBattle(battleId, currentUser.odId, isUserHost);
+                    }
+                } catch (err) {
+                    console.error('[Battle] AppState abandonBattle error:', err);
+                }
 
             }
 
@@ -2056,11 +2148,12 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                 const battleId = useFarmStore.getState().battleId;
                 const user = useFarmStore.getState().user;
+                const safeUserId = typeof user?.odId === 'string' ? user.odId.trim() : '';
 
-                if (battleId && user && !battleId.startsWith('local-')) {
+                if (battleId && safeUserId && !battleId.startsWith('local-')) {
                     const parts = battleId.split('_');
                     const hostId = parts.slice(1, -1).join('_');
-                    const isUserHost = user.odId === hostId;
+                    const isUserHost = safeUserId === hostId;
                     const lastIndex = QUESTION_COUNT - 1;
 
                     const cached = lastAnswerRef.current;
@@ -2069,7 +2162,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                     submitAnswer(
                         battleId,
-                        user.odId,
+                        safeUserId,
                         isUserHost,
                         lastIndex,
                         answerToResubmit,
@@ -2107,7 +2200,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
     // ===============================
 
-    // ğŸ–¥ï¸ UI RENDERING
+    // 🖥 UI RENDERING
 
     // ===============================
 
@@ -2122,15 +2215,20 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                 <BattleLoadingScreen
                     myNickname={nickname || user?.nickname || 'Sen'}
                     opponentNickname={opponentInfo?.nickname}
+                    myRank={myBattleRank}
+                    opponentRank={opponentBattleRank}
                     myWins={battleWins}
                     myLosses={battleLosses}
                     myBestStreak={bestBattleStreak}
                     myLevel={level}
+                    myTitle={myBattleTitle}
+                    opponentTitle={opponentBattleTitle}
                     opponentWins={undefined}
                     opponentLosses={undefined}
                     opponentBestStreak={undefined}
                     opponentLevel={opponentInfo?.level}
-                    status={battleState === 'matched' ? 'matched' : 'searching'}
+                    status={battleState === 'matched' && matchStartCountdown !== null ? 'countdown' : (battleState === 'matched' ? 'matched' : 'searching')}
+                    countdown={matchStartCountdown ?? undefined}
                     onCancel={handleExit}
                 />
 
@@ -2416,7 +2514,17 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
         const rawAnswers = user?.odId === finalBattleData.hostId
             ? finalBattleData.hostAnswers
             : finalBattleData.guestAnswers;
-        const myAnswers = Array.isArray(rawAnswers) ? rawAnswers : [];
+        const myAnswers = Array.isArray(rawAnswers)
+            ? rawAnswers.map((answer: any, idx: number) => ({
+                questionIndex: Number.isFinite(answer?.questionIndex) ? Number(answer.questionIndex) : idx,
+                selectedOption: typeof answer?.selectedOption === 'string'
+                    ? answer.selectedOption
+                    : (typeof answer?.selectedAnswer === 'string' ? answer.selectedAnswer : ''),
+                isCorrect: answer?.isCorrect === true,
+                timeMs: Number.isFinite(answer?.timeMs) ? Number(answer.timeMs) : 0,
+                selectedAnswer: typeof answer?.selectedAnswer === 'string' ? answer.selectedAnswer : undefined,
+            }))
+            : [];
 
         const totalQuestionCount = Math.max(
             1,
@@ -2485,12 +2593,12 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                     : battleScore}
                 opponentScore={opponentScore || 0}
                 myInfo={{
-                    ...user,
+                    ...(user || {}),
                     isDisconnected: finishReason?.includes('Bağlantınız') || finalBattleData?.hostDisconnected && user?.odId === finalBattleData?.hostId || finalBattleData?.guestDisconnected && user?.odId === finalBattleData?.guestId,
                     isAbandoned: false // Typically user knows if they clicked quit, but for symmetry
                 }}
                 opponentInfo={{
-                    ...opponentInfo,
+                    ...(opponentInfo || {}),
                     // Check strict 'disconnected' flags first
                     isDisconnected: finalBattleData?.hostDisconnected && opponentInfo?.odId === finalBattleData?.hostId || finalBattleData?.guestDisconnected && opponentInfo?.odId === finalBattleData?.guestId,
                     // Check 'abandonedBy' for voluntary quit

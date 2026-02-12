@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useCallback, memo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, memo, useRef } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, CommonActions, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import { View, Text, StyleSheet, ActivityIndicator, Pressable, Platform, Animated, PanResponder, Dimensions, AppState, AppStateStatus, Modal } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Pressable, Platform, Animated, PanResponder, Dimensions, AppState, AppStateStatus, Modal, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,7 +32,7 @@ import AchievementsScreen from './src/screens/AchievementsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import MarketScreen from './src/screens/MarketScreen';
 import WordPuzzleScreen from './src/screens/WordPuzzleScreen';
-// ⚔️ Battle Mode Screens
+// ⚔ Battle Mode Screens
 import AuthScreen from './src/screens/AuthScreen';
 import BattleScreen from './src/screens/BattleScreen';
 import BattleMenuScreen from './src/screens/BattleMenuScreen';
@@ -54,6 +54,7 @@ import { usePerformanceStore, initAutoPerformance } from './src/store/performanc
 import { loadWordsFromJSON } from './src/utils/loadWords';
 import { NEON_BACKGROUND } from './src/utils/theme';
 import { haptic, sound } from './src/utils/sound';
+import { traceEvent } from './src/utils/debugTrace';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -235,6 +236,16 @@ export default function App() {
     const handler = (error: any, isFatal?: boolean) => {
       try {
         console.error('[GlobalJS]', error);
+        traceEvent(
+          'global_js_error',
+          {
+            message: error?.message || String(error),
+            stack: error?.stack ? String(error.stack).slice(0, 1000) : undefined,
+            isFatal: !!isFatal,
+            route: navigationRef.current?.getCurrentRoute?.()?.name,
+          },
+          'error',
+        );
       } catch {}
 
       if (__DEV__) {
@@ -393,7 +404,7 @@ export default function App() {
             <Stack.Screen name="SeedMarket" component={SeedMarketScreen} />
             <Stack.Screen name="Store" component={StoreScreen} />
             <Stack.Screen name="WordList" component={WordListScreen} />
-            {/* ⚔️ Battle Mode Screens */}
+            {/* ⚔ Battle Mode Screens */}
             <Stack.Screen name="Auth" component={AuthScreen} />
             <Stack.Screen name="BattleMenu" component={BattleMenuScreen} />
             <Stack.Screen name="Battle" component={BattleScreen} options={{ gestureEnabled: false }} />
@@ -413,6 +424,7 @@ export default function App() {
           </Stack.Navigator>
           <FixedBottomTabBar currentRoute={currentRoute} />
           <TutorialOverlayWrapper />
+          <GuidedModeOverlayWrapper />
           <TutorialSkipButton />
           <RewardToastContainer />
           
@@ -457,7 +469,199 @@ const TutorialOverlayWrapper = memo(() => {
   return <TutorialOverlay visible={isVisible} />;
 });
 
-// 🎯 Tutorial'a geri dönme uyarısı - uygulama arka plana alındığında sor
+type GuidedNavigationTarget = { name: string; params?: Record<string, any> };
+
+const GUIDED_STEP_TARGETS: Record<GuidedModeStep, GuidedNavigationTarget | null> = {
+  QUIZ_UNTIL_WRONG: { name: 'Quiz' },
+  FARM_MASTER_TARGET: { name: 'Farm', params: { tab: 'words' } },
+  PUZZLE_PRACTICE: { name: 'Farm', params: { tab: 'puzzle' } },
+  SESYAP_PRACTICE: { name: 'SesYap' },
+  COMPLETED: null,
+};
+
+function isGuidedRouteSatisfied(step: GuidedModeStep, routeName?: string, params?: any): boolean {
+  if (!routeName) return false;
+  if (step === 'QUIZ_UNTIL_WRONG') return routeName === 'Quiz';
+  if (step === 'FARM_MASTER_TARGET') return routeName === 'Farm';
+  if (step === 'PUZZLE_PRACTICE') return routeName === 'Farm' && params?.tab === 'puzzle';
+  if (step === 'SESYAP_PRACTICE') return routeName === 'SesYap';
+  return true;
+}
+
+function getGuidedNarrative(step: GuidedModeStep, targetWordText?: string) {
+  const targetWord = targetWordText && targetWordText.trim().length > 0 ? targetWordText.trim() : 'hedef kelime';
+  switch (step) {
+    case 'QUIZ_UNTIL_WRONG':
+      return {
+        stage: 'Aşama 1/4',
+        title: 'Prolog: Tohum Topla',
+        body: 'Önce Quiz ekranında ilerle. İlk yanlışın seni hikayedeki hedef kelimeye götürecek.',
+        cta: 'Quize Git',
+      };
+    case 'FARM_MASTER_TARGET':
+      return {
+        stage: 'Aşama 2/4',
+        title: 'Görev: Hedef Hasat',
+        body: `${targetWord} kelimesini çiftlikte hasat et. Bu adım tamamlanmadan sonraki perde açılmaz.`,
+        cta: 'Çiftliğe Git',
+      };
+    case 'PUZZLE_PRACTICE':
+      return {
+        stage: 'Aşama 3/4',
+        title: 'Bölüm: Yapboz Çalışması',
+        body: 'Şimdi Yapboz sekmesinde bir doğru kurgu yap. Hikaye burada cümle pratiğiyle devam ediyor.',
+        cta: 'Yapboza Git',
+      };
+    case 'SESYAP_PRACTICE':
+      return {
+        stage: 'Aşama 4/4',
+        title: 'Final: SesYap',
+        body: 'Son adımda SesYap ile bir doğru telaffuz yap ve lineer müfredatı tamamla.',
+        cta: 'SesYapa Git',
+      };
+    default:
+      return {
+        stage: 'Tamamlandı',
+        title: 'Müfredat Bitti',
+        body: 'Yönlendirmeli akış tamamlandı.',
+        cta: 'Devam',
+      };
+  }
+}
+
+const GuidedModeOverlayWrapper = memo(() => {
+  const navigation = useNavigation<any>();
+  const guidedModeActive = useFarmStore((s) => s.guidedModeActive);
+  const guidedModeStep = useFarmStore((s) => s.guidedModeStep) as GuidedModeStep;
+  const guidedModeTargetWordText = useFarmStore((s) => s.guidedModeTargetWordText);
+  const stopGuidedMode = useFarmStore((s) => s.stopGuidedMode);
+
+  const [pendingStep, setPendingStep] = useState<GuidedModeStep | null>(null);
+  const [acknowledgedStep, setAcknowledgedStep] = useState<GuidedModeStep | null>(null);
+  const [isEnforcingRoute, setIsEnforcingRoute] = useState(false);
+  const lastObservedStepRef = useRef<GuidedModeStep | null>(null);
+  const lastEnforcedStepRef = useRef<GuidedModeStep | null>(null);
+
+  useEffect(() => {
+    if (!guidedModeActive || guidedModeStep === 'COMPLETED') {
+      setPendingStep(null);
+      setAcknowledgedStep(null);
+      setIsEnforcingRoute(false);
+      lastObservedStepRef.current = null;
+      lastEnforcedStepRef.current = null;
+      return;
+    }
+
+    if (lastObservedStepRef.current !== guidedModeStep) {
+      lastObservedStepRef.current = guidedModeStep;
+      lastEnforcedStepRef.current = null;
+      setPendingStep(guidedModeStep);
+      setAcknowledgedStep(null);
+      setIsEnforcingRoute(false);
+    }
+  }, [guidedModeActive, guidedModeStep]);
+
+  useEffect(() => {
+    if (!guidedModeActive || guidedModeStep === 'COMPLETED') return;
+    if (!isEnforcingRoute) return;
+    if (acknowledgedStep !== guidedModeStep) return;
+
+    const target = GUIDED_STEP_TARGETS[guidedModeStep];
+    if (!target) {
+      setIsEnforcingRoute(false);
+      return;
+    }
+
+    const current = navigationRef.current?.getCurrentRoute?.();
+    if (isGuidedRouteSatisfied(guidedModeStep, current?.name, current?.params)) {
+      setIsEnforcingRoute(false);
+      return;
+    }
+    if (lastEnforcedStepRef.current === guidedModeStep) {
+      setIsEnforcingRoute(false);
+      return;
+    }
+
+    lastEnforcedStepRef.current = guidedModeStep;
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: target.name, params: target.params }],
+      })
+    );
+    setIsEnforcingRoute(false);
+  }, [acknowledgedStep, guidedModeActive, guidedModeStep, isEnforcingRoute, navigation]);
+
+  const handleContinue = useCallback(() => {
+    if (!guidedModeActive || guidedModeStep === 'COMPLETED') {
+      setPendingStep(null);
+      return;
+    }
+
+    haptic.medium();
+    setPendingStep(null);
+    setAcknowledgedStep(guidedModeStep);
+    setIsEnforcingRoute(true);
+  }, [guidedModeActive, guidedModeStep]);
+
+  const handleExitGuided = useCallback(() => {
+    Alert.alert(
+      'Müfredatı Sonlandır',
+      'Yönlendirmeli akış kapanacak. Serbest moda geçeceksin.',
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        {
+          text: 'Sonlandır',
+          style: 'destructive',
+          onPress: () => {
+            haptic.medium();
+            stopGuidedMode();
+            traceEvent('guided_mode_stop_by_user', {
+              source: 'guided_overlay',
+              step: guidedModeStep,
+            });
+          },
+        },
+      ]
+    );
+  }, [guidedModeStep, stopGuidedMode]);
+
+  if (!guidedModeActive || guidedModeStep === 'COMPLETED' || pendingStep !== guidedModeStep) {
+    return null;
+  }
+
+  const narrative = getGuidedNarrative(guidedModeStep, guidedModeTargetWordText);
+
+  return (
+    <Modal transparent visible animationType="fade" onRequestClose={() => {}} statusBarTranslucent>
+      <View style={styles.guidedOverlayBackdrop}>
+        <View style={styles.guidedOverlayCard}>
+          <Text style={styles.guidedOverlayStage}>{narrative.stage}</Text>
+          <Text style={styles.guidedOverlayTitle}>{narrative.title}</Text>
+          <Text style={styles.guidedOverlayBody}>{narrative.body}</Text>
+
+          <View style={styles.guidedOverlayButtonStack}>
+            <Pressable onPress={handleContinue} style={styles.guidedOverlayButton}>
+              <LinearGradient
+                colors={['#22c55e', '#16a34a']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.guidedOverlayButtonGradient}
+              >
+                <Text style={styles.guidedOverlayButtonText}>{narrative.cta}</Text>
+              </LinearGradient>
+            </Pressable>
+            <Pressable onPress={handleExitGuided} style={styles.guidedOverlaySecondaryButton}>
+              <Text style={styles.guidedOverlaySecondaryButtonText}>Müfredatı Sonlandır</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+});
+
+//  Tutorial'a geri dönme uyarısı - uygulama arka plana alındığında sor
 const TutorialResumePrompt = memo(() => {
   const tutorialStep = useFarmStore(s => s.tutorialStep);
   const tutorialInterrupted = useFarmStore(s => s.tutorialInterrupted);
@@ -505,7 +709,7 @@ const TutorialResumePrompt = memo(() => {
 // FIXED BOTTOM TAB BAR (Global, Trendyol/Spotify Style)
 const TAB_BAR_HEIGHT = 70; // Reduced from 100
 
-// 🖼️ Navbar Images - Optimized webp
+// 🖼 Navbar Images - Optimized webp
 const NAV_IMAGES = {
   home: require('./assets/navbar_anasayfa.png'),
   quiz: require('./assets/images/maskot/quiz_logo.webp'),
@@ -518,7 +722,7 @@ const NAV_IMAGES = {
   powerStore: require('./assets/images/maskot/guc_magazasi.webp'),
 };
 
-// 🎯 Optimized Animated Nav Button with Emojis - ULTRA MODERN
+//  Optimized Animated Nav Button with Emojis - ULTRA MODERN
 interface NavButtonProps {
   onPress: () => void;
   emoji?: string;
@@ -647,12 +851,12 @@ const NavButton = memo(({ onPress, emoji, label, isCenter, isActive, isLocked, i
   );
 });
 
-// 🎯 Global tab state - ayrı dosyada tanımlı (require cycle önlemek için)
+//  Global tab state - ayrı dosyada tanımlı (require cycle önlemek için)
 import { globalTabState } from './src/navigation/globalTabState';
 import { TUTORIAL_NAV_LOCKS, LOCK_TOOLTIPS, TutorialOverlay, useTutorialInit, getTutorialRoute, TutorialSkipButton } from './src/components/TutorialManagerFixed';
-import type { TutorialStep } from './src/store/farmStore';
+import type { TutorialStep, GuidedModeStep } from './src/store/farmStore';
 
-// 🛍️ Pazarlar Menü Popover (Updated: Compact Horizontal Bar)
+//  Pazarlar Menü Popover (Updated: Compact Horizontal Bar)
 const MarketsPopover = memo(({ visible, onClose, onPhrasalPress, onPuzzlePress, onSeedMarketPress, onPowerStorePress, onSesYapPress, onBattlePress }: any) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -725,7 +929,7 @@ const MarketsPopover = memo(({ visible, onClose, onPhrasalPress, onPuzzlePress, 
   );
 });
 
-// 🏠 Fixed Bottom Tab Bar - MEMOIZED + TUTORIAL LOCKS
+//  Fixed Bottom Tab Bar - MEMOIZED + TUTORIAL LOCKS
 const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
   const { useNavigation, CommonActions } = require('@react-navigation/native');
   const { useSafeAreaInsets } = require('react-native-safe-area-context');
@@ -737,15 +941,66 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
   const [, forceUpdate] = useState(0); // forceUpdate için
   const [showMarketsMenu, setShowMarketsMenu] = useState(false); // Pazarlar/More menüsü state
 
-  // 🎓 Tutorial state
+  //  Tutorial state
   const tutorialStep = useFarmStore(s => s.tutorialStep) as TutorialStep;
-  const navLocks = TUTORIAL_NAV_LOCKS[tutorialStep] || TUTORIAL_NAV_LOCKS.COMPLETED;
+  const tutorialNavLocks = TUTORIAL_NAV_LOCKS[tutorialStep] || TUTORIAL_NAV_LOCKS.COMPLETED;
+  const guidedModeActive = useFarmStore(s => s.guidedModeActive);
+  const guidedModeStep = useFarmStore(s => s.guidedModeStep) as GuidedModeStep;
+
+  const guidedNavLocks = useMemo(() => {
+    if (!guidedModeActive) return null;
+    switch (guidedModeStep) {
+      case 'QUIZ_UNTIL_WRONG':
+        return { home: true, quiz: true, farm: false, inventory: false, store: false, puzzle: false, phrasal: false };
+      case 'FARM_MASTER_TARGET':
+        return { home: true, quiz: false, farm: true, inventory: false, store: false, puzzle: false, phrasal: false };
+      case 'PUZZLE_PRACTICE':
+        return { home: true, quiz: false, farm: false, inventory: false, store: false, puzzle: true, phrasal: false };
+      case 'SESYAP_PRACTICE':
+        return { home: true, quiz: false, farm: false, inventory: false, store: false, puzzle: false, phrasal: false };
+      default:
+        return null;
+    }
+  }, [guidedModeActive, guidedModeStep]);
+
+  const navLocks = useMemo(() => {
+    if (!guidedNavLocks) return tutorialNavLocks;
+    return {
+      home: tutorialNavLocks.home && guidedNavLocks.home,
+      quiz: tutorialNavLocks.quiz && guidedNavLocks.quiz,
+      farm: tutorialNavLocks.farm && guidedNavLocks.farm,
+      inventory: tutorialNavLocks.inventory && guidedNavLocks.inventory,
+      store: tutorialNavLocks.store && guidedNavLocks.store,
+      puzzle: tutorialNavLocks.puzzle && guidedNavLocks.puzzle,
+      phrasal: tutorialNavLocks.phrasal && guidedNavLocks.phrasal,
+    };
+  }, [tutorialNavLocks, guidedNavLocks]);
+
+  const getGuidedBlockMessage = useCallback((route: string, params?: any): string | null => {
+    if (!guidedModeActive) return null;
+    if (route === 'Home') return null;
+
+    switch (guidedModeStep) {
+      case 'QUIZ_UNTIL_WRONG':
+        return route === 'Quiz' ? null : 'Müfredat aktif: önce yanlış yapana kadar Quiz çöz.';
+      case 'FARM_MASTER_TARGET':
+        return route === 'Farm' ? null : 'Müfredat aktif: hedef kelimeyi çiftlikte hasat et.';
+      case 'PUZZLE_PRACTICE':
+        return route === 'Farm' && params?.tab === 'puzzle'
+          ? null
+          : 'Müfredat aktif: şimdi Yapboz adımını tamamla.';
+      case 'SESYAP_PRACTICE':
+        return route === 'SesYap' ? null : 'Müfredat aktif: son adım SesYap pratiği.';
+      default:
+        return null;
+    }
+  }, [guidedModeActive, guidedModeStep]);
 
   // 🔄 Combo reset fonksiyonları
   const resetQuizCombo = useFarmStore(s => s.resetQuizCombo);
   const resetPhrasalCombo = useFarmStore(s => s.resetPhrasalCombo);
 
-  // 🎯 Mevcut tab'ı route params'tan al (FarmScreen'den gelen)
+  //  Mevcut tab'ı route params'tan al (FarmScreen'den gelen)
   const currentTab = navigationRef.current?.getCurrentRoute()?.params?.tab || globalTabState.current;
 
   // 🔄 Navigation state değişikliklerini dinle
@@ -765,14 +1020,26 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
   // 🔒 Global nav guard for tab bar - RESET instead of navigate to clear stack!
   const guardedNavigate = useCallback(
     (route: string, lockKey: keyof typeof navLocks, params?: any) => {
-      // 🎓 Tutorial kilidi kontrolü
+      const guidedMessage = getGuidedBlockMessage(route, params);
+      if (guidedMessage) {
+        if (haptic.warning) {
+          haptic.warning();
+        } else {
+          haptic.light();
+        }
+        setLockTooltip(guidedMessage);
+        setTimeout(() => setLockTooltip(null), 2600);
+        return;
+      }
+
+      //  Tutorial kilidi kontrolü
       if (!navLocks[lockKey]) {
         if (haptic.warning) {
           haptic.warning();
         } else {
           haptic.light();
         }
-        setLockTooltip(LOCK_TOOLTIPS[lockKey] || 'Önce tutorial\'ı tamamla.');
+        setLockTooltip(LOCK_TOOLTIPS[lockKey] || 'Önce tutorialı tamamla.');
         setTimeout(() => setLockTooltip(null), 2500);
         return;
       }
@@ -807,10 +1074,10 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
         isNavigating.current = false;
       }, 500);
     },
-    [navigation, currentRoute, navLocks, resetQuizCombo, resetPhrasalCombo]
+    [navigation, currentRoute, navLocks, resetQuizCombo, resetPhrasalCombo, getGuidedBlockMessage]
   );
 
-  // 🎯 Tab state'i koru - Farm/Inventory arası geçişlerde aynı sekmeyi aç
+  //  Tab state'i koru - Farm/Inventory arası geçişlerde aynı sekmeyi aç
   const handleNavFarm = useCallback(() => {
     guardedNavigate('Farm', 'farm', { tab: globalTabState.current });
   }, [guardedNavigate]);
@@ -832,7 +1099,7 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
   return (
     <>
       <BlurView intensity={95} tint="dark" style={[styles.bottomTabBar, { paddingBottom: insets.bottom }]}>
-        {/* Çiftlik (Sol) */}
+        {/* Ã‡iftlik (Sol) */}
         <View style={styles.tabItemContainer}>
           <NavButton
             onPress={handleNavFarm}
@@ -888,7 +1155,7 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
         <View style={styles.tabItemContainer}>
           <NavButton
             onPress={handleNavInventory}
-            emoji="🏚️"
+            emoji="👜"
             label=""
             isActive={currentRoute === 'Inventory'}
             isLocked={!navLocks.inventory}
@@ -897,7 +1164,7 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
         </View>
       </BlurView>
 
-      {/* 🛍️ More / Markets Popover Menu */}
+      {/*  More / Markets Popover Menu */}
       <MarketsPopover
         visible={showMarketsMenu}
         onClose={() => setShowMarketsMenu(false)}
@@ -1307,7 +1574,7 @@ const styles = StyleSheet.create({
     color: '#fbbf24',
     fontWeight: '500',
   },
-  // 🎓 Tutorial devam uyarısı
+  //  Tutorial devam uyarısı
   resumeOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.7)',
@@ -1362,8 +1629,83 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 14,
   },
+  guidedOverlayBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(2, 6, 23, 0.72)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+  },
+  guidedOverlayCard: {
+    width: '100%',
+    maxWidth: 380,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.45)',
+    backgroundColor: '#0b1524',
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    shadowColor: '#22c55e',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 14,
+  },
+  guidedOverlayStage: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#93c5fd',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  guidedOverlayTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#ffffff',
+    marginBottom: 8,
+  },
+  guidedOverlayBody: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: 'rgba(226, 232, 240, 0.95)',
+    marginBottom: 16,
+  },
+  guidedOverlayButtonStack: {
+    gap: 10,
+  },
+  guidedOverlayButton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  guidedOverlayButtonGradient: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  guidedOverlayButtonText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#04210f',
+    letterSpacing: 0.2,
+  },
+  guidedOverlaySecondaryButton: {
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.45)',
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+  },
+  guidedOverlaySecondaryButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#e2e8f0',
+    letterSpacing: 0.2,
+  },
 
-  // 🛍️ Popover Styles (Compact)
+  //  Popover Styles (Compact)
   popoverOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.1)',
@@ -1415,3 +1757,4 @@ const styles = StyleSheet.create({
     marginTop: -1,
   },
 });
+

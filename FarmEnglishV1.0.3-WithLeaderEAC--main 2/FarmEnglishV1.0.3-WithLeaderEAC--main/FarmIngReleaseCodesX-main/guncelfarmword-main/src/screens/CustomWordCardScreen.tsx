@@ -358,7 +358,7 @@ const CreateTab: React.FC<{
 };
 
 // ═══════════════════════════════════════════════════════════════
-// � ANA EKRAN — Sadece kelime oluşturma (eklenen kartlar normal tarlaya gider)
+//  ANA EKRAN — Sadece kelime oluşturma (eklenen kartlar normal tarlaya gider)
 // ═══════════════════════════════════════════════════════════════
 const CustomWordCardScreen = () => {
   const navigation = useNavigation<any>();

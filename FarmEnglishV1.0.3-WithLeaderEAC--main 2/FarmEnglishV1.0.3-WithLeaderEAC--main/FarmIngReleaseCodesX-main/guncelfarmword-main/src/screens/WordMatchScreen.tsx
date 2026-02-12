@@ -41,6 +41,7 @@ import { useNavigation } from '@react-navigation/native';
 import { haptic, sound } from '../utils/sound';
 import { useFarmStore } from '../store/farmStore';
 import { updatePracticeScore } from '../utils/firebaseBattle';
+import { normalizeDisplayText } from '../utils/textNormalization';
 
 // Veri kaynağı
 import ensaglamData from '../../assets/data/ensaglamdata_with_example_tr.json';
@@ -223,7 +224,7 @@ const Card = memo<CardProps>(({ card, onPress, disabled, comboCount }) => {
                     card.status === 'matched' && { color: COLORS.success },
                     card.status === 'selected' && { color: COLORS.selected, fontWeight: '800' },
                 ]} numberOfLines={2}>
-                    {card.text}
+                    {normalizeDisplayText(card.text)}
                 </Text>
                 {card.status === 'matched' && (
                     <View style={styles.checkIconContainer}>
@@ -775,16 +776,16 @@ export default function WordMatchScreen() {
                                 <View style={styles.resultContainer}>
                                     <Sparkles size={IS_SMALL_DEVICE ? 40 : 48} color="#FBBF24" />
                                     <Text style={[styles.resultTitle, IS_SMALL_DEVICE && { fontSize: 24 }]}>
-                                        {timeLeft > 0 ? 'Harika! \u{1F389}' : 'Sure Bitti! \u{23F0}'}
+                                        {timeLeft > 0 ? 'Harika! \u{1F389}' : 'Süre Bitti! \u{23F0}'}
                                     </Text>
                                     <Text style={styles.resultSubtitle}>
-                                        Tur {round} {timeLeft > 0 ? 'tamamlandi!' : ''}
+                                        Tur {round} {timeLeft > 0 ? 'tamamlandı!' : ''}
                                     </Text>
                                 
                                 <View style={[styles.resultStats, IS_SMALL_DEVICE && { gap: 20 }]}>
                                     <View style={styles.statItem}>
                                         <Text style={[styles.statValue, IS_SMALL_DEVICE && { fontSize: 20 }]}>{matchedPairs}</Text>
-                                        <Text style={styles.statLabel}>Eslesme</Text>
+                                        <Text style={styles.statLabel}>Eşleşme</Text>
                                     </View>
                                     <View style={styles.statItem}>
                                         <Text style={[styles.statValue, IS_SMALL_DEVICE && { fontSize: 20 }]}>{wrongAttempts}</Text>
@@ -806,7 +807,7 @@ export default function WordMatchScreen() {
                                     <View style={styles.speedBonusSummary}>
                                         <Zap size={16} color={COLORS.success} />
                                         <Text style={styles.speedBonusSummaryText}>
-                                            H\u0131z Bonusu: +{speedBonusTotal}
+                                            Hız Bonusu: +{speedBonusTotal}
                                         </Text>
                                     </View>
                                 )}
@@ -842,7 +843,7 @@ export default function WordMatchScreen() {
                             </TouchableOpacity>
 
                             <Text style={[styles.hintText, IS_SMALL_DEVICE && { fontSize: 10 }]}>
-                                Bir kelimeye dokun, sonra e\u015Fini bul
+                                Bir kelimeye dokun, sonra eşini bul
                             </Text>
                         </View>
                     )}
