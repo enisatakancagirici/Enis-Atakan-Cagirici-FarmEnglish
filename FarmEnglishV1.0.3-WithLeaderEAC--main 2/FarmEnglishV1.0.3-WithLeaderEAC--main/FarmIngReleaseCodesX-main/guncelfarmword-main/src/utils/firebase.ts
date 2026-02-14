@@ -241,7 +241,7 @@ export const joinMatchmaking = async (userId: string, nickname: string, level: n
   const q = query(
     queueRef,
     where('status', '==', 'waiting'),
-    where('odId', '!=', odId),
+    where('odId', '!=', userId),
     orderBy('odId'),
     orderBy('createdAt'),
     limit(1)
@@ -249,8 +249,8 @@ export const joinMatchmaking = async (userId: string, nickname: string, level: n
   
   // This is a simplified matchmaking - real implementation would use Cloud Functions
   const docRef = await addDoc(queueRef, {
-    odId: odId,
-    odName: odName,
+    odId: userId,
+    odName: nickname,
     level,
     status: 'waiting',
     createdAt: serverTimestamp(),

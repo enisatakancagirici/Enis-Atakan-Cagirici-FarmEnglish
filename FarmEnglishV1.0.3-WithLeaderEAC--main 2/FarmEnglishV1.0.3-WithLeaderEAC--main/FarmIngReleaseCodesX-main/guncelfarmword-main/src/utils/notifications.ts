@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
 
 const STORAGE_KEYS = {
-  notificationsPrompted: '@farmenglish:notifications_prompted_v1',
+  notificationsPrompted: '@farmenglish:notifications_prompted_v2_rollout_2026_02',
   scheduleMeta: '@farmenglish:notifications_schedule_meta_v3',
 } as const;
 
@@ -11,6 +12,7 @@ const MANAGED_REMINDER_LEGACY_SOURCE = 'daily_reminder';
 const SCHEDULE_VERSION = 'v3';
 const SCHEDULE_COOLDOWN_MS = 6 * 60 * 60 * 1000;
 const NOTIFICATION_API_TIMEOUT_MS = 5000;
+const MAIN_ANDROID_CHANNEL_ID = 'farmenglish-main';
 
 let handlerConfigured = false;
 
@@ -38,31 +40,31 @@ const RETENTION_PLAN: Array<{ dayOffset: number; hour: number; minute: number; t
     dayOffset: 0,
     hour: 19,
     minute: 30,
-    title: 'FarmEnglish',
+    title: 'FarmEnglish | Ciftlik',
     body: (nickname) =>
       nickname
-        ? `${nickname}, tarlan seni bekliyor. 8 dakikalik quiz ile bugunku seriyi ac.`
-        : 'Tarlan seni bekliyor. 8 dakikalik quiz ile bugunku seriyi ac.',
+        ? `${nickname}, bugunluk mini quiz ve hasat firsati hazir. 8 dakikada serini koru.`
+        : 'Bugunluk mini quiz ve hasat firsati hazir. 8 dakikada serini koru.',
   },
   {
     dayOffset: 1,
     hour: 12,
     minute: 45,
-    title: 'FarmEnglish Battle',
+    title: 'FarmEnglish | Battle',
     body: (nickname) =>
       nickname
-        ? `${nickname}, liderlik tablosunda yerini korumak icin 1 savas + 1 mini quiz hazir.`
-        : 'Liderlik tablosunda yerini korumak icin 1 savas + 1 mini quiz hazir.',
+        ? `${nickname}, liderlikte yerini korumak icin 1 savas + 1 mini quiz seni bekliyor.`
+        : 'Liderlikte yerini korumak icin 1 savas + 1 mini quiz seni bekliyor.',
   },
   {
     dayOffset: 2,
     hour: 20,
     minute: 15,
-    title: 'FarmEnglish Pratik',
+    title: 'FarmEnglish | Pratik',
     body: (nickname) =>
       nickname
-        ? `${nickname}, SesYap ve Puzzle turu ile bugun kelimeleri kalici hale getirebilirsin.`
-        : 'SesYap ve Puzzle turu ile bugun kelimeleri kalici hale getirebilirsin.',
+        ? `${nickname}, SesYap + Puzzle turu ile kelimeleri kalici hale getirmenin tam zamani.`
+        : 'SesYap + Puzzle turu ile kelimeleri kalici hale getirmenin tam zamani.',
   },
 ];
 
@@ -129,6 +131,16 @@ async function writeScheduleMeta(meta: ScheduleMeta): Promise<void> {
 export function configureNotifications(): void {
   if (handlerConfigured) return;
   try {
+    if (Platform.OS === 'android') {
+      void Notifications.setNotificationChannelAsync(MAIN_ANDROID_CHANNEL_ID, {
+        name: 'FarmEnglish Hatirlaticilar',
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 180, 120, 180],
+        lightColor: '#22c55e',
+        sound: 'default',
+      });
+    }
+
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowBanner: true,
@@ -258,6 +270,9 @@ export async function scheduleComebackNotifications(options: ComebackNotificatio
           content: {
             title: plan.title,
             body: plan.body(safeNickname),
+            subtitle: 'FarmEnglish',
+            sound: 'default',
+            priority: Notifications.AndroidNotificationPriority.HIGH,
             data: {
               source: MANAGED_REMINDER_SOURCE,
               slot: index + 1,
@@ -267,6 +282,7 @@ export async function scheduleComebackNotifications(options: ComebackNotificatio
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
             date: triggerDate,
+            channelId: MAIN_ANDROID_CHANNEL_ID,
           } as Notifications.DateTriggerInput,
         }),
         NOTIFICATION_API_TIMEOUT_MS,
@@ -300,13 +316,17 @@ export async function scheduleNotificationPreview(seconds: number = 5): Promise<
     const notificationId = await withTimeout(
       Notifications.scheduleNotificationAsync({
         content: {
-          title: 'FarmEnglish Test',
+          title: 'FarmEnglish | Test',
           body: 'Bildirim testi basarili. Hatirlaticilar aktif.',
+          subtitle: 'FarmEnglish',
+          sound: 'default',
+          priority: Notifications.AndroidNotificationPriority.HIGH,
           data: { source: 'preview' },
         },
         trigger: {
           seconds: delay,
           repeats: false,
+          channelId: MAIN_ANDROID_CHANNEL_ID,
         } as Notifications.TimeIntervalTriggerInput,
       }),
       NOTIFICATION_API_TIMEOUT_MS,

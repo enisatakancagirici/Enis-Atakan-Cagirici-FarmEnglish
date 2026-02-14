@@ -383,7 +383,6 @@ export default function SeedMarketScreen() {
           data={availableSeeds}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          estimatedItemSize={88}
           drawDistance={500}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}

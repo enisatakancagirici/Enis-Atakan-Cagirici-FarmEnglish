@@ -19,15 +19,15 @@ export const HOMEPAGE_IMAGES = {
 
 // Home yeni tasarim görselleri (anasayfa kartlari)
 export const HOME_NEW_DESIGN_IMAGES = {
-  quizYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/quizegelecek.png'),
-  ciftlikYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/ciftligegelecek.png'),
-  envanterYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/envanteregelecek.png'),
-  yapbozYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/yapbozagelecek.png'),
-  savasYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/savasmodunagelecek.png'),
-  sesyapYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/SesYapagelecek.png'),
-  kartMagazasiYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/kartmagazasinagelecek.png'),
-  pratikYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/pratikmerkezinegelecek.png'),
-  customWordYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/kendikelimekartiniolusturagelecek.png'),
+  quizYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/Quiz.webp'),
+  ciftlikYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/Ciftlik.webp'),
+  envanterYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/Envanter.webp'),
+  yapbozYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/Puzzle.webp'),
+  savasYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/Savas.webp'),
+  sesyapYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/SesYap.webp'),
+  kartMagazasiYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/KartPazari.webp'),
+  pratikYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/PratikMerkezi.webp'),
+  customWordYeni: require('../../assets/images/maskot/yeniTasar\u0131mlar/yfxnanurut0zfbr7p3vy.webp'),
 };
 
 // 🛒 Market görselleri

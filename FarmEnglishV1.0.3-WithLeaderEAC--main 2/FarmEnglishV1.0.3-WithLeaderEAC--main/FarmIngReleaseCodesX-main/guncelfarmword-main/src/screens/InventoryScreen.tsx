@@ -523,12 +523,7 @@ export default function InventoryScreen() {
           )}
           keyExtractor={item => item.id}
           initialScrollIndex={feedStartIndex}
-          getItemLayout={(_, index) => ({
-            length: SCREEN_HEIGHT * RS.feedHeight,
-            offset: SCREEN_HEIGHT * RS.feedHeight * index,
-            index,
-          })}
-          estimatedItemSize={SCREEN_HEIGHT * RS.feedHeight}
+          drawDistance={SCREEN_HEIGHT * 1.8}
           showsVerticalScrollIndicator={false}
           snapToInterval={SCREEN_HEIGHT * RS.feedHeight}
           decelerationRate="fast"
@@ -719,7 +714,7 @@ export default function InventoryScreen() {
           keyExtractor={item => item.id}
           numColumns={numColumns}
           key={`inventory-${numColumns}`}
-          estimatedItemSize={RS.gridCardMinHeight + RS.gridMargin * 2}
+          drawDistance={SCREEN_HEIGHT * 1.1}
           contentContainerStyle={styles.gridContent}
           showsVerticalScrollIndicator={false}
         />

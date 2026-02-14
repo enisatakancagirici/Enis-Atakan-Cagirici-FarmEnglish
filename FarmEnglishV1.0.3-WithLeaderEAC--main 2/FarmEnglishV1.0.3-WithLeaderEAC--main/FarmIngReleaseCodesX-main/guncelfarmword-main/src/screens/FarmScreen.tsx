@@ -1073,7 +1073,12 @@ export function FarmScreen() {
   const topTabVisibleRef = useRef(true);
   const lastScrollOffsetRef = useRef(0);
   const lastTopTabToggleAtRef = useRef(0);
+  const topTabDownTravelRef = useRef(0);
+  const topTabUpTravelRef = useRef(0);
   const topTabAnim = useRef(new Animated.Value(1)).current;
+  const topTabLayoutAnim = useRef(new Animated.Value(1)).current;
+  const topTabAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
+  const topTabHideDelayRef = useRef<NodeJS.Timeout | null>(null);
 
   // ?? FOCUS EFFECT - Reset seed market guard
   useFocusEffect(
@@ -1114,39 +1119,123 @@ export function FarmScreen() {
     outputRange: [-100, 100],
   });
 
+  const clearTopTabHideDelay = useCallback(() => {
+    if (topTabHideDelayRef.current) {
+      clearTimeout(topTabHideDelayRef.current);
+      topTabHideDelayRef.current = null;
+    }
+  }, []);
+
+  const runTopTabAnimation = useCallback((visible: boolean) => {
+    if (visible) setIsTopTabVisible(true);
+
+    topTabAnimationRef.current?.stop();
+    const visualAnim = Animated.timing(topTabAnim, {
+      toValue: visible ? 1 : 0,
+      duration: visible ? 460 : 340,
+      easing: visible
+        ? Easing.bezier(0.22, 1, 0.36, 1)
+        : Easing.bezier(0.4, 0, 0.2, 1),
+      useNativeDriver: false,
+    });
+    const layoutAnim = Animated.timing(topTabLayoutAnim, {
+      toValue: visible ? 1 : 0,
+      duration: visible ? 420 : 390,
+      delay: visible ? 0 : 80,
+      easing: visible
+        ? Easing.bezier(0.22, 1, 0.36, 1)
+        : Easing.bezier(0.4, 0, 0.2, 1),
+      useNativeDriver: false,
+    });
+    const animation = Animated.parallel([visualAnim, layoutAnim], { stopTogether: true });
+    topTabAnimationRef.current = animation;
+    animation.start(({ finished }) => {
+      if (topTabAnimationRef.current === animation) {
+        topTabAnimationRef.current = null;
+      }
+      if (finished && !visible) {
+        setIsTopTabVisible(false);
+      }
+    });
+  }, [topTabAnim, topTabLayoutAnim]);
+
   const setTopTabVisibility = useCallback((visible: boolean, force = false) => {
+    const TOP_TAB_MIN_TOGGLE_GAP_MS = 280;
     const now = Date.now();
-    if (!force && now - lastTopTabToggleAtRef.current < 140) return;
+    if (!force && now - lastTopTabToggleAtRef.current < TOP_TAB_MIN_TOGGLE_GAP_MS) return;
     if (!force && topTabVisibleRef.current === visible) return;
 
     lastTopTabToggleAtRef.current = now;
     topTabVisibleRef.current = visible;
-    setIsTopTabVisible(visible);
-    Animated.spring(topTabAnim, {
-      toValue: visible ? 1 : 0,
-      useNativeDriver: false,
-      damping: 22,
-      stiffness: 240,
-      mass: 0.45,
-      overshootClamping: true,
-    }).start();
-  }, [topTabAnim]);
+
+    if (visible) {
+      clearTopTabHideDelay();
+      runTopTabAnimation(true);
+      return;
+    }
+
+    clearTopTabHideDelay();
+    if (force) {
+      runTopTabAnimation(false);
+      return;
+    }
+
+    topTabHideDelayRef.current = setTimeout(() => {
+      topTabHideDelayRef.current = null;
+      if (!topTabVisibleRef.current) {
+        runTopTabAnimation(false);
+      }
+    }, 90);
+  }, [clearTopTabHideDelay, runTopTabAnimation]);
 
   const handleSharedContentOffset = useCallback((offsetY: number) => {
     const y = Number.isFinite(offsetY) ? Math.max(0, offsetY) : 0;
     const prevY = lastScrollOffsetRef.current;
     const delta = y - prevY;
+    const absDelta = Math.abs(delta);
 
-    if (y <= 24) {
+    if (absDelta < 1.1) {
+      lastScrollOffsetRef.current = y;
+      return;
+    }
+
+    const FORCE_SHOW_OFFSET = 26;
+    const HIDE_OFFSET = 210;
+    const SHOW_OFFSET = 120;
+    const HIDE_TRAVEL_DISTANCE = 68;
+    const SHOW_TRAVEL_DISTANCE = 32;
+
+    if (y <= FORCE_SHOW_OFFSET) {
+      topTabDownTravelRef.current = 0;
+      topTabUpTravelRef.current = 0;
       setTopTabVisibility(true);
       lastScrollOffsetRef.current = y;
       return;
     }
 
-    if (y > 140 && delta > 10) {
+    if (delta > 0) {
+      topTabDownTravelRef.current += delta;
+      topTabUpTravelRef.current = 0;
+    } else {
+      topTabUpTravelRef.current += -delta;
+      topTabDownTravelRef.current = 0;
+    }
+
+    const shouldHide =
+      y > HIDE_OFFSET &&
+      delta > 1.2 &&
+      topTabDownTravelRef.current >= HIDE_TRAVEL_DISTANCE;
+
+    const shouldShow =
+      topTabUpTravelRef.current >= SHOW_TRAVEL_DISTANCE ||
+      (y <= SHOW_OFFSET && delta < -1.5);
+
+    if (shouldHide) {
       setTopTabVisibility(false);
-    } else if (delta < -8) {
+      topTabDownTravelRef.current = 0;
+    } else if (shouldShow) {
       setTopTabVisibility(true);
+      topTabUpTravelRef.current = 0;
     }
 
     lastScrollOffsetRef.current = y;
@@ -1165,7 +1254,17 @@ export function FarmScreen() {
   useEffect(() => {
     setTopTabVisibility(true, true);
     lastScrollOffsetRef.current = 0;
-  }, [activeTab, setTopTabVisibility]);
+    topTabDownTravelRef.current = 0;
+    topTabUpTravelRef.current = 0;
+    clearTopTabHideDelay();
+  }, [activeTab, setTopTabVisibility, clearTopTabHideDelay]);
+
+  useEffect(() => {
+    return () => {
+      clearTopTabHideDelay();
+      topTabAnimationRef.current?.stop();
+    };
+  }, [clearTopTabHideDelay]);
 
   useEffect(() => {
     let loadingTimeout: NodeJS.Timeout | null = null;
@@ -1830,6 +1929,31 @@ export function FarmScreen() {
   const embeddedFilter = filter === 'custom' ? 'all' : filter;
 
   const isSegmentLocked = tutorialStep !== 'COMPLETED' || isGuidedFarmStep;
+  const topTabOpacity = topTabAnim.interpolate({
+    inputRange: [0, 0.25, 1],
+    outputRange: [0, 0.2, 1],
+    extrapolate: 'clamp',
+  });
+  const topTabMaxHeight = topTabLayoutAnim.interpolate({
+    inputRange: [0, 0.6, 1],
+    outputRange: [0, 122, 190],
+    extrapolate: 'clamp',
+  });
+  const topTabTranslateY = topTabAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-11, 0],
+    extrapolate: 'clamp',
+  });
+  const topTabScale = topTabAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.992, 1],
+    extrapolate: 'clamp',
+  });
+  const topTabMarginBottom = topTabLayoutAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 12],
+    extrapolate: 'clamp',
+  });
 
   return (
     <View style={styles.container}>
@@ -1863,23 +1987,15 @@ export function FarmScreen() {
         style={[
           styles.topTabsAnimatedContainer,
           {
-            opacity: topTabAnim,
-            maxHeight: topTabAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 180],
-            }),
+            opacity: topTabOpacity,
+            maxHeight: topTabMaxHeight,
             transform: [
               {
-                translateY: topTabAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-14, 0],
-                }),
+                translateY: topTabTranslateY,
               },
+              { scale: topTabScale },
             ],
-            marginBottom: topTabAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 8],
-            }),
+            marginBottom: topTabMarginBottom,
           },
         ]}
         pointerEvents={isTopTabVisible ? 'auto' : 'none'}

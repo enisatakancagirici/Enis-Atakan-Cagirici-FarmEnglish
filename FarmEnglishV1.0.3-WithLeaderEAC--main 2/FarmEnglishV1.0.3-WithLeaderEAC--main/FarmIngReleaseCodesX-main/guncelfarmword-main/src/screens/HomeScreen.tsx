@@ -16,7 +16,6 @@ import {
   Alert,
   Animated,
   Platform,
-  InteractionManager,
   ImageBackground,
   Modal,
 } from "react-native";
@@ -25,7 +24,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useNavigation, useFocusEffect, CommonActions } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import {
@@ -51,6 +50,7 @@ import {
 import { TutorialFinalQuizPremium } from "../components/TutorialFinalQuizPremium";
 import {
   configureNotifications,
+  getNotificationPermission,
   hasPromptedNotificationPermission,
   markNotificationPermissionPrompted,
   requestNotificationPermission,
@@ -93,18 +93,18 @@ let homeVisualsPreloaded = false;
 // 🖼️ PRELOAD ALL IMAGES - Optimized webp format for fast loading
 const PRELOADED_IMAGES = {
   logo: require("../../assets/logo.webp"),
-  quiz: require("../../assets/images/maskot/yeniTasarımlar/quizegelecek.png"),
-  farm: require("../../assets/images/maskot/yeniTasarımlar/ciftligegelecek.png"),
-  envanter: require("../../assets/images/maskot/yeniTasarımlar/envanteregelecek.png"),
-  puzzle: require("../../assets/images/maskot/yeniTasarımlar/yapbozagelecek.png"),
+  quiz: require("../../assets/images/maskot/yeniTasarımlar/Quiz.webp"),
+  farm: require("../../assets/images/maskot/yeniTasarımlar/Ciftlik.webp"),
+  envanter: require("../../assets/images/maskot/yeniTasarımlar/Envanter.webp"),
+  puzzle: require("../../assets/images/maskot/yeniTasarımlar/Puzzle.webp"),
   phrasal: require("../../assets/images/maskot/phrasal.webp"),
   soruIsareti: require("../../assets/images/maskot/soru_isareti.webp"),
   market: require("../../assets/images/maskot/market_anasayfa.webp"),
-  cardShop: require("../../assets/images/maskot/yeniTasarımlar/kartmagazasinagelecek.png"),
-  battle: require("../../assets/images/maskot/yeniTasarımlar/savasmodunagelecek.png"),
-  sesyap: require("../../assets/images/maskot/yeniTasarımlar/SesYapagelecek.png"),
-  pratik: require("../../assets/images/maskot/yeniTasarımlar/pratikmerkezinegelecek.png"),
-  customWord: require("../../assets/images/maskot/yeniTasarımlar/kendikelimekartiniolusturagelecek.png"),
+  cardShop: require("../../assets/images/maskot/yeniTasarımlar/KartPazari.webp"),
+  battle: require("../../assets/images/maskot/yeniTasarımlar/Savas.webp"),
+  sesyap: require("../../assets/images/maskot/yeniTasarımlar/SesYap.webp"),
+  pratik: require("../../assets/images/maskot/yeniTasarımlar/PratikMerkezi.webp"),
+  customWord: require("../../assets/images/maskot/yeniTasarımlar/yfxnanurut0zfbr7p3vy.webp"),
   // Market Modal Resimleri
   marketGuc: require("../../assets/images/maskot/guc_magazasi.webp"),
   marketTohum: require("../../assets/images/maskot/tohum_pazarı.webp"),
@@ -1200,6 +1200,7 @@ const PremiumGridMenu = ({
 
 export const HomeScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
+  const isHomeFocused = useIsFocused();
   const farm = useFarmStore((state) =>
     Array.isArray(state.farm) ? state.farm : [],
   );
@@ -1296,14 +1297,27 @@ export const HomeScreen = ({ navigation }: any) => {
   const [helpModalTitle, setHelpModalTitle] = useState("Bilgi");
   const [helpModalMessage, setHelpModalMessage] = useState("");
   const [notificationPromptVisible, setNotificationPromptVisible] = useState(false);
+  const [notificationPromptArmed, setNotificationPromptArmed] = useState(false);
+  const [meaningfulActionCount, setMeaningfulActionCount] = useState(0);
   const [practiceCenterVisible, setPracticeCenterVisible] = useState(false);
-  const notificationPromptCheckedRef = useRef(false);
   const notificationRequestInFlightRef = useRef(false);
+  const notificationPromptTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const showHomeHelpModal = useCallback((title: string, message: string) => {
     setHelpModalTitle(title || "Bilgi");
     setHelpModalMessage(message || "");
     setHelpModalVisible(true);
+  }, []);
+
+  const clearNotificationPromptTimer = useCallback(() => {
+    if (notificationPromptTimerRef.current) {
+      clearTimeout(notificationPromptTimerRef.current);
+      notificationPromptTimerRef.current = null;
+    }
+  }, []);
+
+  const registerMeaningfulAction = useCallback(() => {
+    setMeaningfulActionCount((prev) => prev + 1);
   }, []);
 
   useEffect(() => {
@@ -1553,6 +1567,7 @@ export const HomeScreen = ({ navigation }: any) => {
     }
 
     lastNavigationTime.current = Date.now();
+    registerMeaningfulAction();
 
     haptic.medium();
     traceEvent("home_nav", {
@@ -1561,137 +1576,139 @@ export const HomeScreen = ({ navigation }: any) => {
       guidedModeActive,
       guidedModeStep,
     });
-    // Avoid InteractionManager deadlocks when continuous card animations are active.
+    // Navigate immediately to keep touch feedback snappy.
     navigation.navigate(route, params);
 
     setTimeout(() => {
       isNavigating.current = false;
     }, 500);
-  }, [navigation, ensureInternetForRoute, getGuidedRouteBlockReason, guidedModeActive, guidedModeStep, showHomeHelpModal]);
+  }, [navigation, ensureInternetForRoute, getGuidedRouteBlockReason, guidedModeActive, guidedModeStep, showHomeHelpModal, registerMeaningfulAction]);
+
+  const notificationDisplayName = useMemo(() => {
+    const safeNickname = typeof nickname === "string" ? nickname.trim() : "";
+    return safeNickname || "Farmer";
+  }, [nickname]);
+
+  const isNotificationPromptBlocked =
+    tutorialStep !== "COMPLETED" ||
+    !isHomeFocused ||
+    showNicknameModal ||
+    showHomeTutorialLock ||
+    helpModalVisible ||
+    questsPanelVisible ||
+    practiceCenterVisible ||
+    showMarket ||
+    cardShopVisible ||
+    !!quizWordId ||
+    notificationPromptVisible ||
+    notificationRequestInFlightRef.current;
 
   useEffect(() => {
-    if (tutorialStep !== "COMPLETED") return;
-    if (showNicknameModal) return;
-    if (showHomeTutorialLock) return;
-    if (helpModalVisible || questsPanelVisible || practiceCenterVisible || showMarket) return;
-    if (notificationPromptCheckedRef.current) return;
-    notificationPromptCheckedRef.current = true;
+    if (tutorialStep !== "COMPLETED") {
+      setNotificationPromptArmed(false);
+      setMeaningfulActionCount(0);
+      return;
+    }
+    setMeaningfulActionCount(0);
 
     let mounted = true;
-    const timer = setTimeout(() => {
-      if (!mounted) return;
-      (async () => {
-        try {
-          const prompted = await hasPromptedNotificationPermission();
-          if (!prompted && mounted && !notificationRequestInFlightRef.current) {
-            setNotificationPromptVisible(true);
-          }
-        } catch {
-          if (mounted) {
-            setNotificationPromptVisible(false);
-          }
-        }
-      })();
-    }, 600);
+    (async () => {
+      try {
+        const [prompted, permission] = await Promise.all([
+          hasPromptedNotificationPermission(),
+          getNotificationPermission(),
+        ]);
+        if (!mounted) return;
+        setNotificationPromptArmed(!prompted && !permission.granted);
+      } catch {
+        if (mounted) setNotificationPromptArmed(false);
+      }
+    })();
 
     return () => {
       mounted = false;
-      clearTimeout(timer);
+    };
+  }, [tutorialStep]);
+
+  useEffect(() => {
+    if (!notificationPromptArmed) {
+      clearNotificationPromptTimer();
+      return;
+    }
+    if (meaningfulActionCount < 1) return;
+    if (isNotificationPromptBlocked) return;
+
+    clearNotificationPromptTimer();
+    notificationPromptTimerRef.current = setTimeout(() => {
+      setNotificationPromptVisible(true);
+    }, 280);
+
+    return () => {
+      clearNotificationPromptTimer();
     };
   }, [
-    tutorialStep,
-    showNicknameModal,
-    showHomeTutorialLock,
-    helpModalVisible,
-    questsPanelVisible,
-    practiceCenterVisible,
-    showMarket,
+    notificationPromptArmed,
+    meaningfulActionCount,
+    isNotificationPromptBlocked,
+    clearNotificationPromptTimer,
   ]);
 
   const handleRequestNotifications = useCallback(async () => {
     if (notificationRequestInFlightRef.current) return;
     notificationRequestInFlightRef.current = true;
 
-    let timedOut = false;
-    const timeoutId = setTimeout(() => {
-      timedOut = true;
-      notificationRequestInFlightRef.current = false;
-      showHomeHelpModal(
-        "Bildirim İzni Bekleniyor",
-        "Sistem izin penceregeç yanıt verdi. Ekran donmaz; devam edebilir veya daha sonra tekrar deneyebilirsin."
-      );
-    }, 10000);
-
     try {
+      clearNotificationPromptTimer();
       setNotificationPromptVisible(false);
-      await markNotificationPermissionPrompted();
-      // Fallback timeout avoids indefinite waiting when long-running animations keep interactions busy.
-      await new Promise<void>((resolve) => {
-        let settled = false;
-        const finish = () => {
-          if (settled) return;
-          settled = true;
-          resolve();
-        };
-        const fallbackId = setTimeout(finish, 300);
-        InteractionManager.runAfterInteractions(() => {
-          clearTimeout(fallbackId);
-          finish();
-        });
-      });
+      setNotificationPromptArmed(false);
 
       const result = await requestNotificationPermission();
-      if (timedOut) return;
-      clearTimeout(timeoutId);
-      notificationRequestInFlightRef.current = false;
+      await markNotificationPermissionPrompted();
 
       if (result.granted) {
-        const scheduledCount = await Promise.race<number>([
-          scheduleComebackNotifications({ nickname }),
-          new Promise<number>((resolve) => setTimeout(() => resolve(0), 3500)),
-        ]);
+        const scheduledCount = await scheduleComebackNotifications({ nickname, force: true });
         showHomeHelpModal(
-          "Bildirimler Açıldı",
+          "Bildirimler Hazir",
           scheduledCount > 0
-            ? "Hatırlatıcılar aktif. Tarlan, savaş ve öğrenme rutini için nokta atışı bildirimler planlandı."
-            : "Bildirim izni açık. Kısa süre önce planlama yapıldığı için tekrar spam oluşmadı."
+            ? `${notificationDisplayName}, hatirlaticilar aktif. Quiz serisi, hasat zamani ve pratik odaklari icin ${scheduledCount} bildirim planlandi.`
+            : `${notificationDisplayName}, izin acik. Bildirimler zaten planli oldugu icin tekrar spam olusmadi.`
         );
         return;
       }
 
       showHomeHelpModal(
-        "Bildirim Kapalı",
-        "İstersen daha sonra ayarlardan bildirimleri açabilirsin."
+        "Bildirim Izni Kapali",
+        result.canAskAgain
+          ? `${notificationDisplayName}, simdilik izin verilmedi. Uygun oldugunda tekrar deneyebilirsin.`
+          : `${notificationDisplayName}, sistem izni kapali. Ayarlar > Bildirimler > FarmEnglish adimindan acabilirsin.`
       );
     } catch {
-      clearTimeout(timeoutId);
-      notificationRequestInFlightRef.current = false;
       showHomeHelpModal(
-        "Bildirim Ayarı Başarısız",
-        "Bildirim modülü şu anda kullanılamıyor. Oyunu etkilemez; daha sonra tekrar deneyebilirsin."
+        "Bildirim Ayari Basarisiz",
+        "Bildirim izni su an alinamadi. Oyun etkilenmez; daha sonra tekrar deneyebilirsin."
       );
+    } finally {
+      notificationRequestInFlightRef.current = false;
     }
-  }, [showHomeHelpModal, nickname]);
+  }, [showHomeHelpModal, nickname, notificationDisplayName, clearNotificationPromptTimer]);
 
   const handleSkipNotifications = useCallback(async () => {
+    clearNotificationPromptTimer();
     setNotificationPromptVisible(false);
+    setNotificationPromptArmed(false);
     notificationRequestInFlightRef.current = false;
     try {
       await markNotificationPermissionPrompted();
     } catch {
       // no-op
     }
-  }, []);
+  }, [clearNotificationPromptTimer]);
 
   useEffect(() => {
-    // Safety net: if permission flow gets stuck, auto-release interaction lock.
-    if (!notificationPromptVisible && !notificationRequestInFlightRef.current) return;
-    const guardTimer = setTimeout(() => {
-      notificationRequestInFlightRef.current = false;
-      setNotificationPromptVisible(false);
-    }, 15000);
-    return () => clearTimeout(guardTimer);
-  }, [notificationPromptVisible]);
+    return () => {
+      clearNotificationPromptTimer();
+    };
+  }, [clearNotificationPromptTimer]);
 
   const handleNotificationPreview = useCallback(async () => {
     const ok = await scheduleNotificationPreview(5);
@@ -1720,6 +1737,7 @@ export const HomeScreen = ({ navigation }: any) => {
         return;
       }
       lastNavigationTime.current = now;
+      registerMeaningfulAction();
 
       haptic.medium();
 
@@ -1732,7 +1750,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
       setQuizWordId(word.id);
     },
-    [inventory, phrasalVerbInventory, plantFromInventory],
+    [inventory, phrasalVerbInventory, plantFromInventory, registerMeaningfulAction],
   );
 
   const handleQuizAnswer = useCallback(
@@ -1759,6 +1777,7 @@ export const HomeScreen = ({ navigation }: any) => {
   const handleHarvestWord = useCallback(
     (wordId: string) => {
       if (!harvestWord) return;
+      registerMeaningfulAction();
 
       try {
         // Haptic feedback
@@ -1788,7 +1807,7 @@ export const HomeScreen = ({ navigation }: any) => {
         console.error("[HomeScreen] handleHarvestWord failed:", error);
       }
     },
-    [harvestWord],
+    [harvestWord, registerMeaningfulAction],
   );
 
   const handleHomeTutorialResume = useCallback(() => {
@@ -1951,6 +1970,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
               <PremiumMenuCard
                 onPress={() => {
+                  registerMeaningfulAction();
                   haptic.light();
                   setPracticeCenterVisible(true);
                 }}
@@ -1971,6 +1991,7 @@ export const HomeScreen = ({ navigation }: any) => {
             <View style={styles.gridRow}>
               <PremiumMenuCard
                 onPress={() => {
+                  registerMeaningfulAction();
                   haptic.medium();
                   setShowMarket(true);
                 }}
@@ -1988,6 +2009,7 @@ export const HomeScreen = ({ navigation }: any) => {
               />
               <PremiumMenuCard
                 onPress={() => {
+                  registerMeaningfulAction();
                   haptic.medium();
                   setCardShopVisible(true);
                 }}
@@ -2101,6 +2123,7 @@ export const HomeScreen = ({ navigation }: any) => {
             <TouchableOpacity
               style={[styles.questsButton, styles.bottomQuestsButton]}
               onPress={() => {
+                registerMeaningfulAction();
                 haptic.light();
                 setQuestsPanelVisible(true);
               }}
@@ -2216,13 +2239,8 @@ export const HomeScreen = ({ navigation }: any) => {
               onNavigate={(screen: string, params?: any) => {
                 setQuestsPanelVisible(false);
                 setTimeout(() => {
-                  navigation.dispatch(
-                    CommonActions.reset({
-                      index: 0,
-                      routes: [{ name: screen, params }],
-                    })
-                  );
-                }, 100);
+                  void handleNav(screen, params);
+                }, 120);
               }}
             />
             <TouchableOpacity
@@ -2360,19 +2378,19 @@ export const HomeScreen = ({ navigation }: any) => {
       <JuicyModal
         visible={notificationPromptVisible}
         onClose={handleSkipNotifications}
-        title="Bildirim İzni"
+        title="Bildirim Izni"
         titleEmoji={'\u{1F514}'}
-        message="Tutorial tamamlandı. Günlük rutini kaçırmaman için oyun içi bildirim iznini açmak ister misin?"
-        secondaryMessage="Reddetsen bile oyunu aynı şekilde kullanmaya devam edebilirsin."
+        message={`${notificationDisplayName}, yeni guncellemedeki akilli hatirlaticilari acmak ister misin?`}
+        secondaryMessage="Izin verirsen quiz serisi, hasat zamani ve pratik odaklari icin nokta atisi bildirimler gelir."
         type="warning"
         buttons={[
           {
-            text: "İzni Aç",
+            text: "Izni Ac",
             type: "primary",
             onPress: handleRequestNotifications,
           },
           {
-            text: "Şimdilik Geç",
+            text: "Simdilik Gec",
             type: "cancel",
             onPress: handleSkipNotifications,
           },

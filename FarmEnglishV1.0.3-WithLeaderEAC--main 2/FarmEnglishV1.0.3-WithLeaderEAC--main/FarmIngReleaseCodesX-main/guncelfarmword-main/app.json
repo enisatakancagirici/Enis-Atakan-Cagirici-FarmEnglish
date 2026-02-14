@@ -12,6 +12,11 @@
       "resizeMode": "contain",
       "backgroundColor": "#0f172a"
     },
+    "notification": {
+      "icon": "./assets/logo.png",
+      "color": "#22c55e",
+      "iosDisplayInForeground": true
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.machinexus.farming.ios",

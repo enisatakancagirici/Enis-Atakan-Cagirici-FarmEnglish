@@ -117,7 +117,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     // Modali kapat
     onClose?.();
     
-    // Ekrana yonlendir - Puzzle ve PhrasalVerbFarm icin Farm screen'e tab parametresiyle
+    // Ekrana yonlendir - screen ve type bazli guvenli hedefleme
     const screenMap: Record<string, { screen: string; params?: any }> = {
       'Quiz': { screen: 'Quiz' },
       'Home': { screen: 'Home' },
@@ -125,10 +125,38 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
       'Puzzle': { screen: 'Farm', params: { tab: 'puzzle' } },
       'PhrasalVerbFarm': { screen: 'Farm', params: { tab: 'phrasal' } },
       'SesYap': { screen: 'SesYap' },
+      'WordMatch': { screen: 'WordMatch' },
+      'FillBlank': { screen: 'FillBlank' },
+      'Collocations': { screen: 'Collocations' },
+      'Idioms': { screen: 'Idioms' },
+      'YDSQuiz': { screen: 'YDSQuiz' },
+      'YDSWordForms': { screen: 'YDSWordForms' },
       'Battle': { screen: 'Battle' },
     };
-    
-    const target = screenMap[quest.screen] || { screen: 'Home' };
+
+    const typeMap: Record<string, { screen: string; params?: any }> = {
+      'SPEECH_PRACTICE': { screen: 'SesYap' },
+      'MATCH_WORDS': { screen: 'WordMatch' },
+      'FILL_BLANK': { screen: 'FillBlank' },
+      'LEARN_COLLOCATIONS': { screen: 'Collocations' },
+      'LEARN_IDIOMS': { screen: 'Idioms' },
+      'YDS_QUIZ': { screen: 'YDSQuiz' },
+      'COMPLETE_PUZZLE': { screen: 'Farm', params: { tab: 'puzzle' } },
+      'HARVEST_PHRASAL': { screen: 'Farm', params: { tab: 'phrasal' } },
+      'WIN_BATTLE': { screen: 'Battle' },
+    };
+
+    const safeScreen = typeof quest?.screen === 'string' ? quest.screen.trim() : '';
+    const byScreen = screenMap[safeScreen];
+    const byType = typeMap[String(quest?.type || '')];
+    const preferTypeRoute =
+      quest?.type === 'SPEECH_PRACTICE' ||
+      quest?.type === 'MATCH_WORDS' ||
+      quest?.type === 'FILL_BLANK' ||
+      quest?.type === 'LEARN_COLLOCATIONS' ||
+      quest?.type === 'LEARN_IDIOMS' ||
+      quest?.type === 'YDS_QUIZ';
+    const target = (preferTypeRoute ? (byType || byScreen) : (byScreen || byType)) || { screen: 'Home' };
     
     console.log('[DailyQuestsPanel] Navigating to:', target.screen, 'Params:', target.params, 'Has onNavigate:', !!onNavigate);
     

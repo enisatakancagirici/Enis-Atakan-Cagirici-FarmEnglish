@@ -1040,7 +1040,8 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
 
     //  MEYVE SİSTEMİ
     const rawFruitType = word.fruitType || getFruitType(word.difficulty, !!word.isPhrasalVerb);
-    const fruitType = (rawFruitType && (rawFruitType as any) in FRUIT_COLORS) ? (rawFruitType as any) : 'banana';
+    const fruitType: FruitType =
+      rawFruitType && rawFruitType in FRUIT_COLORS ? (rawFruitType as FruitType) : 'banana';
     const fruitGrowthStage = word.fruitGrowthStage || 0;
     const isHarvestReady = word.isHarvestReady || false;
     const rewardClaimedPerfect = word.rewardClaimedPerfect || false;
