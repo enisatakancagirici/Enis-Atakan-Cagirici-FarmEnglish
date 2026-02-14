@@ -175,7 +175,7 @@ const PhrasalFeedCard: React.FC<{
   
   // ✨ SHIMMER - Kartın içinde kayan ışık + PERFORMANS KONTROLÜ
   useEffect(() => {
-    if (isMaster && config.enableShimmer) {
+    if (isMaster && config.enableShimmer && !isQuizActive) {
       const shimmer = RNAnimated.loop(
         RNAnimated.timing(shimmerAnim, {
           toValue: 1,
@@ -186,12 +186,14 @@ const PhrasalFeedCard: React.FC<{
       );
       shimmer.start();
       return () => shimmer.stop();
+    } else if (isQuizActive) {
+      shimmerAnim.setValue(-1);
     }
-  }, [isMaster, shimmerAnim, config.enableShimmer]);
+  }, [isMaster, shimmerAnim, config.enableShimmer, isQuizActive]);
   
   // 💓 BOUNCE/PULSE - Hafif zıplama animasyonu + PERFORMANS KONTROLÜ
   useEffect(() => {
-    if (isMaster && config.enablePulseAnimations) {
+    if (isMaster && config.enablePulseAnimations && !isQuizActive) {
       const pulse = RNAnimated.loop(
         RNAnimated.sequence([
           RNAnimated.timing(pulseAnim, {
@@ -210,8 +212,10 @@ const PhrasalFeedCard: React.FC<{
       );
       pulse.start();
       return () => pulse.stop();
+    } else if (isQuizActive) {
+      pulseAnim.setValue(1);
     }
-  }, [isMaster, pulseAnim, config.enablePulseAnimations]);
+  }, [isMaster, pulseAnim, config.enablePulseAnimations, isQuizActive]);
   
   // Shimmer translate interpolation
   const shimmerTranslate = shimmerAnim.interpolate({
@@ -244,7 +248,8 @@ const PhrasalFeedCard: React.FC<{
           haptic.harvestCelebration?.();
           sound.playEpicHarvest?.();
           onHarvest?.(word.id);
-          speakFirstMeaning(word.meaning);
+          const firstMeaning = getFirstMeaning(word.meaning || '');
+          if (firstMeaning) sound.speakWord(firstMeaning, 'tr-TR');
         }
         // 📦 Envanterdeyse → Tarlaya ekle
         else if (isInInventory && onPlantToFarm) {
@@ -273,10 +278,10 @@ const PhrasalFeedCard: React.FC<{
             borderColor: theme.border, 
             shadowColor: theme.glow,
             // Master kartlar için güçlü statik shadow (native driver uyumu için)
-            shadowOpacity: isMaster ? 0.7 : 0.35,
-            shadowRadius: isMaster ? 20 : 12,
+            shadowOpacity: isQuizActive ? 0 : (isMaster ? 0.7 : 0.35),
+            shadowRadius: isQuizActive ? 0 : (isMaster ? 20 : 12),
             // 💓 Bounce animasyonu
-            transform: [{ scale: isMaster ? pulseAnim : 1 }],
+            transform: [{ scale: isQuizActive ? 1 : (isMaster ? pulseAnim : 1) }],
           }
         ]} 
         {...panResponder.panHandlers}
@@ -289,7 +294,7 @@ const PhrasalFeedCard: React.FC<{
         />
         
         {/* ✨ SHIMMER EFFECT - Master kartlar için kartın içinde kayan ışık + PERFORMANS KONTROLÜ */}
-        {isMaster && config.enableShimmer && (
+        {isMaster && config.enableShimmer && !isQuizActive && (
           <RNAnimated.View
             style={[
               styles.feedShimmerEffect,
@@ -544,11 +549,7 @@ export default function PhrasalVerbFarmScreenNew({
   const plantFromInventory = useFarmStore(s => s.plantFromInventory);
   const harvestWord = useFarmStore(s => s.harvestWord);
   const tutorialStep = useFarmStore(s => s.tutorialStep);
-  const xp = useFarmStore(s => s.xp);
-  const level = useFarmStore(s => s.level);
-  const coins = useFarmStore(s => s.coins);
   const setStoreFeedVisible = useFarmStore(s => s.setFeedVisible); // Swipe block için
-  const updateQuestProgress = useFarmStore(s => s.updateQuestProgress); // 🎯 Quest tracking
   const cardCustomization = useFarmStore(s => s.cardCustomization);
   
   // ☁️ CloudTip state - persist edilmiş
@@ -602,6 +603,19 @@ export default function PhrasalVerbFarmScreenNew({
     [phrasalVerbFarm, miniQuizFor]
   );
 
+  const [suspendHeavyEffectsForQuiz, setSuspendHeavyEffectsForQuiz] = useState(false);
+  useEffect(() => {
+    let suspendTimeout: NodeJS.Timeout | null = null;
+    if (miniQuizFor) {
+      suspendTimeout = setTimeout(() => setSuspendHeavyEffectsForQuiz(true), 120);
+    } else {
+      setSuspendHeavyEffectsForQuiz(false);
+    }
+    return () => {
+      if (suspendTimeout) clearTimeout(suspendTimeout);
+    };
+  }, [miniQuizFor]);
+
   // Ready to harvest count
   const readyCount = useMemo(() => {
     return phrasalVerbFarm.filter(w => {
@@ -616,10 +630,6 @@ export default function PhrasalVerbFarmScreenNew({
       return streak >= streakNeeded;
     }).length;
   }, [phrasalVerbFarm]);
-
-  // XP Progress
-  const xpInCurrentLevel = xp % 1000;
-  const xpProgress = (xpInCurrentLevel / 1000) * 100;
 
   // Glow animation removed for performance
   
@@ -745,7 +755,7 @@ export default function PhrasalVerbFarmScreenNew({
       haptic?.light?.();
       openMiniQuiz?.(item.id);
     }
-  }, [harvestWord, openMiniQuiz, speakFirstMeaning, updateQuestProgress]);
+  }, [harvestWord, openMiniQuiz, speakFirstMeaning]);
 
   // 📖 Open Feed
   const handleWordPress = useCallback((word: WordModel) => {
@@ -892,9 +902,10 @@ export default function PhrasalVerbFarmScreenNew({
         onPress={() => handleWordPress(item)}
         onQuizPress={() => handleHarvest(item)}
         index={index}
+        suspendHeavyEffects={suspendHeavyEffectsForQuiz}
       />
     </GridSwipeWrapper>
-  ), [handleHarvest, handleWordPress, miniQuizFor]);
+  ), [handleHarvest, handleWordPress, suspendHeavyEffectsForQuiz]);
 
   // 🎯 Filter Tab Component - FarmScreen ile birebir aynı
   const FilterTab = ({ label, active, onPress, count, glowColor }: {

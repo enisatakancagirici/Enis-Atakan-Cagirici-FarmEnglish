@@ -327,12 +327,21 @@ const CardWaterDrops = React.memo<{
   const growTextAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    let completeTimeout: NodeJS.Timeout | null = null;
+    let combinedAnimation: Animated.CompositeAnimation | null = null;
+    let isCancelled = false;
+
     if (!visible) return;
 
     // 🎮 showText false ise hiç animasyon yapma
     if (!showText && dropCount === 0) {
-      setTimeout(() => onComplete?.(), 50);
-      return;
+      completeTimeout = setTimeout(() => {
+        if (!isCancelled) onComplete?.();
+      }, 50);
+      return () => {
+        isCancelled = true;
+        if (completeTimeout) clearTimeout(completeTimeout);
+      };
     }
 
     // Damlacıkları sıfırla
@@ -402,10 +411,19 @@ const CardWaterDrops = React.memo<{
     }
 
     // Animasyonları çalıştır
-    Animated.parallel(animations).start(() => {
-      setTimeout(() => onComplete?.(), 50);
+    combinedAnimation = Animated.parallel(animations);
+    combinedAnimation.start(() => {
+      completeTimeout = setTimeout(() => {
+        if (!isCancelled) onComplete?.();
+      }, 50);
     });
-  }, [visible, dropCount, duration, showText]);
+
+    return () => {
+      isCancelled = true;
+      combinedAnimation?.stop();
+      if (completeTimeout) clearTimeout(completeTimeout);
+    };
+  }, [visible, dropCount, duration, showText, onComplete]);
 
   if (!visible) return null;
 
@@ -557,12 +575,21 @@ const CardBugCrawl = React.memo<{
   ).current;
 
   useEffect(() => {
+    let completeTimeout: NodeJS.Timeout | null = null;
+    let combinedAnimation: Animated.CompositeAnimation | null = null;
+    let isCancelled = false;
+
     if (!visible) return;
 
     //  showText false ise ve bugCount 0 ise hiç animasyon yapma
     if (!showText && bugCount === 0) {
-      setTimeout(() => onComplete?.(), 50);
-      return;
+      completeTimeout = setTimeout(() => {
+        if (!isCancelled) onComplete?.();
+      }, 50);
+      return () => {
+        isCancelled = true;
+        if (completeTimeout) clearTimeout(completeTimeout);
+      };
     }
 
     // Sıfırla
@@ -632,10 +659,19 @@ const CardBugCrawl = React.memo<{
     }
 
     // Animasyonları çalıştır
-    Animated.parallel(animations).start(() => {
-      setTimeout(() => onComplete?.(), 50);
+    combinedAnimation = Animated.parallel(animations);
+    combinedAnimation.start(() => {
+      completeTimeout = setTimeout(() => {
+        if (!isCancelled) onComplete?.();
+      }, 50);
     });
-  }, [visible, bugCount, duration, showText]);
+
+    return () => {
+      isCancelled = true;
+      combinedAnimation?.stop();
+      if (completeTimeout) clearTimeout(completeTimeout);
+    };
+  }, [visible, bugCount, duration, showText, onComplete]);
 
   if (!visible) return null;
 
@@ -816,18 +852,20 @@ interface UltimateWordCardProps {
   onPress: () => void;
   onQuizPress?: () => void;
   index?: number;
+  suspendHeavyEffects?: boolean; // MiniQuiz açıkken arka plan FX'leri dondur
   isHighlighted?: boolean; //  Tutorial highlight
   levelFeedback?: { type: 'levelUp' | 'levelDown'; visible: boolean }; // 💧 Seviye animasyonları
   onLevelFeedbackComplete?: () => void; // Animasyon bitince callback
 }
 
 // 🚀 OPTIMIZED: React.memo ile gereksiz render'ları önle
-export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ word, onPress, onQuizPress, index = 0, isHighlighted = false, levelFeedback: propLevelFeedback, onLevelFeedbackComplete }) => {
+export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ word, onPress, onQuizPress, index = 0, suspendHeavyEffects = false, isHighlighted = false, levelFeedback: propLevelFeedback, onLevelFeedbackComplete }) => {
   const windowDims = useWindowDimensions();
 
   //  PERFORMANS AYARLARI - Store'dan al
   const config = usePerformanceStore(s => s.config);
   const performanceLevel = usePerformanceStore(s => s.level); // 'LOW' | 'MEDIUM' | 'HIGH' | 'ULTRA' | 'PERFECT'
+  const isFxSuspended = suspendHeavyEffects;
   const enableAnimations = config.enableCardEntryAnimation;
   const enableShimmer = config.enableShimmer;
   const enableGlow = config.enableGlow;
@@ -982,6 +1020,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   const dynamicCardRadius = rs(borderPreset.borderRadius);
   const dynamicBorderWidth = rs(borderPreset.borderWidth);
   const dynamicShadowRadius = rs(borderPreset.shadowRadius);
+  const effectiveShadowRadius = isFxSuspended ? 0 : dynamicShadowRadius;
   const fontStyleOverride = getFontStyle(safeCustomization.fontStyle || 'default');
   const isSoilBackground = safeCustomization.backgroundStyle === 'soil';
 
@@ -1162,9 +1201,22 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
           buttonText, showInfinity, quizCorrect, quizWrong, successRate,
           fruitType, fruitGrowthStage, isHarvestReady, showFruit, showHarvestButton, rewardClaimedPerfect, harvestReward } = cardData;
   const themeVisualFx = useMemo(() => getThemeVisualFx(themeOverlay?.id), [themeOverlay?.id]);
+  // Kart teması animasyonları pahalıdır; çok kartlı listede yalnızca sınırlı sayıda karta uygula.
+  const shouldAnimateThemeFx =
+    !!themeOverlay &&
+    !isSoilBackground &&
+    config.enableGlow &&
+    performanceLevel !== 'LOW' &&
+    performanceLevel !== 'MEDIUM' &&
+    !isFxSuspended &&
+    index < 6;
+  const enableMasterShimmerFx = isMaster && config.enableShimmer && !isFxSuspended;
+  const enableMasterGlowFx = isMaster && config.enableGlow && !isFxSuspended;
+  const enableMasterPulseFx = isMaster && config.enablePulseAnimations && !isFxSuspended;
+  const enableFruitGlowFx = isHarvestReady && !rewardClaimedPerfect && !isFxSuspended;
 
   useEffect(() => {
-    if (!themeOverlay || isSoilBackground || !config.enableGlow) {
+    if (!shouldAnimateThemeFx) {
       themeSweepAnim.stopAnimation();
       themeAuraAnim.stopAnimation();
       themeSparkAnim.stopAnimation();
@@ -1225,9 +1277,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
       sparkle.stop();
     };
   }, [
-    themeOverlay?.id,
-    isSoilBackground,
-    config.enableGlow,
+    shouldAnimateThemeFx,
     themeSweepAnim,
     themeAuraAnim,
     themeSparkAnim,
@@ -1243,7 +1293,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
 
   // ✨ SHIMMER EFEKTİ - SADECE MASTER KARTLAR için (elitlik!) + PERFORMANS KONTROLÜ
   useEffect(() => {
-    if (isMaster && config.enableShimmer) {
+    if (enableMasterShimmerFx) {
       const shimmer = Animated.loop(
         Animated.timing(shimmerAnim, {
           toValue: 1,
@@ -1255,11 +1305,12 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
       shimmer.start();
       return () => shimmer.stop();
     }
-  }, [isMaster, shimmerAnim, config.enableShimmer]);
+    shimmerAnim.setValue(-1);
+  }, [enableMasterShimmerFx, shimmerAnim]);
 
   // 🌟 GLOW PULSE - SADECE MASTER KARTLAR için (premium his) + PERFORMANS KONTROLÜ
   useEffect(() => {
-    if (isMaster && config.enableGlow) {
+    if (enableMasterGlowFx) {
       const glow = Animated.loop(
         Animated.sequence([
           Animated.timing(glowAnim, {
@@ -1279,11 +1330,12 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
       glow.start();
       return () => glow.stop();
     }
-  }, [isMaster, glowAnim, config.enableGlow]);
+    glowAnim.setValue(0.4);
+  }, [enableMasterGlowFx, glowAnim]);
 
   // 💓 PULSE - SADECE MASTER KARTLAR için (nabız efekti) + PERFORMANS KONTROLÜ
   useEffect(() => {
-    if (isMaster && config.enablePulseAnimations) {
+    if (enableMasterPulseFx) {
       const pulse = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -1303,7 +1355,8 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
       pulse.start();
       return () => pulse.stop();
     }
-  }, [isMaster, pulseAnim, config.enablePulseAnimations]);
+    pulseAnim.setValue(1);
+  }, [enableMasterPulseFx, pulseAnim]);
 
   // Shimmer interpolation (master only)
   const shimmerTranslate = shimmerAnim.interpolate({
@@ -1325,8 +1378,12 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
 
   const playFruitGrowPulse = useCallback((stage: number = fruitGrowthStage) => {
     const safeStage = Math.max(0, Math.min(Number.isFinite(stage) ? Math.floor(stage) : 0, 3));
-    const peakByStage = [1.22, 1.3, 1.4, 1.52];
-    const peakScale = peakByStage[safeStage] || 1.3;
+    const sessionProgressRatio = streakNeeded > 0
+      ? Math.max(0, Math.min(displayStreak / streakNeeded, 1))
+      : 1;
+    const peakByStage = [1.28, 1.4, 1.52, 1.64];
+    const progressBoost = (isMaster ? 0.07 : 0.05) * sessionProgressRatio;
+    const peakScale = Math.min((peakByStage[safeStage] || 1.4) + progressBoost, 1.72);
     Animated.sequence([
       Animated.spring(fruitScaleAnim, {
         toValue: peakScale,
@@ -1341,7 +1398,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
         useNativeDriver: true,
       }),
     ]).start();
-  }, [fruitScaleAnim, fruitGrowthStage]);
+  }, [fruitScaleAnim, fruitGrowthStage, displayStreak, streakNeeded, isMaster]);
 
   //  MEYVE BÜYÜME ANİMASYONU - Session tamamlandığında
   useEffect(() => {
@@ -1369,7 +1426,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
 
   //  HASAT HAZIR GLOW - Hasat hazır olduğunda pulse
   useEffect(() => {
-    if (isHarvestReady && !rewardClaimedPerfect) {
+    if (enableFruitGlowFx) {
       const glowPulse = Animated.loop(
         Animated.sequence([
           Animated.timing(fruitGlowAnim, {
@@ -1389,7 +1446,8 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
       glowPulse.start();
       return () => glowPulse.stop();
     }
-  }, [isHarvestReady, rewardClaimedPerfect, fruitGlowAnim]);
+    fruitGlowAnim.setValue(0);
+  }, [enableFruitGlowFx, fruitGlowAnim]);
 
   //  Favori toggle handler
   const handleFavoritePress = useCallback(() => {
@@ -1472,7 +1530,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
           ],
         },
         //  TUTORIAL HIGHLIGHT - Yeşil parlak border
-        isHighlighted && {
+        isHighlighted && !isFxSuspended && {
           borderWidth: 3,
           borderColor: '#22c55e',
           borderRadius: dynamicCardRadius + rs(6),
@@ -1484,8 +1542,8 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
         },
       ]}
     >
-      {/* 🌟 GLOW EFFECT - Master: animated, Ready: static, Highlighted: green */}
-      {isHighlighted ? (
+      {/* 🌟 GLOW EFFECT - MiniQuiz açıkken tamamen kapalı */}
+      {!isFxSuspended && (isHighlighted ? (
         <View
           style={[
             styles.glowEffect,
@@ -1521,7 +1579,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             },
           ]}
         />
-      ) : null}
+      ) : null)}
 
       <TouchableOpacity
         activeOpacity={0.95}
@@ -1539,10 +1597,10 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
               borderWidth: dynamicBorderWidth,
               borderColor: theme.border,
               shadowColor: theme.borderGlow,
-              shadowRadius: dynamicShadowRadius,
-              shadowOpacity: dynamicShadowRadius > 0 ? (isMaster ? 0.42 : 0.35) : 0,
-              shadowOffset: { width: 0, height: dynamicShadowRadius > 0 ? rs(8) : 0 },
-              elevation: dynamicShadowRadius > 0 ? 10 : 0,
+              shadowRadius: effectiveShadowRadius,
+              shadowOpacity: effectiveShadowRadius > 0 ? (isMaster ? 0.42 : 0.35) : 0,
+              shadowOffset: { width: 0, height: effectiveShadowRadius > 0 ? rs(8) : 0 },
+              elevation: effectiveShadowRadius > 0 ? 10 : 0,
             }
           ]}
         >
@@ -1565,7 +1623,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
                 pointerEvents="none"
               />
             )}
-            {themeOverlay && !isSoilBackground && (
+            {themeOverlay && !isSoilBackground && shouldAnimateThemeFx && (
               <>
                 <Animated.View
                   pointerEvents="none"
@@ -1696,7 +1754,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             )}
 
             {/* ✨ SHIMMER EFFECT - Master kartlar için ANIMATED! + PERFORMANS KONTROLÜ */}
-            {isMaster && config.enableShimmer && (
+            {enableMasterShimmerFx && (
               <Animated.View
                 style={[
                   styles.shimmerEffect,
@@ -1755,6 +1813,12 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
 
                 // 👑 PERFECT KART İÇİN ÖZEL BOYUT - Kartın içinde kalmalı!
                 let fruitSize: number;
+                const sessionProgressRatio = streakNeeded > 0
+                  ? Math.max(0, Math.min(displayStreak / streakNeeded, 1))
+                  : 1;
+                const sessionGrowthBoost = (masterLevel > 0
+                  ? (fruitType === 'watermelon' ? 0.05 : 0.08)
+                  : (fruitType === 'watermelon' ? 0.03 : 0.055)) * sessionProgressRatio;
                 if (masterLevel === 3) {
                   // 🌟 PERFECT: Seviye özel boyut
                   let perfectMultiplier: number;
@@ -1768,19 +1832,27 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
                     //  DİER MEYVELER: Normal
                     perfectMultiplier = isHarvestReady ? 1.00 : 0.92;
                   }
-                  fruitSize = Math.round(cardMaxSize * perfectMultiplier);
+                  const boostedPerfectMultiplier = Math.min(
+                    perfectMultiplier + sessionGrowthBoost,
+                    fruitType === 'watermelon' ? 1.08 : 1.12
+                  );
+                  fruitSize = Math.round(cardMaxSize * boostedPerfectMultiplier);
                 } else {
                   // 🌱 TIER 1-3: Growth multipliers
                   let growthMultipliers: number[];
                   if (fruitType === 'watermelon') {
                     //  KARPUZ: Tüm tier'lerde küçük
-                    growthMultipliers = [0.62, 0.78, 0.94, 1.08];
+                    growthMultipliers = [0.68, 0.86, 1.03, 1.17];
                   } else {
                     //  DİER MEYVELER: Normal growth
-                    growthMultipliers = [0.8, 0.98, 1.14, 1.28];
+                    growthMultipliers = [0.86, 1.06, 1.24, 1.36];
                   }
                   const currentMultiplier = growthMultipliers[Math.min(fruitGrowthStage, 3)];
-                  fruitSize = Math.round(cardMaxSize * currentMultiplier);
+                  const boostedMultiplier = Math.min(
+                    currentMultiplier + sessionGrowthBoost,
+                    fruitType === 'watermelon' ? 1.22 : 1.42
+                  );
+                  fruitSize = Math.round(cardMaxSize * boostedMultiplier);
                 }
 
                 const fruitColors = FRUIT_COLORS[fruitType];
@@ -1788,7 +1860,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
                 return (
                   <View style={styles.sproutContainer} pointerEvents="none">
                     {/* Hasat hazır glow - Perfect kartlarda her zaman göster */}
-                    {isHarvestReady && (
+                    {isHarvestReady && !isFxSuspended && (
                       <Animated.View
                         style={[
                           styles.fruitGlow,
@@ -2006,7 +2078,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             </View>
 
             {/* Master Card Indicator */}
-            {isMaster && (
+            {isMaster && !isFxSuspended && (
               <View style={[styles.masterIndicator, { backgroundColor: theme.borderGlow }]} />
             )}
           </LinearGradient>
@@ -2030,7 +2102,9 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     prevProps.word.fruitGrowthStage === nextProps.word.fruitGrowthStage &&
     prevProps.word.isHarvestReady === nextProps.word.isHarvestReady &&
     prevProps.word.rewardClaimedPerfect === nextProps.word.rewardClaimedPerfect &&
-    prevProps.index === nextProps.index
+    prevProps.index === nextProps.index &&
+    prevProps.isHighlighted === nextProps.isHighlighted &&
+    prevProps.suspendHeavyEffects === nextProps.suspendHeavyEffects
   );
 });
 

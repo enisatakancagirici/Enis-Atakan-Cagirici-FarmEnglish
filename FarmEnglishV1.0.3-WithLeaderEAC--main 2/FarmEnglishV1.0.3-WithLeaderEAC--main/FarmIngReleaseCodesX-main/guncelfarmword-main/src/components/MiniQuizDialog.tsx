@@ -275,62 +275,75 @@ const MiniQuizRewardToast = memo<{
   const scale = useRef(new Animated.Value(0.5)).current;
 
   useEffect(() => {
-    if (visible && coin > 0) {
-      // Reset
-      translateY.setValue(50);
-      opacity.setValue(0);
-      scale.setValue(0.5);
+    if (!visible || coin <= 0) return;
 
-      if (enableAnimation) {
-        // Animate in with bounce
-        Animated.parallel([
-          Animated.spring(translateY, {
-            toValue: 0,
-            friction: 6,
-            tension: 120,
+    let isCancelled = false;
+    let timeout: NodeJS.Timeout | null = null;
+    let enterAnimation: Animated.CompositeAnimation | null = null;
+    let exitAnimation: Animated.CompositeAnimation | null = null;
+
+    // Reset
+    translateY.setValue(50);
+    opacity.setValue(0);
+    scale.setValue(0.5);
+
+    if (enableAnimation) {
+      // Animate in with bounce
+      enterAnimation = Animated.parallel([
+        Animated.spring(translateY, {
+          toValue: 0,
+          friction: 6,
+          tension: 120,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          friction: 5,
+          tension: 150,
+          useNativeDriver: true,
+        }),
+      ]);
+      enterAnimation.start();
+
+      // Fade out after delay
+      timeout = setTimeout(() => {
+        if (isCancelled) return;
+        exitAnimation = Animated.parallel([
+          Animated.timing(translateY, {
+            toValue: -30,
+            duration: 200,
             useNativeDriver: true,
           }),
           Animated.timing(opacity, {
-            toValue: 1,
-            duration: 150,
+            toValue: 0,
+            duration: 200,
             useNativeDriver: true,
           }),
-          Animated.spring(scale, {
-            toValue: 1,
-            friction: 5,
-            tension: 150,
-            useNativeDriver: true,
-          }),
-        ]).start();
-
-        // Fade out after delay
-        const timeout = setTimeout(() => {
-          Animated.parallel([
-            Animated.timing(translateY, {
-              toValue: -30,
-              duration: 200,
-              useNativeDriver: true,
-            }),
-            Animated.timing(opacity, {
-              toValue: 0,
-              duration: 200,
-              useNativeDriver: true,
-            }),
-          ]).start();
-        }, 800);
-
-        return () => clearTimeout(timeout);
-      } else {
-        // No animation - just show briefly
-        opacity.setValue(1);
-        scale.setValue(1);
-        translateY.setValue(0);
-        const timeout = setTimeout(() => {
-          opacity.setValue(0);
-        }, 600);
-        return () => clearTimeout(timeout);
-      }
+        ]);
+        exitAnimation.start();
+      }, 800);
+    } else {
+      // No animation - just show briefly
+      opacity.setValue(1);
+      scale.setValue(1);
+      translateY.setValue(0);
+      timeout = setTimeout(() => {
+        if (isCancelled) return;
+        opacity.setValue(0);
+      }, 600);
     }
+
+    return () => {
+      isCancelled = true;
+      enterAnimation?.stop();
+      exitAnimation?.stop();
+      if (timeout) clearTimeout(timeout);
+    };
   }, [visible, coin, enableAnimation]);
 
   if (!visible || coin === 0) return null;
@@ -506,32 +519,45 @@ const CardWaterDrops = memo(({ visible, onComplete, enabled = true }: { visible:
   const drop2Y = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (visible) {
-      // 🎮 Animasyon kapalıysa hemen tamamla
-      if (!enabled) {
-        setTimeout(() => onComplete?.(), 50);
-        return;
-      }
-      
-      // Reset
-      opacity.setValue(1);
-      drop1Y.setValue(0);
-      drop2Y.setValue(0);
+    if (!visible) return;
 
-      // Basit animasyon - sadece 2 damla
-      Animated.parallel([
-        Animated.timing(drop1Y, { toValue: -40, duration: 500, useNativeDriver: true }),
-        Animated.timing(drop2Y, { toValue: -50, duration: 600, useNativeDriver: true }),
-        Animated.sequence([
-          Animated.delay(300),
-          Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        ]),
-      ]).start();
+    let isCancelled = false;
+    let timeout: NodeJS.Timeout | null = null;
+    let dropAnimation: Animated.CompositeAnimation | null = null;
 
-      const timeout = setTimeout(() => onComplete?.(), 650);
-      return () => clearTimeout(timeout);
+    const completeSafely = () => {
+      if (!isCancelled) onComplete?.();
+    };
+
+    if (!enabled) {
+      timeout = setTimeout(completeSafely, 50);
+      return () => {
+        isCancelled = true;
+        if (timeout) clearTimeout(timeout);
+      };
     }
-  }, [visible, enabled]);
+
+    opacity.setValue(1);
+    drop1Y.setValue(0);
+    drop2Y.setValue(0);
+
+    dropAnimation = Animated.parallel([
+      Animated.timing(drop1Y, { toValue: -40, duration: 500, useNativeDriver: true }),
+      Animated.timing(drop2Y, { toValue: -50, duration: 600, useNativeDriver: true }),
+      Animated.sequence([
+        Animated.delay(300),
+        Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+      ]),
+    ]);
+    dropAnimation.start();
+
+    timeout = setTimeout(completeSafely, 650);
+    return () => {
+      isCancelled = true;
+      dropAnimation?.stop();
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [visible, enabled, onComplete]);
 
   if (!visible || !enabled) return null;
 
@@ -552,39 +578,54 @@ const CardBugCrawl = memo(({ visible, onComplete, enabled = true }: { visible: b
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (visible) {
-      // 🎮 Animasyon kapalıysa hemen tamamla
-      if (!enabled) {
-        setTimeout(() => onComplete?.(), 50);
-        return;
-      }
-      
-      // Reset
-      opacity.setValue(1);
-      bug1X.setValue(-20);
-      bug2X.setValue(20);
+    if (!visible) return;
 
-      // Hafif titreme
-      Animated.sequence([
-        Animated.timing(shakeAnim, { toValue: 3, duration: 40, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: -3, duration: 40, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
-      ]).start();
+    let isCancelled = false;
+    let timeout: NodeJS.Timeout | null = null;
+    let shakeAnimation: Animated.CompositeAnimation | null = null;
+    let crawlAnimation: Animated.CompositeAnimation | null = null;
 
-      // Böcek hareketi
-      Animated.parallel([
-        Animated.timing(bug1X, { toValue: 15, duration: 500, useNativeDriver: true }),
-        Animated.timing(bug2X, { toValue: -15, duration: 450, useNativeDriver: true }),
-        Animated.sequence([
-          Animated.delay(300),
-          Animated.timing(opacity, { toValue: 0, duration: 250, useNativeDriver: true }),
-        ]),
-      ]).start();
+    const completeSafely = () => {
+      if (!isCancelled) onComplete?.();
+    };
 
-      const timeout = setTimeout(() => onComplete?.(), 600);
-      return () => clearTimeout(timeout);
+    if (!enabled) {
+      timeout = setTimeout(completeSafely, 50);
+      return () => {
+        isCancelled = true;
+        if (timeout) clearTimeout(timeout);
+      };
     }
-  }, [visible, enabled]);
+
+    opacity.setValue(1);
+    bug1X.setValue(-20);
+    bug2X.setValue(20);
+
+    shakeAnimation = Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 3, duration: 40, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -3, duration: 40, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
+    ]);
+    shakeAnimation.start();
+
+    crawlAnimation = Animated.parallel([
+      Animated.timing(bug1X, { toValue: 15, duration: 500, useNativeDriver: true }),
+      Animated.timing(bug2X, { toValue: -15, duration: 450, useNativeDriver: true }),
+      Animated.sequence([
+        Animated.delay(300),
+        Animated.timing(opacity, { toValue: 0, duration: 250, useNativeDriver: true }),
+      ]),
+    ]);
+    crawlAnimation.start();
+
+    timeout = setTimeout(completeSafely, 600);
+    return () => {
+      isCancelled = true;
+      shakeAnimation?.stop();
+      crawlAnimation?.stop();
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [visible, enabled, onComplete]);
 
   if (!visible || !enabled) return null;
 
@@ -679,21 +720,24 @@ const MiniWaterDrops = memo(({ visible }: { visible: boolean }) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (visible) {
-      // Reset
-      drop1Y.setValue(0);
-      drop2Y.setValue(0);
-      drop3Y.setValue(0);
-      opacity.setValue(1);
+    if (!visible) return;
 
-      // Animate drops floating up (negative = up)
-      Animated.parallel([
-        Animated.timing(drop1Y, { toValue: -60, duration: 600, useNativeDriver: true }),
-        Animated.timing(drop2Y, { toValue: -80, duration: 700, useNativeDriver: true }),
-        Animated.timing(drop3Y, { toValue: -50, duration: 500, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0, duration: 700, useNativeDriver: true }),
-      ]).start();
-    }
+    // Reset
+    drop1Y.setValue(0);
+    drop2Y.setValue(0);
+    drop3Y.setValue(0);
+    opacity.setValue(1);
+
+    // Animate drops floating up (negative = up)
+    const dropAnimation = Animated.parallel([
+      Animated.timing(drop1Y, { toValue: -60, duration: 600, useNativeDriver: true }),
+      Animated.timing(drop2Y, { toValue: -80, duration: 700, useNativeDriver: true }),
+      Animated.timing(drop3Y, { toValue: -50, duration: 500, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 0, duration: 700, useNativeDriver: true }),
+    ]);
+    dropAnimation.start();
+
+    return () => dropAnimation.stop();
   }, [visible]);
 
   if (!visible) return null;
@@ -1337,6 +1381,9 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
 
   // 🎬 EPIC Entry Animation
   useEffect(() => {
+    let interactionTask: ReturnType<typeof InteractionManager.runAfterInteractions> | null = null;
+    let isCancelled = false;
+
     if (currentWord) {
       // Reset states
       setSelected(null);
@@ -1406,7 +1453,9 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
       }
 
       // 🚀 Glow ve pulse loop'ları SONRA başlat (açılış kasmasını önle)
-      InteractionManager.runAfterInteractions(() => {
+      interactionTask = InteractionManager.runAfterInteractions(() => {
+        if (isCancelled) return;
+
         // Simple glow pulse - managed loop - PERFORMANS KONTROLÜ
         glowLoopRef.current?.stop();
         if (config.enableGlow) {
@@ -1450,6 +1499,8 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     }
 
     return () => {
+      isCancelled = true;
+      interactionTask?.cancel?.();
       glowLoopRef.current?.stop();
       wordPulseLoopRef.current?.stop();
       // 🗣️ word değiştiğinde (kapanış dahil) TTS'i durdur + timeout temizle

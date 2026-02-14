@@ -283,6 +283,8 @@ const FeedCard: React.FC<{
       );
       shimmer.start();
       return () => shimmer.stop();
+    } else if (isQuizActive) {
+      shimmerAnim.setValue(-1);
     }
   }, [isMaster, shimmerAnim, config.enableShimmer, isQuizActive]);
 
@@ -376,10 +378,10 @@ const FeedCard: React.FC<{
             borderColor: theme.border,
             shadowColor: theme.glow,
             // Master kartlar iin gl statik shadow (native driver uyumu iin)
-            shadowOpacity: isMaster ? 0.7 : 0.35,
-            shadowRadius: isMaster ? 20 : 12,
+            shadowOpacity: isQuizActive ? 0 : (isMaster ? 0.7 : 0.35),
+            shadowRadius: isQuizActive ? 0 : (isMaster ? 20 : 12),
             // ?? Bounce animasyonu
-            transform: [{ scale: isMaster ? pulseAnim : 1 }],
+            transform: [{ scale: isQuizActive ? 1 : (isMaster ? pulseAnim : 1) }],
           }
         ]}
         {...panResponder.panHandlers}
@@ -392,7 +394,7 @@ const FeedCard: React.FC<{
         />
 
         {/* ? SHIMMER EFFECT - Master kartlar iin kartn iinde kayan k + PERFORMANS KONTROL */}
-        {isMaster && config.enableShimmer && (
+        {isMaster && config.enableShimmer && !isQuizActive && (
           <Animated.View
             style={[
               styles.feedShimmerEffect,
@@ -944,7 +946,17 @@ const FilterTab: React.FC<{
 export function FarmScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { farm, inventory, pool, level, xp, streak, bestStreak, answerMiniQuiz, coins, toggleFavorite, plantFromInventory, phrasalVerbFarm, harvestWord, cardCustomization } = useFarmStore();
+  // ⚡ Selector bazlı abonelik: coin/xp gibi alakasız store güncellemelerinde
+  // tüm FarmScreen'in yeniden render olmasını önler (MiniQuiz kasması için kritik).
+  const farm = useFarmStore(state => state.farm);
+  const inventory = useFarmStore(state => state.inventory);
+  const pool = useFarmStore(state => state.pool);
+  const answerMiniQuiz = useFarmStore(state => state.answerMiniQuiz);
+  const toggleFavorite = useFarmStore(state => state.toggleFavorite);
+  const plantFromInventory = useFarmStore(state => state.plantFromInventory);
+  const phrasalVerbFarm = useFarmStore(state => state.phrasalVerbFarm);
+  const harvestWord = useFarmStore(state => state.harvestWord);
+  const cardCustomization = useFarmStore(state => state.cardCustomization);
   const transferEvent = useFarmStore(state => state.transferEvent);
   const consumeTransferEvent = useFarmStore(state => state.consumeTransferEvent);
   const setStoreFeedVisible = useFarmStore(state => state.setFeedVisible); // Swipe block için
@@ -1033,6 +1045,19 @@ export function FarmScreen() {
     // ?? FIX: nce AKTF (grnr) kart bul, yoksa herhangi birini al
     return farm.find(w => w.id === quizWordId && !(w as any).normalHarvested) || farm.find(w => w.id === quizWordId) || null;
   }, [quizWordId, farm]);
+
+  const [suspendHeavyEffectsForQuiz, setSuspendHeavyEffectsForQuiz] = useState(false);
+  useEffect(() => {
+    let suspendTimeout: NodeJS.Timeout | null = null;
+    if (quizWordId) {
+      suspendTimeout = setTimeout(() => setSuspendHeavyEffectsForQuiz(true), 120);
+    } else {
+      setSuspendHeavyEffectsForQuiz(false);
+    }
+    return () => {
+      if (suspendTimeout) clearTimeout(suspendTimeout);
+    };
+  }, [quizWordId]);
 
   const [lastViewedWordId, setLastViewedWordId] = useState<string | null>(null);
   const [shuffledFeedData, setShuffledFeedData] = useState<any[]>([]);
@@ -1143,9 +1168,10 @@ export function FarmScreen() {
   }, [activeTab, setTopTabVisibility]);
 
   useEffect(() => {
+    let loadingTimeout: NodeJS.Timeout | null = null;
     // Veri yklenince loading'i kapat - INSTANT
     if (farm && farm.length >= 0) {
-      setTimeout(() => setIsLoading(false), 50); // 100ms  50ms
+      loadingTimeout = setTimeout(() => setIsLoading(false), 50); // 100ms  50ms
     }
 
     Animated.timing(fadeAnim, {
@@ -1154,6 +1180,10 @@ export function FarmScreen() {
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
+
+    return () => {
+      if (loadingTimeout) clearTimeout(loadingTimeout);
+    };
   }, [farm]);
 
   //  Günlük görevleri kontrol et ve gerekirse yenile
@@ -1163,13 +1193,17 @@ export function FarmScreen() {
 
   //  Route params ile gelen quizWordId'yi işle - Direkt MiniQuiz aç
   useEffect(() => {
+    let openQuizTimeout: NodeJS.Timeout | null = null;
+    let isCancelled = false;
     const params = route.params as { quizWordId?: string; filter?: 'all' | 'ready' | 'study' | 'master' | 'favorites' } | undefined;
     if (params?.quizWordId && farm.length > 0) {
       // Animasyon bittikten sonra quiz'i a
-      InteractionManager.runAfterInteractions(() => {
+      const interactionTask = InteractionManager.runAfterInteractions(() => {
+        if (isCancelled) return;
         const word = farm.find(w => w.id === params.quizWordId);
         if (word) {
-          setTimeout(() => {
+          openQuizTimeout = setTimeout(() => {
+            if (isCancelled) return;
             setQuizWordId(word.id);
             haptic.medium();
           }, 150);
@@ -1177,7 +1211,16 @@ export function FarmScreen() {
         // Parametreyi temizle
         navigation.setParams({ quizWordId: undefined } as any);
       });
+      return () => {
+        isCancelled = true;
+        interactionTask.cancel?.();
+        if (openQuizTimeout) clearTimeout(openQuizTimeout);
+      };
     }
+    return () => {
+      isCancelled = true;
+      if (openQuizTimeout) clearTimeout(openQuizTimeout);
+    };
   }, [route.params, farm, navigation, setStoreFeedVisible]);
 
   // ?? Route params ile gelen filter ve tab'i ile - SADECE params deitiinde
@@ -1724,12 +1767,13 @@ export function FarmScreen() {
             onPress={() => !isLocked && handleWordPress(item)}
             onQuizPress={() => !isLocked && handleQuizPress(item)}
             index={index}
+            suspendHeavyEffects={suspendHeavyEffectsForQuiz}
             isHighlighted={isHighlighted}
           />
         </View>
       </GridSwipeWrapper>
     );
-  }, [handleWordPress, handleQuizPress, handleSwipeHarvest, quizWordId, feedVisible, tutorialHighlightedWordId, isTutorialCardLockActive, isGuidedFarmStep, isGuidedTargetWord]);
+  }, [handleWordPress, handleQuizPress, handleSwipeHarvest, feedVisible, tutorialHighlightedWordId, isTutorialCardLockActive, isGuidedFarmStep, isGuidedTargetWord, suspendHeavyEffectsForQuiz]);
 
   // ?? Memoized keyExtractor
   const keyExtractor = useCallback((item: any, index?: number) => {

@@ -199,9 +199,12 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
     const glowAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
+        let popAnim: Animated.CompositeAnimation | null = null;
+        let glowLoop: Animated.CompositeAnimation | null = null;
+
         if (status !== 'pending') {
             // Pop animasyonu
-            Animated.sequence([
+            popAnim = Animated.sequence([
                 Animated.timing(scaleAnim, {
                     toValue: 1.15,
                     duration: 120,
@@ -212,18 +215,29 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
                     friction: 4,
                     useNativeDriver: true,
                 }),
-            ]).start();
+            ]);
+            popAnim.start();
 
             // Glow (sadece doğruysa)
             if (status === 'correct') {
-                Animated.loop(
+                glowLoop = Animated.loop(
                     Animated.sequence([
                         Animated.timing(glowAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
                         Animated.timing(glowAnim, { toValue: 0.3, duration: 600, useNativeDriver: true }),
                     ])
-                ).start();
+                );
+                glowLoop.start();
+            } else {
+                glowAnim.setValue(0);
             }
+        } else {
+            glowAnim.setValue(0);
         }
+
+        return () => {
+            popAnim?.stop();
+            glowLoop?.stop();
+        };
     }, [status]);
 
     const getBgColor = () => {
@@ -286,23 +300,34 @@ const MicButton = memo<MicButtonProps>(({ isRecording, isProcessing, remainingTi
     const pressGlow = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
+        let pulseLoop: Animated.CompositeAnimation | null = null;
+        let ringLoop: Animated.CompositeAnimation | null = null;
+
         if (isRecording) {
-            Animated.loop(
+            pulseAnim.setValue(1);
+            ringAnim.setValue(0);
+
+            pulseLoop = Animated.loop(
                 Animated.sequence([
                     Animated.timing(pulseAnim, { toValue: 1.1, duration: 500, useNativeDriver: true }),
                     Animated.timing(pulseAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
                 ])
-            ).start();
+            );
 
-            Animated.loop(
+            ringLoop = Animated.loop(
                 Animated.timing(ringAnim, { toValue: 1, duration: 1500, useNativeDriver: true })
-            ).start();
+            );
+
+            pulseLoop.start();
+            ringLoop.start();
         } else {
             pulseAnim.setValue(1);
             ringAnim.setValue(0);
         }
 
         return () => {
+            pulseLoop?.stop();
+            ringLoop?.stop();
             pulseAnim.stopAnimation();
             ringAnim.stopAnimation();
         };
@@ -442,8 +467,10 @@ const SpeakButton = memo<SpeakButtonProps>(({ sentence, disabled = false, onPres
     const pulseAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
+        let pulseLoop: Animated.CompositeAnimation | null = null;
+
         if (!disabled) {
-            Animated.loop(
+            pulseLoop = Animated.loop(
                 Animated.sequence([
                     Animated.timing(pulseAnim, {
                         toValue: 1.05,
@@ -456,10 +483,15 @@ const SpeakButton = memo<SpeakButtonProps>(({ sentence, disabled = false, onPres
                         useNativeDriver: true,
                     }),
                 ]),
-            ).start();
+            );
+            pulseLoop.start();
         } else {
             pulseAnim.setValue(1);
         }
+
+        return () => {
+            pulseLoop?.stop();
+        };
     }, [disabled]);
 
     return (
@@ -581,9 +613,42 @@ export default function SesYapScreen() {
     const hasSpokenRef = useRef(false);
     const isProcessingRef = useRef(false);
     const lastInternetAlertAtRef = useRef(0);
+    const isMountedRef = useRef(true);
+    const uiTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set());
 
     const guidedMissingTraceRef = useRef(false);
     const appliedGuidedSentenceKeyRef = useRef<string>('');
+
+    const clearRecordingTimers = useCallback(() => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+        if (countdownRef.current) {
+            clearInterval(countdownRef.current);
+            countdownRef.current = null;
+        }
+        if (silenceCheckRef.current) {
+            clearInterval(silenceCheckRef.current);
+            silenceCheckRef.current = null;
+        }
+        silenceCheckRunningRef.current = false;
+    }, []);
+
+    const clearUiTimeouts = useCallback(() => {
+        uiTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+        uiTimeoutsRef.current.clear();
+    }, []);
+
+    const scheduleUiTimeout = useCallback((callback: () => void, delay: number) => {
+        const timeout = setTimeout(() => {
+            uiTimeoutsRef.current.delete(timeout);
+            if (!isMountedRef.current) return;
+            callback();
+        }, delay);
+        uiTimeoutsRef.current.add(timeout);
+        return timeout;
+    }, []);
 
     const resetSessionForSentence = useCallback((nextSentence: SentenceData | null) => {
         setSentence(nextSentence);
@@ -600,10 +665,9 @@ export default function SesYapScreen() {
         hasSpokenRef.current = false;
         setPendingGuidedHistoryEntry(null);
         setGuidedCompletionModalVisible(false);
-        if (timerRef.current) clearTimeout(timerRef.current);
-        if (countdownRef.current) clearInterval(countdownRef.current);
-        if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
-    }, []);
+        clearRecordingTimers();
+        clearUiTimeouts();
+    }, [clearRecordingTimers, clearUiTimeouts]);
 
     const guidedTargetSentence = useMemo(() => {
         if (!isGuidedSesYapStep) return null;
@@ -678,6 +742,7 @@ export default function SesYapScreen() {
 
     // Ilk cumleyi yukle
     useEffect(() => {
+        isMountedRef.current = true;
         loadNewSentence();
 
         Animated.parallel([
@@ -686,9 +751,9 @@ export default function SesYapScreen() {
         ]).start();
 
         return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-            if (countdownRef.current) clearInterval(countdownRef.current);
-            if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+            isMountedRef.current = false;
+            clearRecordingTimers();
+            clearUiTimeouts();
             //  TTS'i durdur  audio session akşmasn nle
             sound.stopSpeaking?.();
             sound.setRecordingActive?.(false);
@@ -747,9 +812,7 @@ export default function SesYapScreen() {
             }
 
             if (isRecording) {
-                if (timerRef.current) clearTimeout(timerRef.current);
-                if (countdownRef.current) clearInterval(countdownRef.current);
-                if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+                clearRecordingTimers();
                 await processRecording();
                 return;
             }
@@ -811,9 +874,7 @@ export default function SesYapScreen() {
                             } else {
                                 const silenceDuration = Date.now() - silenceStartRef.current;
                                 if (silenceDuration >= SILENCE_DURATION_MS) {
-                                    if (timerRef.current) clearTimeout(timerRef.current);
-                                    if (countdownRef.current) clearInterval(countdownRef.current);
-                                    if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+                                    clearRecordingTimers();
                                     await processRecording();
                                 }
                             }
@@ -824,8 +885,7 @@ export default function SesYapScreen() {
                 }, 400);
 
                 timerRef.current = setTimeout(async () => {
-                    if (countdownRef.current) clearInterval(countdownRef.current);
-                    if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+                    clearRecordingTimers();
                     await processRecording();
                 }, RECORDING_DURATION_MS);
                 return;
@@ -837,10 +897,7 @@ export default function SesYapScreen() {
             setMicModalState('startFailed');
         } catch (error) {
             console.error('[SesYap] handleMicPress error:', error);
-            if (timerRef.current) clearTimeout(timerRef.current);
-            if (countdownRef.current) clearInterval(countdownRef.current);
-            if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
-            silenceCheckRunningRef.current = false;
+            clearRecordingTimers();
             isRecordingRef.current = false;
             setIsRecording(false);
             setIsProcessing(false);
@@ -849,7 +906,7 @@ export default function SesYapScreen() {
             setPendingMicStart(false);
             setMicModalState('startFailed');
         }
-    }, [isComplete, isRecording, ensureInternetForSesYap, isGuidedSesYapStep, guidedSentenceMissing]);
+    }, [isComplete, isRecording, ensureInternetForSesYap, isGuidedSesYapStep, guidedSentenceMissing, clearRecordingTimers]);
 
     // Kayd ile işle
     const processRecording = useCallback(async () => {
@@ -857,10 +914,7 @@ export default function SesYapScreen() {
         if (isProcessingRef.current) return;
         isProcessingRef.current = true;
 
-        if (timerRef.current) clearTimeout(timerRef.current);
-        if (countdownRef.current) clearInterval(countdownRef.current);
-        if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
-        silenceCheckRunningRef.current = false;
+        clearRecordingTimers();
 
         setIsRecording(false);
         setIsProcessing(true);
@@ -926,10 +980,10 @@ export default function SesYapScreen() {
                     haptic.masterCelebration(); // Tum kelimeleri soyledi!
                 } else if (newCorrectCount >= 3) {
                     haptic.rigid();
-                    setTimeout(() => haptic.heavy(), 50);
+                    scheduleUiTimeout(() => haptic.heavy(), 50);
                 } else {
                     haptic.heavy();
-                    setTimeout(() => haptic.success(), 50);
+                    scheduleUiTimeout(() => haptic.success(), 50);
                 }
 
                 setScore(prev => prev + newCorrectCount * 10);
@@ -939,7 +993,7 @@ export default function SesYapScreen() {
             } else if (comparison.matchedWords.length > 0) {
                 sound.playWrong();
                 haptic.error();
-                setTimeout(() => haptic.medium(), 50);
+                scheduleUiTimeout(() => haptic.medium(), 50);
                 setCombo(0);
             }
 
@@ -990,7 +1044,7 @@ export default function SesYapScreen() {
             isRecordingRef.current = false;
             setRemainingTime(RECORDING_DURATION_MS / 1000);
         }
-    }, [isRecording, sentence, filledWords, sentenceWords, addSesyapHistory, addSesyapScore, ensureInternetForSesYap, queueQuestProgress, isGuidedSesYapStep]);
+    }, [isRecording, sentence, filledWords, sentenceWords, addSesyapHistory, addSesyapScore, ensureInternetForSesYap, queueQuestProgress, isGuidedSesYapStep, clearRecordingTimers, scheduleUiTimeout]);
 
     // Sonraki soru
     const handleNext = useCallback(() => {
@@ -1004,18 +1058,18 @@ export default function SesYapScreen() {
         }
 
         haptic.medium();
-        setTimeout(() => haptic.light(), 50);
+        scheduleUiTimeout(() => haptic.light(), 50);
         loadNewSentence();
-    }, [isGuidedSesYapStep, allCorrect, pendingGuidedHistoryEntry, loadNewSentence]);
+    }, [isGuidedSesYapStep, allCorrect, pendingGuidedHistoryEntry, loadNewSentence, scheduleUiTimeout]);
 
     // Tekrar dene
     const handleRetry = useCallback(() => {
         haptic.medium();
-        setTimeout(() => haptic.light(), 40);
+        scheduleUiTimeout(() => haptic.light(), 40);
         setFilledWords(new Map());
         setIsComplete(false);
         setRemainingTime(RECORDING_DURATION_MS / 1000);
-    }, []);
+    }, [scheduleUiTimeout]);
 
     const openTarlaSentence = useCallback((item: { word: string; meaning_tr: string; example_en: string; example_tr: string; }) => {
         if (isGuidedSesYapStep) return;
@@ -1036,14 +1090,12 @@ export default function SesYapScreen() {
         setIsRecording(false);
         setIsProcessing(false);
 
-        if (timerRef.current) clearTimeout(timerRef.current);
-        if (countdownRef.current) clearInterval(countdownRef.current);
-        if (silenceCheckRef.current) clearInterval(silenceCheckRef.current);
+        clearRecordingTimers();
         isRecordingRef.current = false;
         silenceCheckRunningRef.current = false;
         silenceStartRef.current = null;
         hasSpokenRef.current = false;
-    }, [isProcessing, isGuidedSesYapStep]);
+    }, [isProcessing, isGuidedSesYapStep, clearRecordingTimers]);
 
     //  Cumleyi seslendir
     const handleSpeakSentence = useCallback(() => {
@@ -1137,13 +1189,13 @@ export default function SesYapScreen() {
         setPendingMicStart(false);
 
         if (shouldStart) {
-            setTimeout(() => {
+            scheduleUiTimeout(() => {
                 handleMicPress().catch(() => {
                     setMicModalState('startFailed');
                 });
             }, 120);
         }
-    }, [pendingMicStart, handleMicPress]);
+    }, [pendingMicStart, handleMicPress, scheduleUiTimeout]);
 
     const handleMicModalClose = useCallback(() => {
         setMicModalState('hidden');
