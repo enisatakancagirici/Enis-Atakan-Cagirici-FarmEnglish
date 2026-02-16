@@ -185,7 +185,7 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
                 <Image
                   source={PRELOADED_IMAGES.logo}
                   style={styles.logoImage}
-                  contentFit="contain"
+                  contentFit="cover"
                   cachePolicy="memory-disk"
                   priority="high"
                   transition={0}
@@ -2767,35 +2767,36 @@ const styles = StyleSheet.create({
   },
   logoGlow: {
     position: "absolute",
-    top: -6,
-    left: -6,
-    right: -6,
-    bottom: -6,
-    borderRadius: 18,
+    top: -8,
+    left: -8,
+    right: -8,
+    bottom: -8,
+    borderRadius: 22,
     backgroundColor: "#f59e0b",
     shadowColor: "#f59e0b",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
-    shadowRadius: 12,
+    shadowRadius: 14,
     elevation: 10,
   },
   logoContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 56,
+    height: 56,
+    borderRadius: 14,
     overflow: "hidden",
     borderWidth: 2,
     borderColor: "rgba(251, 191, 36, 0.65)",
     backgroundColor: "#2e1f0a",
   },
   logoContainerCompact: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 46,
+    height: 46,
+    borderRadius: 12,
   },
   logoImage: {
     width: "100%",
     height: "100%",
+    transform: [{ scale: 1.22 }],
   },
   headerTitleContainer: {
     justifyContent: "center",
