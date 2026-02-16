@@ -154,13 +154,13 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
   return (
     <View style={styles.premiumHeader}>
       <LinearGradient
-        colors={["rgba(3, 6, 12, 0.99)", "rgba(7, 10, 18, 0.98)", "rgba(5, 8, 16, 0.98)"]}
+        colors={["rgba(51, 31, 6, 0.96)", "rgba(66, 42, 12, 0.95)", "rgba(30, 41, 59, 0.94)"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.headerFrame, IS_NARROW_DEVICE && styles.headerFrameCompact]}
       >
         <LinearGradient
-          colors={["rgba(59, 130, 246, 0.06)", "rgba(99, 102, 241, 0.05)", "rgba(15, 23, 42, 0.04)"]}
+          colors={["rgba(251, 191, 36, 0.16)", "rgba(245, 158, 11, 0.11)", "rgba(30, 41, 59, 0.08)"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.headerFrameGlow}
@@ -172,7 +172,7 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
           style={[styles.headerLeftSection, IS_NARROW_DEVICE && styles.headerLeftSectionCompact]}
         >
           <LinearGradient
-            colors={["rgba(8, 12, 20, 0.92)", "rgba(12, 20, 34, 0.9)", "rgba(8, 14, 24, 0.88)"]}
+            colors={["rgba(62, 41, 12, 0.9)", "rgba(40, 28, 12, 0.9)", "rgba(15, 23, 42, 0.88)"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.brandChip, IS_NARROW_DEVICE && styles.brandChipCompact]}
@@ -250,7 +250,7 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
           </LinearGradient>
 
           <LinearGradient
-            colors={["rgba(168, 85, 247, 0.26)", "rgba(124, 58, 237, 0.1)"]}
+            colors={["rgba(245, 158, 11, 0.26)", "rgba(251, 191, 36, 0.1)"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[
@@ -259,7 +259,7 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
               IS_NARROW_DEVICE && styles.statPillCompact,
             ]}
           >
-            <Award color="#C084FC" size={IS_NARROW_DEVICE ? 14 : 16} strokeWidth={2.5} />
+            <Award color="#FBBF24" size={IS_NARROW_DEVICE ? 14 : 16} strokeWidth={2.5} />
             <Text
               style={[
                 styles.statPillText,
@@ -1253,6 +1253,9 @@ export const HomeScreen = ({ navigation }: any) => {
   const nickname = useFarmStore((state) => state.nickname);
   
   //  Günlük Görevler
+  const dailyQuests = useFarmStore((state) =>
+    Array.isArray(state.dailyQuests) ? state.dailyQuests : [],
+  );
   const checkAndResetDailyQuests = useFarmStore((state) => state.checkAndResetDailyQuests);
 
   // sOuï Preload images on mount for performance
@@ -1292,6 +1295,7 @@ export const HomeScreen = ({ navigation }: any) => {
   
   //  Quest Panel State
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
+  const [isCefrDetailsVisible, setIsCefrDetailsVisible] = useState(false);
   const [cardShopVisible, setCardShopVisible] = useState(false);
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [helpModalTitle, setHelpModalTitle] = useState("Bilgi");
@@ -1401,6 +1405,19 @@ export const HomeScreen = ({ navigation }: any) => {
       actionText: weakestTwo.map((item) => actionMap[item.label]).join(" "),
     };
   }, [cefrEstimate]);
+
+  const featuredDailyQuest = useMemo(() => {
+    const unclaimed = dailyQuests.filter((q: any) => q && !q.claimed);
+    if (unclaimed.length === 0) return null;
+    return unclaimed.find((q: any) => !q.completed) || unclaimed[0];
+  }, [dailyQuests]);
+
+  const featuredDailyQuestProgressPct = useMemo(() => {
+    if (!featuredDailyQuest) return 0;
+    const target = Math.max(1, Number(featuredDailyQuest.target || 1));
+    const progress = Math.max(0, Number(featuredDailyQuest.progress || 0));
+    return Math.max(0, Math.min((progress / target) * 100, 100));
+  }, [featuredDailyQuest]);
 
   // Navigation Guard
   const isNavigating = useRef(false);
@@ -1583,6 +1600,68 @@ export const HomeScreen = ({ navigation }: any) => {
       isNavigating.current = false;
     }, 500);
   }, [navigation, ensureInternetForRoute, getGuidedRouteBlockReason, guidedModeActive, guidedModeStep, showHomeHelpModal, registerMeaningfulAction]);
+
+  const handleOpenDailyQuests = useCallback(() => {
+    registerMeaningfulAction();
+    haptic.light();
+    setQuestsPanelVisible(true);
+  }, [registerMeaningfulAction]);
+
+  const resolveDailyQuestTarget = useCallback((quest: any): { route: string; params?: any } => {
+    const screenMap: Record<string, { route: string; params?: any }> = {
+      Quiz: { route: "Quiz" },
+      Home: { route: "Home" },
+      Farm: { route: "Farm" },
+      Puzzle: { route: "Farm", params: { tab: "puzzle" } },
+      PhrasalVerbFarm: { route: "Farm", params: { tab: "phrasal" } },
+      SesYap: { route: "SesYap" },
+      WordMatch: { route: "WordMatch" },
+      FillBlank: { route: "FillBlank" },
+      Collocations: { route: "Collocations" },
+      Idioms: { route: "Idioms" },
+      YDSQuiz: { route: "YDSQuiz" },
+      YDSWordForms: { route: "YDSWordForms" },
+      Battle: { route: "BattleMenu" },
+    };
+    const typeMap: Record<string, { route: string; params?: any }> = {
+      SPEECH_PRACTICE: { route: "SesYap" },
+      MATCH_WORDS: { route: "WordMatch" },
+      FILL_BLANK: { route: "FillBlank" },
+      LEARN_COLLOCATIONS: { route: "Collocations" },
+      LEARN_IDIOMS: { route: "Idioms" },
+      YDS_QUIZ: { route: "YDSQuiz" },
+      COMPLETE_PUZZLE: { route: "Farm", params: { tab: "puzzle" } },
+      HARVEST_PHRASAL: { route: "Farm", params: { tab: "phrasal" } },
+      WIN_BATTLE: { route: "BattleMenu" },
+    };
+
+    const safeScreen = typeof quest?.screen === "string" ? quest.screen.trim() : "";
+    const byScreen = screenMap[safeScreen];
+    const byType = typeMap[String(quest?.type || "")];
+    const preferTypeRoute =
+      quest?.type === "SPEECH_PRACTICE" ||
+      quest?.type === "MATCH_WORDS" ||
+      quest?.type === "FILL_BLANK" ||
+      quest?.type === "LEARN_COLLOCATIONS" ||
+      quest?.type === "LEARN_IDIOMS" ||
+      quest?.type === "YDS_QUIZ";
+
+    return (preferTypeRoute ? (byType || byScreen) : (byScreen || byType)) || {
+      route: "Home",
+    };
+  }, []);
+
+  const handleFeaturedDailyQuestPress = useCallback(() => {
+    if (!featuredDailyQuest) return;
+
+    if (featuredDailyQuest.completed && !featuredDailyQuest.claimed) {
+      handleOpenDailyQuests();
+      return;
+    }
+
+    const target = resolveDailyQuestTarget(featuredDailyQuest);
+    void handleNav(target.route, target.params);
+  }, [featuredDailyQuest, handleNav, handleOpenDailyQuests, resolveDailyQuestTarget]);
 
   const notificationDisplayName = useMemo(() => {
     const safeNickname = typeof nickname === "string" ? nickname.trim() : "";
@@ -1849,6 +1928,68 @@ export const HomeScreen = ({ navigation }: any) => {
             streak={currentCombo}
             onProfilePress={() => handleNav("Profile")}
           />
+
+          <View style={styles.dailyQuestTopSection}>
+            <View style={styles.dailyQuestTopHeader}>
+              <Text style={styles.dailyQuestTopTitle}>Sıradaki Görev</Text>
+              <TouchableOpacity
+                style={styles.dailyQuestMoreButton}
+                onPress={handleOpenDailyQuests}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.dailyQuestMoreText}>Daha da görüntüle</Text>
+                <ChevronRight size={14} color="#fde68a" />
+              </TouchableOpacity>
+            </View>
+
+            {featuredDailyQuest ? (
+              <TouchableOpacity
+                style={styles.dailyQuestTopCard}
+                onPress={handleFeaturedDailyQuestPress}
+                activeOpacity={0.9}
+              >
+                <LinearGradient
+                  colors={["rgba(250, 204, 21, 0.2)", "rgba(245, 158, 11, 0.16)", "rgba(15, 23, 42, 0.72)"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.dailyQuestTopGradient}
+                >
+                  <View style={styles.dailyQuestTopRow}>
+                    <Text style={styles.dailyQuestTopIcon}>
+                      {normalizeDisplayText(String(featuredDailyQuest.icon || "\u{1F3AF}"))}
+                    </Text>
+                    <View style={styles.dailyQuestTopTextWrap}>
+                      <Text style={styles.dailyQuestTopQuestTitle} numberOfLines={1}>
+                        {normalizeDisplayText(String(featuredDailyQuest.title || "Gorev"))}
+                      </Text>
+                      <Text style={styles.dailyQuestTopQuestDesc} numberOfLines={2}>
+                        {normalizeDisplayText(String(featuredDailyQuest.description || ""))}
+                      </Text>
+                    </View>
+                    <Text style={styles.dailyQuestTopAction}>
+                      {featuredDailyQuest.completed && !featuredDailyQuest.claimed ? "Odul Al" : "Goreve Git"}
+                    </Text>
+                  </View>
+
+                  <View style={styles.dailyQuestTopProgressTrack}>
+                    <View
+                      style={[
+                        styles.dailyQuestTopProgressFill,
+                        { width: `${featuredDailyQuestProgressPct}%` },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.dailyQuestTopProgressText}>
+                    {`${Math.max(0, Number(featuredDailyQuest.progress || 0))}/${Math.max(1, Number(featuredDailyQuest.target || 1))}`}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.dailyQuestTopEmpty}>
+                <Text style={styles.dailyQuestTopEmptyText}>Bugunun gorevleri tamamlandi.</Text>
+              </View>
+            )}
+          </View>
           
           <View style={styles.gridContainer}>
             <View style={styles.gridRow}>
@@ -2119,29 +2260,11 @@ export const HomeScreen = ({ navigation }: any) => {
             />
           </View>
 
-          <View style={styles.bottomMenuContainer}>
-            <TouchableOpacity
-              style={[styles.questsButton, styles.bottomQuestsButton]}
-              onPress={() => {
-                registerMeaningfulAction();
-                haptic.light();
-                setQuestsPanelVisible(true);
-              }}
-              activeOpacity={0.7}
-            >
-              <LinearGradient
-                colors={["#FFD700", "#FFA500"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.questsGradient}
-              >
-                <Text style={styles.questsButtonIcon}>{"\u{1F3AF}"}</Text>
-                <Text style={styles.questsButtonText}>Günlük Görevler</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.cefrSummaryCard}>
+          <TouchableOpacity
+            style={styles.cefrSummaryCard}
+            activeOpacity={0.9}
+            onPress={() => setIsCefrDetailsVisible((prev) => !prev)}
+          >
             <LinearGradient
               colors={["rgba(55, 48, 163, 0.88)", "rgba(49, 46, 129, 0.92)", "rgba(30, 41, 59, 0.94)"]}
               start={{ x: 0, y: 0 }}
@@ -2155,20 +2278,27 @@ export const HomeScreen = ({ navigation }: any) => {
               <Text style={styles.cefrSummaryMessage}>
                 {`Şu an tahmini ${cefrEstimate.level} seviyesindesin.`}
               </Text>
-              <Text style={styles.cefrSummaryMeta}>
-                Bu tahmin dinamik. Quiz, SesYap, Puzzle ve Çiftlik verin güncellendikçe anlık olarak değişir.
+              <Text style={styles.cefrSummaryHint}>
+                {isCefrDetailsVisible ? "Detayları gizle" : "Detayları görmek için dokun"}
               </Text>
-              <Text style={styles.cefrSummarySignals}>
-                {`Bu seviyedesin çünkü en güçlü sinyallerin: ${cefrSignalSummary.topText}.`}
-              </Text>
-              <Text style={styles.cefrSummaryWeights}>
-                {`Gelişim önceliğin: ${cefrSignalSummary.weakText}. Güven: %${cefrEstimate.confidence}.`}
-              </Text>
-              <Text style={styles.cefrSummaryWeights}>
-                {`Öneri: ${cefrSignalSummary.actionText}`}
-              </Text>
+              {isCefrDetailsVisible && (
+                <>
+                  <Text style={styles.cefrSummaryMeta}>
+                    Bu tahmin dinamik. Quiz, SesYap, Puzzle ve Çiftlik verin güncellendikçe anlık olarak değişir.
+                  </Text>
+                  <Text style={styles.cefrSummarySignals}>
+                    {`Bu seviyedesin çünkü en güçlü sinyallerin: ${cefrSignalSummary.topText}.`}
+                  </Text>
+                  <Text style={styles.cefrSummaryWeights}>
+                    {`Gelişim önceliğin: ${cefrSignalSummary.weakText}. Güven: %${cefrEstimate.confidence}.`}
+                  </Text>
+                  <Text style={styles.cefrSummaryWeights}>
+                    {`Öneri: ${cefrSignalSummary.actionText}`}
+                  </Text>
+                </>
+              )}
             </LinearGradient>
-          </View>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
 
@@ -2580,14 +2710,14 @@ const styles = StyleSheet.create({
 
   // Premium Header Styles
   premiumHeader: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.sm,
   },
   headerFrame: {
     borderRadius: 22,
     paddingHorizontal: 10,
     paddingVertical: 9,
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.42)",
+    borderColor: "rgba(245, 158, 11, 0.35)",
     overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
@@ -2619,7 +2749,7 @@ const styles = StyleSheet.create({
   brandChip: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(100, 116, 139, 0.45)",
+    borderColor: "rgba(251, 191, 36, 0.35)",
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
@@ -2642,8 +2772,8 @@ const styles = StyleSheet.create({
     right: -6,
     bottom: -6,
     borderRadius: 18,
-    backgroundColor: "#3b82f6",
-    shadowColor: "#3b82f6",
+    backgroundColor: "#f59e0b",
+    shadowColor: "#f59e0b",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
     shadowRadius: 12,
@@ -2655,8 +2785,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "rgba(147, 197, 253, 0.7)",
-    backgroundColor: "#0B1222",
+    borderColor: "rgba(251, 191, 36, 0.65)",
+    backgroundColor: "#2e1f0a",
   },
   logoContainerCompact: {
     width: 36,
@@ -2694,7 +2824,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: IS_TABLET_DEVICE ? 12.5 : 9.5,
     fontWeight: "700",
-    color: "rgba(191, 219, 254, 0.84)",
+    color: "rgba(253, 230, 138, 0.88)",
     marginTop: 1,
     letterSpacing: 0.25,
   },
@@ -2734,7 +2864,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(250, 204, 21, 0.55)",
   },
   levelPill: {
-    borderColor: "rgba(192, 132, 252, 0.5)",
+    borderColor: "rgba(245, 158, 11, 0.55)",
   },
   pillShimmer: {
     position: "absolute",
@@ -2756,7 +2886,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
   levelPillText: {
-    color: "#C084FC",
+    color: "#FDE68A",
   },
 
   // Grid Container
@@ -2932,12 +3062,113 @@ const styles = StyleSheet.create({
   },
 
   // Dashboard Container
+  dailyQuestTopSection: {
+    marginTop: 0,
+    marginBottom: SPACING.md,
+    borderRadius: 14,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "rgba(250, 204, 21, 0.24)",
+    backgroundColor: "rgba(15, 23, 42, 0.54)",
+  },
+  dailyQuestTopHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  dailyQuestTopTitle: {
+    color: "#fef3c7",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  dailyQuestMoreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    paddingVertical: 2,
+  },
+  dailyQuestMoreText: {
+    color: "#fde68a",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  dailyQuestTopCard: {
+    borderRadius: 12,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(250, 204, 21, 0.2)",
+  },
+  dailyQuestTopGradient: {
+    paddingVertical: 8,
+    paddingHorizontal: 9,
+  },
+  dailyQuestTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  dailyQuestTopIcon: {
+    fontSize: 16,
+    marginTop: 1,
+  },
+  dailyQuestTopTextWrap: {
+    flex: 1,
+  },
+  dailyQuestTopQuestTitle: {
+    color: "#fff8d6",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  dailyQuestTopQuestDesc: {
+    marginTop: 2,
+    color: "rgba(255, 247, 208, 0.88)",
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: "600",
+  },
+  dailyQuestTopAction: {
+    color: "#fde68a",
+    fontSize: 9,
+    fontWeight: "800",
+    marginTop: 1,
+  },
+  dailyQuestTopProgressTrack: {
+    height: 6,
+    borderRadius: 999,
+    overflow: "hidden",
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: "rgba(253, 224, 71, 0.24)",
+    backgroundColor: "rgba(15, 23, 42, 0.76)",
+  },
+  dailyQuestTopProgressFill: {
+    height: "100%",
+    borderRadius: 999,
+    backgroundColor: "#f59e0b",
+  },
+  dailyQuestTopProgressText: {
+    marginTop: 3,
+    color: "rgba(254, 243, 199, 0.92)",
+    fontSize: 9,
+    fontWeight: "700",
+    textAlign: "right",
+  },
+  dailyQuestTopEmpty: {
+    paddingVertical: 8,
+    paddingHorizontal: 9,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "rgba(253, 224, 71, 0.18)",
+    backgroundColor: "rgba(15, 23, 42, 0.72)",
+  },
+  dailyQuestTopEmptyText: {
+    color: "rgba(254, 243, 199, 0.9)",
+    fontSize: 11,
+    fontWeight: "700",
+  },
   dashboardContainer: {
     gap: SPACING.lg,
-  },
-  bottomMenuContainer: {
-    marginTop: SPACING.lg,
-    gap: GRID_GAP,
   },
   simpleMenuButton: {
     borderRadius: 16,
@@ -3360,36 +3591,6 @@ const styles = StyleSheet.create({
   },
   
   //  Günlük Görevler Buton
-  questsButton: {
-    marginBottom: SPACING.lg,
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  bottomQuestsButton: {
-    marginTop: SPACING.xl,
-  },
-  questsGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    gap: 10,
-  },
-  questsButtonIcon: {
-    fontSize: 24,
-  },
-  questsButtonText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 0.3,
-  },
   cefrSummaryCard: {
     marginBottom: SPACING.lg,
     borderRadius: 16,
@@ -3428,6 +3629,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 17,
     fontWeight: '600',
+  },
+  cefrSummaryHint: {
+    marginTop: 4,
+    color: 'rgba(196, 181, 253, 0.92)',
+    fontSize: 10,
+    fontWeight: '700',
   },
   cefrSummaryMeta: {
     marginTop: 6,

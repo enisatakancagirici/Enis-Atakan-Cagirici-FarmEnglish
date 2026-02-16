@@ -32,7 +32,6 @@ import { SkeletonCardGrid } from '../components/SkeletonCard';
 import { TutorialFinalQuizPremium } from '../components/TutorialFinalQuizPremium';
 import { isTutorialFullScreenActive, FarmMascotCloudTip } from '../components/TutorialManagerFixed';
 import { CuteCloudTip } from '../components/CuteCloudTip';
-import { DailyQuestsPanel } from '../components/DailyQuestsPanel';
 import { CardShopPanel } from '../components/CardShopPanel';
 import { FlashList } from '@shopify/flash-list';
 import { haptic, sound } from '../utils/sound';
@@ -690,6 +689,22 @@ const StatsHeader: React.FC<{
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.premiumFilterScroll}
       >
+        <TouchableOpacity
+          style={[styles.premiumFilterBtn, isFilterLocked && { opacity: 0.3 }]}
+          onPress={() => {
+            if (isFilterLocked) {
+              haptic.light();
+              return;
+            }
+            onPressCardShop?.();
+            haptic.light();
+          }}
+          disabled={isFilterLocked}
+        >
+          <Text style={{ fontSize: IS_SMALL_SCREEN ? 14 : 16 }}>{'\u{1F3A8}'}</Text>
+          {isFilterLocked && <Lock size={8} color="#fff" style={{ position: 'absolute', top: 2, right: 2 }} />}
+        </TouchableOpacity>
+
         {/* ?? Tm - Her zaman aktif */}
         <TouchableOpacity
           style={[styles.premiumFilterBtn, filter === 'all' && styles.premiumFilterBtnActive]}
@@ -830,22 +845,6 @@ const StatsHeader: React.FC<{
           {isFilterLocked && <Lock size={8} color="#fff" style={{ position: 'absolute', top: 2, right: 2 }} />}
         </TouchableOpacity>
 
-        {/* s¨ Card Shop */}
-        <TouchableOpacity
-          style={[styles.premiumFilterBtn, isFilterLocked && { opacity: 0.3 }]}
-          onPress={() => {
-            if (isFilterLocked) {
-              haptic.light();
-              return;
-            }
-            onPressCardShop?.();
-            haptic.light();
-          }}
-          disabled={isFilterLocked}
-        >
-          <Text style={{ fontSize: IS_SMALL_SCREEN ? 14 : 16 }}>{'\u{1F3A8}'}</Text>
-          {isFilterLocked && <Lock size={8} color="#fff" style={{ position: 'absolute', top: 2, right: 2 }} />}
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -1010,7 +1009,6 @@ export function FarmScreen() {
   }, [updateCardCustomization]);
 
   //  GÜNLÜK GÖREVLER PANEL
-  const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
 
   // s¨ KART MAAZASI
   const [cardShopVisible, setCardShopVisible] = useState(false);
