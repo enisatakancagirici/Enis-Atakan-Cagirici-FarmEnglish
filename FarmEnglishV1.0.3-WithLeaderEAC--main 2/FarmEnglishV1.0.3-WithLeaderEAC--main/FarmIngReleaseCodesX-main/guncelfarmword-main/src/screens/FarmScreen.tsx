@@ -42,6 +42,7 @@ import { globalTabState } from '../navigation/globalTabState';
 import { usePerformanceStore } from '../store/performanceStore';
 import { traceEvent } from '../utils/debugTrace';
 import { normalizeDisplayText } from '../utils/textNormalization';
+import { getCardHeaderThemePreset, type CardHeaderTheme } from '../data/cardThemes';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -670,14 +671,20 @@ const StatsHeader: React.FC<{
   onFilterChange: (filter: 'all' | 'ready' | 'study' | 'master' | 'favorites' | 'custom') => void;
   tutorialStep?: string; // ?? Tutorial kilitli filtre kontrol
   guidedLocked?: boolean;
-}> = ({ totalWords, harvestReady, studyCount, masterCount, onPressSearch, onPressSeedMarket, onPressPhrasalMenu, onPressPuzzle, onPressCardShop, activeTab, filter, onFilterChange, tutorialStep, guidedLocked = false }) => {
+  headerThemeId?: CardHeaderTheme;
+}> = ({ totalWords, harvestReady, studyCount, masterCount, onPressSearch, onPressSeedMarket, onPressPhrasalMenu, onPressPuzzle, onPressCardShop, activeTab, filter, onFilterChange, tutorialStep, guidedLocked = false, headerThemeId }) => {
   // ?? Tutorial srasnda sadece "all" filtreaktif
   const isFilterLocked = Boolean(guidedLocked || (tutorialStep && tutorialStep !== 'COMPLETED' && tutorialStep !== 'NOT_STARTED'));
+  const headerTheme = getCardHeaderThemePreset(headerThemeId);
+  const themedActiveFilterStyle = {
+    backgroundColor: headerTheme.filterActiveBackground,
+    borderColor: headerTheme.filterActiveBorderColor,
+  };
 
   return (
     <View style={styles.statsHeader}>
       <LinearGradient
-        colors={['rgba(18, 18, 20, 0.98)', 'rgba(28, 28, 30, 0.95)', 'rgba(18, 18, 20, 0.98)']}
+        colors={headerTheme.farmInventoryHeaderGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFillObject}
@@ -707,16 +714,25 @@ const StatsHeader: React.FC<{
 
         {/* ?? Tm - Her zaman aktif */}
         <TouchableOpacity
-          style={[styles.premiumFilterBtn, filter === 'all' && styles.premiumFilterBtnActive]}
+          style={[
+            styles.premiumFilterBtn,
+            filter === 'all' && styles.premiumFilterBtnActive,
+            filter === 'all' && themedActiveFilterStyle,
+          ]}
           onPress={() => { onFilterChange('all'); haptic.light(); }}
         >
-          <Sprout size={IS_SMALL_SCREEN ? 14 : 16} color={filter === 'all' ? "#34C759" : "#888"} strokeWidth={2.5} />
-          <Text style={[styles.premiumFilterCount, filter === 'all' && styles.premiumFilterCountActive]}>{totalWords}</Text>
+          <Sprout size={IS_SMALL_SCREEN ? 14 : 16} color={filter === 'all' ? headerTheme.filterAllActiveColor : "#888"} strokeWidth={2.5} />
+          <Text style={[styles.premiumFilterCount, filter === 'all' && { color: headerTheme.filterAllActiveColor }]}>{totalWords}</Text>
         </TouchableOpacity>
 
         {/* ?? Hasat Hazr - Tutorial'da kilitli */}
         <TouchableOpacity
-          style={[styles.premiumFilterBtn, filter === 'ready' && styles.premiumFilterBtnActive, isFilterLocked && styles.premiumFilterBtnLocked]}
+          style={[
+            styles.premiumFilterBtn,
+            filter === 'ready' && styles.premiumFilterBtnActive,
+            filter === 'ready' && themedActiveFilterStyle,
+            isFilterLocked && styles.premiumFilterBtnLocked,
+          ]}
           onPress={() => {
             if (isFilterLocked) return;
             onFilterChange('ready');
@@ -731,7 +747,12 @@ const StatsHeader: React.FC<{
 
         {/* ?? almalym - Tutorial'da kilitli */}
         <TouchableOpacity
-          style={[styles.premiumFilterBtn, filter === 'study' && styles.premiumFilterBtnActive, isFilterLocked && styles.premiumFilterBtnLocked]}
+          style={[
+            styles.premiumFilterBtn,
+            filter === 'study' && styles.premiumFilterBtnActive,
+            filter === 'study' && themedActiveFilterStyle,
+            isFilterLocked && styles.premiumFilterBtnLocked,
+          ]}
           onPress={() => {
             if (isFilterLocked) return;
             onFilterChange('study');
@@ -746,7 +767,12 @@ const StatsHeader: React.FC<{
 
         {/* ? Master - Tutorial'da kilitli */}
         <TouchableOpacity
-          style={[styles.premiumFilterBtn, filter === 'master' && styles.premiumFilterBtnActive, isFilterLocked && styles.premiumFilterBtnLocked]}
+          style={[
+            styles.premiumFilterBtn,
+            filter === 'master' && styles.premiumFilterBtnActive,
+            filter === 'master' && themedActiveFilterStyle,
+            isFilterLocked && styles.premiumFilterBtnLocked,
+          ]}
           onPress={() => {
             if (isFilterLocked) return;
             onFilterChange('master');
@@ -761,7 +787,12 @@ const StatsHeader: React.FC<{
 
         {/* ?? Favoriler - Tutorial'da kilitli */}
         <TouchableOpacity
-          style={[styles.premiumFilterBtn, filter === 'favorites' && styles.premiumFilterBtnActive, isFilterLocked && styles.premiumFilterBtnLocked]}
+          style={[
+            styles.premiumFilterBtn,
+            filter === 'favorites' && styles.premiumFilterBtnActive,
+            filter === 'favorites' && themedActiveFilterStyle,
+            isFilterLocked && styles.premiumFilterBtnLocked,
+          ]}
           onPress={() => {
             if (isFilterLocked) return;
             onFilterChange('favorites');
@@ -775,7 +806,12 @@ const StatsHeader: React.FC<{
 
         {/* Kendi Kelimelerim - Tutorial'da kilitli */}
         <TouchableOpacity
-          style={[styles.premiumFilterBtn, filter === 'custom' && styles.premiumFilterBtnActive, isFilterLocked && styles.premiumFilterBtnLocked]}
+          style={[
+            styles.premiumFilterBtn,
+            filter === 'custom' && styles.premiumFilterBtnActive,
+            filter === 'custom' && themedActiveFilterStyle,
+            isFilterLocked && styles.premiumFilterBtnLocked,
+          ]}
           onPress={() => {
             if (isFilterLocked) return;
             onFilterChange('custom');
@@ -1004,6 +1040,83 @@ export function FarmScreen() {
   );
   const gridColumns = cardCustomization?.largeMode ? 1 : cardCustomization?.compactMode ? 3 : 2;
   const isSoilQuickThemeActive = cardCustomization?.backgroundStyle === 'soil';
+  const farmHeaderTheme = useMemo(
+    () => getCardHeaderThemePreset(cardCustomization?.headerTheme),
+    [cardCustomization?.headerTheme],
+  );
+  const tabFontFamily = useMemo(() => {
+    if (cardCustomization?.fontStyle === 'serif') return 'serif';
+    if (cardCustomization?.fontStyle === 'mono') return 'monospace';
+    return undefined;
+  }, [cardCustomization?.fontStyle]);
+  const segmentTrackStyle = useMemo(
+    () => ({
+      borderColor: farmHeaderTheme.filterActiveBorderColor,
+      backgroundColor: farmHeaderTheme.questPanelBackground,
+    }),
+    [farmHeaderTheme.filterActiveBorderColor, farmHeaderTheme.questPanelBackground],
+  );
+  const segmentTextBaseStyle = useMemo(
+    () => ({
+      color: farmHeaderTheme.questSecondaryTextColor,
+      ...(tabFontFamily ? { fontFamily: tabFontFamily } : {}),
+    }),
+    [farmHeaderTheme.questSecondaryTextColor, tabFontFamily],
+  );
+  const segmentTextActiveStyle = useMemo(
+    () => ({
+      color: farmHeaderTheme.questPrimaryTextColor,
+    }),
+    [farmHeaderTheme.questPrimaryTextColor],
+  );
+  const segmentIconInactiveColor = farmHeaderTheme.questSecondaryTextColor;
+  const segmentIconActiveColor = farmHeaderTheme.questPrimaryTextColor;
+  const segmentActiveShadowStyle = useMemo(
+    () => ({
+      shadowColor: farmHeaderTheme.filterAllActiveColor,
+    }),
+    [farmHeaderTheme.filterAllActiveColor],
+  );
+  const segmentActiveGradients = useMemo(
+    () => ({
+      words: [farmHeaderTheme.filterAllActiveColor, farmHeaderTheme.questProgressFillColor] as [string, string],
+      phrasal: [farmHeaderTheme.questActionTextColor, farmHeaderTheme.questMoreTextColor] as [string, string],
+      puzzle: [farmHeaderTheme.questMoreTextColor, farmHeaderTheme.filterAllActiveColor] as [string, string],
+    }),
+    [
+      farmHeaderTheme.filterAllActiveColor,
+      farmHeaderTheme.questProgressFillColor,
+      farmHeaderTheme.questActionTextColor,
+      farmHeaderTheme.questMoreTextColor,
+    ],
+  );
+  const quickThemeTextBaseStyle = useMemo(
+    () => ({
+      color: farmHeaderTheme.questSecondaryTextColor,
+      ...(tabFontFamily ? { fontFamily: tabFontFamily } : {}),
+    }),
+    [farmHeaderTheme.questSecondaryTextColor, tabFontFamily],
+  );
+  const quickThemeTextActiveStyle = useMemo(
+    () => ({
+      color: farmHeaderTheme.questPrimaryTextColor,
+    }),
+    [farmHeaderTheme.questPrimaryTextColor],
+  );
+  const quickThemeDefaultActiveStyle = useMemo(
+    () => ({
+      backgroundColor: farmHeaderTheme.filterActiveBackground,
+      borderColor: farmHeaderTheme.filterActiveBorderColor,
+    }),
+    [farmHeaderTheme.filterActiveBackground, farmHeaderTheme.filterActiveBorderColor],
+  );
+  const quickThemeSoilActiveStyle = useMemo(
+    () => ({
+      backgroundColor: farmHeaderTheme.questPanelBackground,
+      borderColor: farmHeaderTheme.questPanelBorderColor,
+    }),
+    [farmHeaderTheme.questPanelBackground, farmHeaderTheme.questPanelBorderColor],
+  );
   const handleQuickThemeSwitch = useCallback((mode: 'default' | 'soil') => {
     updateCardCustomization({ backgroundStyle: mode });
   }, [updateCardCustomization]);
@@ -1967,6 +2080,7 @@ export function FarmScreen() {
         onFilterChange={setFilter}
         tutorialStep={tutorialStep}
         guidedLocked={isGuidedFarmStep}
+        headerThemeId={cardCustomization?.headerTheme}
       />
 
       {/*  APPLE SEGMENT CONTROL - Premium Tab Bar */}
@@ -1988,28 +2102,28 @@ export function FarmScreen() {
         pointerEvents={isTopTabVisible ? 'auto' : 'none'}
       >
       <View style={styles.segmentContainer}>
-        <View style={styles.segmentTrack}>
+        <View style={[styles.segmentTrack, segmentTrackStyle]}>
           {/*  Kelimeler Tab */}
           <TouchableOpacity
-            style={[styles.segmentTab, activeTab === 'words' && styles.segmentTabActive]}
+            style={[styles.segmentTab, activeTab === 'words' && styles.segmentTabActive, activeTab === 'words' && segmentActiveShadowStyle]}
             onPress={() => { setActiveTab('words'); globalTabState.current = 'words'; setSearchVisible(false); setPhrasalSearchVisible(false); setPuzzleSearchVisible(false); haptic.selection(); sound.playTap(); }}
             activeOpacity={0.8}
           >
             {activeTab === 'words' && (
               <LinearGradient
-                colors={['#22c55e', '#16a34a']}
+                colors={segmentActiveGradients.words}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.segmentActiveBackground}
               />
             )}
-            <Sprout size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'words' ? '#fff' : 'rgba(255,255,255,0.5)'} strokeWidth={2.5} />
-            <Text style={[styles.segmentLabel, activeTab === 'words' && styles.segmentLabelActive]}>Kelimeler</Text>
+            <Sprout size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'words' ? segmentIconActiveColor : segmentIconInactiveColor} strokeWidth={2.5} />
+            <Text style={[styles.segmentLabel, segmentTextBaseStyle, activeTab === 'words' && styles.segmentLabelActive, activeTab === 'words' && segmentTextActiveStyle]}>Kelimeler</Text>
           </TouchableOpacity>
 
           {/* s Phrasal Tab */}
           <TouchableOpacity
-            style={[styles.segmentTab, activeTab === 'phrasal' && styles.segmentTabActive, isSegmentLocked && styles.segmentTabLocked]}
+            style={[styles.segmentTab, activeTab === 'phrasal' && styles.segmentTabActive, activeTab === 'phrasal' && segmentActiveShadowStyle, isSegmentLocked && styles.segmentTabLocked]}
             onPress={() => {
               if (isSegmentLocked) { haptic.light(); return; }
               setActiveTab('phrasal'); globalTabState.current = 'phrasal'; setSearchVisible(false); setPhrasalSearchVisible(false); setPuzzleSearchVisible(false); haptic.selection(); sound.playTap();
@@ -2019,20 +2133,20 @@ export function FarmScreen() {
           >
             {activeTab === 'phrasal' && !isSegmentLocked && (
               <LinearGradient
-                colors={['#ec4899', '#db2777']}
+                colors={segmentActiveGradients.phrasal}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.segmentActiveBackground}
               />
             )}
-            <Link2 size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'phrasal' ? '#fff' : isSegmentLocked ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)'} strokeWidth={2.5} />
-            <Text style={[styles.segmentLabel, activeTab === 'phrasal' && styles.segmentLabelActive, isSegmentLocked && { opacity: 0.35 }]}>Phrasal</Text>
+            <Link2 size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'phrasal' ? segmentIconActiveColor : isSegmentLocked ? 'rgba(255,255,255,0.25)' : segmentIconInactiveColor} strokeWidth={2.5} />
+            <Text style={[styles.segmentLabel, segmentTextBaseStyle, activeTab === 'phrasal' && styles.segmentLabelActive, activeTab === 'phrasal' && segmentTextActiveStyle, isSegmentLocked && { opacity: 0.35 }]}>Phrasal</Text>
             {isSegmentLocked && <View style={styles.segmentLockIcon}><Lock size={10} color="rgba(255,255,255,0.5)" /></View>}
           </TouchableOpacity>
 
           {/* sc© Yapboz Tab */}
           <TouchableOpacity
-            style={[styles.segmentTab, activeTab === 'puzzle' && styles.segmentTabActive, isSegmentLocked && styles.segmentTabLocked]}
+            style={[styles.segmentTab, activeTab === 'puzzle' && styles.segmentTabActive, activeTab === 'puzzle' && segmentActiveShadowStyle, isSegmentLocked && styles.segmentTabLocked]}
             onPress={() => {
               if (isSegmentLocked) { haptic.light(); return; }
               setActiveTab('puzzle'); globalTabState.current = 'puzzle'; setSearchVisible(false); setPhrasalSearchVisible(false); setPuzzleSearchVisible(false); haptic.selection(); sound.playTap();
@@ -2042,14 +2156,14 @@ export function FarmScreen() {
           >
             {activeTab === 'puzzle' && !isSegmentLocked && (
               <LinearGradient
-                colors={['#f97316', '#ea580c']}
+                colors={segmentActiveGradients.puzzle}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.segmentActiveBackground}
               />
             )}
-            <Puzzle size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'puzzle' ? '#fff' : isSegmentLocked ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)'} strokeWidth={2.5} />
-            <Text style={[styles.segmentLabel, activeTab === 'puzzle' && styles.segmentLabelActive, isSegmentLocked && { opacity: 0.35 }]}>Yapboz</Text>
+            <Puzzle size={IS_SMALL_SCREEN ? 18 : 20} color={activeTab === 'puzzle' ? segmentIconActiveColor : isSegmentLocked ? 'rgba(255,255,255,0.25)' : segmentIconInactiveColor} strokeWidth={2.5} />
+            <Text style={[styles.segmentLabel, segmentTextBaseStyle, activeTab === 'puzzle' && styles.segmentLabelActive, activeTab === 'puzzle' && segmentTextActiveStyle, isSegmentLocked && { opacity: 0.35 }]}>Yapboz</Text>
             {isSegmentLocked && <View style={styles.segmentLockIcon}><Lock size={10} color="rgba(255,255,255,0.5)" /></View>}
           </TouchableOpacity>
         </View>
@@ -2059,6 +2173,7 @@ export function FarmScreen() {
           style={[
             styles.quickThemeChip,
             !isSoilQuickThemeActive && styles.quickThemeChipActive,
+            !isSoilQuickThemeActive && quickThemeDefaultActiveStyle,
             isGuidedFarmStep && { opacity: 0.45 },
           ]}
           activeOpacity={isGuidedFarmStep ? 1 : 0.85}
@@ -2076,7 +2191,9 @@ export function FarmScreen() {
           <Text
             style={[
               styles.quickThemeChipText,
+              quickThemeTextBaseStyle,
               !isSoilQuickThemeActive && styles.quickThemeChipTextActive,
+              !isSoilQuickThemeActive && quickThemeTextActiveStyle,
             ]}
           >
             Varsayilan
@@ -2087,6 +2204,7 @@ export function FarmScreen() {
             styles.quickThemeChip,
             isSoilQuickThemeActive && styles.quickThemeChipActive,
             isSoilQuickThemeActive && styles.quickThemeChipActiveSoil,
+            isSoilQuickThemeActive && quickThemeSoilActiveStyle,
             isGuidedFarmStep && { opacity: 0.45 },
           ]}
           activeOpacity={isGuidedFarmStep ? 1 : 0.85}
@@ -2104,7 +2222,9 @@ export function FarmScreen() {
           <Text
             style={[
               styles.quickThemeChipText,
+              quickThemeTextBaseStyle,
               isSoilQuickThemeActive && styles.quickThemeChipTextActive,
+              isSoilQuickThemeActive && quickThemeTextActiveStyle,
             ]}
           >
             Toprak

@@ -15,7 +15,6 @@ import {
   Dimensions,
   Alert,
   Animated,
-  InteractionManager,
   Platform,
   ImageBackground,
   Modal,
@@ -62,6 +61,7 @@ import {
 import { estimateCefrLevel } from "../utils/cefrEstimator";
 import { normalizeDisplayText } from "../utils/textNormalization";
 import { traceEvent } from "../utils/debugTrace";
+import { getCardHeaderThemePreset } from "../data/cardThemes";
 import NetInfo from "@react-native-community/netinfo";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -114,10 +114,11 @@ const PRELOADED_IMAGES = {
 };
 
 // Premium Header with Logo - FULL COVERAGE
-const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
+const PremiumHeader = ({ coins, level, streak, onProfilePress, themePreset }: any) => {
   const config = usePerformanceStore(s => s.config);
   const shimmerAnim = useRef(new Animated.Value(0)).current;
   const logoGlow = useRef(new Animated.Value(0.3)).current;
+  const headerTheme = themePreset || getCardHeaderThemePreset();
 
   useEffect(() => {
     if (config.enableShimmer) {
@@ -156,13 +157,17 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
   return (
     <View style={styles.premiumHeader}>
       <LinearGradient
-        colors={["rgba(51, 31, 6, 0.96)", "rgba(66, 42, 12, 0.95)", "rgba(30, 41, 59, 0.94)"]}
+        colors={headerTheme.headerGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.headerFrame, IS_NARROW_DEVICE && styles.headerFrameCompact]}
+        style={[
+          styles.headerFrame,
+          IS_NARROW_DEVICE && styles.headerFrameCompact,
+          { borderColor: headerTheme.headerBorderColor },
+        ]}
       >
         <LinearGradient
-          colors={["rgba(251, 191, 36, 0.16)", "rgba(245, 158, 11, 0.11)", "rgba(30, 41, 59, 0.08)"]}
+          colors={headerTheme.headerGlowGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.headerFrameGlow}
@@ -174,14 +179,27 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
           style={[styles.headerLeftSection, IS_NARROW_DEVICE && styles.headerLeftSectionCompact]}
         >
           <LinearGradient
-            colors={["rgba(62, 41, 12, 0.9)", "rgba(40, 28, 12, 0.9)", "rgba(15, 23, 42, 0.88)"]}
+            colors={headerTheme.brandGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={[styles.brandChip, IS_NARROW_DEVICE && styles.brandChipCompact]}
+            style={[
+              styles.brandChip,
+              IS_NARROW_DEVICE && styles.brandChipCompact,
+              { borderColor: headerTheme.brandBorderColor },
+            ]}
           >
             <View style={styles.logoWrapper}>
               {config.enableGlow && (
-                <Animated.View style={[styles.logoGlow, { opacity: logoGlow }]} />
+                <Animated.View
+                  style={[
+                    styles.logoGlow,
+                    {
+                      opacity: logoGlow,
+                      backgroundColor: headerTheme.logoGlowColor,
+                      shadowColor: headerTheme.logoGlowColor,
+                    },
+                  ]}
+                />
               )}
               <View style={[styles.logoContainer, IS_NARROW_DEVICE && styles.logoContainerCompact]}>
                 <Image
@@ -1252,8 +1270,8 @@ export const HomeScreen = ({ navigation }: any) => {
   const sesyapHistory = useFarmStore((state) =>
     Array.isArray(state.sesyapHistory) ? state.sesyapHistory : [],
   );
-  const bestStreak = useFarmStore((state) => state.bestStreak);
-  const streak = useFarmStore((state) => state.streak);
+  const dailyStreak = useFarmStore((state) => state.dailyStreak);
+  const cardCustomization = useFarmStore((state) => state.cardCustomization);
   const achievements = useFarmStore((state) =>
     Array.isArray(state.achievements) ? state.achievements : [],
   );
@@ -1283,6 +1301,10 @@ export const HomeScreen = ({ navigation }: any) => {
     Array.isArray(state.dailyQuests) ? state.dailyQuests : [],
   );
   const checkAndResetDailyQuests = useFarmStore((state) => state.checkAndResetDailyQuests);
+  const homeHeaderTheme = useMemo(
+    () => getCardHeaderThemePreset(cardCustomization?.headerTheme),
+    [cardCustomization?.headerTheme],
+  );
 
   // sOuï Preload images on mount for performance
   useEffect(() => {
@@ -1335,20 +1357,15 @@ export const HomeScreen = ({ navigation }: any) => {
   const [meaningfulActionCount, setMeaningfulActionCount] = useState(0);
   const [practiceCenterVisible, setPracticeCenterVisible] = useState(false);
   const questGuideTargetRef = useRef<{ route: string; params?: any } | null>(null);
-  const questGuideNavigateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const questGuideInteractionRef = useRef<{ cancel?: () => void } | null>(null);
+  const questGuideNavigateFrameRef = useRef<number | null>(null);
   const notificationRequestInFlightRef = useRef(false);
   const notificationPromptTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const clearQuestGuideNavigateTask = useCallback(() => {
-    if (questGuideNavigateTimeoutRef.current) {
-      clearTimeout(questGuideNavigateTimeoutRef.current);
-      questGuideNavigateTimeoutRef.current = null;
+    if (questGuideNavigateFrameRef.current !== null) {
+      cancelAnimationFrame(questGuideNavigateFrameRef.current);
+      questGuideNavigateFrameRef.current = null;
     }
-    if (questGuideInteractionRef.current?.cancel) {
-      questGuideInteractionRef.current.cancel();
-    }
-    questGuideInteractionRef.current = null;
   }, []);
 
   const showHomeHelpModal = useCallback((title: string, message: string) => {
@@ -1679,8 +1696,8 @@ export const HomeScreen = ({ navigation }: any) => {
       guidedModeActive,
       guidedModeStep,
     });
-    // Farm'a Home üzerinden giderken stack birikimini önle (üst üste ekran + kasma).
-    if (route === "Farm") {
+    // Heavy screens routed from Home can stack and trigger jank; reset for clean transition.
+    if (route === "Farm" || route === "Quiz") {
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -1709,13 +1726,10 @@ export const HomeScreen = ({ navigation }: any) => {
     setQuestGuideModalVisible(false);
     questGuideTargetRef.current = null;
     if (!target) return;
-    questGuideNavigateTimeoutRef.current = setTimeout(() => {
-      questGuideNavigateTimeoutRef.current = null;
-      questGuideInteractionRef.current = InteractionManager.runAfterInteractions(() => {
-        questGuideInteractionRef.current = null;
-        void handleNav(target.route, target.params);
-      });
-    }, 120);
+    questGuideNavigateFrameRef.current = requestAnimationFrame(() => {
+      questGuideNavigateFrameRef.current = null;
+      void handleNav(target.route, target.params);
+    });
   }, [handleNav, clearQuestGuideNavigateTask]);
 
   const resolveDailyQuestTarget = useCallback((quest: any): { route: string; params?: any } => {
@@ -2078,31 +2092,43 @@ export const HomeScreen = ({ navigation }: any) => {
           <PremiumHeader
             coins={coins}
             level={level}
-            streak={streak}
+            streak={dailyStreak}
+            themePreset={homeHeaderTheme}
             onProfilePress={() => handleNav("Profile")}
           />
 
-          <View style={styles.dailyQuestTopSection}>
+          <View
+            style={[
+              styles.dailyQuestTopSection,
+              {
+                borderColor: homeHeaderTheme.questPanelBorderColor,
+                backgroundColor: homeHeaderTheme.questPanelBackground,
+              },
+            ]}
+          >
             <View style={styles.dailyQuestTopHeader}>
-              <Text style={styles.dailyQuestTopTitle}>Sıradaki Görev</Text>
+              <Text style={[styles.dailyQuestTopTitle, { color: homeHeaderTheme.questTitleColor }]}>Sıradaki Görev</Text>
               <TouchableOpacity
                 style={styles.dailyQuestMoreButton}
                 onPress={handleOpenDailyQuests}
                 activeOpacity={0.8}
               >
-                <Text style={styles.dailyQuestMoreText}>Daha da görüntüle</Text>
-                <ChevronRight size={14} color="#fde68a" />
+                <Text style={[styles.dailyQuestMoreText, { color: homeHeaderTheme.questMoreTextColor }]}>Daha da görüntüle</Text>
+                <ChevronRight size={14} color={homeHeaderTheme.questMoreTextColor} />
               </TouchableOpacity>
             </View>
 
             {featuredDailyQuest ? (
               <TouchableOpacity
-                style={styles.dailyQuestTopCard}
+                style={[
+                  styles.dailyQuestTopCard,
+                  { borderColor: homeHeaderTheme.questCardBorderColor },
+                ]}
                 onPress={handleFeaturedDailyQuestPress}
                 activeOpacity={0.9}
               >
                 <LinearGradient
-                  colors={["rgba(250, 204, 21, 0.2)", "rgba(245, 158, 11, 0.16)", "rgba(15, 23, 42, 0.72)"]}
+                  colors={homeHeaderTheme.questCardGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.dailyQuestTopGradient}
@@ -2112,34 +2138,82 @@ export const HomeScreen = ({ navigation }: any) => {
                       {normalizeDisplayText(String(featuredDailyQuest.icon || "\u{1F3AF}"))}
                     </Text>
                     <View style={styles.dailyQuestTopTextWrap}>
-                      <Text style={styles.dailyQuestTopQuestTitle} numberOfLines={1}>
+                      <Text
+                        style={[
+                          styles.dailyQuestTopQuestTitle,
+                          { color: homeHeaderTheme.questPrimaryTextColor },
+                        ]}
+                        numberOfLines={1}
+                      >
                         {normalizeDisplayText(String(featuredDailyQuest.title || "Gorev"))}
                       </Text>
-                      <Text style={styles.dailyQuestTopQuestDesc} numberOfLines={2}>
+                      <Text
+                        style={[
+                          styles.dailyQuestTopQuestDesc,
+                          { color: homeHeaderTheme.questSecondaryTextColor },
+                        ]}
+                        numberOfLines={2}
+                      >
                         {normalizeDisplayText(String(featuredDailyQuest.description || ""))}
                       </Text>
                     </View>
-                    <Text style={styles.dailyQuestTopAction}>
+                    <Text
+                      style={[
+                        styles.dailyQuestTopAction,
+                        { color: homeHeaderTheme.questActionTextColor },
+                      ]}
+                    >
                       {featuredDailyQuest.completed && !featuredDailyQuest.claimed ? "Odul Al" : "Goreve Git"}
                     </Text>
                   </View>
 
-                  <View style={styles.dailyQuestTopProgressTrack}>
+                  <View
+                    style={[
+                      styles.dailyQuestTopProgressTrack,
+                      {
+                        borderColor: homeHeaderTheme.questProgressTrackBorderColor,
+                        backgroundColor: homeHeaderTheme.questProgressTrackColor,
+                      },
+                    ]}
+                  >
                     <View
                       style={[
                         styles.dailyQuestTopProgressFill,
-                        { width: `${featuredDailyQuestProgressPct}%` },
+                        {
+                          width: `${featuredDailyQuestProgressPct}%`,
+                          backgroundColor: homeHeaderTheme.questProgressFillColor,
+                        },
                       ]}
                     />
                   </View>
-                  <Text style={styles.dailyQuestTopProgressText}>
+                  <Text
+                    style={[
+                      styles.dailyQuestTopProgressText,
+                      { color: homeHeaderTheme.questSecondaryTextColor },
+                    ]}
+                  >
                     {`${Math.max(0, Number(featuredDailyQuest.progress || 0))}/${Math.max(1, Number(featuredDailyQuest.target || 1))}`}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
             ) : (
-              <View style={styles.dailyQuestTopEmpty}>
-                <Text style={styles.dailyQuestTopEmptyText}>Bugunun gorevleri tamamlandi.</Text>
+              <View
+                style={[
+                  styles.dailyQuestTopEmpty,
+                  {
+                    borderColor: homeHeaderTheme.questEmptyBorderColor,
+                    backgroundColor: homeHeaderTheme.questEmptyBackground,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.dailyQuestTopEmptyText,
+                    { color: homeHeaderTheme.questEmptyTextColor },
+                  ]}
+                >
+                  Bugunun gorevleri tamamlandi.
+                </Text>
               </View>
             )}
           </View>

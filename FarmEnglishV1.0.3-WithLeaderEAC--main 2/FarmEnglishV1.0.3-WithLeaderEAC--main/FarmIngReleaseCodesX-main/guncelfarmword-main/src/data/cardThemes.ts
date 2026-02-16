@@ -26,6 +26,203 @@ export const FONT_STYLES: Record<CardFontStyle, { label: string; fontFamily?: st
 export type CardBorderStyle = 'default' | 'glow' | 'sharp' | 'rounded' | 'none';
 export type CardBackgroundStyle = 'default' | 'soil';
 export type CardBounceIntensity = 'min' | 'normal' | 'max';
+export type CardHeaderTheme = 'sunforge' | 'emerald' | 'neon' | 'royal';
+
+export interface CardHeaderThemePreset {
+  id: CardHeaderTheme;
+  label: string;
+  description: string;
+  emoji: string;
+  headerGradient: readonly [string, string, string];
+  headerGlowGradient: readonly [string, string, string];
+  headerBorderColor: string;
+  brandGradient: readonly [string, string, string];
+  brandBorderColor: string;
+  logoGlowColor: string;
+  questPanelBackground: string;
+  questPanelBorderColor: string;
+  questCardGradient: readonly [string, string, string];
+  questCardBorderColor: string;
+  questTitleColor: string;
+  questPrimaryTextColor: string;
+  questSecondaryTextColor: string;
+  questActionTextColor: string;
+  questMoreTextColor: string;
+  questProgressTrackColor: string;
+  questProgressTrackBorderColor: string;
+  questProgressFillColor: string;
+  questEmptyBackground: string;
+  questEmptyBorderColor: string;
+  questEmptyTextColor: string;
+  farmInventoryHeaderGradient: readonly [string, string, string];
+  filterActiveBackground: string;
+  filterActiveBorderColor: string;
+  filterAllActiveColor: string;
+}
+
+export const CARD_HEADER_THEME_PRESETS: Record<CardHeaderTheme, CardHeaderThemePreset> = {
+  sunforge: {
+    id: 'sunforge',
+    label: 'Premium Altin',
+    description: 'Mevcut premium header ve Sıradaki Görev teması',
+    emoji: '🌅',
+    headerGradient: ['rgba(51, 31, 6, 0.96)', 'rgba(66, 42, 12, 0.95)', 'rgba(30, 41, 59, 0.94)'],
+    headerGlowGradient: ['rgba(251, 191, 36, 0.16)', 'rgba(245, 158, 11, 0.11)', 'rgba(30, 41, 59, 0.08)'],
+    headerBorderColor: 'rgba(245, 158, 11, 0.35)',
+    brandGradient: ['rgba(62, 41, 12, 0.9)', 'rgba(40, 28, 12, 0.9)', 'rgba(15, 23, 42, 0.88)'],
+    brandBorderColor: 'rgba(251, 191, 36, 0.35)',
+    logoGlowColor: '#f59e0b',
+    questPanelBackground: 'rgba(15, 23, 42, 0.54)',
+    questPanelBorderColor: 'rgba(250, 204, 21, 0.24)',
+    questCardGradient: ['rgba(250, 204, 21, 0.2)', 'rgba(245, 158, 11, 0.16)', 'rgba(15, 23, 42, 0.72)'],
+    questCardBorderColor: 'rgba(250, 204, 21, 0.2)',
+    questTitleColor: '#fef3c7',
+    questPrimaryTextColor: '#fff8d6',
+    questSecondaryTextColor: 'rgba(255, 247, 208, 0.88)',
+    questActionTextColor: '#fde68a',
+    questMoreTextColor: '#fde68a',
+    questProgressTrackColor: 'rgba(15, 23, 42, 0.76)',
+    questProgressTrackBorderColor: 'rgba(253, 224, 71, 0.24)',
+    questProgressFillColor: '#f59e0b',
+    questEmptyBackground: 'rgba(15, 23, 42, 0.72)',
+    questEmptyBorderColor: 'rgba(253, 224, 71, 0.18)',
+    questEmptyTextColor: 'rgba(254, 243, 199, 0.9)',
+    farmInventoryHeaderGradient: ['rgba(18, 18, 20, 0.98)', 'rgba(28, 28, 30, 0.95)', 'rgba(18, 18, 20, 0.98)'],
+    filterActiveBackground: 'rgba(255,255,255,0.12)',
+    filterActiveBorderColor: 'rgba(255,255,255,0.2)',
+    filterAllActiveColor: '#fbbf24',
+  },
+  emerald: {
+    id: 'emerald',
+    label: 'Zümrüt Aura',
+    description: 'Yeşil-altın çizgide doğal ama premium bir görünüm',
+    emoji: '🌿',
+    headerGradient: ['rgba(6, 40, 24, 0.96)', 'rgba(8, 63, 39, 0.95)', 'rgba(12, 74, 110, 0.9)'],
+    headerGlowGradient: ['rgba(34, 197, 94, 0.18)', 'rgba(16, 185, 129, 0.12)', 'rgba(14, 116, 144, 0.1)'],
+    headerBorderColor: 'rgba(74, 222, 128, 0.42)',
+    brandGradient: ['rgba(5, 46, 22, 0.92)', 'rgba(6, 78, 59, 0.9)', 'rgba(15, 118, 110, 0.84)'],
+    brandBorderColor: 'rgba(110, 231, 183, 0.42)',
+    logoGlowColor: '#22c55e',
+    questPanelBackground: 'rgba(6, 78, 59, 0.42)',
+    questPanelBorderColor: 'rgba(52, 211, 153, 0.3)',
+    questCardGradient: ['rgba(16, 185, 129, 0.2)', 'rgba(34, 197, 94, 0.16)', 'rgba(8, 47, 73, 0.74)'],
+    questCardBorderColor: 'rgba(110, 231, 183, 0.28)',
+    questTitleColor: '#d1fae5',
+    questPrimaryTextColor: '#ecfdf5',
+    questSecondaryTextColor: 'rgba(209, 250, 229, 0.86)',
+    questActionTextColor: '#86efac',
+    questMoreTextColor: '#6ee7b7',
+    questProgressTrackColor: 'rgba(6, 95, 70, 0.6)',
+    questProgressTrackBorderColor: 'rgba(110, 231, 183, 0.28)',
+    questProgressFillColor: '#22c55e',
+    questEmptyBackground: 'rgba(6, 78, 59, 0.62)',
+    questEmptyBorderColor: 'rgba(110, 231, 183, 0.24)',
+    questEmptyTextColor: 'rgba(209, 250, 229, 0.9)',
+    farmInventoryHeaderGradient: ['rgba(5, 46, 22, 0.98)', 'rgba(6, 78, 59, 0.94)', 'rgba(8, 47, 73, 0.95)'],
+    filterActiveBackground: 'rgba(34,197,94,0.18)',
+    filterActiveBorderColor: 'rgba(110,231,183,0.45)',
+    filterAllActiveColor: '#34d399',
+  },
+  neon: {
+    id: 'neon',
+    label: 'Neon Volt',
+    description: 'Elektrikli mavi-cyan tema ile keskin vurgu',
+    emoji: '⚡',
+    headerGradient: ['rgba(7, 16, 42, 0.96)', 'rgba(13, 26, 63, 0.95)', 'rgba(7, 89, 133, 0.92)'],
+    headerGlowGradient: ['rgba(34, 211, 238, 0.2)', 'rgba(45, 212, 191, 0.14)', 'rgba(14, 116, 144, 0.1)'],
+    headerBorderColor: 'rgba(34, 211, 238, 0.46)',
+    brandGradient: ['rgba(8, 47, 73, 0.9)', 'rgba(12, 74, 110, 0.88)', 'rgba(15, 23, 42, 0.86)'],
+    brandBorderColor: 'rgba(103, 232, 249, 0.48)',
+    logoGlowColor: '#22d3ee',
+    questPanelBackground: 'rgba(8, 47, 73, 0.44)',
+    questPanelBorderColor: 'rgba(34, 211, 238, 0.3)',
+    questCardGradient: ['rgba(34, 211, 238, 0.22)', 'rgba(59, 130, 246, 0.16)', 'rgba(15, 23, 42, 0.76)'],
+    questCardBorderColor: 'rgba(103, 232, 249, 0.3)',
+    questTitleColor: '#cffafe',
+    questPrimaryTextColor: '#ecfeff',
+    questSecondaryTextColor: 'rgba(186, 230, 253, 0.9)',
+    questActionTextColor: '#67e8f9',
+    questMoreTextColor: '#67e8f9',
+    questProgressTrackColor: 'rgba(8, 47, 73, 0.66)',
+    questProgressTrackBorderColor: 'rgba(103, 232, 249, 0.3)',
+    questProgressFillColor: '#22d3ee',
+    questEmptyBackground: 'rgba(8, 47, 73, 0.66)',
+    questEmptyBorderColor: 'rgba(103, 232, 249, 0.24)',
+    questEmptyTextColor: 'rgba(207, 250, 254, 0.92)',
+    farmInventoryHeaderGradient: ['rgba(8, 47, 73, 0.98)', 'rgba(13, 26, 63, 0.95)', 'rgba(15, 23, 42, 0.97)'],
+    filterActiveBackground: 'rgba(34,211,238,0.2)',
+    filterActiveBorderColor: 'rgba(103,232,249,0.45)',
+    filterAllActiveColor: '#22d3ee',
+  },
+  royal: {
+    id: 'royal',
+    label: 'Kraliyet Moru',
+    description: 'Mor-altın karışımı daha görkemli premium görünüm',
+    emoji: '👑',
+    headerGradient: ['rgba(49, 11, 74, 0.95)', 'rgba(76, 29, 149, 0.94)', 'rgba(30, 41, 59, 0.92)'],
+    headerGlowGradient: ['rgba(192, 132, 252, 0.18)', 'rgba(251, 191, 36, 0.13)', 'rgba(76, 29, 149, 0.08)'],
+    headerBorderColor: 'rgba(196, 181, 253, 0.44)',
+    brandGradient: ['rgba(59, 7, 100, 0.9)', 'rgba(91, 33, 182, 0.88)', 'rgba(30, 41, 59, 0.86)'],
+    brandBorderColor: 'rgba(216, 180, 254, 0.48)',
+    logoGlowColor: '#a855f7',
+    questPanelBackground: 'rgba(76, 29, 149, 0.36)',
+    questPanelBorderColor: 'rgba(196, 181, 253, 0.3)',
+    questCardGradient: ['rgba(168, 85, 247, 0.2)', 'rgba(251, 191, 36, 0.14)', 'rgba(30, 41, 59, 0.76)'],
+    questCardBorderColor: 'rgba(216, 180, 254, 0.3)',
+    questTitleColor: '#f3e8ff',
+    questPrimaryTextColor: '#faf5ff',
+    questSecondaryTextColor: 'rgba(233, 213, 255, 0.88)',
+    questActionTextColor: '#fde68a',
+    questMoreTextColor: '#f5d0fe',
+    questProgressTrackColor: 'rgba(76, 29, 149, 0.58)',
+    questProgressTrackBorderColor: 'rgba(216, 180, 254, 0.28)',
+    questProgressFillColor: '#a855f7',
+    questEmptyBackground: 'rgba(76, 29, 149, 0.56)',
+    questEmptyBorderColor: 'rgba(216, 180, 254, 0.22)',
+    questEmptyTextColor: 'rgba(243, 232, 255, 0.92)',
+    farmInventoryHeaderGradient: ['rgba(59, 7, 100, 0.98)', 'rgba(76, 29, 149, 0.94)', 'rgba(30, 41, 59, 0.96)'],
+    filterActiveBackground: 'rgba(168,85,247,0.22)',
+    filterActiveBorderColor: 'rgba(216,180,254,0.46)',
+    filterAllActiveColor: '#c084fc',
+  },
+};
+
+export const CARD_HEADER_THEME_OPTIONS: CardHeaderThemePreset[] = [
+  CARD_HEADER_THEME_PRESETS.sunforge,
+  CARD_HEADER_THEME_PRESETS.emerald,
+  CARD_HEADER_THEME_PRESETS.neon,
+  CARD_HEADER_THEME_PRESETS.royal,
+];
+
+const CARD_HEADER_THEME_ALIASES: Record<string, CardHeaderTheme> = {
+  premium: 'sunforge',
+  premiumgold: 'sunforge',
+  premiumaltin: 'sunforge',
+  gold: 'sunforge',
+  altin: 'sunforge',
+  default: 'sunforge',
+  green: 'emerald',
+  neonvolt: 'neon',
+  royalpurple: 'royal',
+};
+
+export const getCardHeaderThemePreset = (themeId?: string): CardHeaderThemePreset => {
+  const normalized = typeof themeId === 'string' ? themeId.trim().toLowerCase() : '';
+  const compact = normalized.replace(/[-_\s]+/g, '');
+  if (normalized && Object.prototype.hasOwnProperty.call(CARD_HEADER_THEME_PRESETS, normalized)) {
+    return CARD_HEADER_THEME_PRESETS[normalized as CardHeaderTheme];
+  }
+  if (compact && Object.prototype.hasOwnProperty.call(CARD_HEADER_THEME_PRESETS, compact)) {
+    return CARD_HEADER_THEME_PRESETS[compact as CardHeaderTheme];
+  }
+  if (normalized && CARD_HEADER_THEME_ALIASES[normalized]) {
+    return CARD_HEADER_THEME_PRESETS[CARD_HEADER_THEME_ALIASES[normalized]];
+  }
+  if (compact && CARD_HEADER_THEME_ALIASES[compact]) {
+    return CARD_HEADER_THEME_PRESETS[CARD_HEADER_THEME_ALIASES[compact]];
+  }
+  return CARD_HEADER_THEME_PRESETS.sunforge;
+};
 
 export const BORDER_STYLES: Record<CardBorderStyle, { label: string; borderRadius: number; borderWidth: number; shadowRadius: number }> = {
   default: { label: 'Normal', borderRadius: 20, borderWidth: 1.5, shadowRadius: 12 },
@@ -61,6 +258,7 @@ export interface CardCustomization {
   fontStyle: CardFontStyle;
   borderStyle: CardBorderStyle;
   backgroundStyle: CardBackgroundStyle;
+  headerTheme: CardHeaderTheme;
   showEmoji: boolean;
   showProgressBar: boolean;
   showLevel: boolean;
@@ -76,6 +274,7 @@ export const DEFAULT_CUSTOMIZATION: CardCustomization = {
   fontStyle: 'default',
   borderStyle: 'default',
   backgroundStyle: 'default',
+  headerTheme: 'sunforge',
   showEmoji: true,
   showProgressBar: true,
   showLevel: true,
@@ -183,7 +382,19 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
     emoji: '🌸',
     previewGradient: ['#831843', '#9d174d', '#831843'],
   },
-
+  {
+    id: 'obsidian',
+    name: 'Obsidyen',
+    description: 'Siyah cam ve metalik premium isik',
+    rarity: 'common',
+    price: 450,
+    gradientTint: ['rgba(17, 24, 39, 0.2)', 'rgba(71, 85, 105, 0.16)'],
+    borderColor: 'rgba(148, 163, 184, 0.55)',
+    borderGlow: '#94a3b8',
+    particleColor: '#cbd5e1',
+    emoji: '🪨',
+    previewGradient: ['#020617', '#0f172a', '#111827'],
+  },
   // ── RARE (1000-2000 coins) ──
   {
     id: 'neon',
@@ -263,7 +474,32 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
     emoji: '⚡',
     previewGradient: ['#031525', '#0f172a', '#2e1065'],
   },
-
+  {
+    id: 'ionpulse',
+    name: 'Ion Pulse',
+    description: 'Yuksek voltajli mavi-cyan darbe',
+    rarity: 'rare',
+    price: 1900,
+    gradientTint: ['rgba(56, 189, 248, 0.18)', 'rgba(45, 212, 191, 0.18)'],
+    borderColor: 'rgba(34, 211, 238, 0.86)',
+    borderGlow: '#22d3ee',
+    particleColor: '#67e8f9',
+    emoji: '⚡',
+    previewGradient: ['#042f2e', '#0c4a6e', '#111827'],
+  },
+  {
+    id: 'toxicnova',
+    name: 'Toxic Nova',
+    description: 'Asiri asidik neon patlama temasi',
+    rarity: 'rare',
+    price: 2000,
+    gradientTint: ['rgba(132, 204, 22, 0.18)', 'rgba(34, 197, 94, 0.14)'],
+    borderColor: 'rgba(163, 230, 53, 0.8)',
+    borderGlow: '#a3e635',
+    particleColor: '#d9f99d',
+    emoji: '☢️',
+    previewGradient: ['#1a2e05', '#365314', '#1f2937'],
+  },
   // ── EPIC (5000-10000 coins) ──
   {
     id: 'dragon',
@@ -317,7 +553,32 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
     emoji: '🌈',
     previewGradient: ['#022c22', '#172554', '#022c22'],
   },
-
+  {
+    id: 'plasmaforge',
+    name: 'Plasma Forge',
+    description: 'Patlamali plasma cekirdegi ve sarsici glow',
+    rarity: 'epic',
+    price: 12000,
+    gradientTint: ['rgba(251, 146, 60, 0.2)', 'rgba(236, 72, 153, 0.2)'],
+    borderColor: 'rgba(251, 113, 133, 0.86)',
+    borderGlow: '#fb7185',
+    particleColor: '#fda4af',
+    emoji: '💥',
+    previewGradient: ['#3f0f1f', '#7f1d1d', '#3b0764'],
+  },
+  {
+    id: 'neonmatrix',
+    name: 'Neon Matrix',
+    description: 'Arcade stili cyber grid ve ritmik bounce',
+    rarity: 'epic',
+    price: 11000,
+    gradientTint: ['rgba(34, 211, 238, 0.18)', 'rgba(168, 85, 247, 0.18)'],
+    borderColor: 'rgba(129, 140, 248, 0.86)',
+    borderGlow: '#818cf8',
+    particleColor: '#a5b4fc',
+    emoji: '🕹️',
+    previewGradient: ['#0b1120', '#111827', '#312e81'],
+  },
   // ── LEGENDARY (achievements only, price=0) ──
   {
     id: 'diamond',
@@ -364,6 +625,21 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
     emoji: '🌟',
     previewGradient: ['#422006', '#083344', '#422006'],
   },
+  {
+    id: 'overdrive',
+    name: 'Overdrive',
+    description: 'Roket hizinda elektrik ve alev karmasi',
+    rarity: 'legendary',
+    price: 0,
+    unlockRequirement: 'battle_250',
+    unlockDescription: '250 battle kazan',
+    gradientTint: ['rgba(34, 211, 238, 0.22)', 'rgba(239, 68, 68, 0.2)'],
+    borderColor: 'rgba(125, 211, 252, 0.96)',
+    borderGlow: '#7dd3fc',
+    particleColor: '#bae6fd',
+    emoji: '🚀',
+    previewGradient: ['#0f172a', '#1e3a8a', '#450a0a'],
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════
@@ -376,11 +652,13 @@ export const COLLECTIBLE_CARDS: CollectibleCard[] = [
   { id: 'word_farmer', name: 'Kelime Çiftçisi', description: '50 kelime hasat ettin', rarity: 'common', emoji: '👨‍🌾', unlockCondition: '50 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 50, rewardThemeId: 'forest' },
   { id: 'harvest_master', name: 'Hasat Ustası', description: '200 kelime hasat ettin', rarity: 'rare', emoji: '🏅', unlockCondition: '200 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 200, rewardThemeId: 'voltstorm' },
   { id: 'harvest_legend', name: 'Hasat Efsanesi', description: '500 kelime hasat ettin', rarity: 'epic', emoji: '🏆', unlockCondition: '500 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 500, rewardThemeId: 'dragon' },
+  { id: 'harvest_titan', name: 'Hasat Titani', description: '1000 kelime hasat ettin', rarity: 'legendary', emoji: '🌋', unlockCondition: '1000 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 1000, rewardThemeId: 'plasmaforge' },
   
   // Quiz kartları
   { id: 'quiz_starter', name: 'Quiz Başlangıcı', description: 'İlk quiz\'ini tamamladın', rarity: 'common', emoji: '📝', unlockCondition: 'İlk quiz\'i tamamla', unlockKey: 'totalQuizzes', unlockTarget: 1, rewardThemeId: 'minimal' },
   { id: 'quiz_addict', name: 'Quiz Tutkunu', description: '100 quiz tamamladın', rarity: 'rare', emoji: '🧠', unlockCondition: '100 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 100, rewardThemeId: 'neon' },
   { id: 'quiz_master', name: 'Quiz Ustası', description: '500 quiz tamamladın', rarity: 'epic', emoji: '🎓', unlockCondition: '500 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 500, rewardThemeId: 'galaxy' },
+  { id: 'quiz_legend', name: 'Quiz Efsanesi', description: '1000 quiz tamamladin', rarity: 'legendary', emoji: '🎯', unlockCondition: '1000 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 1000, rewardThemeId: 'neonmatrix' },
   
   // Combo kartları
   { id: 'combo_5', name: 'Combo Başlangıcı', description: '5 combo yaptın', rarity: 'common', emoji: '🔥', unlockCondition: '5 combo yap', unlockKey: 'bestStreak', unlockTarget: 5, rewardThemeId: 'sunset' },
@@ -392,19 +670,23 @@ export const COLLECTIBLE_CARDS: CollectibleCard[] = [
   { id: 'first_battle', name: 'İlk Zafer', description: 'İlk savaşını kazandın', rarity: 'common', emoji: '⚔️', unlockCondition: 'İlk battle\'ı kazan', unlockKey: 'battleWins', unlockTarget: 1, rewardThemeId: 'amber' },
   { id: 'battle_veteran', name: 'Savaş Gazisi', description: '25 savaş kazandın', rarity: 'rare', emoji: '🛡️', unlockCondition: '25 battle kazan', unlockKey: 'battleWins', unlockTarget: 25, rewardThemeId: 'crystal' },
   { id: 'battle_champion', name: 'Şampiyon', description: '100 savaş kazandın', rarity: 'epic', emoji: '🏅', unlockCondition: '100 battle kazan', unlockKey: 'battleWins', unlockTarget: 100, rewardThemeId: 'phoenix' },
+  { id: 'battle_overdrive', name: 'Overdrive Generali', description: '250 savas kazandin', rarity: 'legendary', emoji: '🚀', unlockCondition: '250 battle kazan', unlockKey: 'battleWins', unlockTarget: 250, rewardThemeId: 'overdrive' },
   
   // Streak kartları
   { id: 'streak_7', name: 'Haftalık Seri', description: '7 günlük seri', rarity: 'rare', emoji: '📆', unlockCondition: '7 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 7, rewardThemeId: 'cherry' },
   { id: 'streak_30', name: 'Aylık Seri', description: '30 günlük seri', rarity: 'epic', emoji: '🗓️', unlockCondition: '30 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 30, rewardThemeId: 'aurora' },
   { id: 'streak_100', name: 'Yüz Gün!', description: '100 günlük seri!', rarity: 'legendary', emoji: '💯', unlockCondition: '100 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 100, rewardThemeId: 'royal' },
+  { id: 'streak_180', name: 'Demir Seri', description: '180 gunluk seri', rarity: 'legendary', emoji: '⚡', unlockCondition: '180 gun ust uste oyna', unlockKey: 'dailyStreak', unlockTarget: 180, rewardThemeId: 'ionpulse' },
   
   // Coin kartları
   { id: 'rich_farmer', name: 'Zengin Çiftçi', description: '10.000 coin kazandın', rarity: 'rare', emoji: '💰', unlockCondition: '10.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 10000, rewardThemeId: 'diamond' },
   { id: 'millionaire', name: 'Milyoner', description: '100.000 coin kazandın', rarity: 'legendary', emoji: '💎', unlockCondition: '100.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 100000, rewardThemeId: 'royal' },
+  { id: 'coin_tycoon', name: 'Coin Patronu', description: '500.000 coin kazandin', rarity: 'legendary', emoji: '🪙', unlockCondition: '500.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 500000, rewardThemeId: 'obsidian' },
 
   // Plant kartları
   { id: 'planter_100', name: 'Ekici', description: '100 kelime ektin', rarity: 'rare', emoji: '🌱', unlockCondition: '100 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 100, rewardThemeId: 'ocean' },
   { id: 'planter_500', name: 'Baş Ekici', description: '500 kelime ektin', rarity: 'epic', emoji: '🌳', unlockCondition: '500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 500, rewardThemeId: 'voltstorm' },
+  { id: 'planter_1500', name: 'Ekici Ustasi', description: '1500 kelime ektin', rarity: 'legendary', emoji: '☢️', unlockCondition: '1500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 1500, rewardThemeId: 'toxicnova' },
 ];
 
 // ═══════════════════════════════════════════════════════════════

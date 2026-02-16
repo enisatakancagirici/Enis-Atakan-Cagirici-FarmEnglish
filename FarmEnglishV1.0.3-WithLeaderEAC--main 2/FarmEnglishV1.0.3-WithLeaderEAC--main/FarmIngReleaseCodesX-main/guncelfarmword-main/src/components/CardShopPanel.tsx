@@ -19,6 +19,7 @@ import {
   FONT_STYLES,
   BORDER_STYLES,
   DEFAULT_CUSTOMIZATION,
+  CARD_HEADER_THEME_OPTIONS,
   getThemeOverlay,
   checkThemeUnlock,
   type CardThemeOverlay,
@@ -27,6 +28,7 @@ import {
   type CardFontStyle,
   type CardBorderStyle,
   type CardBounceIntensity,
+  type CardHeaderTheme,
 } from '../data/cardThemes';
 import { normalizeDisplayText } from '../utils/textNormalization';
 
@@ -284,6 +286,68 @@ const SHOP_PREVIEW_FX_BY_THEME: Record<string, ShopPreviewFx> = {
     frameRotation: '5deg',
     frameScale: 1.1,
   },
+  obsidian: {
+    glowColor: '#94a3b8',
+    sweep: ['rgba(255,255,255,0)', 'rgba(148,163,184,0.62)', 'rgba(255,255,255,0)'],
+    sparkle: '#e2e8f0',
+    textureColor: 'rgba(148,163,184,0.3)',
+    frameRotation: '-1deg',
+    frameScale: 1.02,
+  },
+  ionpulse: {
+    glowColor: '#22d3ee',
+    sweep: ['rgba(255,255,255,0)', 'rgba(34,211,238,0.88)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(34,211,238,0.24)', 'rgba(45,212,191,0.24)', 'rgba(56,189,248,0.24)', 'rgba(34,211,238,0.22)'],
+    sparkle: '#67e8f9',
+    electricColor: 'rgba(103,232,249,0.95)',
+    burstColor: 'rgba(34,211,238,0.46)',
+    textureColor: 'rgba(103,232,249,0.36)',
+    frameRotation: '-5deg',
+    frameScale: 1.08,
+  },
+  toxicnova: {
+    glowColor: '#a3e635',
+    sweep: ['rgba(255,255,255,0)', 'rgba(163,230,53,0.82)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(163,230,53,0.24)', 'rgba(132,204,22,0.26)', 'rgba(74,222,128,0.2)', 'rgba(163,230,53,0.24)'],
+    sparkle: '#d9f99d',
+    burstColor: 'rgba(163,230,53,0.44)',
+    textureColor: 'rgba(190,242,100,0.36)',
+    frameRotation: '-3deg',
+    frameScale: 1.06,
+  },
+  plasmaforge: {
+    glowColor: '#fb7185',
+    sweep: ['rgba(255,255,255,0)', 'rgba(251,113,133,0.86)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(251,146,60,0.24)', 'rgba(239,68,68,0.24)', 'rgba(236,72,153,0.22)', 'rgba(168,85,247,0.2)'],
+    sparkle: '#fda4af',
+    electricColor: 'rgba(251,146,60,0.95)',
+    burstColor: 'rgba(251,113,133,0.46)',
+    textureColor: 'rgba(251,146,60,0.38)',
+    frameRotation: '4deg',
+    frameScale: 1.09,
+  },
+  neonmatrix: {
+    glowColor: '#818cf8',
+    sweep: ['rgba(255,255,255,0)', 'rgba(129,140,248,0.84)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(129,140,248,0.24)', 'rgba(34,211,238,0.22)', 'rgba(168,85,247,0.24)', 'rgba(99,102,241,0.22)'],
+    sparkle: '#a5b4fc',
+    electricColor: 'rgba(129,140,248,0.95)',
+    burstColor: 'rgba(168,85,247,0.44)',
+    textureColor: 'rgba(165,180,252,0.36)',
+    frameRotation: '-6deg',
+    frameScale: 1.1,
+  },
+  overdrive: {
+    glowColor: '#7dd3fc',
+    sweep: ['rgba(255,255,255,0)', 'rgba(125,211,252,0.9)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(125,211,252,0.24)', 'rgba(59,130,246,0.24)', 'rgba(239,68,68,0.22)', 'rgba(251,146,60,0.24)'],
+    sparkle: '#bae6fd',
+    electricColor: 'rgba(239,68,68,0.95)',
+    burstColor: 'rgba(59,130,246,0.46)',
+    textureColor: 'rgba(125,211,252,0.38)',
+    frameRotation: '6deg',
+    frameScale: 1.12,
+  },
 };
 
 function getShopPreviewFx(themeId: string): ShopPreviewFx {
@@ -329,6 +393,12 @@ const COLLECTIBLE_FX_OVERRIDES: Record<string, Partial<CollectiblePreviewFx>> = 
   battle_champion: { gradient: ['#450a0a', '#9f1239', '#581c87'], glowColor: '#f472b6', burstColor: 'rgba(244,114,182,0.44)' },
   streak_100: { gradient: ['#172554', '#3730a3', '#1d4ed8'], glowColor: '#818cf8', burstColor: 'rgba(129,140,248,0.4)' },
   millionaire: { gradient: ['#422006', '#78350f', '#854d0e'], glowColor: '#f59e0b', burstColor: 'rgba(245,158,11,0.42)' },
+  harvest_titan: { gradient: ['#3f0f1f', '#7f1d1d', '#3b0764'], glowColor: '#fb7185', burstColor: 'rgba(251,113,133,0.46)' },
+  quiz_legend: { gradient: ['#0b1120', '#312e81', '#111827'], glowColor: '#818cf8', burstColor: 'rgba(129,140,248,0.44)' },
+  battle_overdrive: { gradient: ['#0f172a', '#1e3a8a', '#450a0a'], glowColor: '#7dd3fc', burstColor: 'rgba(125,211,252,0.48)' },
+  streak_180: { gradient: ['#042f2e', '#0c4a6e', '#111827'], glowColor: '#22d3ee', burstColor: 'rgba(34,211,238,0.42)' },
+  coin_tycoon: { gradient: ['#020617', '#111827', '#1f2937'], glowColor: '#94a3b8', burstColor: 'rgba(148,163,184,0.38)' },
+  planter_1500: { gradient: ['#1a2e05', '#365314', '#1f2937'], glowColor: '#a3e635', burstColor: 'rgba(163,230,53,0.44)' },
 };
 
 function getCollectiblePreviewFx(card: CollectibleCard): CollectiblePreviewFx {
@@ -1030,6 +1100,38 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
         {/*  KİİSELLETİRME SEKME  */}
         {activeTab === 'customize' && (
           <View>
+            {/* Header Theme */}
+            <Text style={styles.sectionTitle}>{txt('🧩 Header Tasarımı')}</Text>
+            <View style={styles.optionRow}>
+              {CARD_HEADER_THEME_OPTIONS.map((headerTheme) => {
+                const isActive = (cardCustomization.headerTheme || 'sunforge') === headerTheme.id;
+                return (
+                  <TouchableOpacity
+                    key={headerTheme.id}
+                    style={[
+                      styles.optionChip,
+                      isActive && styles.optionChipActive,
+                    ]}
+                    onPress={() => handleCustomizationChange('headerTheme', headerTheme.id as CardHeaderTheme)}
+                  >
+                    <Text style={[
+                      styles.optionChipText,
+                      isActive && styles.optionChipTextActive,
+                    ]}>
+                      {txt(`${headerTheme.emoji} ${headerTheme.label}`)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.sectionSubtitle}>
+              {txt(
+                CARD_HEADER_THEME_OPTIONS.find(
+                  (item) => item.id === (cardCustomization.headerTheme || 'sunforge')
+                )?.description || 'Header teması seç'
+              )}
+            </Text>
+
             {/* Font Style */}
             <Text style={styles.sectionTitle}>{txt('✏️ Yazı Tipi')}</Text>
             <View style={styles.optionRow}>

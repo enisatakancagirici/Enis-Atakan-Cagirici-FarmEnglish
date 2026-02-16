@@ -32,6 +32,7 @@ import { WordCardRN } from '../ui/cards/WordCardRN';
 import { globalTabState } from '../navigation/globalTabState';
 import { InventoryQuizDialog } from '../components/InventoryQuizDialog';
 import { usePerformanceStore } from '../store/performanceStore';
+import { getCardHeaderThemePreset } from '../data/cardThemes';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -742,6 +743,17 @@ export default function InventoryScreenNew() {
   const route = useRoute<any>();
   const { inventory, phrasalVerbInventory, plantFromInventory, streak, toggleFavorite, pool, demoteWordLevel, lastInventoryQuizTime, setLastInventoryQuizTime, insecticideActive } = useFarmStore();
   const cardCustomization = useFarmStore(s => s.cardCustomization);
+  const headerTheme = useMemo(
+    () => getCardHeaderThemePreset(cardCustomization?.headerTheme),
+    [cardCustomization?.headerTheme],
+  );
+  const themedActiveFilterStyle = useMemo(
+    () => ({
+      backgroundColor: headerTheme.filterActiveBackground,
+      borderColor: headerTheme.filterActiveBorderColor,
+    }),
+    [headerTheme.filterActiveBackground, headerTheme.filterActiveBorderColor],
+  );
   const lastMeaningSpokenRef = useRef<{ meaning: string; time: number } | null>(null);
   const windowDims = useWindowDimensions();
   const isSmallScreen = windowDims.height < 700;
@@ -1307,7 +1319,7 @@ export default function InventoryScreenNew() {
       {/* 📊 STATS HEADER - Premium Filter Bar */}
       <View style={styles.statsHeader}>
         <LinearGradient
-          colors={['rgba(18, 18, 20, 0.98)', 'rgba(28, 28, 30, 0.95)', 'rgba(18, 18, 20, 0.98)']}
+          colors={headerTheme.farmInventoryHeaderGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFillObject}
@@ -1321,16 +1333,25 @@ export default function InventoryScreenNew() {
         >
           {/* 📦 Tümü */}
           <TouchableOpacity
-            style={[styles.premiumFilterBtn, filter === 'all' && styles.premiumFilterBtnActive]}
+            style={[
+              styles.premiumFilterBtn,
+              filter === 'all' && styles.premiumFilterBtnActive,
+              filter === 'all' && themedActiveFilterStyle,
+            ]}
             onPress={() => { setFilter('all'); haptic.light(); }}
           >
-            <Package size={IS_TINY_SCREEN ? 14 : 16} color={filter === 'all' ? "#a855f7" : "#888"} strokeWidth={2.5} />
-            <Text style={[styles.premiumFilterCount, filter === 'all' && { color: '#a855f7' }]}>{stats.total}</Text>
+            <Package size={IS_TINY_SCREEN ? 14 : 16} color={filter === 'all' ? headerTheme.filterAllActiveColor : "#888"} strokeWidth={2.5} />
+            <Text style={[styles.premiumFilterCount, filter === 'all' && { color: headerTheme.filterAllActiveColor }]}>{stats.total}</Text>
           </TouchableOpacity>
 
           {/* 🏆 Altın */}
           <TouchableOpacity
-            style={[styles.premiumFilterBtn, filter === 'master' && styles.premiumFilterBtnActive, tutorialStep !== 'COMPLETED' && { opacity: 0.3 }]}
+            style={[
+              styles.premiumFilterBtn,
+              filter === 'master' && styles.premiumFilterBtnActive,
+              filter === 'master' && themedActiveFilterStyle,
+              tutorialStep !== 'COMPLETED' && { opacity: 0.3 },
+            ]}
             onPress={() => { 
               if (tutorialStep !== 'COMPLETED') {
                 haptic.light();
@@ -1348,7 +1369,12 @@ export default function InventoryScreenNew() {
 
           {/* 💎 Elmas */}
           <TouchableOpacity
-            style={[styles.premiumFilterBtn, filter === 'ultra' && styles.premiumFilterBtnActive, tutorialStep !== 'COMPLETED' && { opacity: 0.3 }]}
+            style={[
+              styles.premiumFilterBtn,
+              filter === 'ultra' && styles.premiumFilterBtnActive,
+              filter === 'ultra' && themedActiveFilterStyle,
+              tutorialStep !== 'COMPLETED' && { opacity: 0.3 },
+            ]}
             onPress={() => { 
               if (tutorialStep !== 'COMPLETED') {
                 haptic.light();
@@ -1366,7 +1392,12 @@ export default function InventoryScreenNew() {
 
           {/* 👑 Kraliyet */}
           <TouchableOpacity
-            style={[styles.premiumFilterBtn, filter === 'perfect' && styles.premiumFilterBtnActive, tutorialStep !== 'COMPLETED' && { opacity: 0.3 }]}
+            style={[
+              styles.premiumFilterBtn,
+              filter === 'perfect' && styles.premiumFilterBtnActive,
+              filter === 'perfect' && themedActiveFilterStyle,
+              tutorialStep !== 'COMPLETED' && { opacity: 0.3 },
+            ]}
             onPress={() => { 
               if (tutorialStep !== 'COMPLETED') {
                 haptic.light();
@@ -1384,7 +1415,12 @@ export default function InventoryScreenNew() {
 
           {/* ❤️ Favoriler */}
           <TouchableOpacity
-            style={[styles.premiumFilterBtn, filter === 'favorites' && styles.premiumFilterBtnActive, tutorialStep !== 'COMPLETED' && { opacity: 0.3 }]}
+            style={[
+              styles.premiumFilterBtn,
+              filter === 'favorites' && styles.premiumFilterBtnActive,
+              filter === 'favorites' && themedActiveFilterStyle,
+              tutorialStep !== 'COMPLETED' && { opacity: 0.3 },
+            ]}
             onPress={() => { 
               if (tutorialStep !== 'COMPLETED') {
                 haptic.light();
@@ -1401,7 +1437,12 @@ export default function InventoryScreenNew() {
 
           {/* ✏️ Kendi Kelimelerim */}
           <TouchableOpacity
-            style={[styles.premiumFilterBtn, filter === 'custom' && styles.premiumFilterBtnActive, tutorialStep !== 'COMPLETED' && { opacity: 0.3 }]}
+            style={[
+              styles.premiumFilterBtn,
+              filter === 'custom' && styles.premiumFilterBtnActive,
+              filter === 'custom' && themedActiveFilterStyle,
+              tutorialStep !== 'COMPLETED' && { opacity: 0.3 },
+            ]}
             onPress={() => { 
               if (tutorialStep !== 'COMPLETED') {
                 haptic.light();

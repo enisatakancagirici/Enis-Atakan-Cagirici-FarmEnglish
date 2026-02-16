@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CardCustomization, CardFontStyle, CardBorderStyle } from '../data/cardThemes';
-import { DEFAULT_CUSTOMIZATION, getThemeOverlay, checkCollectibleUnlock, COLLECTIBLE_CARDS, CARD_THEME_OVERLAYS } from '../data/cardThemes';
+import { DEFAULT_CUSTOMIZATION, getCardHeaderThemePreset, getThemeOverlay, checkCollectibleUnlock, COLLECTIBLE_CARDS, CARD_THEME_OVERLAYS } from '../data/cardThemes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
   WordModel, Achievement, StoreItem, ActiveBoost, PhrasalVerb,
@@ -4761,8 +4761,19 @@ export const useFarmStore = create<FarmStore>()(
 
       updateCardCustomization: (partial) => {
         const state = get();
+        const nextCustomization = {
+          ...state.cardCustomization,
+          ...partial,
+        } as CardCustomization;
+        nextCustomization.headerTheme = getCardHeaderThemePreset(nextCustomization.headerTheme).id;
+        if (nextCustomization.backgroundStyle !== 'default' && nextCustomization.backgroundStyle !== 'soil') {
+          nextCustomization.backgroundStyle = DEFAULT_CUSTOMIZATION.backgroundStyle;
+        }
+        if (!['min', 'normal', 'max'].includes(String(nextCustomization.cardBounceIntensity))) {
+          nextCustomization.cardBounceIntensity = DEFAULT_CUSTOMIZATION.cardBounceIntensity;
+        }
         set({
-          cardCustomization: { ...state.cardCustomization, ...partial },
+          cardCustomization: nextCustomization,
         });
       },
 
@@ -5418,6 +5429,13 @@ export const useFarmStore = create<FarmStore>()(
           merged.ownedCardThemes
         );
         merged.cardCustomization = { ...DEFAULT_CUSTOMIZATION, ...(persisted.cardCustomization as any || merged.cardCustomization || {}) };
+        merged.cardCustomization.headerTheme = getCardHeaderThemePreset(merged.cardCustomization.headerTheme).id;
+        if (merged.cardCustomization.backgroundStyle !== 'default' && merged.cardCustomization.backgroundStyle !== 'soil') {
+          merged.cardCustomization.backgroundStyle = DEFAULT_CUSTOMIZATION.backgroundStyle;
+        }
+        if (!['min', 'normal', 'max'].includes(String(merged.cardCustomization.cardBounceIntensity))) {
+          merged.cardCustomization.cardBounceIntensity = DEFAULT_CUSTOMIZATION.cardBounceIntensity;
+        }
         merged.user = sanitizePersistedUser(persisted.user ?? merged.user);
         merged.isAuthenticated = !!merged.user && !!persisted.isAuthenticated;
         merged.coins = toSafePositiveInt(persisted.coins ?? merged.coins);

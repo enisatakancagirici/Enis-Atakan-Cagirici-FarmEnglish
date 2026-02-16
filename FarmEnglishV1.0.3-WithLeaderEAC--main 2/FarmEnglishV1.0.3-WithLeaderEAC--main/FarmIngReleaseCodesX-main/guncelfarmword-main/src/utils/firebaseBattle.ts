@@ -1303,6 +1303,8 @@ function mapDocToEntry(data: BattleUser & {
     puzzleScore?: number;
     sesyapScore?: number;
     trophies?: number;
+    streak?: number;
+    dailyStreak?: number;
     wordMatchScore?: number;
     fillBlankScore?: number;
     collocationsScore?: number;
@@ -1312,11 +1314,12 @@ function mapDocToEntry(data: BattleUser & {
     quizComboScore?: number;
     totalPracticeScore?: number;
 }): LeaderboardEntry {
+    const normalizedDailyStreak = Number(data.streak ?? data.dailyStreak ?? 0);
     const entry: LeaderboardEntry = {
         odId: data.odId,
         nickname: data.nickname,
         wins: data.battleWins,
-        streak: data.bestStreak,
+        streak: Number.isFinite(normalizedDailyStreak) ? Math.max(0, Math.floor(normalizedDailyStreak)) : 0,
         level: data.level,
         score: data.totalScore,
         harvestCount: data.lifetimeHarvests || 0,
@@ -1360,7 +1363,7 @@ export async function getLeaderboard(
         // Sıralama alanını tipe göre belirle
         let sortField = 'battleWins';
         if (type === 'harvest') sortField = 'lifetimeHarvests';
-        else if (type === 'streak') sortField = 'bestStreak';
+        else if (type === 'streak') sortField = 'streak';
         else if (type === 'puzzle') sortField = 'puzzleScore';
         else if (type === 'sesyap') sortField = 'sesyapScore';
         else if (type === 'trophy') sortField = 'trophies';
@@ -1410,7 +1413,7 @@ export function listenToLeaderboard(
     // Sıralama alanını tipe göre belirle
     let sortField = 'battleWins';
     if (type === 'harvest') sortField = 'lifetimeHarvests';
-    else if (type === 'streak') sortField = 'bestStreak';
+    else if (type === 'streak') sortField = 'streak';
     else if (type === 'puzzle') sortField = 'puzzleScore';
     else if (type === 'sesyap') sortField = 'sesyapScore';
     else if (type === 'trophy') sortField = 'trophies';
