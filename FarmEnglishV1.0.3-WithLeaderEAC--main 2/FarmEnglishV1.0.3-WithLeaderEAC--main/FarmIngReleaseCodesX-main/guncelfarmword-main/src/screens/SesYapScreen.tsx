@@ -196,11 +196,9 @@ interface WordSlotProps {
 
 const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
     const scaleAnim = useRef(new Animated.Value(1)).current;
-    const glowAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         let popAnim: Animated.CompositeAnimation | null = null;
-        let glowLoop: Animated.CompositeAnimation | null = null;
 
         if (status !== 'pending') {
             // Pop animasyonu
@@ -217,26 +215,10 @@ const WordSlot = memo<WordSlotProps>(({ word, status, index }) => {
                 }),
             ]);
             popAnim.start();
-
-            // Glow (sadece doğruysa)
-            if (status === 'correct') {
-                glowLoop = Animated.loop(
-                    Animated.sequence([
-                        Animated.timing(glowAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-                        Animated.timing(glowAnim, { toValue: 0.3, duration: 600, useNativeDriver: true }),
-                    ])
-                );
-                glowLoop.start();
-            } else {
-                glowAnim.setValue(0);
-            }
-        } else {
-            glowAnim.setValue(0);
         }
 
         return () => {
             popAnim?.stop();
-            glowLoop?.stop();
         };
     }, [status]);
 

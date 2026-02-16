@@ -15,6 +15,7 @@ import {
   Dimensions,
   Alert,
   Animated,
+  InteractionManager,
   Platform,
   ImageBackground,
   Modal,
@@ -24,12 +25,13 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { CommonActions, useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import {
   Coins,
   Award,
+  Flame,
   ChevronRight,
 } from "lucide-react-native";
 import { Asset } from "expo-asset";
@@ -268,6 +270,28 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress }: any) => {
               ]}
             >
               {level}
+            </Text>
+          </LinearGradient>
+
+          <LinearGradient
+            colors={["rgba(249, 115, 22, 0.26)", "rgba(245, 158, 11, 0.1)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[
+              styles.statPill,
+              styles.streakPill,
+              IS_NARROW_DEVICE && styles.statPillCompact,
+            ]}
+          >
+            <Flame color="#FB923C" size={IS_NARROW_DEVICE ? 14 : 16} strokeWidth={2.5} />
+            <Text
+              style={[
+                styles.statPillText,
+                styles.streakPillText,
+                IS_NARROW_DEVICE && styles.statPillTextCompact,
+              ]}
+            >
+              {Math.max(0, Number(streak || 0))}
             </Text>
           </LinearGradient>
         </View>
@@ -1230,7 +1254,9 @@ export const HomeScreen = ({ navigation }: any) => {
   );
   const bestStreak = useFarmStore((state) => state.bestStreak);
   const streak = useFarmStore((state) => state.streak);
-  const currentCombo = useFarmStore((state) => state.currentCombo);
+  const achievements = useFarmStore((state) =>
+    Array.isArray(state.achievements) ? state.achievements : [],
+  );
   const dailyGoal = useFarmStore((state) => state.dailyGoal);
   const dailyProgress = useFarmStore((state) => state.dailyProgress);
   const toggleFavorite = useFarmStore((state) => state.toggleFavorite);
@@ -1300,18 +1326,58 @@ export const HomeScreen = ({ navigation }: any) => {
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [helpModalTitle, setHelpModalTitle] = useState("Bilgi");
   const [helpModalMessage, setHelpModalMessage] = useState("");
+  const [questGuideModalVisible, setQuestGuideModalVisible] = useState(false);
+  const [questGuideTitle, setQuestGuideTitle] = useState("Göreve Başla");
+  const [questGuideMessage, setQuestGuideMessage] = useState("");
+  const [questGuideButtonText, setQuestGuideButtonText] = useState("Yönlendir");
   const [notificationPromptVisible, setNotificationPromptVisible] = useState(false);
   const [notificationPromptArmed, setNotificationPromptArmed] = useState(false);
   const [meaningfulActionCount, setMeaningfulActionCount] = useState(0);
   const [practiceCenterVisible, setPracticeCenterVisible] = useState(false);
+  const questGuideTargetRef = useRef<{ route: string; params?: any } | null>(null);
+  const questGuideNavigateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const questGuideInteractionRef = useRef<{ cancel?: () => void } | null>(null);
   const notificationRequestInFlightRef = useRef(false);
   const notificationPromptTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearQuestGuideNavigateTask = useCallback(() => {
+    if (questGuideNavigateTimeoutRef.current) {
+      clearTimeout(questGuideNavigateTimeoutRef.current);
+      questGuideNavigateTimeoutRef.current = null;
+    }
+    if (questGuideInteractionRef.current?.cancel) {
+      questGuideInteractionRef.current.cancel();
+    }
+    questGuideInteractionRef.current = null;
+  }, []);
 
   const showHomeHelpModal = useCallback((title: string, message: string) => {
     setHelpModalTitle(title || "Bilgi");
     setHelpModalMessage(message || "");
     setHelpModalVisible(true);
   }, []);
+
+  const closeQuestGuideModal = useCallback(() => {
+    clearQuestGuideNavigateTask();
+    setQuestGuideModalVisible(false);
+    questGuideTargetRef.current = null;
+  }, [clearQuestGuideNavigateTask]);
+
+  const openQuestGuideModal = useCallback(
+    (
+      title: string,
+      message: string,
+      buttonText: string,
+      target: { route: string; params?: any },
+    ) => {
+      setQuestGuideTitle(title || "Görev Yönlendirmesi");
+      setQuestGuideMessage(message || "");
+      setQuestGuideButtonText(buttonText || "Yönlendir");
+      questGuideTargetRef.current = target;
+      setQuestGuideModalVisible(true);
+    },
+    [],
+  );
 
   const clearNotificationPromptTimer = useCallback(() => {
     if (notificationPromptTimerRef.current) {
@@ -1332,16 +1398,31 @@ export const HomeScreen = ({ navigation }: any) => {
     }
   }, []);
 
-  const quizWord = useMemo(() => {
-    if (!quizWordId) return null;
-    const allWords = [
+  useEffect(() => {
+    return () => {
+      clearQuestGuideNavigateTask();
+    };
+  }, [clearQuestGuideNavigateTask]);
+
+  const allHomeWords = useMemo(
+    () => [
       ...farm,
       ...inventory,
       ...phrasalVerbFarm,
       ...phrasalVerbInventory,
-    ];
-    return allWords.find((w) => w.id === quizWordId) || null;
-  }, [quizWordId, farm, inventory, phrasalVerbFarm, phrasalVerbInventory]);
+    ],
+    [farm, inventory, phrasalVerbFarm, phrasalVerbInventory],
+  );
+
+  const miniQuizOptionPool = useMemo(
+    () => (pool && pool.length > 0 ? pool : [...farm, ...phrasalVerbFarm]),
+    [pool, farm, phrasalVerbFarm],
+  );
+
+  const quizWord = useMemo(() => {
+    if (!quizWordId) return null;
+    return allHomeWords.find((w) => w.id === quizWordId) || null;
+  }, [quizWordId, allHomeWords]);
 
   const cefrEstimate = useMemo(() => {
     const sourceWords = [
@@ -1418,6 +1499,11 @@ export const HomeScreen = ({ navigation }: any) => {
     const progress = Math.max(0, Number(featuredDailyQuest.progress || 0));
     return Math.max(0, Math.min((progress / target) * 100, 100));
   }, [featuredDailyQuest]);
+
+  const unlockedAchievementCount = useMemo(
+    () => achievements.filter((item: any) => item?.unlocked || item?.claimed).length,
+    [achievements],
+  );
 
   // Navigation Guard
   const isNavigating = useRef(false);
@@ -1593,8 +1679,18 @@ export const HomeScreen = ({ navigation }: any) => {
       guidedModeActive,
       guidedModeStep,
     });
-    // Navigate immediately to keep touch feedback snappy.
-    navigation.navigate(route, params);
+    // Farm'a Home üzerinden giderken stack birikimini önle (üst üste ekran + kasma).
+    if (route === "Farm") {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: route, params }],
+        }),
+      );
+    } else {
+      // Navigate immediately to keep touch feedback snappy.
+      navigation.navigate(route, params);
+    }
 
     setTimeout(() => {
       isNavigating.current = false;
@@ -1606,6 +1702,21 @@ export const HomeScreen = ({ navigation }: any) => {
     haptic.light();
     setQuestsPanelVisible(true);
   }, [registerMeaningfulAction]);
+
+  const handleQuestGuideNavigate = useCallback(() => {
+    const target = questGuideTargetRef.current;
+    clearQuestGuideNavigateTask();
+    setQuestGuideModalVisible(false);
+    questGuideTargetRef.current = null;
+    if (!target) return;
+    questGuideNavigateTimeoutRef.current = setTimeout(() => {
+      questGuideNavigateTimeoutRef.current = null;
+      questGuideInteractionRef.current = InteractionManager.runAfterInteractions(() => {
+        questGuideInteractionRef.current = null;
+        void handleNav(target.route, target.params);
+      });
+    }, 120);
+  }, [handleNav, clearQuestGuideNavigateTask]);
 
   const resolveDailyQuestTarget = useCallback((quest: any): { route: string; params?: any } => {
     const screenMap: Record<string, { route: string; params?: any }> = {
@@ -1651,6 +1762,35 @@ export const HomeScreen = ({ navigation }: any) => {
     };
   }, []);
 
+  const resolveFeaturedQuestGuide = useCallback(
+    (quest: any, fallbackTarget: { route: string; params?: any }) => {
+      const questType = String(quest?.type || "").toUpperCase();
+      const normalizedTitle = normalizeDisplayText(String(quest?.title || "")).toLowerCase();
+      const targetCount = Math.max(1, Number(quest?.target || 1));
+
+      if (
+        questType === "PLANT_WORDS" ||
+        questType === "COMPLETE_QUIZ" ||
+        normalizedTitle.includes("kelime topla")
+      ) {
+        return {
+          title: "Göreve Hazırlık",
+          message: `Bu görevde hedefin ${targetCount} kelime toplamak. Quiz çözerek ve Tohum Pazarı'ndan tarlana kelime ekip biçip öğrenebilirsin. Biz seni şimdi Quiz'e yönlendiriyoruz.`,
+          buttonText: "Quiz'e Git",
+          target: { route: "Quiz" as string },
+        };
+      }
+
+      return {
+        title: "Göreve Hazırlık",
+        message: "Bu görevi en hızlı şekilde tamamlayabilmen için seni doğru ekrana yönlendiriyoruz.",
+        buttonText: "Göreve Git",
+        target: fallbackTarget,
+      };
+    },
+    [],
+  );
+
   const handleFeaturedDailyQuestPress = useCallback(() => {
     if (!featuredDailyQuest) return;
 
@@ -1660,8 +1800,20 @@ export const HomeScreen = ({ navigation }: any) => {
     }
 
     const target = resolveDailyQuestTarget(featuredDailyQuest);
-    void handleNav(target.route, target.params);
-  }, [featuredDailyQuest, handleNav, handleOpenDailyQuests, resolveDailyQuestTarget]);
+    const questGuide = resolveFeaturedQuestGuide(featuredDailyQuest, target);
+    openQuestGuideModal(
+      questGuide.title,
+      questGuide.message,
+      questGuide.buttonText,
+      questGuide.target,
+    );
+  }, [
+    featuredDailyQuest,
+    handleOpenDailyQuests,
+    openQuestGuideModal,
+    resolveDailyQuestTarget,
+    resolveFeaturedQuestGuide,
+  ]);
 
   const notificationDisplayName = useMemo(() => {
     const safeNickname = typeof nickname === "string" ? nickname.trim() : "";
@@ -1674,6 +1826,7 @@ export const HomeScreen = ({ navigation }: any) => {
     showNicknameModal ||
     showHomeTutorialLock ||
     helpModalVisible ||
+    questGuideModalVisible ||
     questsPanelVisible ||
     practiceCenterVisible ||
     showMarket ||
@@ -1925,7 +2078,7 @@ export const HomeScreen = ({ navigation }: any) => {
           <PremiumHeader
             coins={coins}
             level={level}
-            streak={currentCombo}
+            streak={streak}
             onProfilePress={() => handleNav("Profile")}
           />
 
@@ -2299,6 +2452,32 @@ export const HomeScreen = ({ navigation }: any) => {
               )}
             </LinearGradient>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.achievementsSection}
+            activeOpacity={0.9}
+            onPress={() => handleNav("Achievements")}
+          >
+            <LinearGradient
+              colors={["rgba(180, 83, 9, 0.82)", "rgba(120, 53, 15, 0.86)", "rgba(30, 41, 59, 0.9)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.achievementsCard}
+            >
+              <View style={styles.achievementsLeft}>
+                <View style={styles.achievementsIconWrap}>
+                  <Award size={21} color="#facc15" strokeWidth={2.4} />
+                </View>
+                <View style={styles.achievementsTextWrap}>
+                  <Text style={styles.achievementsTitle}>Başarımlar</Text>
+                  <Text style={styles.achievementsSubtitle}>
+                    {`${unlockedAchievementCount}/${achievements.length} acildi`}
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight size={18} color="#fde68a" />
+            </LinearGradient>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
 
@@ -2340,7 +2519,7 @@ export const HomeScreen = ({ navigation }: any) => {
         <MiniQuizDialog
           key={quizWord.id}
           word={quizWord}
-          allWords={pool && pool.length > 0 ? pool : [...farm, ...phrasalVerbFarm]}
+          allWords={miniQuizOptionPool}
           onAnswer={handleQuizAnswer}
           onClose={() => setQuizWordId(null)}
         />
@@ -2502,6 +2681,26 @@ export const HomeScreen = ({ navigation }: any) => {
             text: "Tamam",
             type: "primary",
             onPress: () => setHelpModalVisible(false),
+          },
+        ]}
+      />
+      <JuicyModal
+        visible={questGuideModalVisible}
+        onClose={closeQuestGuideModal}
+        title={questGuideTitle}
+        titleEmoji={"🎯"}
+        message={questGuideMessage}
+        type="info"
+        buttons={[
+          {
+            text: questGuideButtonText,
+            type: "primary",
+            onPress: handleQuestGuideNavigate,
+          },
+          {
+            text: "Şimdilik Kalsın",
+            type: "cancel",
+            onPress: closeQuestGuideModal,
           },
         ]}
       />
@@ -2836,18 +3035,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 5,
     flexShrink: 1,
-    maxWidth: "37%",
+    maxWidth: "52%",
     marginLeft: 4,
     justifyContent: "flex-end",
     minWidth: 0,
   },
   headerRightSectionCompact: {
     gap: 4,
+    maxWidth: "56%",
   },
   statPill: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 6,
     borderRadius: 18,
     borderWidth: 1,
@@ -2866,6 +3066,9 @@ const styles = StyleSheet.create({
   },
   levelPill: {
     borderColor: "rgba(245, 158, 11, 0.55)",
+  },
+  streakPill: {
+    borderColor: "rgba(249, 115, 22, 0.55)",
   },
   pillShimmer: {
     position: "absolute",
@@ -2888,6 +3091,9 @@ const styles = StyleSheet.create({
   },
   levelPillText: {
     color: "#FDE68A",
+  },
+  streakPillText: {
+    color: "#fdba74",
   },
 
   // Grid Container
@@ -3210,6 +3416,7 @@ const styles = StyleSheet.create({
   // Achievements Section
   achievementsSection: {
     marginTop: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   achievementsCard: {
     flexDirection: "row",
@@ -3218,32 +3425,35 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: "rgba(124, 58, 237, 0.3)",
+    borderColor: "rgba(251, 191, 36, 0.34)",
   },
   achievementsLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: SPACING.md,
   },
+  achievementsTextWrap: {
+    gap: 2,
+  },
   achievementsIconWrap: {
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: "rgba(251, 191, 36, 0.15)",
+    backgroundColor: "rgba(251, 191, 36, 0.2)",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(251, 191, 36, 0.3)",
+    borderColor: "rgba(253, 224, 71, 0.46)",
   },
   achievementsTitle: {
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "800",
     color: "#fff",
-    marginBottom: 2,
   },
   achievementsSubtitle: {
-    fontSize: 13,
-    color: "rgba(255, 255, 255, 0.6)",
+    fontSize: 12,
+    color: "rgba(254, 243, 199, 0.86)",
+    fontWeight: "700",
   },
 
   // Debug Section

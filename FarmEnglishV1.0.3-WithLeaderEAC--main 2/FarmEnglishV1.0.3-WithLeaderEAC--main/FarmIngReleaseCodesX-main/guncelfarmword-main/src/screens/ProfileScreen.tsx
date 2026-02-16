@@ -44,6 +44,7 @@ import {
   Shield,
   Gauge,
   ArrowLeft,
+  Coins,
 } from 'lucide-react-native';
 import { useFarmStore } from '../store/farmStore';
 import { usePerformanceStore, PERFORMANCE_LABELS, type PerformanceLevel } from '../store/performanceStore';
@@ -123,12 +124,14 @@ const ProfileAvatar = ({ level, xp }: { level: number; xp: number }) => {
       {/* Avatar circle */}
       <Animated.View style={[styles.avatarCircle, { transform: [{ scale: pulseAnim }] }]}>
         <LinearGradient
-          colors={['#BF5AF2', '#8B5CF6', '#6366F1']}
+          colors={['#C084FC', '#8B5CF6', '#4F46E5']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.avatarGradient}
         >
-          <Text style={styles.avatarEmoji}>👤</Text>
+          <View style={styles.avatarInnerRing}>
+            <User size={44} color="#F8FAFC" strokeWidth={2.4} />
+          </View>
         </LinearGradient>
       </Animated.View>
 
@@ -352,7 +355,9 @@ export default function ProfileScreen() {
 
           {/* Coins Badge */}
           <View style={styles.coinsBadge}>
-            <Text style={styles.coinsIcon}>💰</Text>
+            <View style={styles.coinsIconWrap}>
+              <Coins size={17} color="#FFD60A" strokeWidth={2.7} />
+            </View>
             <Text style={styles.coinsText}>{coins.toLocaleString()}</Text>
           </View>
         </View>
@@ -746,14 +751,19 @@ const styles = StyleSheet.create({
     borderRadius: 70,
     backgroundColor: '#BF5AF2',
     opacity: 0.3,
+    shadowColor: '#C084FC',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 18,
+    elevation: 12,
   },
   avatarCircle: {
     width: 100,
     height: 100,
     borderRadius: 50,
     overflow: 'hidden',
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 2.5,
+    borderColor: 'rgba(255, 255, 255, 0.32)',
   },
   avatarGradient: {
     width: '100%',
@@ -761,8 +771,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarEmoji: {
-    fontSize: 48,
+  avatarInnerRing: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.34)',
+    backgroundColor: 'rgba(15, 23, 42, 0.24)',
   },
   levelBadge: {
     position: 'absolute',
@@ -842,15 +859,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255, 214, 10, 0.1)',
+    backgroundColor: 'rgba(255, 214, 10, 0.12)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 214, 10, 0.2)',
+    borderColor: 'rgba(255, 214, 10, 0.34)',
+    shadowColor: '#FFD60A',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.28,
+    shadowRadius: 10,
+    elevation: 6,
   },
-  coinsIcon: {
-    fontSize: 18,
+  coinsIconWrap: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 214, 10, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 214, 10, 0.4)',
   },
   coinsText: {
     fontSize: 16,
@@ -895,6 +924,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+    shadowColor: '#60A5FA',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.24,
+    shadowRadius: 8,
+    elevation: 4,
   },
   statValue: {
     fontSize: 22,
@@ -928,6 +964,13 @@ const styles = StyleSheet.create({
     borderRadius: 23,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
   },
   recordInfo: {
     flex: 1,
@@ -1005,6 +1048,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.16)',
+    shadowColor: '#60A5FA',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 2,
   },
   settingLabel: {
     fontSize: 15,

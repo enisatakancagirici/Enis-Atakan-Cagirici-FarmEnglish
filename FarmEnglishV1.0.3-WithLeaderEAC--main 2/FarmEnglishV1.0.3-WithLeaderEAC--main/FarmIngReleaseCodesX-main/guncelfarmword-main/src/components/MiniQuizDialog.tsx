@@ -703,6 +703,17 @@ const getComboMessage = (streak: number) => {
   return COMBO_MESSAGES[0];
 };
 
+// UI akışını hızlandırırken animasyon görünümünü koruyan kısa geçiş süreleri
+const QUIZ_FLOW_TIMINGS = {
+  comboHoldMs: 340,
+  completionMs: 500,
+  nextQuestionMs: 300,
+  wrongFeedMs: 400,
+  wrongMasterMs: 520,
+  wrongCloseMs: 520,
+  colorMessageMs: 1800,
+} as const;
+
 interface MiniQuizDialogProps {
   word: WordModel | null;
   allWords: WordModel[];
@@ -1661,7 +1672,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
               useNativeDriver: true,
             }),
           ]).start(() => setShowCombo(false));
-        }, 400);
+        }, QUIZ_FLOW_TIMINGS.comboHoldMs);
       }
 
       // 🎊 Confetti - PERFORMANS KONTROLÜ
@@ -1793,7 +1804,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
         if (transitionMsg) {
           setColorTransitionMessage(transitionMsg);
           if (colorMsgTimeoutRef.current) clearTimeout(colorMsgTimeoutRef.current);
-          colorMsgTimeoutRef.current = setTimeout(() => setColorTransitionMessage(null), 2000);
+          colorMsgTimeoutRef.current = setTimeout(() => setColorTransitionMessage(null), QUIZ_FLOW_TIMINGS.colorMessageMs);
         }
 
         // 🎯 COMBO GÖRÜNSÜN - Önceki timeout'ları iptal et
@@ -1854,7 +1865,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
               setCardFeedback({ wordId: feedbackWordId, type: feedbackType });
             }
           });
-        }, 550); // Combo animasyonu görünsün
+        }, QUIZ_FLOW_TIMINGS.completionMs); // Combo animasyonu görünsün
       } else {
         // ✅ Doğru ama seri bitmedi - HEMEN yeni soru göster
         if (nextQuestionTimeoutRef.current) clearTimeout(nextQuestionTimeoutRef.current);
@@ -1871,7 +1882,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
           isProcessingRef.current = false; // 🔓 Yeni soru için kilidi aç
           haptic.light();
           sound.playNextQuestion();
-        }, 350); // Daha hızlı geçiş - 350ms yeterli
+        }, QUIZ_FLOW_TIMINGS.nextQuestionMs);
       }
     } else {
       // 💔 Wrong answer
@@ -1933,7 +1944,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
               }
             });
           }
-        }, 450);
+        }, QUIZ_FLOW_TIMINGS.wrongFeedMs);
       } else {
         // 🛡️ MASTER KART - Yanlış bilse bile quiz kapanmaz, streak sıfırlanır, yeni soru gelir
         const masterLevel = currentWord?.masterLevel || 0;
@@ -1964,7 +1975,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
                 setCardFeedback({ wordId: feedbackWordId, type: 'protected' });
               }
             });
-          }, 600);
+          }, QUIZ_FLOW_TIMINGS.wrongMasterMs);
         } else {
           // Normal kart - quiz kapanır (seviye düştü)
           const feedbackWordId = currentWord?.id;
@@ -1979,7 +1990,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
                 setCardFeedback({ wordId: feedbackWordId, type: 'levelDown' });
               }
             });
-          }, 600);
+          }, QUIZ_FLOW_TIMINGS.wrongCloseMs);
         }
       }
     }
