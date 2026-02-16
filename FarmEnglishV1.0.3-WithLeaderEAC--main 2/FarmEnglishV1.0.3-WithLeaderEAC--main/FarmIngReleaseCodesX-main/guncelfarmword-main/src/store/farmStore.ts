@@ -13,6 +13,8 @@ import { getFruitType, getTierReward, TIER_SESSION_REQUIREMENTS, calculateFruitG
 import { isNicknameClean } from '../utils/nicknameModeration';
 import { traceEvent } from '../utils/debugTrace';
 import { normalizeDisplayText } from '../utils/textNormalization';
+import { updateUserStats as firebaseUpdateUserStats, db as firebaseDb } from '../utils/firebaseBattle';
+import { doc as firestoreDoc, updateDoc as firestoreUpdateDoc } from 'firebase/firestore';
 
 // Re-entry guard for harvestWord double-swipe protection
 const _harvestInFlight = new Set<string>();
@@ -33,24 +35,26 @@ const _questProgressQueue = new Map<QuestType, { amount: number; mode: QuestProg
 let _questProgressFlushTimer: ReturnType<typeof setTimeout> | null = null;
 
 // 🔄 Cached Firebase updateUserStats — dynamic import her hasat'ta yapılmasın
-let _cachedUpdateUserStats: ((odId: string, updates: any) => Promise<void>) | null = null;
+let _cachedUpdateUserStats: ((odId: string, updates: any) => Promise<void>) | null = firebaseUpdateUserStats;
 // 🔄 Cached Firebase db + firestore refs — nickname güncellemesi için
-let _cachedDb: any = null;
-let _cachedFirestoreFns: { doc: any; updateDoc: any } | null = null;
-let _firebaseImportInFlight = false;
+let _cachedDb: any = firebaseDb;
+let _cachedFirestoreFns: { doc: any; updateDoc: any } | null = {
+  doc: firestoreDoc,
+  updateDoc: firestoreUpdateDoc,
+};
+// Firebase refs are statically imported to avoid dynamic bundle churn on harvest.
 
 /** Firebase modülünü bir kez import edip cache'le — tüm dynamic import'ları ortadan kaldırır */
 function ensureFirebaseCache(): Promise<void> {
-  if (_cachedUpdateUserStats && _cachedDb && _cachedFirestoreFns) return Promise.resolve();
-  if (_firebaseImportInFlight) return new Promise((resolve) => setTimeout(resolve, 500)); // bekle
-  _firebaseImportInFlight = true;
-  return import('../utils/firebaseBattle').then((mod) => {
-    _cachedUpdateUserStats = mod.updateUserStats;
-    _cachedDb = mod.db;
-    return import('firebase/firestore').then((fs) => {
-      _cachedFirestoreFns = { doc: fs.doc, updateDoc: fs.updateDoc };
-    });
-  }).catch(() => {}).finally(() => { _firebaseImportInFlight = false; });
+  if (!_cachedUpdateUserStats) _cachedUpdateUserStats = firebaseUpdateUserStats;
+  if (!_cachedDb) _cachedDb = firebaseDb;
+  if (!_cachedFirestoreFns) {
+    _cachedFirestoreFns = {
+      doc: firestoreDoc,
+      updateDoc: firestoreUpdateDoc,
+    };
+  }
+  return Promise.resolve();
 }
 
 /** Cached updateUserStats — null-safe fire-and-forget */
@@ -4112,19 +4116,12 @@ export const useFarmStore = create<FarmStore>()(
           console.log('Quest progress update error:', e);
         }
 
-        //  Firebase'e lifetimeHarvests sync  debounced, cached import
+        //  Firebase'e lifetimeHarvests sync - dynamic import yok
         setTimeout(() => {
           try {
             const user = get().user;
             if (user?.odId) {
-              if (_cachedUpdateUserStats) {
-                _cachedUpdateUserStats(user.odId, { lifetimeHarvests: get().lifetimeHarvests }).catch(() => {});
-              } else {
-                import('../utils/firebaseBattle').then(({ updateUserStats }) => {
-                  _cachedUpdateUserStats = updateUserStats;
-                  updateUserStats(user.odId, { lifetimeHarvests: get().lifetimeHarvests }).catch(() => {});
-                }).catch(() => {});
-              }
+              safeSyncFirebase(user.odId, { lifetimeHarvests: get().lifetimeHarvests });
             }
           } catch(e) {}
         }, 200);

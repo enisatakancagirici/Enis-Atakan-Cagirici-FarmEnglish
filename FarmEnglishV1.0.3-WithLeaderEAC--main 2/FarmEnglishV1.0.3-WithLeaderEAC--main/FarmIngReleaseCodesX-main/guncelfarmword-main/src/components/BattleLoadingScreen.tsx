@@ -66,7 +66,7 @@ interface BattleLoadingScreenProps {
   opponentTitle?: PlayerTitle | null;
   /** Durum: aranıyor mu, bulundu mu */
   status: 'searching' | 'matched' | 'countdown';
-  /** Geri sayım sayısı (3, 2, 1, SAVAŞ!) */
+  /** Geri sayım sayısı (3, 2, 1, BAŞLA!) */
   countdown?: number;
   /** İptal fonksiyonu */
   onCancel?: () => void;
@@ -587,10 +587,13 @@ export const BattleLoadingScreen: React.FC<BattleLoadingScreenProps> = memo(({
         <Animated.View style={[styles.countdownContainer, { transform: [{ scale: countdownScaleAnim }] }]}>
           <LinearGradient
             colors={countdown === 0 ? ['#22c55e', '#16a34a'] : ['#8b5cf6', '#6d28d9']}
-            style={styles.countdownBadge}
+            style={[styles.countdownBadge, countdown === 0 && styles.countdownBadgeFinal]}
           >
-            <Text style={styles.countdownText}>
-              {countdown === 0 ? 'SAVAŞ!' : countdown}
+            <Text
+              style={[styles.countdownText, countdown === 0 && styles.countdownTextFinal]}
+              numberOfLines={1}
+            >
+              {countdown === 0 ? 'BAŞLA!' : countdown}
             </Text>
           </LinearGradient>
         </Animated.View>
@@ -864,11 +867,26 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 12,
   },
+  countdownBadgeFinal: {
+    width: IS_SMALL ? 86 : 104,
+    height: IS_SMALL ? 86 : 104,
+    borderRadius: IS_SMALL ? 43 : 52,
+    shadowColor: '#22c55e',
+  },
   countdownText: {
     fontSize: IS_SMALL ? 28 : 36,
     fontWeight: '900',
     color: '#ffffff',
     letterSpacing: 1,
+    textAlign: 'center',
+  },
+  countdownTextFinal: {
+    fontSize: IS_SMALL ? 15 : 19,
+    letterSpacing: 0.8,
+    paddingHorizontal: IS_SMALL ? 6 : 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
   },
 
   // Rank Info
