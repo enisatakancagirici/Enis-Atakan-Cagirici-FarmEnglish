@@ -37,8 +37,7 @@ import { Asset } from "expo-asset";
 import { useFarmStore } from "../store/farmStore";
 import { usePerformanceStore } from "../store/performanceStore";
 import { sound, haptic } from "../utils/sound";
-import { showRewardToast, RewardToastContainer } from "../components/RewardToast";
-import { DashboardSection } from "../components/DashboardSection";
+import { RewardToastContainer } from "../components/RewardToast";
 import { MiniQuizDialog } from "../components/MiniQuizDialog";
 import { DailyQuestsPanel } from "../components/DailyQuestsPanel";
 import { CardShopPanel } from "../components/CardShopPanel";
@@ -1277,14 +1276,11 @@ export const HomeScreen = ({ navigation }: any) => {
   );
   const dailyGoal = useFarmStore((state) => state.dailyGoal);
   const dailyProgress = useFarmStore((state) => state.dailyProgress);
-  const toggleFavorite = useFarmStore((state) => state.toggleFavorite);
   const resetProgress = useFarmStore((state) => state.resetProgress);
-  const plantFromInventory = useFarmStore((state) => state.plantFromInventory);
   const answerMiniQuiz = useFarmStore((state) => state.answerMiniQuiz);
   const activeBoosts = useFarmStore((state) =>
     Array.isArray(state.activeBoosts) ? state.activeBoosts : [],
   );
-  const harvestWord = useFarmStore((state) => state.harvestWord);
   // s Tutorial
   const tutorialStep = useFarmStore((state) => state.tutorialStep);
   const skipTutorial = useFarmStore((state) => state.skipTutorial);
@@ -1573,39 +1569,6 @@ export const HomeScreen = ({ navigation }: any) => {
       stopGuidedMode();
     }
   }, [guidedModeActive, stopGuidedMode]);
-
-  // Word categories
-  const learningWords = useMemo(() => {
-    return [...farm, ...phrasalVerbFarm]
-      .filter((w) => (w.masterLevel || 0) === 0 && (w.wrongCount || 0) < 3)
-      .sort((a, b) => (a.wrongCount || 0) - (b.wrongCount || 0))
-      .slice(0, 10);
-  }, [farm, phrasalVerbFarm]);
-
-  const harvestWords = useMemo(() => {
-    return [...farm, ...phrasalVerbFarm]
-      .filter((w) => (w.masterLevel || 0) === 0 && (w.wrongCount || 0) >= 2)
-      .slice(0, 10);
-  }, [farm, phrasalVerbFarm]);
-
-  const masterWords = useMemo(() => {
-    return [...farm, ...phrasalVerbFarm]
-      .filter((w) => (w.masterLevel || 0) > 0 && !(w as any).normalHarvested)
-      .slice(0, 10);
-  }, [farm, phrasalVerbFarm]);
-
-  const favoriteWords = useMemo(() => {
-    //  normalHarvested olanlar filtrele (duplicate önleme)
-    const activeFarm = [...farm, ...phrasalVerbFarm].filter(w => !(w as any).normalHarvested);
-    return [...activeFarm, ...inventory, ...phrasalVerbInventory]
-      .filter((w) => w.isFavorite === true)
-      .slice(0, 10);
-  }, [farm, inventory, phrasalVerbFarm, phrasalVerbInventory]);
-
-  // sc© Puzzle kelimeleri - forPuzzleOnly olanlar
-  const puzzleWords = useMemo(() => {
-    return farm.filter((w) => (w as any).forPuzzleOnly === true).slice(0, 10);
-  }, [farm]);
 
   const getGuidedRouteBlockReason = useCallback((route: string, params?: any): string | null => {
     if (!guidedModeActive) return null;
@@ -1976,32 +1939,8 @@ export const HomeScreen = ({ navigation }: any) => {
     handleNav("Farm", { tab: "puzzle" });
   };
 
-  const handleStudyWord = useCallback(
-    (word: any) => {
-      const now = Date.now();
-      if (now - lastNavigationTime.current < 300) {
-        return;
-      }
-      lastNavigationTime.current = now;
-      registerMeaningfulAction();
-
-      haptic.medium();
-
-      const isInInventory =
-        inventory.some((w) => w.id === word.id) ||
-        phrasalVerbInventory.some((w) => w.id === word.id);
-      if (isInInventory) {
-        plantFromInventory(word.id);
-      }
-
-      setQuizWordId(word.id);
-    },
-    [inventory, phrasalVerbInventory, plantFromInventory, registerMeaningfulAction],
-  );
-
   const handleQuizAnswer = useCallback(
     (correct: boolean, count?: number, wordId?: string) => {
-      //  MiniQuizDialog'dan gelen wordId'yi öncelikli kullan (closure sorunu önlenir)
       const targetWordId = wordId || quizWordId;
       if (targetWordId) {
         answerMiniQuiz(targetWordId, correct, count || 1);
@@ -2009,51 +1948,6 @@ export const HomeScreen = ({ navigation }: any) => {
       setQuizWordId(null);
     },
     [quizWordId, answerMiniQuiz],
-  );
-
-  const handleToggleFavorite = useCallback(
-    (wordId: string) => {
-      haptic.light();
-      toggleFavorite(wordId);
-    },
-    [toggleFavorite],
-  );
-
-  //  HASAT LEM - Haptic, ses ve ödül gösterimi
-  const handleHarvestWord = useCallback(
-    (wordId: string) => {
-      if (!harvestWord) return;
-      registerMeaningfulAction();
-
-      try {
-        // Haptic feedback
-        haptic.heavy();
-
-        // Hasat islemi
-        const result = harvestWord(wordId);
-        traceEvent("home_harvest_attempt", { wordId, success: !!result?.success });
-
-        if (result && result.success) {
-          // Basarili hasat sesi
-          sound.playHarvest();
-
-          // Odul gosterimi
-          const coinReward = Number.isFinite(result.coins) ? Math.max(0, Math.floor(result.coins)) : 0;
-          const xpReward = Number.isFinite(result.xp) ? Math.max(0, Math.floor(result.xp)) : 0;
-
-          if (coinReward > 0) {
-            try { showRewardToast('coin', coinReward); } catch {}
-          }
-          if (xpReward > 0) {
-            try { showRewardToast('xp', xpReward); } catch {}
-          }
-        }
-      } catch (error) {
-        traceEvent("home_harvest_error", { wordId, error: String(error) }, "error");
-        console.error("[HomeScreen] handleHarvestWord failed:", error);
-      }
-    },
-    [harvestWord, registerMeaningfulAction],
   );
 
   const handleHomeTutorialResume = useCallback(() => {
@@ -2219,123 +2113,120 @@ export const HomeScreen = ({ navigation }: any) => {
           </View>
           
           <View style={styles.gridContainer}>
+            <PremiumMenuCard
+              onPress={() => handleNav("Quiz")}
+              imageSource={PRELOADED_IMAGES.quiz}
+              title="QUIZ"
+              subtitle="Kelime topla, tarlana ek"
+              size="wideXL"
+              textAlign="center"
+              accentColor="#A855F7"
+              delay={0}
+              hasBounce={true}
+              onHelpPress={showHomeHelpModal}
+              helpText="Quiz cozdikce tarlana otomatik ekim yapilir. Bilmediklerin tohum olur ve calistikca buyur."
+            />
+
             <View style={styles.gridRow}>
-              <PremiumMenuCard
-                onPress={() => handleNav("Quiz")}
-                imageSource={PRELOADED_IMAGES.quiz}
-                title="QUIZ"
-                subtitle="Kelime topla, tarlana ek"
-                size="medium"
-                textAlign="center"
-                accentColor="#A855F7"
-                delay={0}
-                hasBounce={true}
-                onHelpPress={showHomeHelpModal}
-                helpText="Quiz çözdükçe tarlana otomatik ekim yapılır. Bilmediklerin tohum olur ve çalıştıkça büyür. Bildiklerin meyve olur; tekrarlarla bilgini sağlamlaştırırsın."
-              />
               <PremiumMenuCard
                 onPress={() => handleNav("Farm")}
                 imageSource={PRELOADED_IMAGES.farm}
-                title="ÇİFTLİK"
-                subtitle="Büyüt, çalış, hasat et"
+                title="CIFTLIK"
+                subtitle="Buyut, calis, hasat et"
                 size="medium"
                 textAlign="center"
                 accentColor="#22C55E"
                 delay={40}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Kelimelerini burada büyütür, hasat eder ve görsel geri bildirimlerle kalıcı öğrenme sağlarsın."
+                helpText="Kelimelerini burada buyutur, hasat eder ve kalici ogrenme saglarsin."
+              />
+              <PremiumMenuCard
+                onPress={() => handleNav("Inventory")}
+                imageSource={PRELOADED_IMAGES.envanter}
+                title="ENVANTER"
+                subtitle="Hasatlarin burada"
+                size="medium"
+                textAlign="center"
+                accentColor="#60A5FA"
+                delay={80}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Hasatlarini buradan yonetir, kartlarini tekrar tarlaya gonderirsin."
               />
             </View>
 
             <View style={styles.gridRow}>
               <PremiumMenuCard
-                onPress={() => handleNav("BattleMenu")}
-                imageSource={PRELOADED_IMAGES.battle}
-                title="SAVAŞ"
-                subtitle="Rakiplerle yarış"
-                size="medium"
-                textAlign="center"
-                accentColor="#C4B5FD"
-                delay={80}
-                hasBounce={true}
-                onHelpPress={showHomeHelpModal}
-                helpText="Savaş modunda rakiplerle yarışır, liderlik tablosunda yükselir ve ödüller kazanırsın."
-              />
-              <PremiumMenuCard
                 onPress={() => handleNav("SesYap")}
                 imageSource={PRELOADED_IMAGES.sesyap}
                 title="SESYAP"
-                subtitle="Konuş, telaffuzunu geliştir"
+                subtitle="Konus, telaffuzunu gelistir"
                 size="medium"
                 textAlign="center"
                 accentColor="#5EEAD4"
                 delay={120}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="SesYap modunda telaffuz ve doğruluk çalışırsın. Bildiklerin meyve, bilemediklerin tohum olarak ayrılır."
+                helpText="SesYap modunda telaffuz ve dogruluk calisirsin."
               />
-            </View>
-
-            <View style={styles.gridRow}>
               <PremiumMenuCard
                 onPress={handlePuzzlePress}
                 imageSource={PRELOADED_IMAGES.puzzle}
                 title="PUZZLE"
-                subtitle="Cümle pratiği"
+                subtitle="Cumle pratigi"
                 size="medium"
                 textAlign="center"
                 accentColor="#F97316"
                 delay={160}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Cümle parçalarını doğru sıraya dizersin. Başlangıçta İngilizce cümleyi, bitişte Türkçe anlamı hızlı tekrar ederek kalıcı bağlam kurarsın."
-              />
-              <PremiumMenuCard
-                onPress={() => handleNav("PhrasalVerbsMenu")}
-                imageSource={PRELOADED_IMAGES.phrasal}
-                title="PHRASAL"
-                subtitle="Deyimleri öğren"
-                size="medium"
-                textAlign="center"
-                accentColor="#EC4899"
-                delay={200}
-                hasBounce={true}
-                onHelpPress={showHomeHelpModal}
-                helpText="Phrasal verbs bölümünde gündelik İngilizcedeki kritik kalıpları çalışırsın."
+                helpText="Cumle parcalarini dogru siraya dizerek baglamli tekrar yaparsin."
               />
             </View>
 
             <PremiumMenuCard
-              onPress={() => handleNav("Inventory")}
-              imageSource={PRELOADED_IMAGES.envanter}
-              title="ENVANTER"
-              subtitle="Hasatların burada!"
+              onPress={() => handleNav("BattleMenu")}
+              imageSource={PRELOADED_IMAGES.battle}
+              title="SAVAS MODU"
+              subtitle="Rakiplerle yaris"
               size="wide"
               textAlign="center"
-              accentColor="#60A5FA"
-              delay={250}
+              accentColor="#C4B5FD"
+              delay={200}
               hasBounce={true}
               onHelpPress={showHomeHelpModal}
-              helpText="Hasatların burada. Tarlaya buradan tekrar ektiğinde kart, seviye atlamış haliyle seni karşılar. 10 ve 10'un katlarında böcek saldırısı gelir; quiz çözerek defedersin. Bu döngü tekrarli öğrenmeyi kalıcılaştırır."
+              helpText="Savas modunda rakiplerle yarisir, liderlik tablosunda yukselirsin."
             />
 
             <View style={styles.gridRow}>
               <PremiumMenuCard
                 onPress={() => handleNav("CustomWordCard")}
                 imageSource={PRELOADED_IMAGES.customWord}
-                title="KENDİ KELİME KARTIN"
+                title="KENDI KELIME KARTIN"
                 subtitle="Kendi tohumunu ek"
-                size="halfSquare"
+                size="medium"
                 textAlign="center"
                 imageFit="cover"
                 accentColor="#22C55E"
+                delay={240}
+                hasBounce={true}
+                onHelpPress={showHomeHelpModal}
+                helpText="Kendi kelimeni, ornek cumleni ekleyip oyuna dahil edebilirsin."
+              />
+              <PremiumMenuCard
+                onPress={() => handleNav("PhrasalVerbsMenu")}
+                imageSource={PRELOADED_IMAGES.phrasal}
+                title="PHRASAL"
+                subtitle="Deyimleri ogren"
+                size="medium"
+                textAlign="center"
+                accentColor="#EC4899"
                 delay={280}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Kendi kelimeni, örnek cümleni ve opsiyonel Türkçe cümle anlamını ekleyip oyuna dahil edebilirsin."
+                helpText="Phrasal verbs bolumunde gundelik Ingilizcedeki kritik kaliplari calisirsin."
               />
-
               <PremiumMenuCard
                 onPress={() => {
                   registerMeaningfulAction();
@@ -2343,16 +2234,16 @@ export const HomeScreen = ({ navigation }: any) => {
                   setPracticeCenterVisible(true);
                 }}
                 imageSource={PRELOADED_IMAGES.pratik}
-                title="PRATİK MERKEZİ"
-                subtitle="Eşleştir, doldur, YDS"
-                size="halfSquare"
+                title="PRATIK MERKEZI"
+                subtitle="Eslestir, doldur, YDS"
+                size="medium"
                 textAlign="center"
                 imageFit="cover"
                 accentColor="#38BDF8"
                 delay={320}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Pratik merkezinde kelime eşleştirme, boşluk doldurma, deyim, YDS ve word form modüllerini hedefe göre seçip sistemli ilerlersin."
+                helpText="Pratik merkezinde hedefe gore moduller secip sistemli ilerlersin."
               />
             </View>
 
@@ -2365,7 +2256,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 }}
                 imageSource={PRELOADED_IMAGES.market}
                 title="MARKET"
-                subtitle="Tohum ve Güç"
+                subtitle="Tohum ve Guc"
                 size="halfSquare"
                 textAlign="center"
                 imageFit="cover"
@@ -2373,7 +2264,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 delay={360}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Marketten güçlendirme alır, tohum satın alır ve gelişimini hızlandırırsın."
+                helpText="Marketten guclendirme alir, tohum satin alir ve gelisimini hizlandirirsin."
               />
               <PremiumMenuCard
                 onPress={() => {
@@ -2383,7 +2274,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 }}
                 imageSource={PRELOADED_IMAGES.cardShop}
                 title="KART PAZARI"
-                subtitle="Tema ve kişiselleştir"
+                subtitle="Tema ve kisisellestir"
                 size="halfSquare"
                 textAlign="center"
                 imageFit="cover"
@@ -2391,102 +2282,10 @@ export const HomeScreen = ({ navigation }: any) => {
                 delay={380}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Kart pazarında kart temalarını açar ve kartlarını kişiselleştirirsin."
+                helpText="Kart pazarinda kart temalarini acar ve kartlarini kisisellestirirsin."
               />
             </View>
           </View>
-
-          <View style={styles.dashboardContainer}>
-            <DashboardSection
-              title="Öğreniyorum"
-              subtitle="Çalışmaya devam!"
-              icon="flame"
-              iconColor="#f97316"
-              data={learningWords}
-              type="learning"
-              onSeeAll={() => {
-                haptic.light();
-                navigation.navigate(
-                  "Farm" as never,
-                  { filter: "study" } as never,
-                );
-              }}
-              onCardPress={handleStudyWord}
-              onHarvest={handleHarvestWord}
-            />
-
-            <DashboardSection
-              title="Hasat Hazır"
-              subtitle="Envantere gönderilebilir"
-              icon="sprout"
-              iconColor="#22c55e"
-              data={harvestWords}
-              type="harvest"
-              onSeeAll={() => {
-                haptic.light();
-                navigation.navigate(
-                  "Farm" as never,
-                  { filter: "ready" } as never,
-                );
-              }}
-              onCardPress={handleStudyWord}
-              onHarvest={handleHarvestWord}
-            />
-
-            <DashboardSection
-              title="Master Kartlar"
-              subtitle="Altın seviye kartlar"
-              icon="trophy"
-              iconColor="#fbbf24"
-              data={masterWords}
-              type="master"
-              onSeeAll={() => {
-                haptic.light();
-                navigation.navigate(
-                  "Farm" as never,
-                  { filter: "master" } as never,
-                );
-              }}
-              onCardPress={handleStudyWord}
-              onHarvest={handleHarvestWord}
-            />
-
-            <DashboardSection
-              title="Favorilerim"
-              subtitle="Ozel kelimeler"
-              icon="star"
-              iconColor="#FFD700"
-              data={favoriteWords}
-              type="favorite"
-              onSeeAll={() => {
-                haptic.light();
-                navigation.navigate(
-                  "Farm" as never,
-                  { filter: "favorite" } as never,
-                );
-              }}
-              onCardPress={handleStudyWord}
-              onToggleFavorite={handleToggleFavorite}
-            />
-
-            <DashboardSection
-              title="Puzzle Kartlari"
-              subtitle="Yapboz tarlasindaki kelimeler"
-              icon="puzzle"
-              iconColor="#8B5CF6"
-              data={puzzleWords}
-              type="puzzle"
-              onSeeAll={() => {
-                haptic.light();
-                navigation.navigate(
-                  "Farm" as never,
-                  { tab: "puzzle" } as never,
-                );
-              }}
-              onCardPress={handleStudyWord}
-            />
-          </View>
-
           <TouchableOpacity
             style={styles.cefrSummaryCard}
             activeOpacity={0.9}
@@ -3447,9 +3246,6 @@ const styles = StyleSheet.create({
     color: "rgba(254, 243, 199, 0.9)",
     fontSize: 11,
     fontWeight: "700",
-  },
-  dashboardContainer: {
-    gap: SPACING.lg,
   },
   simpleMenuButton: {
     borderRadius: 16,

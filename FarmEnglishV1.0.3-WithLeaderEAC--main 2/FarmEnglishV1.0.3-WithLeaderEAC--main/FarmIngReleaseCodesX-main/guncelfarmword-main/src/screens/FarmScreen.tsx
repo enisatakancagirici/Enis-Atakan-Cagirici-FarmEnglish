@@ -1519,16 +1519,20 @@ export function FarmScreen() {
   }, [isGuidedFarmStep, activeTab, filter, searchVisible, feedVisible, quizWordId, setStoreFeedVisible]);
 
   useEffect(() => {
+    let transferFrame: number | null = null;
     if (transferEvent?.type === 'harvest') {
-      // Feed açkken TransferToast gösterme  Feed kendi RewardToast'n gösteriyor
       if (!feedVisible) {
         setActiveToast(transferEvent);
       }
-      // requestAnimationFrame ile ertele  ayn render cycle'da çift set() crash'i önle
-      requestAnimationFrame(() => {
+      transferFrame = requestAnimationFrame(() => {
         consumeTransferEvent();
       });
     }
+    return () => {
+      if (transferFrame !== null) {
+        cancelAnimationFrame(transferFrame);
+      }
+    };
   }, [transferEvent, consumeTransferEvent, feedVisible]);
 
   const filteredWords = useMemo(() => {
