@@ -22,7 +22,7 @@ import { haptic } from '../../utils/sound';
 import { getTierReward, getFruitEmoji, getFruitType, type FruitType } from '../../utils/fruitSystem';
 import { usePerformanceStore } from '../../store/performanceStore';
 import { useFarmStore } from '../../store/farmStore';
-import { BORDER_STYLES, DEFAULT_CUSTOMIZATION, getThemeOverlay, type CardFontStyle } from '../../data/cardThemes';
+import { BORDER_STYLES, DEFAULT_CUSTOMIZATION, getThemeOverlay, type CardFontStyle, type CardBounceIntensity } from '../../data/cardThemes';
 
 // 🎯 WordModel interface
 export interface WordModel {
@@ -281,6 +281,49 @@ const getFontStyle = (fontStyle: CardFontStyle) => {
   return {};
 };
 
+const getThemeMotionFx = (themeId: string): { idlePeak: number; idleDuration: number; pressIn: number } => {
+  switch (themeId) {
+    case 'voltstorm':
+      return { idlePeak: 1.05, idleDuration: 900, pressIn: 0.9 };
+    case 'cyberpunk':
+      return { idlePeak: 1.045, idleDuration: 980, pressIn: 0.9 };
+    case 'holographic':
+      return { idlePeak: 1.042, idleDuration: 1020, pressIn: 0.91 };
+    case 'dragon':
+    case 'phoenix':
+      return { idlePeak: 1.038, idleDuration: 1100, pressIn: 0.92 };
+    case 'neon':
+      return { idlePeak: 1.04, idleDuration: 1050, pressIn: 0.91 };
+    default:
+      return { idlePeak: 1.025, idleDuration: 1600, pressIn: 0.96 };
+  }
+};
+
+const getBounceIntensityFx = (level: CardBounceIntensity): { amplitude: number; speed: number; pressDepth: number } => {
+  switch (level) {
+    case 'min':
+      return { amplitude: 0.5, speed: 1.35, pressDepth: 0.55 };
+    case 'max':
+      return { amplitude: 1.7, speed: 0.78, pressDepth: 1.35 };
+    default:
+      return { amplitude: 1, speed: 1, pressDepth: 1 };
+  }
+};
+
+const applyBounceIntensity = (
+  motion: { idlePeak: number; idleDuration: number; pressIn: number },
+  level: CardBounceIntensity
+): { idlePeak: number; idleDuration: number; pressIn: number } => {
+  const fx = getBounceIntensityFx(level);
+  const tunedIdlePeak = 1 + (motion.idlePeak - 1) * fx.amplitude;
+  const tunedPressIn = 1 - (1 - motion.pressIn) * fx.pressDepth;
+  return {
+    idlePeak: Math.max(1.003, Math.min(tunedIdlePeak, 1.12)),
+    idleDuration: Math.max(260, Math.round(motion.idleDuration * fx.speed)),
+    pressIn: Math.max(0.82, Math.min(tunedPressIn, 0.985)),
+  };
+};
+
 /**
  * 🎴 WordCardRN - Main component
  */
@@ -337,6 +380,9 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
   const activeThemeId = useFarmStore(s => s.activeCardTheme);
   const cardCustomization = useFarmStore(s => s.cardCustomization);
   const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
+  const allowGlowFx = safeCustomization.enableCardGlow !== false;
+  const allowBounceFx = safeCustomization.enableCardBounce !== false;
+  const bounceIntensityLevel = safeCustomization.cardBounceIntensity || 'normal';
   const cardSizeMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
   const activeGridColumns = safeCustomization.largeMode ? 1 : safeCustomization.compactMode ? 3 : 2;
   const baseGridCardWidth = (screenWidth - 48 - rs.cardMargin * activeGridColumns) / activeGridColumns;
@@ -350,8 +396,14 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
   const dynamicCardRadius = borderPreset.borderRadius;
   const dynamicBorderWidth = borderPreset.borderWidth;
   const dynamicShadowRadius = borderPreset.shadowRadius;
+  const effectiveShadowRadius = allowGlowFx ? dynamicShadowRadius : 0;
   const fontStyleOverride = getFontStyle(safeCustomization.fontStyle || 'default');
   const isSoilBackground = safeCustomization.backgroundStyle === 'soil';
+  const motionThemeId = isSoilBackground ? 'default' : (activeThemeId || 'default');
+  const themeMotionFx = useMemo(
+    () => applyBounceIntensity(getThemeMotionFx(motionThemeId), bounceIntensityLevel),
+    [motionThemeId, bounceIntensityLevel]
+  );
   const overlay = !isSoilBackground && activeThemeId !== 'default' ? getThemeOverlay(activeThemeId) : null;
 
   const themedBase = overlay ? {
@@ -407,36 +459,49 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
       Animated.spring(translateAnim, { toValue: 0, delay, friction: 10, tension: 120, useNativeDriver: true }), // 🎮 ARCADE: friction 8->10, tension 70->120
     ]).start();
     
-    // 🎯 Subtle bounce loop - SADECE performans izin veriyorsa
-    if (config.enablePulseAnimations) {
+    // 🎯 Subtle bounce loop - SADECE performans + kişiselleştirme izin veriyorsa
+    if (config.enablePulseAnimations && allowBounceFx) {
       const bounceLoop = Animated.loop(
         Animated.sequence([
-          Animated.timing(bounceAnim, { toValue: 1.025, duration: 1600, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }), // 🎮 1.015 -> 1.025
-          Animated.timing(bounceAnim, { toValue: 1, duration: 1600, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+          Animated.timing(bounceAnim, { toValue: themeMotionFx.idlePeak, duration: themeMotionFx.idleDuration, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+          Animated.timing(bounceAnim, { toValue: 1, duration: themeMotionFx.idleDuration, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
         ])
       );
       bounceLoop.start();
       return () => bounceLoop.stop();
     }
-  }, [index, config.enablePulseAnimations]);
+    bounceAnim.setValue(1);
+  }, [index, config.enablePulseAnimations, allowBounceFx, bounceAnim, themeMotionFx.idlePeak, themeMotionFx.idleDuration]);
 
-  // ✨ Shimmer for premium cards - SADECE performans izin veriyorsa
+  // ✨ Shimmer for premium cards - SADECE performans + kişiselleştirme izin veriyorsa
   useEffect(() => {
-    if (!premium || !config.enableShimmer) return;
+    if (!premium || !config.enableShimmer || !allowGlowFx) {
+      shimmerAnim.setValue(-1);
+      return;
+    }
     const shimmer = Animated.loop(
       Animated.timing(shimmerAnim, { toValue: 1, duration: 2500, useNativeDriver: true, easing: Easing.linear })
     );
     shimmer.start();
     return () => shimmer.stop();
-  }, [premium, shimmerAnim, config.enableShimmer]);
+  }, [premium, shimmerAnim, config.enableShimmer, allowGlowFx]);
 
   const handlePressIn = useCallback(() => {
-    Animated.spring(scaleAnim, { toValue: 0.96, friction: 8, tension: 200, useNativeDriver: true }).start();
-  }, []);
+    if (!allowBounceFx) return;
+    Animated.spring(scaleAnim, { toValue: themeMotionFx.pressIn, friction: 8, tension: 200, useNativeDriver: true }).start();
+  }, [allowBounceFx, scaleAnim, themeMotionFx.pressIn]);
 
   const handlePressOut = useCallback(() => {
+    if (!allowBounceFx) return;
     Animated.spring(scaleAnim, { toValue: 1, friction: 6, tension: 150, useNativeDriver: true }).start();
-  }, []);
+  }, [allowBounceFx, scaleAnim]);
+
+  useEffect(() => {
+    if (!allowBounceFx) {
+      scaleAnim.setValue(1);
+      bounceAnim.setValue(1);
+    }
+  }, [allowBounceFx, scaleAnim, bounceAnim]);
 
   const handleFavoritePress = useCallback(() => onToggleFavorite?.(w.id), [w.id, onToggleFavorite]);
   const handleCardPress = useCallback(() => onPreview?.(w), [w, onPreview]);
@@ -473,9 +538,9 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
               borderColor: theme.border,
               borderWidth: dynamicBorderWidth,
               shadowColor: theme.border,
-              shadowRadius: dynamicShadowRadius,
-              shadowOpacity: dynamicShadowRadius > 0 ? 0.24 : 0,
-              elevation: dynamicShadowRadius > 0 ? Math.max(2, Math.round(dynamicShadowRadius / 2)) : 0,
+              shadowRadius: effectiveShadowRadius,
+              shadowOpacity: effectiveShadowRadius > 0 ? 0.24 : 0,
+              elevation: effectiveShadowRadius > 0 ? Math.max(2, Math.round(effectiveShadowRadius / 2)) : 0,
               overflow: 'hidden',
             },
           ]}
@@ -494,7 +559,7 @@ export const WordCardRN: React.FC<WordCardRNProps> = React.memo(({
             end={{ x: 0.5, y: 1 }}
           >
             {/* ✨ Shimmer Effect - SADECE performans izin veriyorsa */}
-            {premium && config.enableShimmer && (
+            {premium && config.enableShimmer && allowGlowFx && (
               <Animated.View pointerEvents="none" style={[styles.shimmer, { transform: [{ translateX: shimmerTranslate }], width: dynamicCardWidth * 2 }]}>
                 <LinearGradient
                   colors={['transparent', 'rgba(255,255,255,0.12)', 'rgba(255,255,255,0.25)', 'rgba(255,255,255,0.12)', 'transparent']}

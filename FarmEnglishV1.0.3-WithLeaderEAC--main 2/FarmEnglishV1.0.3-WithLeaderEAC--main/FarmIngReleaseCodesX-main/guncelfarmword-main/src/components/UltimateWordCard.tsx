@@ -17,7 +17,7 @@ import type { WordModel } from '../models/types';
 import { useFarmStore } from '../store/farmStore';
 import { haptic, sound } from '../utils/sound';
 import { usePerformanceStore } from '../store/performanceStore';
-import { getThemeOverlay, BORDER_STYLES } from '../data/cardThemes';
+import { getThemeOverlay, BORDER_STYLES, DEFAULT_CUSTOMIZATION, type CardBounceIntensity } from '../data/cardThemes';
 import { normalizeDisplayText } from '../utils/textNormalization';
 
 // 🌱 Tohum görselleri - Kırmızı/Sarı ilerleme için
@@ -199,11 +199,31 @@ type ThemeVisualFx = {
   sparkleColor?: string;
 };
 
+type ThemeMotionFx = {
+  overlayPulsePeak: number;
+  masterPulsePeak: number;
+  pulseDuration: number;
+  pressInScale: number;
+};
+
+type BounceIntensityFx = {
+  amplitude: number;
+  speed: number;
+  pressDepth: number;
+};
+
 const DEFAULT_THEME_VISUAL_FX: ThemeVisualFx = {
   auraColor: '#f5d0fe',
   auraOpacity: 0.36,
   sweepColors: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.28)', 'rgba(255,255,255,0)'],
   sparkleColor: '#ffffff',
+};
+
+const DEFAULT_THEME_MOTION_FX: ThemeMotionFx = {
+  overlayPulsePeak: 1.015,
+  masterPulsePeak: 1.06,
+  pulseDuration: 600,
+  pressInScale: 0.94,
 };
 
 const THEME_VISUAL_FX: Record<string, ThemeVisualFx> = {
@@ -260,11 +280,56 @@ const THEME_VISUAL_FX: Record<string, ThemeVisualFx> = {
     sweepColors: ['rgba(255,255,255,0)', 'rgba(251,191,36,0.56)', 'rgba(255,255,255,0)'],
     sparkleColor: '#fde68a',
   },
+  voltstorm: {
+    auraColor: '#22d3ee',
+    auraOpacity: 0.62,
+    sweepColors: ['rgba(255,255,255,0)', 'rgba(34,211,238,0.72)', 'rgba(255,255,255,0)'],
+    rainbowFilm: ['rgba(34,211,238,0.2)', 'rgba(6,182,212,0.2)', 'rgba(168,85,247,0.24)', 'rgba(34,211,238,0.2)'],
+    sparkleColor: '#67e8f9',
+  },
+};
+
+const THEME_MOTION_FX: Record<string, ThemeMotionFx> = {
+  neon: { overlayPulsePeak: 1.03, masterPulsePeak: 1.11, pulseDuration: 470, pressInScale: 0.91 },
+  cyberpunk: { overlayPulsePeak: 1.032, masterPulsePeak: 1.12, pulseDuration: 430, pressInScale: 0.9 },
+  dragon: { overlayPulsePeak: 1.026, masterPulsePeak: 1.1, pulseDuration: 500, pressInScale: 0.92 },
+  phoenix: { overlayPulsePeak: 1.028, masterPulsePeak: 1.1, pulseDuration: 520, pressInScale: 0.91 },
+  holographic: { overlayPulsePeak: 1.034, masterPulsePeak: 1.13, pulseDuration: 410, pressInScale: 0.89 },
+  voltstorm: { overlayPulsePeak: 1.04, masterPulsePeak: 1.14, pulseDuration: 380, pressInScale: 0.88 },
 };
 
 function getThemeVisualFx(themeId?: string | null): ThemeVisualFx {
   if (!themeId) return DEFAULT_THEME_VISUAL_FX;
   return THEME_VISUAL_FX[themeId] || DEFAULT_THEME_VISUAL_FX;
+}
+
+function getThemeMotionFx(themeId?: string | null): ThemeMotionFx {
+  if (!themeId) return DEFAULT_THEME_MOTION_FX;
+  return THEME_MOTION_FX[themeId] || DEFAULT_THEME_MOTION_FX;
+}
+
+function getBounceIntensityFx(level: CardBounceIntensity): BounceIntensityFx {
+  switch (level) {
+    case 'min':
+      return { amplitude: 0.52, speed: 1.35, pressDepth: 0.58 };
+    case 'max':
+      return { amplitude: 1.72, speed: 0.76, pressDepth: 1.36 };
+    default:
+      return { amplitude: 1, speed: 1, pressDepth: 1 };
+  }
+}
+
+function applyBounceIntensity(motion: ThemeMotionFx, level: CardBounceIntensity): ThemeMotionFx {
+  const fx = getBounceIntensityFx(level);
+  const tunedOverlayPeak = 1 + (motion.overlayPulsePeak - 1) * fx.amplitude;
+  const tunedMasterPeak = 1 + (motion.masterPulsePeak - 1) * fx.amplitude;
+  const tunedPressIn = 1 - (1 - motion.pressInScale) * fx.pressDepth;
+  return {
+    overlayPulsePeak: Math.max(1.003, Math.min(tunedOverlayPeak, 1.2)),
+    masterPulsePeak: Math.max(1.01, Math.min(tunedMasterPeak, 1.22)),
+    pulseDuration: Math.max(240, Math.round(motion.pulseDuration * fx.speed)),
+    pressInScale: Math.max(0.8, Math.min(tunedPressIn, 0.985)),
+  };
 }
 
 function getCardSizeMultiplier(compactMode: boolean, largeMode: boolean): number {
@@ -897,6 +962,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   const [feedbackKey, setFeedbackKey] = useState(0); // Her yeni feedback için yeni key
   const lastProcessedIdRef = useRef<string | null>(null);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const tutorialTransitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   //  Animasyon süresini config'den al (veya default)
   const ANIMATION_DURATION_MS = config.cardFeedbackDuration || 1500;
@@ -943,6 +1009,14 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     };
   }, [cardFeedback, word.id, setCardFeedback]);
 
+  useEffect(() => {
+    return () => {
+      if (tutorialTransitionTimeoutRef.current) {
+        clearTimeout(tutorialTransitionTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // 💧 Animasyon için local feedback kullan
   const feedbackType = localFeedback;
 
@@ -963,6 +1037,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   const shimmerAnim = useRef(new Animated.Value(-1)).current;
   const glowAnim = useRef(new Animated.Value(0.3)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const themeBounceAnim = useRef(new Animated.Value(1)).current;
   const themeSweepAnim = useRef(new Animated.Value(0)).current;
   const themeAuraAnim = useRef(new Animated.Value(0.4)).current;
   const themeSparkAnim = useRef(new Animated.Value(0.5)).current;
@@ -982,16 +1057,11 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     [word.text, verbText]
   );
 
-  const safeCustomization = cardCustomization || ({
-    fontStyle: 'default',
-    borderStyle: 'default',
-    backgroundStyle: 'default',
-    showEmoji: true,
-    showProgressBar: true,
-    showLevel: true,
-    compactMode: false,
-    largeMode: false,
-  } as const);
+  const safeCustomization = cardCustomization || DEFAULT_CUSTOMIZATION;
+  const allowGlowFx = safeCustomization.enableCardGlow !== false;
+  const allowBounceFx = safeCustomization.enableCardBounce !== false;
+  const allowBurstFx = safeCustomization.enableCardBurstFx !== false;
+  const bounceIntensityLevel = safeCustomization.cardBounceIntensity || 'normal';
   const isDefaultCustomization =
     (safeCustomization.fontStyle || 'default') === 'default' &&
     (safeCustomization.borderStyle || 'default') === 'default' &&
@@ -1000,7 +1070,11 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     !!safeCustomization.showProgressBar === true &&
     !!safeCustomization.showLevel === true &&
     !!safeCustomization.compactMode === false &&
-    !!safeCustomization.largeMode === false;
+    !!safeCustomization.largeMode === false &&
+    safeCustomization.enableCardGlow !== false &&
+    safeCustomization.enableCardBounce !== false &&
+    safeCustomization.enableCardBurstFx !== false &&
+    (safeCustomization.cardBounceIntensity || 'normal') === 'normal';
   const shouldShowStatusEmojiBadge =
     !!safeCustomization.showEmoji && (!isDefaultCustomization || activeThemeId !== 'default');
   const cardSizeMultiplier = getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode);
@@ -1020,7 +1094,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   const dynamicCardRadius = rs(borderPreset.borderRadius);
   const dynamicBorderWidth = rs(borderPreset.borderWidth);
   const dynamicShadowRadius = rs(borderPreset.shadowRadius);
-  const effectiveShadowRadius = isFxSuspended ? 0 : dynamicShadowRadius;
+  const effectiveShadowRadius = isFxSuspended || !allowGlowFx ? 0 : dynamicShadowRadius;
   const fontStyleOverride = getFontStyle(safeCustomization.fontStyle || 'default');
   const isSoilBackground = safeCustomization.backgroundStyle === 'soil';
 
@@ -1202,19 +1276,33 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
           buttonText, showInfinity, quizCorrect, quizWrong, successRate,
           fruitType, fruitGrowthStage, isHarvestReady, showFruit, showHarvestButton, rewardClaimedPerfect, harvestReward } = cardData;
   const themeVisualFx = useMemo(() => getThemeVisualFx(themeOverlay?.id), [themeOverlay?.id]);
+  const baseThemeMotionFx = useMemo(() => getThemeMotionFx(themeOverlay?.id), [themeOverlay?.id]);
+  const themeMotionFx = useMemo(
+    () => applyBounceIntensity(baseThemeMotionFx, bounceIntensityLevel),
+    [baseThemeMotionFx, bounceIntensityLevel]
+  );
   // Kart teması animasyonları pahalıdır; çok kartlı listede yalnızca sınırlı sayıda karta uygula.
   const shouldAnimateThemeFx =
     !!themeOverlay &&
     !isSoilBackground &&
     config.enableGlow &&
+    allowGlowFx &&
     performanceLevel !== 'LOW' &&
     performanceLevel !== 'MEDIUM' &&
     !isFxSuspended &&
     index < 6;
-  const enableMasterShimmerFx = isMaster && config.enableShimmer && !isFxSuspended;
-  const enableMasterGlowFx = isMaster && config.enableGlow && !isFxSuspended;
-  const enableMasterPulseFx = isMaster && config.enablePulseAnimations && !isFxSuspended;
-  const enableFruitGlowFx = isHarvestReady && !rewardClaimedPerfect && !isFxSuspended;
+  const enableMasterShimmerFx = isMaster && config.enableShimmer && allowGlowFx && !isFxSuspended;
+  const enableMasterGlowFx = isMaster && config.enableGlow && allowGlowFx && !isFxSuspended;
+  const enableMasterPulseFx = isMaster && config.enablePulseAnimations && allowBounceFx && !isFxSuspended;
+  const enableThemeBounceFx =
+    !!themeOverlay &&
+    !isSoilBackground &&
+    config.enablePulseAnimations &&
+    allowBounceFx &&
+    performanceLevel !== 'LOW' &&
+    !isFxSuspended &&
+    index < 4;
+  const enableFruitGlowFx = isHarvestReady && !rewardClaimedPerfect && allowGlowFx && !isFxSuspended;
 
   useEffect(() => {
     if (!shouldAnimateThemeFx) {
@@ -1284,6 +1372,35 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     themeSparkAnim,
   ]);
 
+  useEffect(() => {
+    if (!enableThemeBounceFx) {
+      themeBounceAnim.setValue(1);
+      return;
+    }
+
+    const overlayPulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(themeBounceAnim, {
+          toValue: themeMotionFx.overlayPulsePeak,
+          duration: Math.max(260, Math.floor(themeMotionFx.pulseDuration * 0.9)),
+          useNativeDriver: true,
+          easing: Easing.out(Easing.sin),
+        }),
+        Animated.timing(themeBounceAnim, {
+          toValue: 1,
+          duration: Math.max(260, Math.floor(themeMotionFx.pulseDuration * 1.15)),
+          useNativeDriver: true,
+          easing: Easing.in(Easing.sin),
+        }),
+      ])
+    );
+    overlayPulse.start();
+
+    return () => {
+      overlayPulse.stop();
+    };
+  }, [enableThemeBounceFx, themeBounceAnim, themeMotionFx.overlayPulsePeak, themeMotionFx.pulseDuration]);
+
   // 🚀 SMOOTH ENTRANCE: Artık giriş animasyonu devre dışı - tab değişiminde blur önleme
   // Kartlar anında görünür, entrance delay/animasyon kaldırıldı
   useEffect(() => {
@@ -1340,14 +1457,14 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
       const pulse = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
-            toValue: 1.06, //  DAHA BÜYÜK PULSE: 1.03 -> 1.06
-            duration: 600,
+            toValue: themeMotionFx.masterPulsePeak,
+            duration: themeMotionFx.pulseDuration,
             useNativeDriver: true,
             easing: Easing.out(Easing.sin),
           }),
           Animated.timing(pulseAnim, {
             toValue: 1,
-            duration: 600,
+            duration: themeMotionFx.pulseDuration,
             useNativeDriver: true,
             easing: Easing.in(Easing.sin),
           }),
@@ -1357,7 +1474,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
       return () => pulse.stop();
     }
     pulseAnim.setValue(1);
-  }, [enableMasterPulseFx, pulseAnim]);
+  }, [enableMasterPulseFx, pulseAnim, themeMotionFx.masterPulsePeak, themeMotionFx.pulseDuration]);
 
   // Shimmer interpolation (master only)
   const shimmerTranslate = shimmerAnim.interpolate({
@@ -1378,6 +1495,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   });
 
   const playFruitGrowPulse = useCallback((stage: number = fruitGrowthStage) => {
+    if (!allowBounceFx) return;
     const safeStage = Math.max(0, Math.min(Number.isFinite(stage) ? Math.floor(stage) : 0, 3));
     const sessionProgressRatio = streakNeeded > 0
       ? Math.max(0, Math.min(displayStreak / streakNeeded, 1))
@@ -1399,7 +1517,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
         useNativeDriver: true,
       }),
     ]).start();
-  }, [fruitScaleAnim, fruitGrowthStage, displayStreak, streakNeeded, isMaster]);
+  }, [allowBounceFx, fruitScaleAnim, fruitGrowthStage, displayStreak, streakNeeded, isMaster]);
 
   //  MEYVE BÜYÜME ANİMASYONU - Session tamamlandığında
   useEffect(() => {
@@ -1492,7 +1610,13 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
 
         //  TUTORIAL: Hasat edilince STEP_12_INVENTORY'e geç
         if (tutorialStep === 'STEP_10_TO_GREEN' || tutorialStep === 'STEP_11_HARVEST') {
-          setTimeout(() => setTutorialStep('STEP_12_INVENTORY'), 500);
+          if (tutorialTransitionTimeoutRef.current) {
+            clearTimeout(tutorialTransitionTimeoutRef.current);
+          }
+          tutorialTransitionTimeoutRef.current = setTimeout(() => {
+            setTutorialStep('STEP_12_INVENTORY');
+            tutorialTransitionTimeoutRef.current = null;
+          }, 500);
         }
       }
     });
@@ -1501,22 +1625,33 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
   //  Press handlers - ULTRA JUICY
   const handlePressIn = useCallback(() => {
     haptic.light();
+    if (!allowBounceFx) return;
     Animated.spring(scaleAnim, {
-      toValue: 0.94,
+      toValue: themeMotionFx.pressInScale,
       useNativeDriver: true,
       friction: 8,
       tension: 200,
     }).start();
-  }, [scaleAnim]);
+  }, [allowBounceFx, scaleAnim, themeMotionFx.pressInScale]);
 
   const handlePressOut = useCallback(() => {
+    if (!allowBounceFx) return;
     Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
       friction: 7,
       tension: 180,
     }).start();
-  }, [scaleAnim]);
+  }, [allowBounceFx, scaleAnim]);
+
+  useEffect(() => {
+    if (!allowBounceFx) {
+      scaleAnim.setValue(1);
+    }
+  }, [allowBounceFx, scaleAnim]);
+
+  const baseScaleAnim = isMaster ? Animated.multiply(scaleAnim, pulseAnim) : scaleAnim;
+  const cardScaleAnim = Animated.multiply(baseScaleAnim, themeBounceAnim);
 
   return (
     <Animated.View
@@ -1527,7 +1662,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
           opacity: fadeAnim,
           transform: [
             { translateY: translateAnim },
-            { scale: isMaster ? Animated.multiply(scaleAnim, pulseAnim) : scaleAnim },
+            { scale: cardScaleAnim },
           ],
         },
         //  TUTORIAL HIGHLIGHT - Yeşil parlak border
@@ -1556,7 +1691,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             },
           ]}
         />
-      ) : isMaster ? (
+      ) : allowGlowFx ? (isMaster ? (
         <Animated.View
           style={[
             styles.glowEffect,
@@ -1580,7 +1715,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             },
           ]}
         />
-      ) : null)}
+      ) : null) : null)}
 
       <TouchableOpacity
         activeOpacity={0.95}
@@ -1769,7 +1904,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             {/* 💧 Su damlacıkları animasyonu - Seviye artışında veya korunma (LOCAL STATE) */}
             <CardWaterDrops
               key={`water-${feedbackKey}`}
-              visible={feedbackType === 'levelUp' || feedbackType === 'protected'}
+              visible={allowBurstFx && (feedbackType === 'levelUp' || feedbackType === 'protected')}
               onComplete={handleFeedbackComplete}
               performanceLevel={performanceLevel}
               isProtected={feedbackType === 'protected'}
@@ -1781,7 +1916,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             {/*  Böcek animasyonu - Seviye düşüşünde (LOCAL STATE) */}
             <CardBugCrawl
               key={`bug-${feedbackKey}`}
-              visible={feedbackType === 'levelDown'}
+              visible={allowBurstFx && feedbackType === 'levelDown'}
               onComplete={handleFeedbackComplete}
               performanceLevel={performanceLevel}
               bugCount={config.cardFeedbackDropCount}
@@ -2079,7 +2214,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
             </View>
 
             {/* Master Card Indicator */}
-            {isMaster && !isFxSuspended && (
+            {isMaster && allowGlowFx && !isFxSuspended && (
               <View style={[styles.masterIndicator, { backgroundColor: theme.borderGlow }]} />
             )}
           </LinearGradient>

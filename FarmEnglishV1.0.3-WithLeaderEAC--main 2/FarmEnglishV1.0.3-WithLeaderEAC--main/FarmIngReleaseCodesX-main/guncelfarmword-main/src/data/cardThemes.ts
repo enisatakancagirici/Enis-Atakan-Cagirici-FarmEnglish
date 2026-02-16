@@ -25,6 +25,7 @@ export const FONT_STYLES: Record<CardFontStyle, { label: string; fontFamily?: st
 // ─── Border style system ───
 export type CardBorderStyle = 'default' | 'glow' | 'sharp' | 'rounded' | 'none';
 export type CardBackgroundStyle = 'default' | 'soil';
+export type CardBounceIntensity = 'min' | 'normal' | 'max';
 
 export const BORDER_STYLES: Record<CardBorderStyle, { label: string; borderRadius: number; borderWidth: number; shadowRadius: number }> = {
   default: { label: 'Normal', borderRadius: 20, borderWidth: 1.5, shadowRadius: 12 },
@@ -65,6 +66,10 @@ export interface CardCustomization {
   showLevel: boolean;
   compactMode: boolean;
   largeMode: boolean;
+  enableCardGlow: boolean;
+  enableCardBounce: boolean;
+  enableCardBurstFx: boolean;
+  cardBounceIntensity: CardBounceIntensity;
 }
 
 export const DEFAULT_CUSTOMIZATION: CardCustomization = {
@@ -76,6 +81,10 @@ export const DEFAULT_CUSTOMIZATION: CardCustomization = {
   showLevel: true,
   compactMode: false,
   largeMode: false,
+  enableCardGlow: true,
+  enableCardBounce: true,
+  enableCardBurstFx: true,
+  cardBounceIntensity: 'normal',
 };
 
 // ─── Collectible card definition ───
@@ -242,17 +251,17 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
     previewGradient: ['#451a03', '#78350f', '#451a03'],
   },
   {
-    id: 'soil',
-    name: 'Toprak',
-    description: 'Bereketli çiftlik toprağı',
+    id: 'voltstorm',
+    name: 'Volt Firtinasi',
+    description: 'Elektrik patlamasi ve asiri neon enerji',
     rarity: 'rare',
-    price: 1500,
-    gradientTint: ['rgba(93, 64, 55, 0.18)', 'rgba(62, 39, 35, 0.18)'],
-    borderColor: 'rgba(141, 110, 99, 0.75)',
-    borderGlow: '#8D6E63',
-    particleColor: '#A1887F',
-    emoji: '🌾',
-    previewGradient: ['#2C1810', '#4E342E', '#2C1810'],
+    price: 1800,
+    gradientTint: ['rgba(6, 182, 212, 0.2)', 'rgba(168, 85, 247, 0.18)'],
+    borderColor: 'rgba(34, 211, 238, 0.85)',
+    borderGlow: '#22d3ee',
+    particleColor: '#67e8f9',
+    emoji: '⚡',
+    previewGradient: ['#031525', '#0f172a', '#2e1065'],
   },
 
   // ── EPIC (5000-10000 coins) ──
@@ -365,7 +374,7 @@ export const COLLECTIBLE_CARDS: CollectibleCard[] = [
   // Milestone kartları
   { id: 'first_harvest', name: 'İlk Hasat', description: 'İlk kelimeni hasat ettin!', rarity: 'common', emoji: '🌾', unlockCondition: 'İlk kelimeyi hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 1, rewardThemeId: 'nature' },
   { id: 'word_farmer', name: 'Kelime Çiftçisi', description: '50 kelime hasat ettin', rarity: 'common', emoji: '👨‍🌾', unlockCondition: '50 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 50, rewardThemeId: 'forest' },
-  { id: 'harvest_master', name: 'Hasat Ustası', description: '200 kelime hasat ettin', rarity: 'rare', emoji: '🏅', unlockCondition: '200 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 200, rewardThemeId: 'soil' },
+  { id: 'harvest_master', name: 'Hasat Ustası', description: '200 kelime hasat ettin', rarity: 'rare', emoji: '🏅', unlockCondition: '200 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 200, rewardThemeId: 'voltstorm' },
   { id: 'harvest_legend', name: 'Hasat Efsanesi', description: '500 kelime hasat ettin', rarity: 'epic', emoji: '🏆', unlockCondition: '500 kelime hasat et', unlockKey: 'lifetimeHarvests', unlockTarget: 500, rewardThemeId: 'dragon' },
   
   // Quiz kartları
@@ -395,7 +404,7 @@ export const COLLECTIBLE_CARDS: CollectibleCard[] = [
 
   // Plant kartları
   { id: 'planter_100', name: 'Ekici', description: '100 kelime ektin', rarity: 'rare', emoji: '🌱', unlockCondition: '100 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 100, rewardThemeId: 'ocean' },
-  { id: 'planter_500', name: 'Baş Ekici', description: '500 kelime ektin', rarity: 'epic', emoji: '🌳', unlockCondition: '500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 500, rewardThemeId: 'soil' },
+  { id: 'planter_500', name: 'Baş Ekici', description: '500 kelime ektin', rarity: 'epic', emoji: '🌳', unlockCondition: '500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 500, rewardThemeId: 'voltstorm' },
 ];
 
 // ═══════════════════════════════════════════════════════════════

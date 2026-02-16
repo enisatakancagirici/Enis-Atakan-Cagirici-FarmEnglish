@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CardCustomization, CardFontStyle, CardBorderStyle } from '../data/cardThemes';
-import { DEFAULT_CUSTOMIZATION, getThemeOverlay, checkCollectibleUnlock, COLLECTIBLE_CARDS } from '../data/cardThemes';
+import { DEFAULT_CUSTOMIZATION, getThemeOverlay, checkCollectibleUnlock, COLLECTIBLE_CARDS, CARD_THEME_OVERLAYS } from '../data/cardThemes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
   WordModel, Achievement, StoreItem, ActiveBoost, PhrasalVerb,
@@ -43,6 +43,26 @@ let _cachedFirestoreFns: { doc: any; updateDoc: any } | null = {
   updateDoc: firestoreUpdateDoc,
 };
 // Firebase refs are statically imported to avoid dynamic bundle churn on harvest.
+const VALID_CARD_THEME_IDS = new Set(CARD_THEME_OVERLAYS.map((theme) => theme.id));
+
+function sanitizeOwnedCardThemes(input: unknown): string[] {
+  const safe = toSafeArray<string>(input);
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const themeId of safe) {
+    if (!VALID_CARD_THEME_IDS.has(themeId)) continue;
+    if (seen.has(themeId)) continue;
+    seen.add(themeId);
+    out.push(themeId);
+  }
+  return out;
+}
+
+function sanitizeActiveCardTheme(input: unknown, ownedThemes: string[]): string {
+  const safeTheme = typeof input === 'string' ? input : 'default';
+  if (safeTheme === 'default') return 'default';
+  return ownedThemes.includes(safeTheme) && VALID_CARD_THEME_IDS.has(safeTheme) ? safeTheme : 'default';
+}
 
 /** Firebase modülünü bir kez import edip cache'le — tüm dynamic import'ları ortadan kaldırır */
 function ensureFirebaseCache(): Promise<void> {
@@ -5381,7 +5401,7 @@ export const useFarmStore = create<FarmStore>()(
         merged.learnedWordIds = toSafeArray<string>(persisted.learnedWordIds ?? merged.learnedWordIds);
         merged.recentQuizWordIds = toSafeArray<string>(persisted.recentQuizWordIds ?? merged.recentQuizWordIds);
         merged.ownedItems = toSafeArray<string>(persisted.ownedItems ?? merged.ownedItems);
-        merged.ownedCardThemes = toSafeArray<string>(persisted.ownedCardThemes ?? merged.ownedCardThemes);
+        merged.ownedCardThemes = sanitizeOwnedCardThemes(persisted.ownedCardThemes ?? merged.ownedCardThemes);
         merged.collectedCards = toSafeArray<string>(persisted.collectedCards ?? merged.collectedCards);
         merged.activeBoosts = toSafeObjectArray<ActiveBoost>(persisted.activeBoosts ?? merged.activeBoosts);
         merged.battleHistory = toSafeObjectArray<any>(persisted.battleHistory ?? merged.battleHistory);
@@ -5393,6 +5413,10 @@ export const useFarmStore = create<FarmStore>()(
         merged.achievementQuests = sanitizeQuestCollection<any>(persisted.achievementQuests ?? merged.achievementQuests);
         merged.masteryPaths = sanitizeMasteryPathCollection(persisted.masteryPaths ?? merged.masteryPaths);
         merged.achievements = sanitizeAchievementCollection(persisted.achievements ?? merged.achievements);
+        merged.activeCardTheme = sanitizeActiveCardTheme(
+          persisted.activeCardTheme ?? merged.activeCardTheme,
+          merged.ownedCardThemes
+        );
         merged.cardCustomization = { ...DEFAULT_CUSTOMIZATION, ...(persisted.cardCustomization as any || merged.cardCustomization || {}) };
         merged.user = sanitizePersistedUser(persisted.user ?? merged.user);
         merged.isAuthenticated = !!merged.user && !!persisted.isAuthenticated;
@@ -5560,9 +5584,9 @@ export const useFarmStore = create<FarmStore>()(
             delete (state as any).customInventory;
           }
           //  Card theme arrays
-          if (!Array.isArray(state.ownedCardThemes)) state.ownedCardThemes = [];
+          state.ownedCardThemes = sanitizeOwnedCardThemes(state.ownedCardThemes);
           if (!Array.isArray(state.collectedCards)) state.collectedCards = [];
-          if (!state.activeCardTheme) state.activeCardTheme = 'default';
+          state.activeCardTheme = sanitizeActiveCardTheme(state.activeCardTheme, state.ownedCardThemes);
           state.cardCustomization = { ...DEFAULT_CUSTOMIZATION, ...(state.cardCustomization || {}) };
         }
         if (state) {

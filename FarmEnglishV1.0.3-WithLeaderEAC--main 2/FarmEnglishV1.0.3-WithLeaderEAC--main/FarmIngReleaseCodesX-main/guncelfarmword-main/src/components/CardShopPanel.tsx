@@ -26,7 +26,7 @@ import {
   type CardRarity,
   type CardFontStyle,
   type CardBorderStyle,
-  type CardBackgroundStyle,
+  type CardBounceIntensity,
 } from '../data/cardThemes';
 import { normalizeDisplayText } from '../utils/textNormalization';
 
@@ -63,12 +63,43 @@ type ShopPreviewFx = {
   sweep: readonly [string, string, string];
   rainbow?: readonly [string, string, string, string];
   sparkle?: string;
+  burstColor?: string;
+  electricColor?: string;
+  textureColor: string;
+  frameRotation: string;
+  frameScale: number;
 };
+
+const THEME_TEXTURE_LAYOUT = [
+  { left: '8%', top: '12%', size: 3, opacity: 0.48 },
+  { left: '20%', top: '34%', size: 5, opacity: 0.35 },
+  { left: '35%', top: '20%', size: 4, opacity: 0.42 },
+  { left: '48%', top: '60%', size: 3, opacity: 0.38 },
+  { left: '62%', top: '18%', size: 5, opacity: 0.33 },
+  { left: '74%', top: '40%', size: 3, opacity: 0.4 },
+  { left: '86%', top: '26%', size: 4, opacity: 0.36 },
+  { left: '14%', top: '72%', size: 4, opacity: 0.35 },
+  { left: '56%', top: '78%', size: 3, opacity: 0.32 },
+] as const;
+
+const COLLECTIBLE_TEXTURE_LAYOUT = [
+  { left: '10%', top: '16%', size: 3, opacity: 0.42 },
+  { left: '28%', top: '40%', size: 4, opacity: 0.34 },
+  { left: '46%', top: '24%', size: 3, opacity: 0.4 },
+  { left: '64%', top: '58%', size: 4, opacity: 0.3 },
+  { left: '80%', top: '36%', size: 3, opacity: 0.36 },
+  { left: '22%', top: '74%', size: 4, opacity: 0.28 },
+] as const;
+
+const BURST_ANGLES = [-34, -18, -2, 14, 30, 46, 62, 78] as const;
 
 const DEFAULT_SHOP_FX: ShopPreviewFx = {
   glowColor: '#f5d0fe',
   sweep: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.35)', 'rgba(255,255,255,0)'],
   sparkle: '#ffffff',
+  textureColor: 'rgba(255,255,255,0.28)',
+  frameRotation: '0deg',
+  frameScale: 1,
 };
 
 const txt = (value: unknown, fallback = ''): string => {
@@ -76,57 +107,234 @@ const txt = (value: unknown, fallback = ''): string => {
   return normalized || fallback;
 };
 
+const SHOP_PREVIEW_FX_BY_THEME: Record<string, ShopPreviewFx> = {
+  minimal: {
+    glowColor: '#e2e8f0',
+    sweep: ['rgba(255,255,255,0)', 'rgba(226,232,240,0.62)', 'rgba(255,255,255,0)'],
+    sparkle: '#f8fafc',
+    textureColor: 'rgba(226,232,240,0.34)',
+    frameRotation: '-1deg',
+    frameScale: 0.98,
+  },
+  nature: {
+    glowColor: '#22c55e',
+    sweep: ['rgba(255,255,255,0)', 'rgba(134,239,172,0.62)', 'rgba(255,255,255,0)'],
+    sparkle: '#bbf7d0',
+    textureColor: 'rgba(134,239,172,0.3)',
+    frameRotation: '-2deg',
+    frameScale: 1.01,
+  },
+  ocean: {
+    glowColor: '#38bdf8',
+    sweep: ['rgba(255,255,255,0)', 'rgba(125,211,252,0.64)', 'rgba(255,255,255,0)'],
+    sparkle: '#bae6fd',
+    textureColor: 'rgba(125,211,252,0.32)',
+    frameRotation: '1deg',
+    frameScale: 1.01,
+  },
+  sunset: {
+    glowColor: '#fb7185',
+    sweep: ['rgba(255,255,255,0)', 'rgba(251,146,60,0.66)', 'rgba(255,255,255,0)'],
+    sparkle: '#fdba74',
+    burstColor: 'rgba(251,146,60,0.42)',
+    textureColor: 'rgba(251,146,60,0.34)',
+    frameRotation: '-2deg',
+    frameScale: 1.02,
+  },
+  forest: {
+    glowColor: '#4ade80',
+    sweep: ['rgba(255,255,255,0)', 'rgba(74,222,128,0.6)', 'rgba(255,255,255,0)'],
+    sparkle: '#bbf7d0',
+    textureColor: 'rgba(110,231,183,0.26)',
+    frameRotation: '-1deg',
+    frameScale: 1.01,
+  },
+  cherry: {
+    glowColor: '#f472b6',
+    sweep: ['rgba(255,255,255,0)', 'rgba(244,114,182,0.68)', 'rgba(255,255,255,0)'],
+    sparkle: '#fbcfe8',
+    textureColor: 'rgba(244,114,182,0.3)',
+    frameRotation: '2deg',
+    frameScale: 1.03,
+  },
+  neon: {
+    glowColor: '#00ffd5',
+    sweep: ['rgba(255,255,255,0)', 'rgba(0,255,213,0.8)', 'rgba(255,255,255,0)'],
+    sparkle: '#5eead4',
+    electricColor: 'rgba(0,255,213,0.92)',
+    burstColor: 'rgba(34,211,238,0.42)',
+    textureColor: 'rgba(94,234,212,0.34)',
+    frameRotation: '-3deg',
+    frameScale: 1.06,
+  },
+  retro: {
+    glowColor: '#f472b6',
+    sweep: ['rgba(255,255,255,0)', 'rgba(236,72,153,0.76)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(236,72,153,0.24)', 'rgba(124,58,237,0.22)', 'rgba(244,114,182,0.2)', 'rgba(168,85,247,0.24)'],
+    sparkle: '#f9a8d4',
+    burstColor: 'rgba(236,72,153,0.38)',
+    textureColor: 'rgba(244,114,182,0.33)',
+    frameRotation: '-4deg',
+    frameScale: 1.05,
+  },
+  galaxy: {
+    glowColor: '#a5b4fc',
+    sweep: ['rgba(255,255,255,0)', 'rgba(165,180,252,0.72)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(99,102,241,0.2)', 'rgba(168,85,247,0.22)', 'rgba(129,140,248,0.18)', 'rgba(59,130,246,0.2)'],
+    sparkle: '#c7d2fe',
+    textureColor: 'rgba(165,180,252,0.28)',
+    frameRotation: '3deg',
+    frameScale: 1.04,
+  },
+  crystal: {
+    glowColor: '#bfdbfe',
+    sweep: ['rgba(255,255,255,0)', 'rgba(191,219,254,0.76)', 'rgba(255,255,255,0)'],
+    sparkle: '#dbeafe',
+    burstColor: 'rgba(191,219,254,0.36)',
+    textureColor: 'rgba(191,219,254,0.34)',
+    frameRotation: '1deg',
+    frameScale: 1.02,
+  },
+  amber: {
+    glowColor: '#fbbf24',
+    sweep: ['rgba(255,255,255,0)', 'rgba(251,191,36,0.74)', 'rgba(255,255,255,0)'],
+    sparkle: '#fde68a',
+    burstColor: 'rgba(245,158,11,0.4)',
+    textureColor: 'rgba(251,191,36,0.34)',
+    frameRotation: '-1deg',
+    frameScale: 1.02,
+  },
+  voltstorm: {
+    glowColor: '#22d3ee',
+    sweep: ['rgba(255,255,255,0)', 'rgba(34,211,238,0.9)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(34,211,238,0.24)', 'rgba(6,182,212,0.26)', 'rgba(168,85,247,0.24)', 'rgba(45,212,191,0.22)'],
+    sparkle: '#67e8f9',
+    electricColor: 'rgba(34,211,238,1)',
+    burstColor: 'rgba(168,85,247,0.46)',
+    textureColor: 'rgba(103,232,249,0.4)',
+    frameRotation: '-5deg',
+    frameScale: 1.08,
+  },
+  dragon: {
+    glowColor: '#fb7185',
+    sweep: ['rgba(255,255,255,0)', 'rgba(248,113,113,0.76)', 'rgba(255,255,255,0)'],
+    sparkle: '#fecaca',
+    burstColor: 'rgba(239,68,68,0.45)',
+    textureColor: 'rgba(248,113,113,0.36)',
+    frameRotation: '-2deg',
+    frameScale: 1.04,
+  },
+  phoenix: {
+    glowColor: '#fbbf24',
+    sweep: ['rgba(255,255,255,0)', 'rgba(251,191,36,0.78)', 'rgba(255,255,255,0)'],
+    sparkle: '#fde68a',
+    burstColor: 'rgba(251,146,60,0.46)',
+    textureColor: 'rgba(251,191,36,0.36)',
+    frameRotation: '4deg',
+    frameScale: 1.06,
+  },
+  cyberpunk: {
+    glowColor: '#22d3ee',
+    sweep: ['rgba(255,255,255,0)', 'rgba(34,211,238,0.82)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(34,211,238,0.2)', 'rgba(236,72,153,0.26)', 'rgba(34,211,238,0.2)', 'rgba(236,72,153,0.24)'],
+    sparkle: '#67e8f9',
+    electricColor: 'rgba(236,72,153,0.95)',
+    burstColor: 'rgba(34,211,238,0.44)',
+    textureColor: 'rgba(34,211,238,0.34)',
+    frameRotation: '-4deg',
+    frameScale: 1.07,
+  },
+  aurora: {
+    glowColor: '#34d399',
+    sweep: ['rgba(255,255,255,0)', 'rgba(52,211,153,0.74)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(52,211,153,0.22)', 'rgba(56,189,248,0.22)', 'rgba(99,102,241,0.2)', 'rgba(16,185,129,0.22)'],
+    sparkle: '#6ee7b7',
+    textureColor: 'rgba(110,231,183,0.34)',
+    frameRotation: '2deg',
+    frameScale: 1.05,
+  },
+  diamond: {
+    glowColor: '#67e8f9',
+    sweep: ['rgba(255,255,255,0)', 'rgba(125,211,252,0.82)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(125,211,252,0.2)', 'rgba(45,212,191,0.22)', 'rgba(191,219,254,0.2)', 'rgba(125,211,252,0.2)'],
+    sparkle: '#e0f2fe',
+    burstColor: 'rgba(125,211,252,0.38)',
+    textureColor: 'rgba(186,230,253,0.36)',
+    frameRotation: '3deg',
+    frameScale: 1.06,
+  },
+  royal: {
+    glowColor: '#c084fc',
+    sweep: ['rgba(255,255,255,0)', 'rgba(216,180,254,0.8)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(192,132,252,0.2)', 'rgba(139,92,246,0.24)', 'rgba(167,139,250,0.2)', 'rgba(192,132,252,0.22)'],
+    sparkle: '#e9d5ff',
+    burstColor: 'rgba(192,132,252,0.4)',
+    textureColor: 'rgba(233,213,255,0.34)',
+    frameRotation: '-2deg',
+    frameScale: 1.05,
+  },
+  holographic: {
+    glowColor: '#fde047',
+    sweep: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.9)', 'rgba(255,255,255,0)'],
+    rainbow: ['rgba(255,0,122,0.24)', 'rgba(0,194,255,0.24)', 'rgba(166,255,0,0.2)', 'rgba(255,189,0,0.24)'],
+    sparkle: '#fef08a',
+    electricColor: 'rgba(255,255,255,0.9)',
+    burstColor: 'rgba(255,189,0,0.42)',
+    textureColor: 'rgba(253,224,71,0.34)',
+    frameRotation: '5deg',
+    frameScale: 1.1,
+  },
+};
+
 function getShopPreviewFx(themeId: string): ShopPreviewFx {
-  switch (themeId) {
-    case 'holographic':
-      return {
-        glowColor: '#fde047',
-        sweep: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0)'],
-        rainbow: ['rgba(255,0,122,0.2)', 'rgba(0,194,255,0.2)', 'rgba(166,255,0,0.16)', 'rgba(255,189,0,0.2)'],
-        sparkle: '#fef08a',
-      };
-    case 'royal':
-      return {
-        glowColor: '#c084fc',
-        sweep: ['rgba(255,255,255,0)', 'rgba(216,180,254,0.7)', 'rgba(255,255,255,0)'],
-        rainbow: ['rgba(192,132,252,0.16)', 'rgba(139,92,246,0.22)', 'rgba(167,139,250,0.16)', 'rgba(192,132,252,0.2)'],
-        sparkle: '#e9d5ff',
-      };
-    case 'diamond':
-      return {
-        glowColor: '#67e8f9',
-        sweep: ['rgba(255,255,255,0)', 'rgba(125,211,252,0.7)', 'rgba(255,255,255,0)'],
-        rainbow: ['rgba(125,211,252,0.18)', 'rgba(45,212,191,0.18)', 'rgba(191,219,254,0.16)', 'rgba(125,211,252,0.18)'],
-        sparkle: '#e0f2fe',
-      };
-    case 'cyberpunk':
-      return {
-        glowColor: '#22d3ee',
-        sweep: ['rgba(255,255,255,0)', 'rgba(34,211,238,0.75)', 'rgba(255,255,255,0)'],
-        rainbow: ['rgba(34,211,238,0.16)', 'rgba(236,72,153,0.2)', 'rgba(34,211,238,0.14)', 'rgba(236,72,153,0.16)'],
-        sparkle: '#67e8f9',
-      };
-    case 'neon':
-      return {
-        glowColor: '#00ffd5',
-        sweep: ['rgba(255,255,255,0)', 'rgba(0,255,213,0.72)', 'rgba(255,255,255,0)'],
-        sparkle: '#5eead4',
-      };
-    case 'dragon':
-      return {
-        glowColor: '#fb7185',
-        sweep: ['rgba(255,255,255,0)', 'rgba(248,113,113,0.7)', 'rgba(255,255,255,0)'],
-        sparkle: '#fecaca',
-      };
-    case 'phoenix':
-      return {
-        glowColor: '#fbbf24',
-        sweep: ['rgba(255,255,255,0)', 'rgba(251,191,36,0.72)', 'rgba(255,255,255,0)'],
-        sparkle: '#fde68a',
-      };
-    default:
-      return DEFAULT_SHOP_FX;
-  }
+  return SHOP_PREVIEW_FX_BY_THEME[themeId] || DEFAULT_SHOP_FX;
+}
+
+type CollectiblePreviewFx = {
+  gradient: readonly [string, string, string];
+  glowColor: string;
+  textureColor: string;
+  burstColor: string;
+};
+
+const COLLECTIBLE_FX_BY_RARITY: Record<CardRarity, CollectiblePreviewFx> = {
+  common: {
+    gradient: ['#111827', '#1f2937', '#111827'],
+    glowColor: '#9ca3af',
+    textureColor: 'rgba(209,213,219,0.24)',
+    burstColor: 'rgba(156,163,175,0.32)',
+  },
+  rare: {
+    gradient: ['#0f172a', '#1e3a8a', '#0f172a'],
+    glowColor: '#60a5fa',
+    textureColor: 'rgba(147,197,253,0.28)',
+    burstColor: 'rgba(59,130,246,0.34)',
+  },
+  epic: {
+    gradient: ['#3b0764', '#6d28d9', '#3b0764'],
+    glowColor: '#c084fc',
+    textureColor: 'rgba(216,180,254,0.3)',
+    burstColor: 'rgba(168,85,247,0.36)',
+  },
+  legendary: {
+    gradient: ['#3f2600', '#92400e', '#3f2600'],
+    glowColor: '#fbbf24',
+    textureColor: 'rgba(253,224,71,0.34)',
+    burstColor: 'rgba(245,158,11,0.38)',
+  },
+};
+
+const COLLECTIBLE_FX_OVERRIDES: Record<string, Partial<CollectiblePreviewFx>> = {
+  combo_100: { gradient: ['#0f172a', '#164e63', '#312e81'], glowColor: '#22d3ee', burstColor: 'rgba(34,211,238,0.46)' },
+  battle_champion: { gradient: ['#450a0a', '#9f1239', '#581c87'], glowColor: '#f472b6', burstColor: 'rgba(244,114,182,0.44)' },
+  streak_100: { gradient: ['#172554', '#3730a3', '#1d4ed8'], glowColor: '#818cf8', burstColor: 'rgba(129,140,248,0.4)' },
+  millionaire: { gradient: ['#422006', '#78350f', '#854d0e'], glowColor: '#f59e0b', burstColor: 'rgba(245,158,11,0.42)' },
+};
+
+function getCollectiblePreviewFx(card: CollectibleCard): CollectiblePreviewFx {
+  const base = COLLECTIBLE_FX_BY_RARITY[card.rarity];
+  const override = COLLECTIBLE_FX_OVERRIDES[card.id];
+  return override ? { ...base, ...override } : base;
 }
 
 // ================================================================
@@ -141,54 +349,58 @@ const ThemePreviewCard: React.FC<{
   onBuy: () => void;
   onEquip: () => void;
   onClaim: () => void;
-}> = ({ theme, isOwned, isActive, isUnlockable, coins, onBuy, onEquip, onClaim }) => {
+}> = React.memo(({ theme, isOwned, isActive, isUnlockable, coins, onBuy, onEquip, onClaim }) => {
   const rarity = RARITY_COLORS[theme.rarity];
   const canAfford = theme.price === 0 || coins >= theme.price;
   const previewFx = useMemo(() => getShopPreviewFx(theme.id), [theme.id]);
 
   return (
     <View style={[styles.themeCard, { borderColor: rarity.border }]}>
-      {/* Toprak arka plan katmanı */}
       <LinearGradient
-        colors={[SOIL_COLORS.darkSoil, SOIL_COLORS.richSoil, SOIL_COLORS.mediumSoil]}
+        colors={theme.previewGradient as [string, string, string]}
         style={styles.themePreview}
       >
-        {/* Toprak doku efekti - küçük noktalar */}
-        <View style={styles.soilTextureOverlay}>
-          {[...Array(12)].map((_, i) => (
+        <View style={styles.themePreviewTextureLayer}>
+          {THEME_TEXTURE_LAYOUT.map((dot, i) => (
             <View
               key={i}
               style={[
-                styles.soilDot,
+                styles.themePreviewTextureDot,
                 {
-                  left: `${(i * 23 + 7) % 90}%` as any,
-                  top: `${(i * 31 + 11) % 85}%` as any,
-                  width: 3 + (i % 3) * 2,
-                  height: 3 + (i % 3) * 2,
-                  backgroundColor: i % 2 === 0
-                    ? 'rgba(141,110,99,0.35)'
-                    : 'rgba(93,64,55,0.4)',
-                  borderRadius: 4,
+                  left: dot.left,
+                  top: dot.top,
+                  width: dot.size,
+                  height: dot.size,
+                  opacity: dot.opacity,
+                  backgroundColor: previewFx.textureColor,
                 },
               ]}
             />
           ))}
         </View>
-        {/* Tema tint overlay */}
+        <View
+          style={[
+            styles.themePreviewFrame,
+            {
+              borderColor: previewFx.glowColor,
+              transform: [{ rotate: previewFx.frameRotation }, { scale: previewFx.frameScale }],
+            },
+          ]}
+        />
         <LinearGradient
           colors={[...theme.gradientTint] as [string, string]}
-          style={[StyleSheet.absoluteFill, { opacity: 0.6 }]}
+          style={[StyleSheet.absoluteFill, { opacity: 0.52 }]}
         />
         {previewFx.rainbow && (
           <LinearGradient
             colors={[...previewFx.rainbow] as [string, string, string, string]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={[StyleSheet.absoluteFill, { opacity: 0.92 }]}
+            style={[StyleSheet.absoluteFill, { opacity: 0.9 }]}
           />
         )}
         <View style={[styles.themePreviewAura, { borderColor: previewFx.glowColor, shadowColor: previewFx.glowColor }]} />
-        <View style={styles.themePreviewSweep}>
+        <View style={[styles.themePreviewSweep, { transform: [{ translateX: 32 }, { skewX: '-16deg' }, { rotate: previewFx.frameRotation }] }]}>
           <LinearGradient
             colors={[...previewFx.sweep] as [string, string, string]}
             start={{ x: 0, y: 0 }}
@@ -196,6 +408,29 @@ const ThemePreviewCard: React.FC<{
             style={StyleSheet.absoluteFill}
           />
         </View>
+        {previewFx.burstColor && (
+          <View style={styles.themePreviewBurstLayer} pointerEvents="none">
+            {BURST_ANGLES.map((angle, idx) => (
+              <View
+                key={`burst-${idx}`}
+                style={[
+                  styles.themePreviewBurstRay,
+                  {
+                    backgroundColor: previewFx.burstColor,
+                    transform: [{ rotate: `${angle}deg` }],
+                  },
+                ]}
+              />
+            ))}
+          </View>
+        )}
+        {previewFx.electricColor && (
+          <>
+            <View style={[styles.themePreviewElectricArc, { top: 18, left: 18, borderColor: previewFx.electricColor, transform: [{ rotate: '-14deg' }] }]} />
+            <View style={[styles.themePreviewElectricArc, { top: 30, right: 16, borderColor: previewFx.electricColor, transform: [{ rotate: '18deg' }] }]} />
+            <View style={[styles.themePreviewElectricArc, { bottom: 20, left: 38, borderColor: previewFx.electricColor, transform: [{ rotate: '-4deg' }] }]} />
+          </>
+        )}
         {previewFx.sparkle && (
           <>
             <View style={[styles.themePreviewSpark, { left: '14%', top: '18%', backgroundColor: previewFx.sparkle, shadowColor: previewFx.sparkle }]} />
@@ -203,9 +438,7 @@ const ThemePreviewCard: React.FC<{
             <View style={[styles.themePreviewSpark, { left: '69%', top: '70%', width: 5, height: 5, borderRadius: 2.5, backgroundColor: previewFx.sparkle, shadowColor: previewFx.sparkle }]} />
           </>
         )}
-        {/* Üstte çimen şeridi */}
-        <View style={styles.grassStripe} />
-        {/* Card content preview */}
+        <View style={[styles.themePreviewCore, { borderColor: theme.borderColor }]} />
         <Text style={styles.themeEmoji}>{txt(theme.emoji)}</Text>
         <Text style={[styles.themePreviewWord, { color: theme.borderGlow }]}>
           {txt('Example')}
@@ -220,7 +453,6 @@ const ThemePreviewCard: React.FC<{
         }]} />
       </LinearGradient>
 
-      {/* Info section - toprak tonlu arka plan */}
       <View style={styles.themeInfo}>
         <View style={styles.themeNameRow}>
           <Text style={styles.themeName}>{txt(theme.name)}</Text>
@@ -276,7 +508,8 @@ const ThemePreviewCard: React.FC<{
       </View>
     </View>
   );
-};
+});
+ThemePreviewCard.displayName = 'ThemePreviewCard';
 
 // ================================================================
 //  Koleksiyon Karti Bileseni
@@ -290,39 +523,68 @@ const CollectibleCardItem: React.FC<{
   rewardThemeName?: string;
   onClaimTheme?: () => void;
   onEquipTheme?: () => void;
-}> = ({ card, isUnlocked, progress, onCollect, isThemeOwned = false, rewardThemeName, onClaimTheme, onEquipTheme }) => {
+}> = React.memo(({ card, isUnlocked, progress, onCollect, isThemeOwned = false, rewardThemeName, onClaimTheme, onEquipTheme }) => {
   const rarity = RARITY_COLORS[card.rarity];
   const progressPct = Math.min(progress / card.unlockTarget, 1);
   const conditionMet = progress >= card.unlockTarget;
+  const collectibleFx = useMemo(() => getCollectiblePreviewFx(card), [card.id, card.rarity]);
+  const collectibleGradient = isUnlocked
+    ? collectibleFx.gradient
+    : conditionMet
+      ? [collectibleFx.gradient[1], collectibleFx.gradient[0], collectibleFx.gradient[1]] as [string, string, string]
+      : ['#111827', '#1f2937', '#111827'] as [string, string, string];
 
   return (
     <View style={[styles.collectibleCard, {
       borderColor: isUnlocked ? rarity.border : conditionMet ? SOIL_COLORS.wheat : 'rgba(100,100,100,0.3)',
       opacity: isUnlocked ? 1 : conditionMet ? 1 : 0.7,
     }]}>
-      {/* Toprak arka plan */}
       <LinearGradient
-        colors={isUnlocked
-          ? [SOIL_COLORS.richSoil, SOIL_COLORS.lightSoil]
-          : [SOIL_COLORS.darkSoil, SOIL_COLORS.richSoil]
-        }
+        colors={collectibleGradient}
         style={StyleSheet.absoluteFill}
       />
-      {/* Toprak doku noktaları */}
-      {[...Array(6)].map((_, i) => (
-        <View
-          key={i}
-          style={{
-            position: 'absolute',
-            left: `${(i * 29 + 5) % 85}%` as any,
-            top: `${(i * 37 + 8) % 80}%` as any,
-            width: 2 + (i % 2) * 2,
-            height: 2 + (i % 2) * 2,
-            backgroundColor: 'rgba(141,110,99,0.3)',
-            borderRadius: 3,
-          }}
-        />
-      ))}
+      <View
+        style={[
+          styles.collectibleAura,
+          {
+            borderColor: collectibleFx.glowColor,
+            shadowColor: collectibleFx.glowColor,
+            opacity: isUnlocked ? 0.95 : conditionMet ? 0.7 : 0.45,
+          },
+        ]}
+      />
+      <View style={styles.collectibleTextureLayer}>
+        {COLLECTIBLE_TEXTURE_LAYOUT.map((dot, i) => (
+          <View
+            key={i}
+            style={[
+              styles.collectibleTextureDot,
+              {
+                left: dot.left,
+                top: dot.top,
+                width: dot.size,
+                height: dot.size,
+                opacity: dot.opacity,
+                backgroundColor: collectibleFx.textureColor,
+              },
+            ]}
+          />
+        ))}
+      </View>
+      <View style={styles.collectibleBurstLayer}>
+        {BURST_ANGLES.slice(0, 6).map((angle, idx) => (
+          <View
+            key={`collectible-burst-${idx}`}
+            style={[
+              styles.collectibleBurstRay,
+              {
+                backgroundColor: collectibleFx.burstColor,
+                transform: [{ rotate: `${angle}deg` }],
+              },
+            ]}
+          />
+        ))}
+      </View>
       <View style={styles.collectibleTop}>
         <Text style={styles.collectibleEmoji}>
           {isUnlocked ? txt(card.emoji) : conditionMet ? txt('🎁') : txt('🔒')}
@@ -394,7 +656,8 @@ const CollectibleCardItem: React.FC<{
       )}
     </View>
   );
-};
+});
+CollectibleCardItem.displayName = 'CollectibleCardItem';
 
 // ================================================================
 //  ANA BILESEN
@@ -813,31 +1076,6 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
               ))}
             </View>
 
-            {/* Background Style */}
-            <Text style={styles.sectionTitle}>{txt('🌾 Arka Plan')}</Text>
-            <View style={styles.optionRow}>
-              {([
-                { key: 'default', label: txt('Varsayılan') },
-                { key: 'soil', label: txt('Toprak') },
-              ] as { key: CardBackgroundStyle; label: string }[]).map((option) => (
-                <TouchableOpacity
-                  key={option.key}
-                  style={[
-                    styles.optionChip,
-                    cardCustomization.backgroundStyle === option.key && styles.optionChipActive,
-                  ]}
-                  onPress={() => handleCustomizationChange('backgroundStyle', option.key)}
-                >
-                  <Text style={[
-                    styles.optionChipText,
-                    cardCustomization.backgroundStyle === option.key && styles.optionChipTextActive,
-                  ]}>
-                    {option.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
             {/* Toggle options */}
             <Text style={styles.sectionTitle}>{txt('🎛️ Görünüm Seçenekleri')}</Text>
             {[
@@ -846,6 +1084,9 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
               { key: 'showLevel', label: txt('Seviye Göster'), desc: txt('Kart seviyesini göster') },
               { key: 'compactMode', label: txt('Kompakt Mod'), desc: txt('Kartları daha küçük göster') },
               { key: 'largeMode', label: txt('Büyük Kart Modu'), desc: txt('Kartları daha büyük göster') },
+              { key: 'enableCardGlow', label: txt('Parlama Efekti'), desc: txt('Glow, aura ve parlayan kenar efektlerini aç/kapat') },
+              { key: 'enableCardBounce', label: txt('Zıplama Efekti'), desc: txt('Kart pulse ve bounce hareketlerini aç/kapat') },
+              { key: 'enableCardBurstFx', label: txt('Sıçrama Efekti'), desc: txt('Hasat sırasında su/böcek/splash efektlerini aç/kapat') },
             ].map((opt) => (
               <TouchableOpacity
                 key={opt.key}
@@ -870,6 +1111,34 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
                 </View>
               </TouchableOpacity>
             ))}
+
+            <Text style={styles.sectionTitle}>{txt('Zıplama Şiddeti')}</Text>
+            <View style={styles.optionRow}>
+              {([
+                { key: 'min', label: txt('Min'), desc: txt('Daha sakin, düşük amplitude') },
+                { key: 'normal', label: txt('Normal'), desc: txt('Dengeli hareket') },
+                { key: 'max', label: txt('Max'), desc: txt('Daha güçlü ve hızlı bounce') },
+              ] as { key: CardBounceIntensity; label: string; desc: string }[]).map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[
+                    styles.optionChip,
+                    cardCustomization.cardBounceIntensity === option.key && styles.optionChipActive,
+                  ]}
+                  onPress={() => handleCustomizationChange('cardBounceIntensity', option.key)}
+                >
+                  <Text style={[
+                    styles.optionChipText,
+                    cardCustomization.cardBounceIntensity === option.key && styles.optionChipTextActive,
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={styles.sectionSubtitle}>
+              {txt('Min: sakin • Normal: dengeli • Max: güçlü bounce')}
+            </Text>
           </View>
         )}
 
@@ -942,23 +1211,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  // Toprak doku elementleri
-  soilTextureOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: 'hidden',
-  },
-  soilDot: {
-    position: 'absolute',
-  },
-  grassStripe: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    backgroundColor: SOIL_COLORS.grassGreen,
-    opacity: 0.6,
-  },
   // Tab bar
   tabBar: {
     paddingHorizontal: 12,
@@ -1062,6 +1314,56 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    overflow: 'hidden',
+  },
+  themePreviewTextureLayer: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+  },
+  themePreviewTextureDot: {
+    position: 'absolute',
+    borderRadius: 999,
+  },
+  themePreviewFrame: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    bottom: 8,
+    left: 8,
+    borderRadius: 14,
+    borderWidth: 1.2,
+    opacity: 0.65,
+  },
+  themePreviewCore: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    opacity: 0.24,
+  },
+  themePreviewBurstLayer: {
+    position: 'absolute',
+    width: 42,
+    height: 42,
+    justifyContent: 'center',
+    alignItems: 'center',
+    pointerEvents: 'none',
+  },
+  themePreviewBurstRay: {
+    position: 'absolute',
+    width: 30,
+    height: 2.5,
+    borderRadius: 2,
+    opacity: 0.62,
+  },
+  themePreviewElectricArc: {
+    position: 'absolute',
+    width: 22,
+    height: 10,
+    borderTopWidth: 2,
+    borderRadius: 16,
+    opacity: 0.9,
   },
   themeEmoji: { fontSize: 28, marginBottom: 2 },
   themePreviewWord: { fontSize: 16, fontWeight: '800' },
@@ -1168,10 +1470,43 @@ const styles = StyleSheet.create({
     width: (SCREEN_WIDTH - 48) / 2,
     marginBottom: 12,
     borderRadius: 14,
-    backgroundColor: SOIL_COLORS.richSoil,
+    backgroundColor: '#111827',
     borderWidth: 1,
     padding: 12,
     overflow: 'hidden',
+  },
+  collectibleAura: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 1.2,
+    borderRadius: 14,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 14,
+  },
+  collectibleTextureLayer: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+  },
+  collectibleTextureDot: {
+    position: 'absolute',
+    borderRadius: 999,
+  },
+  collectibleBurstLayer: {
+    position: 'absolute',
+    top: 16,
+    right: 14,
+    width: 28,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.82,
+    pointerEvents: 'none',
+  },
+  collectibleBurstRay: {
+    position: 'absolute',
+    width: 20,
+    height: 2,
+    borderRadius: 2,
   },
   collectibleTop: {
     flexDirection: 'row',

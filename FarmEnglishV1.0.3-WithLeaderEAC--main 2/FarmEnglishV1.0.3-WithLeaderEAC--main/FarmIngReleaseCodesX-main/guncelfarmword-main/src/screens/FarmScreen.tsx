@@ -960,9 +960,6 @@ export function FarmScreen() {
   const transferEvent = useFarmStore(state => state.transferEvent);
   const consumeTransferEvent = useFarmStore(state => state.consumeTransferEvent);
   const setStoreFeedVisible = useFarmStore(state => state.setFeedVisible); // Swipe block için
-  const activeCardTheme = useFarmStore(state => state.activeCardTheme);
-  const ownedCardThemes = useFarmStore(state => state.ownedCardThemes);
-  const setActiveCardTheme = useFarmStore(state => state.setActiveCardTheme);
   const updateCardCustomization = useFarmStore(state => state.updateCardCustomization);
 
   // ⚡ PERFORMANS  FeedCard'a prop olarak geçilecek (hook bypass)
@@ -1007,18 +1004,10 @@ export function FarmScreen() {
     [guidedModeTargetWordText]
   );
   const gridColumns = cardCustomization?.largeMode ? 1 : cardCustomization?.compactMode ? 3 : 2;
-  const isSoilQuickThemeActive = cardCustomization?.backgroundStyle === 'soil' || activeCardTheme === 'soil';
+  const isSoilQuickThemeActive = cardCustomization?.backgroundStyle === 'soil';
   const handleQuickThemeSwitch = useCallback((mode: 'default' | 'soil') => {
-    if (mode === 'soil') {
-      updateCardCustomization({ backgroundStyle: 'soil' });
-      if (Array.isArray(ownedCardThemes) && ownedCardThemes.includes('soil')) {
-        setActiveCardTheme('soil');
-      }
-      return;
-    }
-    updateCardCustomization({ backgroundStyle: 'default' });
-    setActiveCardTheme('default');
-  }, [ownedCardThemes, setActiveCardTheme, updateCardCustomization]);
+    updateCardCustomization({ backgroundStyle: mode });
+  }, [updateCardCustomization]);
 
   //  GÜNLÜK GÖREVLER PANEL
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
