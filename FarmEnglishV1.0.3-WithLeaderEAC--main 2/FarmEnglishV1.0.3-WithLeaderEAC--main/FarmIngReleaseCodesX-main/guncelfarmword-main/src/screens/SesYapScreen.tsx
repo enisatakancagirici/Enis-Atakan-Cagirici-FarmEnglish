@@ -739,6 +739,22 @@ export default function SesYapScreen() {
             //  TTS'i durdur  audio session akşmasn nle
             sound.stopSpeaking?.();
             sound.setRecordingActive?.(false);
+            void (async () => {
+                try {
+                    const lingeringUri = await stopRecording();
+                    if (lingeringUri) {
+                        await deleteRecording();
+                        return;
+                    }
+                } catch {
+                    // no-op
+                }
+                try {
+                    await deleteRecording();
+                } catch {
+                    // no-op
+                }
+            })();
         };
     }, []);
 
@@ -907,6 +923,9 @@ export default function SesYapScreen() {
         try {
             const uri = await stopRecording();
             if (!uri || !sentence) {
+                if (uri) {
+                    await deleteRecording();
+                }
                 return;
             }
 
@@ -1021,10 +1040,12 @@ export default function SesYapScreen() {
         } catch (error) {
             console.error('[SesYap] processRecording error:', error);
         } finally {
-            setIsProcessing(false);
+            if (isMountedRef.current) {
+                setIsProcessing(false);
+                setRemainingTime(RECORDING_DURATION_MS / 1000);
+            }
             isProcessingRef.current = false;
             isRecordingRef.current = false;
-            setRemainingTime(RECORDING_DURATION_MS / 1000);
         }
     }, [isRecording, sentence, filledWords, sentenceWords, addSesyapHistory, addSesyapScore, ensureInternetForSesYap, queueQuestProgress, isGuidedSesYapStep, clearRecordingTimers, scheduleUiTimeout]);
 

@@ -1164,6 +1164,7 @@ export function FarmScreen() {
   const gridListRef = useRef<any>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const lastMeaningSpokenRef = useRef<{ meaning: string; time: number } | null>(null);
+  const deferredMeaningSpeakTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [activeToast, setActiveToast] = useState<TransferEvent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSeedMarketDisabled, setIsSeedMarketDisabled] = useState(false);
@@ -1803,15 +1804,34 @@ export function FarmScreen() {
     sound.speakWord(firstMeaning, 'tr-TR');
   }, []);
 
+  const speakFirstMeaningDeferred = useCallback((meaning?: string) => {
+    if (deferredMeaningSpeakTimeoutRef.current) {
+      clearTimeout(deferredMeaningSpeakTimeoutRef.current);
+    }
+    deferredMeaningSpeakTimeoutRef.current = setTimeout(() => {
+      speakFirstMeaning(meaning);
+      deferredMeaningSpeakTimeoutRef.current = null;
+    }, 70);
+  }, [speakFirstMeaning]);
+
+  useEffect(() => {
+    return () => {
+      if (deferredMeaningSpeakTimeoutRef.current) {
+        clearTimeout(deferredMeaningSpeakTimeoutRef.current);
+        deferredMeaningSpeakTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   // ⚡ Feed callback'leri  renderItem dşnda tanml, MemoFeedCard re-render' önler
   const handleFeedQuizClose = useCallback((wordId: string) => {
     haptic.light();
     // Store'dan güncel meaning al (closure stale olmasn)
     const state = useFarmStore.getState();
     const w = state.farm.find((f: any) => f.id === wordId) || state.inventory.find((f: any) => f.id === wordId);
-    speakFirstMeaning(w?.meaning);
+    speakFirstMeaningDeferred(w?.meaning);
     setFeedQuizWordId(null);
-  }, [speakFirstMeaning]);
+  }, [speakFirstMeaningDeferred]);
 
   const handleFeedPlant = useCallback((wordId: string) => {
     haptic.heavy();
@@ -2430,9 +2450,9 @@ export function FarmScreen() {
               allWords={pool || []}
               onAnswer={handleQuizAnswer}
               onClose={() => {
-                //  MiniQuiz kapanrken Türkçe anlamn seslendir (hasat ile birebir ayn)
-                speakFirstMeaning(quizWord?.meaning);
+                const meaning = quizWord?.meaning;
                 setQuizWordId(null);
+                speakFirstMeaningDeferred(meaning);
               }}
             />
           )}
@@ -3369,6 +3389,4 @@ const styles = StyleSheet.create({
 });
 
 export default FarmScreen;
-
-
 

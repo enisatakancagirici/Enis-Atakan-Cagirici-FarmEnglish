@@ -706,7 +706,7 @@ const getComboMessage = (streak: number) => {
 // UI akışını hızlandırırken animasyon görünümünü koruyan kısa geçiş süreleri
 const QUIZ_FLOW_TIMINGS = {
   comboHoldMs: 340,
-  completionMs: 500,
+  completionMs: 349,
   nextQuestionMs: 300,
   wrongFeedMs: 400,
   wrongMasterMs: 520,

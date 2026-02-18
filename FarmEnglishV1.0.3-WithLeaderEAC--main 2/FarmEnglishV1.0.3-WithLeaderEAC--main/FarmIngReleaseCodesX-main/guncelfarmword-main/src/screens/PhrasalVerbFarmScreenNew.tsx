@@ -556,9 +556,14 @@ export default function PhrasalVerbFarmScreenNew({
   const cloudTipsDismissed = useFarmStore(s => s.cloudTipsDismissed);
   const setCloudTipDismissed = useFarmStore(s => s.setCloudTipDismissed);
   const showPhrasalFarmCloudTip = !cloudTipsDismissed['phrasalFarm'];
+  const deferredMeaningSpeakTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     return () => {
+      if (deferredMeaningSpeakTimeoutRef.current) {
+        clearTimeout(deferredMeaningSpeakTimeoutRef.current);
+        deferredMeaningSpeakTimeoutRef.current = null;
+      }
       sound.stopSpeaking();
     };
   }, []);
@@ -572,6 +577,21 @@ export default function PhrasalVerbFarmScreenNew({
     lastMeaningSpokenRef.current = { meaning: firstMeaning, time: now };
     sound.speakWord(firstMeaning, 'tr-TR');
   }, []);
+
+  const speakFirstMeaningDeferred = useCallback((meaning?: string) => {
+    if (deferredMeaningSpeakTimeoutRef.current) {
+      clearTimeout(deferredMeaningSpeakTimeoutRef.current);
+    }
+    deferredMeaningSpeakTimeoutRef.current = setTimeout(() => {
+      speakFirstMeaning(meaning);
+      deferredMeaningSpeakTimeoutRef.current = null;
+    }, 70);
+  }, [speakFirstMeaning]);
+
+  const closeMiniQuizWithDeferredMeaning = useCallback((meaning?: string) => {
+    openMiniQuiz?.();
+    speakFirstMeaningDeferred(meaning);
+  }, [openMiniQuiz, speakFirstMeaningDeferred]);
 
   // State - embedded modda dışarıdan gelen searchVisible kullan
   const [internalSearchVisible, setInternalSearchVisible] = useState(false);
@@ -1103,8 +1123,7 @@ export default function PhrasalVerbFarmScreenNew({
             onAnswer={handleQuizAnswer}
             onClose={() => {
               // 🔊 MiniQuiz kapanırken Türkçe anlamını seslendir (hasat ile aynı)
-              speakFirstMeaning(targetWord?.meaning);
-              openMiniQuiz?.();
+              closeMiniQuizWithDeferredMeaning(targetWord?.meaning);
             }}
           />
         )}
@@ -1157,8 +1176,8 @@ export default function PhrasalVerbFarmScreenNew({
                     onQuizClose={() => {
                       haptic.light();
                       // 🔊 Feed MiniQuiz bitince Türkçe anlamını seslendir
-                      speakFirstMeaning(currentWord?.meaning);
                       setFeedQuizWordId(null);
+                      speakFirstMeaningDeferred(currentWord?.meaning);
                     }}
                     onToggleFavorite={handleFeedToggleFavorite}
                     onPlantToFarm={handleFeedPlantToFarm}
@@ -1326,8 +1345,7 @@ export default function PhrasalVerbFarmScreenNew({
           onAnswer={handleQuizAnswer}
           onClose={() => {
             // 🔊 MiniQuiz kapanırken Türkçe anlamını seslendir (hasat ile aynı)
-            speakFirstMeaning(targetWord?.meaning);
-            openMiniQuiz?.();
+            closeMiniQuizWithDeferredMeaning(targetWord?.meaning);
           }}
         />
       )}
@@ -1381,8 +1399,8 @@ export default function PhrasalVerbFarmScreenNew({
                     onQuizClose={() => {
                       haptic.light();
                       // 🔊 Feed MiniQuiz bitince Türkçe anlamını seslendir
-                      speakFirstMeaning(currentWord?.meaning);
                       setFeedQuizWordId(null);
+                      speakFirstMeaningDeferred(currentWord?.meaning);
                     }}
                     onToggleFavorite={handleFeedToggleFavorite}
                     onPlantToFarm={handleFeedPlantToFarm}
