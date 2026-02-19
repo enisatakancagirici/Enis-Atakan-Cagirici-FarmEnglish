@@ -106,10 +106,9 @@ const PRELOADED_IMAGES = {
   sesyap: require("../../assets/images/maskot/yeniTasar\u0131mlar/SesYap.webp"),
   pratik: require("../../assets/images/maskot/yeniTasar\u0131mlar/PratikMerkezi.webp"),
   customWord: require("../../assets/images/maskot/yeniTasar\u0131mlar/yfxnanurut0zfbr7p3vy.webp"),
-  // Market Modal Resimleri
+  // Market/Store visual assets
   marketGuc: require("../../assets/images/maskot/guc_magazasi.webp"),
   marketTohum: require("../../assets/images/maskot/tohum_pazar\u0131.webp"),
-  marketPhrasal: require("../../assets/images/maskot/market_pharasal.webp"),
 };
 
 // Premium Header with Logo - FULL COVERAGE
@@ -1372,6 +1371,8 @@ export const HomeScreen = ({ navigation }: any) => {
         PRELOADED_IMAGES.phrasal,
         PRELOADED_IMAGES.soruIsareti,
         PRELOADED_IMAGES.market,
+        PRELOADED_IMAGES.marketGuc,
+        PRELOADED_IMAGES.marketTohum,
         PRELOADED_IMAGES.cardShop,
         PRELOADED_IMAGES.battle,
         PRELOADED_IMAGES.sesyap,
@@ -1391,9 +1392,6 @@ export const HomeScreen = ({ navigation }: any) => {
   //  Tutorial State
   const [showTutorial, setShowTutorial] = useState(false);
 
-  //  Market Modal State
-  const [showMarket, setShowMarket] = useState(false);
-  
   //  Quest Panel State
   const [questsPanelVisible, setQuestsPanelVisible] = useState(false);
   const [isCefrDetailsVisible, setIsCefrDetailsVisible] = useState(false);
@@ -1982,7 +1980,6 @@ export const HomeScreen = ({ navigation }: any) => {
     questGuideModalVisible ||
     questsPanelVisible ||
     practiceCenterVisible ||
-    showMarket ||
     cardShopVisible ||
     !!quizWordId ||
     notificationPromptVisible ||
@@ -2436,7 +2433,7 @@ export const HomeScreen = ({ navigation }: any) => {
                   }}
                   imageSource={PRELOADED_IMAGES.cardShop}
                   title="KART PAZARI"
-                  subtitle="Tema ve kisisellestir"
+                  subtitle="Tema ve kişiselleştir"
                   size="halfSquare"
                   textAlign="center"
                   imageFit="cover"
@@ -2445,17 +2442,13 @@ export const HomeScreen = ({ navigation }: any) => {
                   hasBounce={true}
                   wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
                   onHelpPress={showHomeHelpModal}
-                  helpText="Kart pazarinda kart temalarini acar ve kartlarini kisisellestirirsin."
+                  helpText="Kart pazarında kart temalarını açar ve kartlarını kişiselleştirirsin."
                 />
                 <PremiumMenuCard
-                  onPress={() => {
-                    registerMeaningfulAction();
-                    haptic.medium();
-                    setShowMarket(true);
-                  }}
-                  imageSource={PRELOADED_IMAGES.market}
-                  title="MARKET"
-                  subtitle="Tohum ve Guc"
+                  onPress={() => handleNav("Store")}
+                  imageSource={PRELOADED_IMAGES.marketGuc}
+                  title="GÜÇ MAĞAZASI"
+                  subtitle="Boost, hint, paket"
                   size="halfSquare"
                   textAlign="center"
                   imageFit="cover"
@@ -2464,13 +2457,28 @@ export const HomeScreen = ({ navigation }: any) => {
                   hasBounce={true}
                   wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
                   onHelpPress={showHomeHelpModal}
-                  helpText="Marketten guclendirme alir, tohum satin alir ve gelisimini hizlandirirsin."
+                  helpText="Güç mağazasından boost, hint ve paket alarak ilerleme durumunu hızlandırırsın."
+                />
+                <PremiumMenuCard
+                  onPress={() => handleNav("SeedMarket")}
+                  imageSource={PRELOADED_IMAGES.marketTohum}
+                  title="TOHUM PAZARI"
+                  subtitle="4000+ premium tohum"
+                  size="halfSquare"
+                  textAlign="center"
+                  imageFit="cover"
+                  accentColor="#22C55E"
+                  delay={340}
+                  hasBounce={true}
+                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
+                  onHelpPress={showHomeHelpModal}
+                  helpText="Tohum pazarından yeni kelime tohumları alıp çiftliğine ekip hasat edersin."
                 />
                 <PremiumMenuCard
                   onPress={() => handleNav("PhrasalVerbsMenu")}
                   imageSource={PRELOADED_IMAGES.phrasal}
                   title="PHRASAL"
-                  subtitle="Deyimleri ogren"
+                  subtitle="Deyimleri öğren"
                   size="halfSquare"
                   textAlign="center"
                   imageFit="cover"
@@ -2479,7 +2487,7 @@ export const HomeScreen = ({ navigation }: any) => {
                   hasBounce={true}
                   wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
                   onHelpPress={showHomeHelpModal}
-                  helpText="Phrasal verbs bolumunde gundelik ingilizcedeki kritik kaliplari calisirsin."
+                  helpText="Phrasal verbs bölümünde gündelik İngilizcedeki kritik kalıpları çalışırsın."
                 />
                 <PremiumMenuCard
                   onPress={() => {
@@ -2488,8 +2496,8 @@ export const HomeScreen = ({ navigation }: any) => {
                     setPracticeCenterVisible(true);
                   }}
                   imageSource={PRELOADED_IMAGES.pratik}
-                  title="PRATIK MERKEZI"
-                  subtitle="Eslestir, doldur, YDS"
+                  title="PRATİK MERKEZİ"
+                  subtitle="Eşleştir, doldur, YDS"
                   size="halfSquare"
                   textAlign="center"
                   imageFit="cover"
@@ -2498,7 +2506,7 @@ export const HomeScreen = ({ navigation }: any) => {
                   hasBounce={true}
                   wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
                   onHelpPress={showHomeHelpModal}
-                  helpText="Pratik merkezinde hedefe gore moduller secip sistemli ilerlersin."
+                  helpText="Pratik merkezinde hedefe göre modüller seçip sistemli ilerlersin."
                 />
               </ScrollView>
             </View>
@@ -2839,146 +2847,7 @@ export const HomeScreen = ({ navigation }: any) => {
       />
 
 
-      {/*  Market Modal - Premium 3-Card Layout */}
-      <Modal
-        visible={showMarket}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowMarket(false)}
-      >
-        <View style={styles.marketModalOverlay}>
-          <View style={styles.marketModalContent}>
-            <LinearGradient
-              colors={["#13131A", "#0a0a0f", "#13131A"]}
-              style={styles.marketModalGradient}
-            >
-              {/* Header */}
-              <View style={styles.marketModalHeader}>
-                <View style={styles.marketModalHeaderLeft}>
-                  <Text style={styles.marketModalTitle}>Market</Text>
-                  <Text style={styles.marketModalSubtitle}>Güçlen, Geliş, Kazan!</Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => setShowMarket(false)}
-                  style={styles.marketModalCloseBtn}
-                >
-                  <Text style={styles.marketModalCloseText}>{'\\u2715'}</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Premium Market Cards */}
-              <View style={styles.marketCardsContainer}>
-                {/* ⚡ Güç Mağazası */}
-                <TouchableOpacity
-                  style={styles.marketPremiumCard}
-                  onPress={() => {
-                    setShowMarket(false);
-                    haptic.medium();
-                    navigation.navigate("Store" as never);
-                  }}
-                  activeOpacity={0.9}
-                >
-                  <View style={styles.marketCardImageWrapper}>
-                    <Image
-                      source={PRELOADED_IMAGES.marketGuc}
-                      style={styles.marketFullCoverImage}
-                      contentFit="cover"
-                    />
-                    <LinearGradient
-                      colors={[
-                        "transparent",
-                        "rgba(0,0,0,0.7)",
-                        "rgba(0,0,0,0.9)",
-                      ]}
-                      style={styles.marketImageOverlay}
-                    />
-                    <View style={styles.marketCardTextOverlay}>
-                      <Text style={styles.marketPremiumTitle}>Güç Mağazası</Text>
-                      <Text style={styles.marketPremiumSubtitle}>
-                        Boost'lar, Hint'ler ve Paketler
-                      </Text>
-                    </View>
-                    <View style={styles.marketPremiumArrow}>
-                      <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-
-                {/* sUi Tohum Pazari */}
-                <TouchableOpacity
-                  style={styles.marketPremiumCard}
-                  onPress={() => {
-                    setShowMarket(false);
-                    haptic.medium();
-                    navigation.navigate("SeedMarket" as never);
-                  }}
-                  activeOpacity={0.9}
-                >
-                  <View style={styles.marketCardImageWrapper}>
-                    <Image
-                      source={PRELOADED_IMAGES.marketTohum}
-                      style={styles.marketFullCoverImage}
-                      contentFit="cover"
-                    />
-                    <LinearGradient
-                      colors={[
-                        "transparent",
-                        "rgba(0,0,0,0.7)",
-                        "rgba(0,0,0,0.9)",
-                      ]}
-                      style={styles.marketImageOverlay}
-                    />
-                    <View style={styles.marketCardTextOverlay}>
-                      <Text style={styles.marketPremiumTitle}>Tohum Pazari</Text>
-                      <Text style={styles.marketPremiumSubtitle}>
-                        4000+ premium kelime tohumu
-                      </Text>
-                    </View>
-                    <View style={styles.marketPremiumArrow}>
-                      <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-
-                {/* s Phrasal Verbs */}
-                <TouchableOpacity
-                  style={styles.marketPremiumCard}
-                  onPress={() => {
-                    setShowMarket(false);
-                    haptic.medium();
-                    navigation.navigate("PhrasalVerbsMenu" as never);
-                  }}
-                  activeOpacity={0.9}
-                >
-                  <View style={styles.marketCardImageWrapper}>
-                    <Image
-                      source={PRELOADED_IMAGES.marketPhrasal}
-                      style={styles.marketFullCoverImage}
-                      contentFit="cover"
-                    />
-                    <LinearGradient
-                      colors={[
-                        "transparent",
-                        "rgba(0,0,0,0.7)",
-                        "rgba(0,0,0,0.9)",
-                      ]}
-                      style={styles.marketImageOverlay}
-                    />
-                    <View style={styles.marketCardTextOverlay}>
-                      <Text style={styles.marketPremiumTitle}>Phrasal Verbs</Text>
-                      <Text style={styles.marketPremiumSubtitle}>
-                        200+ phrasal verb ustaol!</Text>
-                    </View>
-                    <View style={styles.marketPremiumArrow}>
-                      <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
-          </View>
-        </View>
-      </Modal>
+      
     </View>
   );
 };

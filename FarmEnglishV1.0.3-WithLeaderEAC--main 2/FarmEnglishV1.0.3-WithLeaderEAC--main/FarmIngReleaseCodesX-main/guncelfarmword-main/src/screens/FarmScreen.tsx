@@ -510,7 +510,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#10b981', fontWeight: '700' }]}>Tarlaya Geri Ek</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(16, 185, 129, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(16, 185, 129, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
             </TouchableOpacity>
           ) : word.isHarvestReady && !isInInventory ? (
             // ?? HASAT ET BUTONU - Altn premium
@@ -536,7 +536,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#f59e0b', fontWeight: '700' }]}>Hasat Et</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(245, 158, 11, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(245, 158, 11, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
             </TouchableOpacity>
           ) : isInInventory ? (
             // ?? ENVANTER  TARLAYA EKLE BUTONU
@@ -562,7 +562,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#22c55e', fontWeight: '700' }]}>Tarlaya Ekle</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(34, 197, 94, 0.7)', fontSize: 11 }]}>kaydir veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(34, 197, 94, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
             </TouchableOpacity>
           ) : (
             // ?? ALI BUTONU - Normal kart
@@ -1364,19 +1364,11 @@ export function FarmScreen() {
       topTabDownTravelRef.current = 0;
     }
 
-    const shouldHide =
-      y > HIDE_OFFSET &&
-      delta > 1.6 &&
-      topTabDownTravelRef.current >= HIDE_TRAVEL_DISTANCE;
-
     const shouldShow =
       topTabUpTravelRef.current >= SHOW_TRAVEL_DISTANCE ||
       (y <= SHOW_OFFSET && delta < -1.2);
 
-    if (shouldHide) {
-      setTopTabVisibility(false);
-      topTabDownTravelRef.current = 0;
-    } else if (shouldShow) {
+    if (shouldShow) {
       setTopTabVisibility(true);
       topTabUpTravelRef.current = 0;
     }
@@ -2376,7 +2368,7 @@ export function FarmScreen() {
               !isSoilQuickThemeActive && quickThemeTextActiveStyle,
             ]}
           >
-            Varsayilan
+            Varsayılan
           </Text>
         </TouchableOpacity>
         <TouchableOpacity

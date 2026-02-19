@@ -63,7 +63,7 @@ export interface CardHeaderThemePreset {
 export const CARD_HEADER_THEME_PRESETS: Record<CardHeaderTheme, CardHeaderThemePreset> = {
   sunforge: {
     id: 'sunforge',
-    label: 'Premium Altin',
+    label: 'Premium Altın',
     description: 'Mevcut premium header ve Sıradaki Görev teması',
     emoji: '🌅',
     headerGradient: ['rgba(51, 31, 6, 0.96)', 'rgba(66, 42, 12, 0.95)', 'rgba(30, 41, 59, 0.94)'],
@@ -385,7 +385,7 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
   {
     id: 'obsidian',
     name: 'Obsidyen',
-    description: 'Siyah cam ve metalik premium isik',
+    description: 'Siyah cam ve metalik premium ışık',
     rarity: 'common',
     price: 450,
     gradientTint: ['rgba(17, 24, 39, 0.2)', 'rgba(71, 85, 105, 0.16)'],
@@ -463,8 +463,8 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
   },
   {
     id: 'voltstorm',
-    name: 'Volt Firtinasi',
-    description: 'Elektrik patlamasi ve asiri neon enerji',
+    name: 'Volt Fırtınası',
+    description: 'Elektrik patlaması ve aşırı neon enerjisi',
     rarity: 'rare',
     price: 1800,
     gradientTint: ['rgba(6, 182, 212, 0.2)', 'rgba(168, 85, 247, 0.18)'],
@@ -477,7 +477,7 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
   {
     id: 'ionpulse',
     name: 'Ion Pulse',
-    description: 'Yuksek voltajli mavi-cyan darbe',
+    description: 'Yüksek voltajlı mavi-cyan darbe',
     rarity: 'rare',
     price: 1900,
     gradientTint: ['rgba(56, 189, 248, 0.18)', 'rgba(45, 212, 191, 0.18)'],
@@ -490,7 +490,7 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
   {
     id: 'toxicnova',
     name: 'Toxic Nova',
-    description: 'Asiri asidik neon patlama temasi',
+    description: 'Aşırı asidik neon patlama teması',
     rarity: 'rare',
     price: 2000,
     gradientTint: ['rgba(132, 204, 22, 0.18)', 'rgba(34, 197, 94, 0.14)'],
@@ -556,7 +556,7 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
   {
     id: 'plasmaforge',
     name: 'Plasma Forge',
-    description: 'Patlamali plasma cekirdegi ve sarsici glow',
+    description: 'Patlamalı plasma çekirdeği ve sarsıcı glow',
     rarity: 'epic',
     price: 12000,
     gradientTint: ['rgba(251, 146, 60, 0.2)', 'rgba(236, 72, 153, 0.2)'],
@@ -628,7 +628,7 @@ export const CARD_THEME_OVERLAYS: CardThemeOverlay[] = [
   {
     id: 'overdrive',
     name: 'Overdrive',
-    description: 'Roket hizinda elektrik ve alev karmasi',
+    description: 'Roket hızında elektrik ve alev karması',
     rarity: 'legendary',
     price: 0,
     unlockRequirement: 'battle_250',
@@ -658,7 +658,7 @@ export const COLLECTIBLE_CARDS: CollectibleCard[] = [
   { id: 'quiz_starter', name: 'Quiz Başlangıcı', description: 'İlk quiz\'ini tamamladın', rarity: 'common', emoji: '📝', unlockCondition: 'İlk quiz\'i tamamla', unlockKey: 'totalQuizzes', unlockTarget: 1, rewardThemeId: 'minimal' },
   { id: 'quiz_addict', name: 'Quiz Tutkunu', description: '100 quiz tamamladın', rarity: 'rare', emoji: '🧠', unlockCondition: '100 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 100, rewardThemeId: 'neon' },
   { id: 'quiz_master', name: 'Quiz Ustası', description: '500 quiz tamamladın', rarity: 'epic', emoji: '🎓', unlockCondition: '500 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 500, rewardThemeId: 'galaxy' },
-  { id: 'quiz_legend', name: 'Quiz Efsanesi', description: '1000 quiz tamamladin', rarity: 'legendary', emoji: '🎯', unlockCondition: '1000 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 1000, rewardThemeId: 'neonmatrix' },
+  { id: 'quiz_legend', name: 'Quiz Efsanesi', description: '1000 quiz tamamladın', rarity: 'legendary', emoji: '🎯', unlockCondition: '1000 quiz tamamla', unlockKey: 'totalQuizzes', unlockTarget: 1000, rewardThemeId: 'neonmatrix' },
   
   // Combo kartları
   { id: 'combo_5', name: 'Combo Başlangıcı', description: '5 combo yaptın', rarity: 'common', emoji: '🔥', unlockCondition: '5 combo yap', unlockKey: 'bestStreak', unlockTarget: 5, rewardThemeId: 'sunset' },
@@ -670,23 +670,23 @@ export const COLLECTIBLE_CARDS: CollectibleCard[] = [
   { id: 'first_battle', name: 'İlk Zafer', description: 'İlk savaşını kazandın', rarity: 'common', emoji: '⚔️', unlockCondition: 'İlk battle\'ı kazan', unlockKey: 'battleWins', unlockTarget: 1, rewardThemeId: 'amber' },
   { id: 'battle_veteran', name: 'Savaş Gazisi', description: '25 savaş kazandın', rarity: 'rare', emoji: '🛡️', unlockCondition: '25 battle kazan', unlockKey: 'battleWins', unlockTarget: 25, rewardThemeId: 'crystal' },
   { id: 'battle_champion', name: 'Şampiyon', description: '100 savaş kazandın', rarity: 'epic', emoji: '🏅', unlockCondition: '100 battle kazan', unlockKey: 'battleWins', unlockTarget: 100, rewardThemeId: 'phoenix' },
-  { id: 'battle_overdrive', name: 'Overdrive Generali', description: '250 savas kazandin', rarity: 'legendary', emoji: '🚀', unlockCondition: '250 battle kazan', unlockKey: 'battleWins', unlockTarget: 250, rewardThemeId: 'overdrive' },
+  { id: 'battle_overdrive', name: 'Overdrive Generali', description: '250 savaş kazandın', rarity: 'legendary', emoji: '🚀', unlockCondition: '250 battle kazan', unlockKey: 'battleWins', unlockTarget: 250, rewardThemeId: 'overdrive' },
   
   // Streak kartları
   { id: 'streak_7', name: 'Haftalık Seri', description: '7 günlük seri', rarity: 'rare', emoji: '📆', unlockCondition: '7 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 7, rewardThemeId: 'cherry' },
   { id: 'streak_30', name: 'Aylık Seri', description: '30 günlük seri', rarity: 'epic', emoji: '🗓️', unlockCondition: '30 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 30, rewardThemeId: 'aurora' },
   { id: 'streak_100', name: 'Yüz Gün!', description: '100 günlük seri!', rarity: 'legendary', emoji: '💯', unlockCondition: '100 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 100, rewardThemeId: 'royal' },
-  { id: 'streak_180', name: 'Demir Seri', description: '180 gunluk seri', rarity: 'legendary', emoji: '⚡', unlockCondition: '180 gun ust uste oyna', unlockKey: 'dailyStreak', unlockTarget: 180, rewardThemeId: 'ionpulse' },
+  { id: 'streak_180', name: 'Demir Seri', description: '180 günlük seri', rarity: 'legendary', emoji: '⚡', unlockCondition: '180 gün üst üste oyna', unlockKey: 'dailyStreak', unlockTarget: 180, rewardThemeId: 'ionpulse' },
   
   // Coin kartları
   { id: 'rich_farmer', name: 'Zengin Çiftçi', description: '10.000 coin kazandın', rarity: 'rare', emoji: '💰', unlockCondition: '10.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 10000, rewardThemeId: 'diamond' },
   { id: 'millionaire', name: 'Milyoner', description: '100.000 coin kazandın', rarity: 'legendary', emoji: '💎', unlockCondition: '100.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 100000, rewardThemeId: 'royal' },
-  { id: 'coin_tycoon', name: 'Coin Patronu', description: '500.000 coin kazandin', rarity: 'legendary', emoji: '🪙', unlockCondition: '500.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 500000, rewardThemeId: 'obsidian' },
+  { id: 'coin_tycoon', name: 'Coin Patronu', description: '500.000 coin kazandın', rarity: 'legendary', emoji: '🪙', unlockCondition: '500.000 coin kazan', unlockKey: 'lifetimeCoins', unlockTarget: 500000, rewardThemeId: 'obsidian' },
 
   // Plant kartları
   { id: 'planter_100', name: 'Ekici', description: '100 kelime ektin', rarity: 'rare', emoji: '🌱', unlockCondition: '100 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 100, rewardThemeId: 'ocean' },
   { id: 'planter_500', name: 'Baş Ekici', description: '500 kelime ektin', rarity: 'epic', emoji: '🌳', unlockCondition: '500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 500, rewardThemeId: 'voltstorm' },
-  { id: 'planter_1500', name: 'Ekici Ustasi', description: '1500 kelime ektin', rarity: 'legendary', emoji: '☢️', unlockCondition: '1500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 1500, rewardThemeId: 'toxicnova' },
+  { id: 'planter_1500', name: 'Ekici Ustası', description: '1500 kelime ektin', rarity: 'legendary', emoji: '☢️', unlockCondition: '1500 kelime ek', unlockKey: 'lifetimePlantedWords', unlockTarget: 1500, rewardThemeId: 'toxicnova' },
 ];
 
 // ═══════════════════════════════════════════════════════════════

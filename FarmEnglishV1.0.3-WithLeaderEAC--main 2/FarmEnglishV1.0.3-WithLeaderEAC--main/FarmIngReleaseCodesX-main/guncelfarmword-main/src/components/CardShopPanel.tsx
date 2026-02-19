@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -414,12 +414,13 @@ const ThemePreviewCard: React.FC<{
   theme: CardThemeOverlay;
   isOwned: boolean;
   isActive: boolean;
+  isEquipping?: boolean;
   isUnlockable: boolean;
   coins: number;
   onBuy: () => void;
   onEquip: () => void;
   onClaim: () => void;
-}> = React.memo(({ theme, isOwned, isActive, isUnlockable, coins, onBuy, onEquip, onClaim }) => {
+}> = React.memo(({ theme, isOwned, isActive, isEquipping = false, isUnlockable, coins, onBuy, onEquip, onClaim }) => {
   const rarity = RARITY_COLORS[theme.rarity];
   const canAfford = theme.price === 0 || coins >= theme.price;
   const previewFx = useMemo(() => getShopPreviewFx(theme.id), [theme.id]);
@@ -535,16 +536,20 @@ const ThemePreviewCard: React.FC<{
         <Text style={styles.themeDesc}>{txt(theme.description)}</Text>
 
         {/* Action button */}
-        {isActive ? (
+        {isEquipping ? (
           <View style={[styles.themeBtn, styles.themeBtnActive]}>
-            <Text style={styles.themeBtnActiveText}>{txt('✓ Aktif')}</Text>
+            <Text style={styles.themeBtnActiveText}>{txt('⏳ Kullanılıyor...')}</Text>
+          </View>
+        ) : isActive ? (
+          <View style={[styles.themeBtn, styles.themeBtnActive]}>
+            <Text style={styles.themeBtnActiveText}>{txt('✅ Kullanımda')}</Text>
           </View>
         ) : isOwned ? (
           <TouchableOpacity
             style={[styles.themeBtn, styles.themeBtnEquip]}
             onPress={onEquip}
           >
-            <Text style={styles.themeBtnEquipText}>{txt('Kullan')}</Text>
+            <Text style={styles.themeBtnEquipText}>{txt('🎨 Tasarımı Kullan')}</Text>
           </TouchableOpacity>
         ) : theme.price === 0 && isUnlockable ? (
           // art sağlanmış - hemen al butonu
@@ -591,10 +596,11 @@ const CollectibleCardItem: React.FC<{
   onCollect?: (cardId: string) => void;
   isThemeOwned?: boolean;
   isThemeActive?: boolean;
+  isEquippingTheme?: boolean;
   rewardThemeName?: string;
   onClaimTheme?: () => void;
   onEquipTheme?: () => void;
-}> = React.memo(({ card, isUnlocked, progress, onCollect, isThemeOwned = false, isThemeActive = false, rewardThemeName, onClaimTheme, onEquipTheme }) => {
+}> = React.memo(({ card, isUnlocked, progress, onCollect, isThemeOwned = false, isThemeActive = false, isEquippingTheme = false, rewardThemeName, onClaimTheme, onEquipTheme }) => {
   const rarity = RARITY_COLORS[card.rarity];
   const progressPct = Math.min(progress / card.unlockTarget, 1);
   const conditionMet = progress >= card.unlockTarget;
@@ -686,7 +692,11 @@ const CollectibleCardItem: React.FC<{
         </View>
       )}
       {isUnlocked && card.rewardThemeId && isThemeOwned && (
-        isThemeActive ? (
+        isEquippingTheme ? (
+          <View style={[styles.collectibleEquipBtn, styles.collectibleEquipBtnActive]}>
+            <Text style={[styles.collectibleEquipText, styles.collectibleEquipTextActive]}>{txt('⏳ Kullanılıyor...')}</Text>
+          </View>
+        ) : isThemeActive ? (
           <View style={[styles.collectibleEquipBtn, styles.collectibleEquipBtnActive]}>
             <Text style={[styles.collectibleEquipText, styles.collectibleEquipTextActive]}>{txt('\u2705 Kullan\u0131mda')}</Text>
           </View>
@@ -742,6 +752,8 @@ CollectibleCardItem.displayName = 'CollectibleCardItem';
 export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<ShopTab>('themes');
   const [filterRarity, setFilterRarity] = useState<CardRarity | 'all'>('all');
+  const [equippingThemeId, setEquippingThemeId] = useState<string | null>(null);
+  const equipFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Store data selectors
   const coins = useFarmStore(s => s.coins);
@@ -756,6 +768,14 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
     if (newCards.length > 0) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (equipFeedbackTimerRef.current) {
+        clearTimeout(equipFeedbackTimerRef.current);
+      }
+    };
   }, []);
 
   // Stats for unlock checks -- individual primitives avoid new-object-per-render
@@ -843,9 +863,20 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
   }, [stats]);
 
   const handleEquipTheme = useCallback((themeId: string) => {
+    if (equipFeedbackTimerRef.current) {
+      clearTimeout(equipFeedbackTimerRef.current);
+      equipFeedbackTimerRef.current = null;
+    }
+    setEquippingThemeId(themeId);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
     const store = useFarmStore.getState();
     if (store.activeCardTheme === themeId) {
       Haptics.selectionAsync();
+      equipFeedbackTimerRef.current = setTimeout(() => {
+        setEquippingThemeId((current) => (current === themeId ? null : current));
+        equipFeedbackTimerRef.current = null;
+      }, 650);
       return;
     }
 
@@ -856,6 +887,10 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
     if (themeId === 'default') {
       store.updateCardCustomization({ ...DEFAULT_CUSTOMIZATION });
     }
+    equipFeedbackTimerRef.current = setTimeout(() => {
+      setEquippingThemeId((current) => (current === themeId ? null : current));
+      equipFeedbackTimerRef.current = null;
+    }, 850);
   }, []);
 
   // artı sağlanmış achievement temayı ücretsiz al
@@ -1066,6 +1101,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
                   theme={theme}
                   isOwned={ownedThemes.includes(theme.id)}
                   isActive={activeTheme === theme.id}
+                  isEquipping={equippingThemeId === theme.id}
                   isUnlockable={!!(theme.price === 0 && theme.unlockRequirement && themeUnlockMap[theme.id])}
                   coins={coins}
                   onBuy={() => handleBuyTheme(theme)}
@@ -1101,6 +1137,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
                     onCollect={handleCollectCard}
                     isThemeOwned={isThemeOwned}
                     isThemeActive={isThemeActive}
+                    isEquippingTheme={!!(rewardTheme && equippingThemeId === rewardTheme.id)}
                     rewardThemeName={rewardTheme?.name}
                     onClaimTheme={() => handleClaimCollectibleTheme(card)}
                     onEquipTheme={rewardTheme ? () => handleEquipTheme(rewardTheme.id) : undefined}
