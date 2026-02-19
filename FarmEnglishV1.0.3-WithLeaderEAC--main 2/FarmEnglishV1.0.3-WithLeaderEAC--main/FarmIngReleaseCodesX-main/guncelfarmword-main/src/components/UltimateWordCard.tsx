@@ -1218,10 +1218,10 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
       showHarvestButton = true;
       if (masterLevel === 3) {
         // Perfect kart - ödül alınmış mı kontrol et
-        buttonText = rewardClaimedPerfect ? 'Saga Kaydir - Hasat' : 'Saga Kaydir - Hasat (Kraliyet)';
+        buttonText = rewardClaimedPerfect ? 'Sağa Kaydır - Hasat' : 'Sağa Kaydır - Hasat (Kraliyet)';
       } else {
         const nextTierName = getTierName(masterLevel + 1);
-        buttonText = `Saga Kaydir - Hasat (${nextTierName})`;
+        buttonText = `Sağa Kaydır - Hasat (${nextTierName})`;
       }
     } else if (isReady && !isHarvestReady) {
       // Session tamamlandı ama hasat henüz hazır değil

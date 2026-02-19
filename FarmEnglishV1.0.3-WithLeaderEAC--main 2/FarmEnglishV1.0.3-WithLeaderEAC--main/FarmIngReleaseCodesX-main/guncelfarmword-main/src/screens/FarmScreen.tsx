@@ -510,7 +510,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#10b981', fontWeight: '700' }]}>Tarlaya Geri Ek</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(16, 185, 129, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(16, 185, 129, 0.7)', fontSize: 11 }]}>sağa kaydır veya dokun</Text>
             </TouchableOpacity>
           ) : word.isHarvestReady && !isInInventory ? (
             // ?? HASAT ET BUTONU - Altn premium
@@ -536,7 +536,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#f59e0b', fontWeight: '700' }]}>Hasat Et</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(245, 158, 11, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(245, 158, 11, 0.7)', fontSize: 11 }]}>sağa kaydır veya dokun</Text>
             </TouchableOpacity>
           ) : isInInventory ? (
             // ?? ENVANTER  TARLAYA EKLE BUTONU
@@ -562,7 +562,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={[styles.appleButtonText, { fontSize: 14, color: '#22c55e', fontWeight: '700' }]}>Tarlaya Ekle</Text>
-              <Text style={[styles.appleButtonHint, { color: 'rgba(34, 197, 94, 0.7)', fontSize: 11 }]}>kaydır veya dokun</Text>
+              <Text style={[styles.appleButtonHint, { color: 'rgba(34, 197, 94, 0.7)', fontSize: 11 }]}>sağa kaydır veya dokun</Text>
             </TouchableOpacity>
           ) : (
             // ?? ALI BUTONU - Normal kart
@@ -575,7 +575,7 @@ const FeedCard: React.FC<{
               }}
             >
               <Text style={styles.appleButtonText}>{"\u00C7al\u0131\u015F"}</Text>
-              <Text style={styles.appleButtonHint}>kaydir veya dokun</Text>
+              <Text style={styles.appleButtonHint}>sağa kaydır veya dokun</Text>
             </TouchableOpacity>
           )
         )}
