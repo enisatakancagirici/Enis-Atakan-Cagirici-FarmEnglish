@@ -228,7 +228,7 @@ const FeedCard: React.FC<{
   isQuizActive: boolean;
   isInInventory: boolean;
   onQuizStart: (id: string) => void;
-  onQuizAnswer: (correct: boolean, count?: number) => void;
+  onQuizAnswer: (correct: boolean, count?: number, wordId?: string) => void;
   onQuizClose: (id: string) => void;
   onToggleFavorite: (id: string) => void;
   onSwipeStateChange: (isSwiping: boolean) => void;
@@ -1776,12 +1776,12 @@ export function FarmScreen() {
     setFeedScrollEnabled(!isSwiping);
   }, []);
 
-  const handleFeedQuizAnswer = useCallback((correct: boolean, count?: number) => {
-    if (!feedQuizWordId) return;
+  const handleFeedQuizAnswer = useCallback((correct: boolean, count?: number, wordId?: string) => {
+    const wordIdToAnswer = wordId || feedQuizWordId;
+    if (!wordIdToAnswer) return;
 
     // ?? NCE quiz'i kapat - store gncellemesinden NCE
     // Bu sayede store gncellemeFlatList'i re-render ettiinde isQuizActive zaten false olur
-    const wordIdToAnswer = feedQuizWordId;
     setFeedQuizWordId(null);
 
     // Sonra quiz cevabn ile

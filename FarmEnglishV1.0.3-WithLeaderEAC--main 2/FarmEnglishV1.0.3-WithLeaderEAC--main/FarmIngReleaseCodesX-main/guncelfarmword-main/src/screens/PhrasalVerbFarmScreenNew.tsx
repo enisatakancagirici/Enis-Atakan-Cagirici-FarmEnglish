@@ -136,7 +136,7 @@ const PhrasalFeedCard: React.FC<{
   isQuizActive: boolean;
   isInInventory: boolean;
   onQuizStart: (id: string) => void;
-  onQuizAnswer: (correct: boolean, count?: number) => void;
+  onQuizAnswer: (correct: boolean, count?: number, wordId?: string) => void;
   onQuizClose: (wordId: string, meaning?: string) => void;
   onToggleFavorite: (id: string) => void;
   onPlantToFarm?: (id: string) => void;
@@ -875,12 +875,12 @@ export default function PhrasalVerbFarmScreenNew({
   }, []);
 
   // Feed Quiz Answer - FarmScreen ile aynı
-  const handleFeedQuizAnswer = useCallback((correct: boolean, count?: number) => {
-    if (!feedQuizWordId) return;
+  const handleFeedQuizAnswer = useCallback((correct: boolean, count?: number, wordId?: string) => {
+    const wordIdToAnswer = wordId || feedQuizWordId;
+    if (!wordIdToAnswer) return;
     
     // ÖNCE quiz'i kapat - store güncellemesinden ÖNCE
     // Bu sayede store güncellemesi FlatList'i re-render ettiğinde isQuizActive zaten false olur
-    const wordIdToAnswer = feedQuizWordId;
     setFeedQuizWordId(null);
     
     // Sonra quiz cevabını işle

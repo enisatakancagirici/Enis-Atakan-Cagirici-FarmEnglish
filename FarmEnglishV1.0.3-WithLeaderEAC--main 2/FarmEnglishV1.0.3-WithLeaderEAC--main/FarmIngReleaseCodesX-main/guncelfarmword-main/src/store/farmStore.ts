@@ -1448,6 +1448,7 @@ export const useFarmStore = create<FarmStore>()(
           // console.log(' answerMiniQuiz: word not found!', wordId);
           return set({ miniQuizFor: undefined });
         }
+        const targetWordId = typeof farmWord.id === 'string' ? farmWord.id : wordId;
 
         const isPhrasal = !!(phrasalWord || foundInPhrasalInventory);
         const isInInventory = !!(foundInInventory || foundInPhrasalInventory);
@@ -1463,23 +1464,23 @@ export const useFarmStore = create<FarmStore>()(
             if (isPhrasal) {
               set(state => ({
                 ...resolveExtra(extra, state),
-                phrasalVerbInventory: state.phrasalVerbInventory.map(f => f.id === wordId ? updater(f) : f),
+                phrasalVerbInventory: state.phrasalVerbInventory.map(f => f.id === targetWordId ? updater(f) : f),
               }));
             } else {
               set(state => ({
                 ...resolveExtra(extra, state),
-                inventory: state.inventory.map(f => f.id === wordId ? updater(f) : f),
+                inventory: state.inventory.map(f => f.id === targetWordId ? updater(f) : f),
               }));
             }
           } else if (isPhrasal) {
             set(state => ({
               ...resolveExtra(extra, state),
-              phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === wordId ? updater(f) : f),
+              phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === targetWordId ? updater(f) : f),
             }));
           } else {
             set(state => ({
               ...resolveExtra(extra, state),
-              farm: state.farm.map(f => f.id === wordId ? updater(f) : f),
+              farm: state.farm.map(f => f.id === targetWordId ? updater(f) : f),
             }));
           }
         };
@@ -1494,7 +1495,7 @@ export const useFarmStore = create<FarmStore>()(
               ...resolveExtra(extra, state),
               // 🌾 Kelime farm'da KALIR - normalHarvested: true ile işaretle
               //  masterLevel ve wrongCount da güncellenir!
-              phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === wordId ? {
+              phrasalVerbFarm: state.phrasalVerbFarm.map(f => f.id === targetWordId ? {
                 ...f,
                 normalHarvested: true, // Normal tarlada GÖRÜNMEZ!
                 masterLevel: inventoryWord.masterLevel, //  MASTER LEVELİ GÜNCELLE!
@@ -1509,7 +1510,7 @@ export const useFarmStore = create<FarmStore>()(
               ...resolveExtra(extra, state),
               // 🌾 Kelime farm'da KALIR - normalHarvested: true ile işaretle
               //  masterLevel ve wrongCount da güncellenir!
-              farm: state.farm.map(f => f.id === wordId ? {
+              farm: state.farm.map(f => f.id === targetWordId ? {
                 ...f,
                 normalHarvested: true, // Normal tarlada GÖRÜNMEZ!
                 masterLevel: inventoryWord.masterLevel, //  MASTER LEVELİ GÜNCELLE!
@@ -1519,9 +1520,9 @@ export const useFarmStore = create<FarmStore>()(
               } : f),
               inventory: [...state.inventory, inventoryWord],
               transferEvent: {
-                id: `${wordId}-${Date.now()}`,
+                id: `${targetWordId}-${Date.now()}`,
                 type: 'harvest',
-                wordId,
+                wordId: targetWordId,
                 wordText: farmWord.text || 'Kelime',
                 from: 'farm',
                 to: 'inventory',
