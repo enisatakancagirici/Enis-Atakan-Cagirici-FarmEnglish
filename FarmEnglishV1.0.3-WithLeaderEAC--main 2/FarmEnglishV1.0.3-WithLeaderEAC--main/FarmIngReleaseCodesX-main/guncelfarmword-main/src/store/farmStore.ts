@@ -1449,9 +1449,11 @@ export const useFarmStore = create<FarmStore>()(
           return set({ miniQuizFor: undefined });
         }
         const targetWordId = typeof farmWord.id === 'string' ? farmWord.id : wordId;
-
-        const isPhrasal = !!(phrasalWord || foundInPhrasalInventory);
-        const isInInventory = !!(foundInInventory || foundInPhrasalInventory);
+        const selectedFromPhrasalFarm = !!phrasalWord && farmWord === phrasalWord;
+        const selectedFromPhrasalInventory = !!foundInPhrasalInventory && farmWord === foundInPhrasalInventory;
+        const selectedFromInventory = !!foundInInventory && farmWord === foundInInventory;
+        const isPhrasal = selectedFromPhrasalFarm || selectedFromPhrasalInventory;
+        const isInInventory = selectedFromInventory || selectedFromPhrasalInventory;
 
         type ExtraUpdater = Partial<FarmStore> | ((state: FarmStore) => Partial<FarmStore>);
 
@@ -1845,6 +1847,9 @@ export const useFarmStore = create<FarmStore>()(
                   const updatedWord = {
                     ...originalWord,
                     puzzleHarvested: false,
+                    isPuzzleHarvested: false,
+                    readyForPuzzleHarvest: false,
+                    pendingPuzzleMasterLevel: undefined,
                     puzzleStats: resetPuzzleStats,
                     lastPlantedAt: Date.now(),
                   };
@@ -1860,6 +1865,9 @@ export const useFarmStore = create<FarmStore>()(
                   ...word,
                   id: originalWordId,
                   puzzleHarvested: false,
+                  isPuzzleHarvested: false,
+                  readyForPuzzleHarvest: false,
+                  pendingPuzzleMasterLevel: undefined,
                   puzzleStats: resetPuzzleStats,
                   forPuzzleOnly: true,
                   masterLevel: 0,
@@ -1884,6 +1892,9 @@ export const useFarmStore = create<FarmStore>()(
                   const updatedWord = {
                     ...originalWord,
                     puzzleHarvested: false,
+                    isPuzzleHarvested: false,
+                    readyForPuzzleHarvest: false,
+                    pendingPuzzleMasterLevel: undefined,
                     puzzleStats: resetPuzzleStats,
                     lastPlantedAt: Date.now(),
                   };
@@ -1899,6 +1910,9 @@ export const useFarmStore = create<FarmStore>()(
                   ...word,
                   id: originalWordId,
                   puzzleHarvested: false,
+                  isPuzzleHarvested: false,
+                  readyForPuzzleHarvest: false,
+                  pendingPuzzleMasterLevel: undefined,
                   puzzleStats: resetPuzzleStats,
                   forPuzzleOnly: true,
                   masterLevel: 0,
@@ -4261,6 +4275,8 @@ export const useFarmStore = create<FarmStore>()(
           originalWordId: safeWordId, //  Orijinal kelimeye referans
           masterLevel: pendingPuzzleMasterLevel, //  YAPBOZ SEVİYESİ - Altın(1), Elmas(2), Kraliyet(3)!
           isPuzzleHarvested: true, // SADECE yapboz filtresinde görünsün!
+          readyForPuzzleHarvest: false,
+          pendingPuzzleMasterLevel: undefined,
           puzzleStats: {
             sessions: currentStats.sessions,
             totalCorrect: currentStats.totalCorrect,
