@@ -1440,10 +1440,10 @@ export const useFarmStore = create<FarmStore>()(
         const normalWord = state.farm.find(f => f.id === wordId && !(f as any).normalHarvested) || state.farm.find(f => f.id === wordId);
         const phrasalWord = state.phrasalVerbFarm.find(f => f.id === wordId && !(f as any).normalHarvested) || state.phrasalVerbFarm.find(f => f.id === wordId);
         //  INVENTORY'DE DE ARA! Yeşil kartlar envanterde olabilir!
-        const foundInInventory = state.inventory.find(f => f.id === wordId);
-        const foundInPhrasalInventory = state.phrasalVerbInventory.find(f => f.id === wordId);
+        const foundInInventory = state.inventory.find(f => f.id === wordId || (f as any).originalWordId === wordId);
+        const foundInPhrasalInventory = state.phrasalVerbInventory.find(f => f.id === wordId || (f as any).originalWordId === wordId);
 
-        const farmWord = normalWord || phrasalWord || foundInInventory || foundInPhrasalInventory;
+        const farmWord = phrasalWord || normalWord || foundInPhrasalInventory || foundInInventory;
         if (!farmWord) {
           // console.log(' answerMiniQuiz: word not found!', wordId);
           return set({ miniQuizFor: undefined });

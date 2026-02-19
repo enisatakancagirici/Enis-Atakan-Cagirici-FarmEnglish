@@ -140,7 +140,7 @@ const FEED_THEMES = {
     textMain: '#fecaca',
     textSecondary: '#fca5a5',
     accent: '#ef4444',
-    emoji: '🔴',
+    emoji: '\u{1F534}',
   },
   orange: {
     gradient: ['rgba(124, 45, 18, 0.95)', 'rgba(154, 52, 18, 0.9)', 'rgba(124, 45, 18, 0.95)'] as const,
@@ -149,7 +149,7 @@ const FEED_THEMES = {
     textMain: '#fed7aa',
     textSecondary: '#fdba74',
     accent: '#f97316',
-    emoji: '🟠',
+    emoji: '\u{1F7E0}',
   },
   yellow: {
     gradient: ['rgba(113, 63, 18, 0.95)', 'rgba(133, 77, 14, 0.9)', 'rgba(113, 63, 18, 0.95)'] as const,
@@ -158,7 +158,7 @@ const FEED_THEMES = {
     textMain: '#fef08a',
     textSecondary: '#fde047',
     accent: '#eab308',
-    emoji: '🟡',
+    emoji: '\u{1F7E1}',
   },
   green: {
     gradient: ['rgba(20, 83, 45, 0.95)', 'rgba(6, 95, 70, 0.9)', 'rgba(20, 83, 45, 0.95)'] as const,
@@ -167,7 +167,7 @@ const FEED_THEMES = {
     textMain: '#dcfce7',
     textSecondary: '#bbf7d0',
     accent: '#22c55e',
-    emoji: '✅',
+    emoji: '\u{2705}',
   },
   master: {
     gradient: ['rgba(161, 98, 7, 0.95)', 'rgba(202, 138, 4, 0.9)', 'rgba(161, 98, 7, 0.95)'] as const,
@@ -176,7 +176,7 @@ const FEED_THEMES = {
     textMain: '#fef9c3',
     textSecondary: '#fef08a',
     accent: '#facc15',
-    emoji: '🏆',
+    emoji: '\u{1F3C6}',
   },
   ultra: {
     gradient: ['rgba(8, 145, 178, 0.95)', 'rgba(6, 182, 212, 0.9)', 'rgba(59, 130, 246, 0.95)'] as const,
@@ -185,7 +185,7 @@ const FEED_THEMES = {
     textMain: '#cffafe',
     textSecondary: '#a5f3fc',
     accent: '#22d3ee',
-    emoji: '💎',
+    emoji: '\u{1F48E}',
   },
   perfect: {
     gradient: ['rgba(168, 85, 247, 0.95)', 'rgba(192, 132, 252, 0.9)', 'rgba(139, 92, 246, 0.95)'] as const,
@@ -194,7 +194,7 @@ const FEED_THEMES = {
     textMain: '#f3e8ff',
     textSecondary: '#e9d5ff',
     accent: '#c084fc',
-    emoji: '👑',
+    emoji: '\u{1F451}',
   },
 };
 
@@ -211,7 +211,7 @@ const getWordTheme = (word: any) => {
   return FEED_THEMES.red;
 };
 
-// 📦 Envanter tema (koyu gri)
+// Envanter tema (koyu gri)
 const INVENTORY_THEME = {
   gradient: ['rgba(26, 26, 46, 0.95)', 'rgba(22, 33, 62, 0.9)', 'rgba(26, 26, 46, 0.95)'] as const,
   border: 'rgba(74, 85, 104, 0.8)',
@@ -219,7 +219,7 @@ const INVENTORY_THEME = {
   textMain: '#e2e8f0',
   textSecondary: '#94a3b8',
   accent: '#22c55e',
-  emoji: '📦',
+  emoji: '\u{1F4E6}',
 };
 
 // ?? Apple-Style Minimal FeedCard - Clean, Smooth, Juicy ?
@@ -238,10 +238,11 @@ const FeedCard: React.FC<{
   justHarvested?: boolean; // ?? Az önce hasat edildi mi?
   pool: any[];
   isTutorialBlocking?: boolean; // ?? Tutorial fullscreen açıkken swipe engelle
+  suspendAmbientEffects?: boolean; // Feed quiz açıkken arka plan animasyonlarını durdur
   performanceConfig?: any; // ?? Parent'tan gelen config  hook bypass
   screenWidth?: number; // ?? Parent'tan gelen boyut  hook bypass
   screenHeight?: number;
-}> = ({ word, isQuizActive, isInInventory, onQuizStart, onQuizAnswer, onQuizClose, onToggleFavorite, onSwipeStateChange, onPlantToFarm, onHarvest, onReplant, justHarvested, pool, isTutorialBlocking = false, performanceConfig, screenWidth, screenHeight }) => {
+}> = ({ word, isQuizActive, isInInventory, onQuizStart, onQuizAnswer, onQuizClose, onToggleFavorite, onSwipeStateChange, onPlantToFarm, onHarvest, onReplant, justHarvested, pool, isTutorialBlocking = false, suspendAmbientEffects = false, performanceConfig, screenWidth, screenHeight }) => {
   // ?? PERFORMANS AYARLARI — parent'tan prop olarak gelir, hook çağrısı YOK
   const config = performanceConfig || { enableShimmer: true, enablePulseAnimations: true };
 
@@ -267,12 +268,13 @@ const FeedCard: React.FC<{
   // ? Master kartlar iin shimmer + bounce animasyonu (UltimateWordCard gibi)
   const masterLevel = word.masterLevel || 0;
   const isMaster = masterLevel >= 1 && !isInInventory && !justHarvested;
+  const allowMasterAmbientFx = isMaster && !isQuizActive && !suspendAmbientEffects;
   const shimmerAnim = useRef(new Animated.Value(-1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // ? SHIMMER - Kartın içinde kayan ışık + PERFORMANS KONTROLÜ + Quiz sırasında durdur
   useEffect(() => {
-    if (isMaster && config.enableShimmer && !isQuizActive) {
+    if (allowMasterAmbientFx && config.enableShimmer) {
       const shimmer = Animated.loop(
         Animated.timing(shimmerAnim, {
           toValue: 1,
@@ -283,14 +285,14 @@ const FeedCard: React.FC<{
       );
       shimmer.start();
       return () => shimmer.stop();
-    } else if (isQuizActive) {
+    } else if (isQuizActive || suspendAmbientEffects) {
       shimmerAnim.setValue(-1);
     }
-  }, [isMaster, shimmerAnim, config.enableShimmer, isQuizActive]);
+  }, [allowMasterAmbientFx, shimmerAnim, config.enableShimmer, isQuizActive, suspendAmbientEffects]);
 
   // ?? BOUNCE/PULSE - Hafif zıplama animasyonu + PERFORMANS KONTROLÜ + Quiz sırasında durdur
   useEffect(() => {
-    if (isMaster && config.enablePulseAnimations && !isQuizActive) {
+    if (allowMasterAmbientFx && config.enablePulseAnimations) {
       const pulse = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -309,11 +311,11 @@ const FeedCard: React.FC<{
       );
       pulse.start();
       return () => pulse.stop();
-    } else if (isQuizActive) {
+    } else if (isQuizActive || suspendAmbientEffects) {
       // Quiz aktifken pulse'ı 1'e sıfırla
       pulseAnim.setValue(1);
     }
-  }, [isMaster, pulseAnim, config.enablePulseAnimations, isQuizActive]);
+  }, [allowMasterAmbientFx, pulseAnim, config.enablePulseAnimations, isQuizActive, suspendAmbientEffects]);
 
   // Shimmer translate interpolation
   const shimmerTranslate = shimmerAnim.interpolate({
@@ -367,6 +369,19 @@ const FeedCard: React.FC<{
   }), [isQuizActive, isInInventory, onQuizStart, onPlantToFarm, onHarvest, onReplant, justHarvested, word.id, word.isHarvestReady, isTutorialBlocking]);
 
   const streak = word.consecutiveCorrect || 0;
+  const sessionCurrent = Math.max(0, word.consecutiveMasterSessions || 0);
+  const sessionRequired = useMemo(() => {
+    const masterLevel = word.masterLevel || 0;
+    if (masterLevel === 0) {
+      const wrongCount = word.wrongCount || 0;
+      if (wrongCount <= 0) return 1;
+      if (wrongCount === 1) return 2;
+      return 3;
+    }
+    if (masterLevel === 1) return 4;
+    if (masterLevel === 2) return 5;
+    return word.rewardClaimedPerfect ? 1 : 6;
+  }, [word.masterLevel, word.wrongCount, word.rewardClaimedPerfect]);
 
   return (
     <View style={[styles.feedItem, { width: windowWidth, height: windowHeight, justifyContent: 'center', alignItems: 'center' }]}>
@@ -378,10 +393,10 @@ const FeedCard: React.FC<{
             borderColor: theme.border,
             shadowColor: theme.glow,
             // Master kartlar iin gl statik shadow (native driver uyumu iin)
-            shadowOpacity: isQuizActive ? 0 : (isMaster ? 0.7 : 0.35),
-            shadowRadius: isQuizActive ? 0 : (isMaster ? 20 : 12),
+            shadowOpacity: isQuizActive ? 0 : (allowMasterAmbientFx ? 0.7 : 0.35),
+            shadowRadius: isQuizActive ? 0 : (allowMasterAmbientFx ? 20 : 12),
             // ?? Bounce animasyonu
-            transform: [{ scale: isQuizActive ? 1 : (isMaster ? pulseAnim : 1) }],
+            transform: [{ scale: isQuizActive ? 1 : (allowMasterAmbientFx ? pulseAnim : 1) }],
           }
         ]}
         {...panResponder.panHandlers}
@@ -394,7 +409,7 @@ const FeedCard: React.FC<{
         />
 
         {/* ? SHIMMER EFFECT - Master kartlar iin kartn iinde kayan k + PERFORMANS KONTROL */}
-        {isMaster && config.enableShimmer && !isQuizActive && (
+        {allowMasterAmbientFx && config.enableShimmer && (
           <Animated.View
             style={[
               styles.feedShimmerEffect,
@@ -429,8 +444,12 @@ const FeedCard: React.FC<{
         <View style={[styles.appleBadge, { backgroundColor: `${theme.accent}25` }]}>
           <Text style={styles.appleBadgeEmoji}>{(justHarvested || isInInventory) ? '\u{1F331}' : theme.emoji}</Text>
           <Text style={[styles.appleBadgeText, { color: theme.textSecondary }]}>
-            {justHarvested ? 'Envanterde' : isInInventory ? 'Envanter' : masterLevel >= 3 ? 'Kraliyet' : masterLevel === 2 ? 'Elmas' : masterLevel === 1 ? 'Usta' : (word.wrongCount || 0) >= 2 ? 'Yeşil' : (word.wrongCount || 0) >= 1 ? 'Sarı' : 'Kırmızı'}
+            {justHarvested ? 'Envanterde' : isInInventory ? 'Envanter' : masterLevel >= 3 ? 'Kraliyet' : masterLevel === 2 ? 'Elmas' : masterLevel === 1 ? 'Usta' : (word.wrongCount || 0) >= 2 ? 'Ye\u015Fil' : (word.wrongCount || 0) >= 1 ? 'Sar\u0131' : 'K\u0131rm\u0131z\u0131'}
           </Text>
+        </View>
+
+        <View style={styles.feedSessionBadge}>
+          <Text style={styles.feedSessionText}>{`Session ${sessionCurrent}/${sessionRequired}`}</Text>
         </View>
 
         {/* ?? Kelime */}
@@ -446,12 +465,12 @@ const FeedCard: React.FC<{
         {/* ?? Mini stats - Quiz istatistikleri */}
         <View style={styles.appleStats}>
           <View style={styles.appleStat}>
-            <Text style={[styles.appleStatNum, { color: '#22c55e' }]}>{'✓'}{word.quizCorrect || 0}</Text>
+            <Text style={[styles.appleStatNum, { color: '#22c55e' }]}>{'\u2713'}{word.quizCorrect || 0}</Text>
             <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>doğru</Text>
           </View>
           <View style={[styles.appleStatDivider, { backgroundColor: theme.accent }]} />
           <View style={styles.appleStat}>
-            <Text style={[styles.appleStatNum, { color: '#ef4444' }]}>{'✗'}{word.quizWrong || 0}</Text>
+            <Text style={[styles.appleStatNum, { color: '#ef4444' }]}>{'\u2717'}{word.quizWrong || 0}</Text>
             <Text style={[styles.appleStatLabel, { color: theme.textSecondary }]}>yanlış</Text>
           </View>
           <View style={[styles.appleStatDivider, { backgroundColor: theme.accent }]} />
@@ -555,7 +574,7 @@ const FeedCard: React.FC<{
                 onQuizStart(word.id);
               }}
             >
-              <Text style={styles.appleButtonText}>Çalış</Text>
+              <Text style={styles.appleButtonText}>{"\u00C7al\u0131\u015F"}</Text>
               <Text style={styles.appleButtonHint}>kaydir veya dokun</Text>
             </TouchableOpacity>
           )
@@ -585,11 +604,14 @@ const MemoFeedCard = React.memo(FeedCard, (prev, next) => {
   return (
     prev.word?.id === next.word?.id &&
     prev.word?.masterLevel === next.word?.masterLevel &&
+    prev.word?.consecutiveMasterSessions === next.word?.consecutiveMasterSessions &&
+    prev.word?.rewardClaimedPerfect === next.word?.rewardClaimedPerfect &&
     prev.word?.quizCorrect === next.word?.quizCorrect &&
     prev.isQuizActive === next.isQuizActive &&
     prev.isInInventory === next.isInInventory &&
     prev.justHarvested === next.justHarvested &&
-    prev.isTutorialBlocking === next.isTutorialBlocking
+    prev.isTutorialBlocking === next.isTutorialBlocking &&
+    prev.suspendAmbientEffects === next.suspendAmbientEffects
   );
 });
 
@@ -601,6 +623,16 @@ const GridSwipeWrapper: React.FC<{
 }> = ({ disabled, onSwipeRight, children }) => {
   const hasTriggeredRef = useRef(false);
   const isProcessingRef = useRef(false);
+  const resetProcessingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetProcessingTimeoutRef.current) {
+        clearTimeout(resetProcessingTimeoutRef.current);
+        resetProcessingTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const panResponder = useMemo(
     () =>
@@ -623,18 +655,17 @@ const GridSwipeWrapper: React.FC<{
             hasTriggeredRef.current = true;
             isProcessingRef.current = true;
             haptic.heavy();
-
-            // ? Async olarak altr - UI donmasn nle
-            InteractionManager.runAfterInteractions(() => {
-              try {
-                onSwipeRight();
-              } finally {
-                // Ksa gecikme ile sfrla
-                setTimeout(() => {
-                  isProcessingRef.current = false;
-                }, 100);
+            try {
+              onSwipeRight();
+            } finally {
+              if (resetProcessingTimeoutRef.current) {
+                clearTimeout(resetProcessingTimeoutRef.current);
               }
-            });
+              resetProcessingTimeoutRef.current = setTimeout(() => {
+                isProcessingRef.current = false;
+                resetProcessingTimeoutRef.current = null;
+              }, 100);
+            }
           }
         },
         onPanResponderRelease: () => {
@@ -643,6 +674,10 @@ const GridSwipeWrapper: React.FC<{
         onPanResponderTerminate: () => {
           hasTriggeredRef.current = false;
           isProcessingRef.current = false;
+          if (resetProcessingTimeoutRef.current) {
+            clearTimeout(resetProcessingTimeoutRef.current);
+            resetProcessingTimeoutRef.current = null;
+          }
         },
       }),
     [disabled, onSwipeRight]
@@ -1536,8 +1571,15 @@ export function FarmScreen() {
     };
   }, [transferEvent, consumeTransferEvent, feedVisible]);
 
+  const filteredWordsCacheRef = useRef<any[] | null>(null);
   const filteredWords = useMemo(() => {
-    if (!farm) return [];
+    if (feedVisible && filteredWordsCacheRef.current) {
+      return filteredWordsCacheRef.current;
+    }
+    if (!farm) {
+      filteredWordsCacheRef.current = [];
+      return [];
+    }
 
     // ?? Normal tarla filtresi:
     // - forPuzzleOnly olanlar gsterme (yapboz envanterinden gelmi)
@@ -1573,6 +1615,7 @@ export function FarmScreen() {
         // FAVORLER: En son eklenen en stte (favoriteAddedAt timestamp'e gre LIFO)
         result = normalFarm.filter(w => w.isFavorite === true)
           .sort((a, b) => (b.favoriteAddedAt || 0) - (a.favoriteAddedAt || 0));
+        filteredWordsCacheRef.current = result;
         return result; // Favorilerde ek sralama yapma
       case 'custom':
         //  Kendi oluşturduun kelimeler
@@ -1609,6 +1652,7 @@ export function FarmScreen() {
         .sort((a, b) => b.score - a.score)
         .map(({ word }) => word);
 
+      filteredWordsCacheRef.current = scored;
       return scored;
     }
 
@@ -1630,8 +1674,10 @@ export function FarmScreen() {
         return a.id.localeCompare(b.id);
       });
 
-    return [...favorites, ...nonFavorites];
-  }, [farm, filter, searchQuery, tutorialStep, tutorialHighlightedWordId]);
+    const merged = [...favorites, ...nonFavorites];
+    filteredWordsCacheRef.current = merged;
+    return merged;
+  }, [farm, filter, searchQuery, tutorialStep, tutorialHighlightedWordId, feedVisible]);
 
   // ?? Normal tarla iin forPuzzleOnly olanlar kar
   const normalFarmForStats = useMemo(() => {
@@ -1749,18 +1795,12 @@ export function FarmScreen() {
 
   // ?? Feed'de kart deitiinde MiniQuiz de otomatik gesin
   const handleFeedViewableItemsChanged = useCallback(({ viewableItems }: any) => {
+    if (feedQuizWordId) return;
     if (viewableItems && viewableItems.length > 0) {
       const newIndex = viewableItems[0].index;
       if (newIndex !== currentFeedIndexRef.current) {
         currentFeedIndexRef.current = newIndex;
         haptic.medium();
-
-        // ?? Quiz akken kart deiirse, yeni kartn quiz'ini a
-        const viewedWord = feedWordsRef.current[newIndex];
-        if (viewedWord && feedQuizWordId) {
-          // Quiz zaten aksa, yeni karta geince de quiz ak kalsn
-          setFeedQuizWordId(viewedWord.id);
-        }
       }
       // Track last viewed word
       const viewedWord = feedWordsRef.current[newIndex];
@@ -1911,28 +1951,137 @@ export function FarmScreen() {
   }, [plantFromInventory, speakFirstMeaning]);
 
   // ⚡ Feed word lookup Map  O(1) erişim, renderItem'da find() yaplmaz
-  const feedWordMap = useMemo(() => {
-    const map = new Map<string, { word: any; isInInventory: boolean }>();
-    if (!shuffledFeedData) return map;
-    for (const item of shuffledFeedData) {
-      let farmWord: any = farm.find(w => w.id === item.id && !(w as any).normalHarvested)
-        || farm.find(w => w.id === item.id)
-        || farm.find(w => ((w as any).originalWordId === item.id || w.id === (item as any).originalWordId) && !(w as any).normalHarvested)
-        || farm.find(w => (w as any).originalWordId === item.id || w.id === (item as any).originalWordId);
-      const inventoryWord = inventory.find(w => w.id === item.id || (w as any).originalWordId === item.id);
-      map.set(item.id, {
-        word: farmWord || inventoryWord || item,
-        isInInventory: !farmWord && !!inventoryWord,
-      });
+  const feedFarmLookup = useMemo(() => {
+    const activeById = new Map<string, any>();
+    const anyById = new Map<string, any>();
+    const activeByOriginalId = new Map<string, any>();
+    const anyByOriginalId = new Map<string, any>();
+
+    for (const word of farm) {
+      const id = typeof word?.id === 'string' ? word.id : '';
+      if (id) {
+        if (!(word as any).normalHarvested && !activeById.has(id)) {
+          activeById.set(id, word);
+        }
+        if (!anyById.has(id)) {
+          anyById.set(id, word);
+        }
+      }
+
+      const originalId = typeof (word as any)?.originalWordId === 'string' ? (word as any).originalWordId : '';
+      if (originalId) {
+        if (!(word as any).normalHarvested && !activeByOriginalId.has(originalId)) {
+          activeByOriginalId.set(originalId, word);
+        }
+        if (!anyByOriginalId.has(originalId)) {
+          anyByOriginalId.set(originalId, word);
+        }
+      }
     }
-    return map;
-  }, [shuffledFeedData, farm, inventory]);
+
+    return { activeById, anyById, activeByOriginalId, anyByOriginalId };
+  }, [farm]);
+
+  const feedInventoryLookup = useMemo(() => {
+    const byId = new Map<string, any>();
+    const byOriginalId = new Map<string, any>();
+
+    for (const word of inventory) {
+      const id = typeof word?.id === 'string' ? word.id : '';
+      if (id && !byId.has(id)) {
+        byId.set(id, word);
+      }
+
+      const originalId = typeof (word as any)?.originalWordId === 'string' ? (word as any).originalWordId : '';
+      if (originalId && !byOriginalId.has(originalId)) {
+        byOriginalId.set(originalId, word);
+      }
+    }
+
+    return { byId, byOriginalId };
+  }, [inventory]);
+
+  const resolveFeedLookup = useCallback((item: any) => {
+    const itemId = typeof item?.id === 'string' ? item.id : '';
+    if (!itemId) {
+      return { word: item, isInInventory: false };
+    }
+
+    const itemOriginalId = typeof (item as any)?.originalWordId === 'string' ? (item as any).originalWordId : '';
+    const farmWord =
+      feedFarmLookup.activeById.get(itemId) ||
+      (itemOriginalId ? feedFarmLookup.activeById.get(itemOriginalId) : undefined) ||
+      feedFarmLookup.activeByOriginalId.get(itemId) ||
+      feedFarmLookup.anyById.get(itemId) ||
+      (itemOriginalId ? feedFarmLookup.anyById.get(itemOriginalId) : undefined) ||
+      feedFarmLookup.anyByOriginalId.get(itemId);
+
+    const inventoryWord =
+      feedInventoryLookup.byId.get(itemId) ||
+      (itemOriginalId ? feedInventoryLookup.byId.get(itemOriginalId) : undefined) ||
+      feedInventoryLookup.byOriginalId.get(itemId);
+
+    return {
+      word: farmWord || inventoryWord || item,
+      isInInventory: !farmWord && !!inventoryWord,
+    };
+  }, [feedFarmLookup, feedInventoryLookup]);
 
   // ⚡ Stabilized extraData  yeni array her render'da oluşmasn
   const feedExtraData = useMemo(
-    () => [feedQuizWordId, harvestedWordIds.size, farm.length, inventory.length],
+    () => `${feedQuizWordId || ''}-${harvestedWordIds.size}-${farm.length}-${inventory.length}`,
     [feedQuizWordId, harvestedWordIds.size, farm.length, inventory.length]
   );
+  const isFeedQuizOpen = !!feedQuizWordId;
+
+  const renderFeedItem = useCallback(({ item }: { item: any }) => {
+    const isQuizActive = feedQuizWordId === item.id;
+    const lookup = resolveFeedLookup(item);
+    const currentWord = lookup.word || item;
+    const isInInventory = lookup.isInInventory;
+
+    return (
+      <View style={[styles.feedItem, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT, justifyContent: 'center', alignItems: 'center' }]}>
+        <MemoFeedCard
+          word={currentWord}
+          isQuizActive={isQuizActive}
+          isInInventory={isInInventory}
+          onQuizStart={handleFeedQuizStart}
+          onQuizAnswer={handleFeedQuizAnswer}
+          onQuizClose={handleFeedQuizClose}
+          onToggleFavorite={handleToggleFavorite}
+          onSwipeStateChange={handleSwipeStateChange}
+          onPlantToFarm={handleFeedPlant}
+          onHarvest={handleFeedHarvest}
+          onReplant={handleFeedReplant}
+          justHarvested={harvestedWordIds.has(item.id)}
+          pool={pool || []}
+          isTutorialBlocking={isTutorialFullScreenActive(tutorialStep as any) || isTutorialOverlayActive}
+          suspendAmbientEffects={isFeedQuizOpen}
+          performanceConfig={feedPerformanceConfig}
+          screenWidth={SCREEN_WIDTH}
+          screenHeight={SCREEN_HEIGHT}
+        />
+      </View>
+    );
+  }, [
+    feedPerformanceConfig,
+    feedQuizWordId,
+    handleFeedHarvest,
+    handleFeedPlant,
+    handleFeedQuizAnswer,
+    handleFeedQuizClose,
+    handleFeedQuizStart,
+    handleFeedReplant,
+    handleSwipeStateChange,
+    handleToggleFavorite,
+    harvestedWordIds,
+    isTutorialOverlayActive,
+    isFeedQuizOpen,
+    pool,
+    resolveFeedLookup,
+    tutorialStep,
+  ]);
 
   // ?? Swipe ile hasat handler
   const handleSwipeHarvest = useCallback((item: any) => {
@@ -2322,8 +2471,8 @@ export function FarmScreen() {
                   {filter === 'custom'
                     ? '✏️ Kendi Kelime Kartın Yok'
                     : farm.length === 0
-                      ? '🌱 Tarlana Kelime Ekle!'
-                      : '🔍 Kelime Bulunamadı'}
+                      ? '\u{1F331} Tarlana Kelime Ekle!'
+                      : '\u{1F50D} Kelime Bulunamadı'}
                 </Text>
                 <Text style={styles.emptySubtitle}>
                   {filter === 'custom'
@@ -2343,7 +2492,7 @@ export function FarmScreen() {
                     end={{ x: 1, y: 1 }}
                   >
                     <Text style={styles.emptyQuizButtonText}>
-                      {filter === 'custom' ? '✏️ Kelime Kartı Oluştur' : '🎯 Quiz Çöz'}
+                      {filter === 'custom' ? '✏️ Kelime Kartı Oluştur' : '\u{1F3AF} Quiz Çöz'}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
@@ -2390,43 +2539,13 @@ export function FarmScreen() {
 
               <FlatList
                 data={shuffledFeedData}
-                renderItem={({ item }) => {
-                  const isQuizActive = feedQuizWordId === item.id;
-                  // ⚡ feedWordMap ile O(1) lookup  renderItem'da find() yok
-                  const lookup = feedWordMap.get(item.id);
-                  const currentWord = lookup?.word || item;
-                  const isInInventory = lookup?.isInInventory || false;
-
-                  return (
-                    <View style={[styles.feedItem, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT, justifyContent: 'center', alignItems: 'center' }]}>
-                      <MemoFeedCard
-                        word={currentWord}
-                        isQuizActive={isQuizActive}
-                        isInInventory={isInInventory}
-                        onQuizStart={handleFeedQuizStart}
-                        onQuizAnswer={handleFeedQuizAnswer}
-                        onQuizClose={handleFeedQuizClose}
-                        onToggleFavorite={handleToggleFavorite}
-                        onSwipeStateChange={handleSwipeStateChange}
-                        onPlantToFarm={handleFeedPlant}
-                        onHarvest={handleFeedHarvest}
-                        onReplant={handleFeedReplant}
-                        justHarvested={harvestedWordIds.has(item.id)}
-                        pool={pool || []}
-                        isTutorialBlocking={isTutorialFullScreenActive(tutorialStep as any) || isTutorialOverlayActive}
-                        performanceConfig={feedPerformanceConfig}
-                        screenWidth={SCREEN_WIDTH}
-                        screenHeight={SCREEN_HEIGHT}
-                      />
-                    </View>
-                  );
-                }}
+                renderItem={renderFeedItem}
                 keyExtractor={(item) => item.id}
                 pagingEnabled
                 snapToInterval={SCREEN_HEIGHT}
                 decelerationRate="fast"
                 showsVerticalScrollIndicator={false}
-                scrollEnabled={feedScrollEnabled}
+                scrollEnabled={feedScrollEnabled && !isFeedQuizOpen}
                 initialScrollIndex={feedStartIndex}
                 getItemLayout={(data, index) => ({
                   length: SCREEN_HEIGHT,
@@ -2436,7 +2555,10 @@ export function FarmScreen() {
                 onViewableItemsChanged={handleFeedViewableItemsChanged}
                 viewabilityConfig={viewabilityConfig}
                 extraData={feedExtraData}
-                windowSize={3}
+                windowSize={isFeedQuizOpen ? 1 : 3}
+                initialNumToRender={1}
+                maxToRenderPerBatch={isFeedQuizOpen ? 1 : 3}
+                updateCellsBatchingPeriod={isFeedQuizOpen ? 120 : 50}
                 removeClippedSubviews={true}
               />
             </View>
@@ -3126,6 +3248,23 @@ const styles = StyleSheet.create({
   appleBadgeText: {
     fontSize: 13,
     fontWeight: '700',
+  },
+  feedSessionBadge: {
+    position: 'absolute',
+    right: 20,
+    top: 60,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(15, 23, 42, 0.62)',
+  },
+  feedSessionText: {
+    color: '#E2E8F0',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   appleWord: {
     fontSize: 40,

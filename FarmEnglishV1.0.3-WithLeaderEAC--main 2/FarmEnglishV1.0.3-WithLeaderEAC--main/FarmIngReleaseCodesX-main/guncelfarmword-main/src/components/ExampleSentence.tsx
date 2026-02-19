@@ -406,6 +406,7 @@ const CloudTooltip = memo<{
       scaleAnim.setValue(0);
       opacityAnim.setValue(0);
       floatAnim.setValue(0);
+      let floatLoop: Animated.CompositeAnimation | null = null;
       
       // Bounce in
       Animated.parallel([
@@ -423,29 +424,35 @@ const CloudTooltip = memo<{
       ]).start();
 
       // Gentle float animation
-      Animated.loop(
+      floatLoop = Animated.loop(
         Animated.sequence([
           Animated.timing(floatAnim, {
             toValue: -4,
             duration: 1500,
             easing: Easing.inOut(Easing.ease),
+            isInteraction: false,
             useNativeDriver: true,
           }),
           Animated.timing(floatAnim, {
             toValue: 0,
             duration: 1500,
             easing: Easing.inOut(Easing.ease),
+            isInteraction: false,
             useNativeDriver: true,
           }),
         ])
-      ).start();
+      );
+      floatLoop.start();
 
       // Auto dismiss after 2.5s
       const timer = setTimeout(() => {
         dismissCloud();
       }, 2500);
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        floatLoop?.stop();
+      };
     }
   }, [visible, word]);
 

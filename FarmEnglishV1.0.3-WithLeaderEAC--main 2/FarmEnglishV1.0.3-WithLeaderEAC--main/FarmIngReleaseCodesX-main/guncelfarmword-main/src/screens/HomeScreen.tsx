@@ -65,7 +65,7 @@ import NetInfo from "@react-native-community/netinfo";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-// ÄŸÅ¸â€œÂ± RESPONSIVE SÃ„Â°STEM - Apple Style
+// 📱 RESPONSIVE SİSTEM - Apple Style
 const IS_SMALL_DEVICE = SCREEN_HEIGHT < 700;
 const IS_MEDIUM_DEVICE = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
 const IS_TABLET_DEVICE = SCREEN_WIDTH >= 768;
@@ -91,24 +91,24 @@ const SPACING = {
 
 let homeVisualsPreloaded = false;
 
-// ÄŸÅ¸â€“Â¼Ã¯Â¸Â PRELOAD ALL IMAGES - Optimized webp format for fast loading
+// 🖼️ PRELOAD ALL IMAGES - Optimized webp format for fast loading
 const PRELOADED_IMAGES = {
   logo: require("../../assets/logo.webp"),
-  quiz: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/Quiz.webp"),
-  farm: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/Ciftlik.webp"),
-  envanter: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/Envanter.webp"),
-  puzzle: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/Puzzle.webp"),
+  quiz: require("../../assets/images/maskot/yeniTasar\u0131mlar/Quiz.webp"),
+  farm: require("../../assets/images/maskot/yeniTasar\u0131mlar/Ciftlik.webp"),
+  envanter: require("../../assets/images/maskot/yeniTasar\u0131mlar/Envanter.webp"),
+  puzzle: require("../../assets/images/maskot/yeniTasar\u0131mlar/Puzzle.webp"),
   phrasal: require("../../assets/images/maskot/phrasal.webp"),
   soruIsareti: require("../../assets/images/maskot/soru_isareti.webp"),
   market: require("../../assets/images/maskot/market_anasayfa.webp"),
-  cardShop: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/KartPazari.webp"),
-  battle: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/Savas.webp"),
-  sesyap: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/SesYap.webp"),
-  pratik: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/PratikMerkezi.webp"),
-  customWord: require("../../assets/images/maskot/yeniTasarÃ„Â±mlar/yfxnanurut0zfbr7p3vy.webp"),
+  cardShop: require("../../assets/images/maskot/yeniTasar\u0131mlar/KartPazari.webp"),
+  battle: require("../../assets/images/maskot/yeniTasar\u0131mlar/Savas.webp"),
+  sesyap: require("../../assets/images/maskot/yeniTasar\u0131mlar/SesYap.webp"),
+  pratik: require("../../assets/images/maskot/yeniTasar\u0131mlar/PratikMerkezi.webp"),
+  customWord: require("../../assets/images/maskot/yeniTasar\u0131mlar/yfxnanurut0zfbr7p3vy.webp"),
   // Market Modal Resimleri
   marketGuc: require("../../assets/images/maskot/guc_magazasi.webp"),
-  marketTohum: require("../../assets/images/maskot/tohum_pazarÃ„Â±.webp"),
+  marketTohum: require("../../assets/images/maskot/tohum_pazar\u0131.webp"),
   marketPhrasal: require("../../assets/images/maskot/market_pharasal.webp"),
 };
 
@@ -247,7 +247,7 @@ const PremiumHeader = ({ coins, level, streak, onProfilePress, themePreset }: an
                 adjustsFontSizeToFit
                 minimumFontScale={0.8}
               >
-                Kelime Ãƒâ€¡iftliÃ„Å¸in
+                Kelime Çiftliğin
               </Text>
             </View>
           </LinearGradient>
@@ -343,59 +343,59 @@ const TutorialDialog = ({
   const tutorialSteps = [
     {
       icon: "\u{1F44B}",
-      title: "HoÃ…Å¸ Geldin Farmer!",
+      title: "Hoş Geldin Farmer!",
       description:
-        "FarmEnglish ile kelime ÃƒÂ¶Ã„Å¸renme dÃƒÂ¶ngÃƒÂ¼sÃƒÂ¼ basit: quiz ÃƒÂ§ÃƒÂ¶z, tarlaya ek, ÃƒÂ§alÃ„Â±Ã…Å¸, hasat et, envanterden tekrar tarlaya gÃƒÂ¶nder.",
+        "FarmEnglish ile kelime öğrenme döngüsü basit: quiz çöz, tarlaya ek, çalış, hasat et, envanterden tekrar tarlaya gönder.",
       color: "#22C55E",
-      tip: "Her kelime bir tohum gibi bÃƒÂ¼yÃƒÂ¼r.",
+      tip: "Her kelime bir tohum gibi büyür.",
     },
     {
       icon: "\u{1F3AF}",
-      title: "1. Quiz ile BaÃ…Å¸la",
+      title: "1. Quiz ile Başla",
       description:
-        "Quiz'de doÃ„Å¸ru seÃƒÂ§ersen kartÃ„Â±n gÃƒÂ¼ÃƒÂ§lÃƒÂ¼ baÃ…Å¸lar. YanlÃ„Â±Ã…Å¸ seÃƒÂ§ersen tohum olarak ekilir ve ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±kÃƒÂ§a geliÃ…Å¸ir.",
+        "Quiz'de doğru seçersen kartın güçlü başlar. Yanlış seçersen tohum olarak ekilir ve çalıştıkça gelişir.",
       color: "#A855F7",
-      tip: "BilmediÃ„Å¸in kelimeler de sistemli Ã…Å¸ekilde tarlana eklenir.",
+      tip: "Bilmediğin kelimeler de sistemli şekilde tarlana eklenir.",
     },
     {
       icon: "\u{1F33F}",
-      title: "2. Ãƒâ€¡iftlikte BÃƒÂ¼yÃƒÂ¼t",
+      title: "2. Çiftlikte Büyüt",
       description:
-        "Ãƒâ€¡iftlikte kartlar ÃƒÂ§alÃ„Â±Ã…Å¸Ã„Â±ldÃ„Â±kÃƒÂ§a ilerler. KÃ„Â±rmÃ„Â±zÃ„Â± kartlar daha fazla tekrar ister, yeÃ…Å¸iller hasada daha yakÃ„Â±ndÃ„Â±r.",
+        "Çiftlikte kartlar çalışıldıkça ilerler. Kırmızı kartlar daha fazla tekrar ister, yeşiller hasada daha yakındır.",
       color: "#F97316",
-      tip: "KÃ„Â±sa ama dÃƒÂ¼zenli tekrar en hÃ„Â±zlÃ„Â± geliÃ…Å¸imi verir.",
+      tip: "Kısa ama düzenli tekrar en hızlı gelişimi verir.",
     },
     {
       icon: "\u{1F69C}",
       title: "3. Hasat Et",
       description:
-        "OlgunlaÃ…Å¸an kartlarÃ„Â± hasat ederek envantere alÃ„Â±rsÃ„Â±n. Sonra tekrar tarlaya gÃƒÂ¶nderip seviyeyi yÃƒÂ¼kseltebilirsin.",
+        "Olgunlaşan kartları hasat ederek envantere alırsın. Sonra tekrar tarlaya gönderip seviyeyi yükseltebilirsin.",
       color: "#22C55E",
-      tip: "DÃƒÂ¶ngÃƒÂ¼: bÃƒÂ¼yÃƒÂ¼t -> hasat et -> geliÃ…Å¸tir -> ÃƒÂ¶Ã„Å¸ren.",
+      tip: "Döngü: büyüt -> hasat et -> geliştir -> öğren.",
     },
     {
       icon: "\u{1F525}",
       title: "4. Combo Bonus",
       description:
-        "ArdÃ„Â±Ã…Å¸Ã„Â±k doÃ„Å¸ru cevaplar combo oluÃ…Å¸turur. Combo arttÃ„Â±kÃƒÂ§a coin ve XP kazancÃ„Â± da artar.",
+        "Ardışık doğru cevaplar combo oluşturur. Combo arttıkça coin ve XP kazancı da artar.",
       color: "#EF4444",
-      tip: "YanlÃ„Â±Ã…Å¸lar comboyu kÃ„Â±rabilir; dikkatli ve hÃ„Â±zlÃ„Â± oyna.",
+      tip: "Yanlışlar comboyu kırabilir; dikkatli ve hızlı oyna.",
     },
     {
       icon: "\u{1F4E6}",
       title: "5. Envanter",
       description:
-        "Hasat edilen kartlar envanterde tutulur. Buradan tarlaya geri gÃƒÂ¶ndererek ÃƒÂ¶Ã„Å¸renme sÃƒÂ¼recini devam ettirirsin.",
+        "Hasat edilen kartlar envanterde tutulur. Buradan tarlaya geri göndererek öğrenme sürecini devam ettirirsin.",
       color: "#60A5FA",
-      tip: "Tekrar ekilen kartlar kaldÃ„Â±Ã„Å¸Ã„Â± seviyeden devam eder.",
+      tip: "Tekrar ekilen kartlar kaldığı seviyeden devam eder.",
     },
     {
       icon: "\u{1F9E9}",
       title: "6. Puzzle",
       description:
-        "CÃƒÂ¼mle parÃƒÂ§alarÃ„Â±nÃ„Â± doÃ„Å¸ru sÃ„Â±raya diz. 5300+ ÃƒÂ¶rnek cÃƒÂ¼mleyle baÃ„Å¸lam iÃƒÂ§inde ÃƒÂ¶Ã„Å¸renmeyi gÃƒÂ¼ÃƒÂ§lendir.",
+        "Cümle parçalarını doğru sıraya diz. 5300+ örnek cümleyle bağlam içinde öğrenmeyi güçlendir.",
       color: "#EC4899",
-      tip: "Kelimeleri cÃƒÂ¼mle iÃƒÂ§inde gÃƒÂ¶rmek kalÃ„Â±cÃ„Â±lÃ„Â±Ã„Å¸Ã„Â± ciddi artÃ„Â±rÃ„Â±r.",
+      tip: "Kelimeleri cümle içinde görmek kalıcılığı ciddi artırır.",
     },
     {
       icon: "\u{1F517}",
@@ -403,31 +403,31 @@ const TutorialDialog = ({
       description:
         "Give up, look after gibi yapilar icin ayri calisma akivar. Gundelik Ingilizce icin kritik bir bolum.",
       color: "#10B981",
-      tip: "KÃ„Â±sa tekrarlar akÃ„Â±cÃ„Â±lÃ„Â±Ã„Å¸Ã„Â± hÃ„Â±zlandÃ„Â±rÃ„Â±r.",
+      tip: "Kısa tekrarlar akıcılığı hızlandırır.",
     },
     {
       icon: "\u{1F6D2}",
       title: "8. Market",
       description:
-        "Coin ile gÃƒÂ¼ÃƒÂ§lendirme ve tohum satÃ„Â±n alabilirsin. KazandÃ„Â±Ã„Å¸Ã„Â±n coinleri stratejik kullan.",
+        "Coin ile güçlendirme ve tohum satın alabilirsin. Kazandığın coinleri stratejik kullan.",
       color: "#FBBF24",
-      tip: "DoÃ„Å¸ru cevaplar uzun vadede gÃƒÂ¼ÃƒÂ§lÃƒÂ¼ ekonomi kurar.",
+      tip: "Doğru cevaplar uzun vadede güçlü ekonomi kurar.",
     },
     {
       icon: "\u{1F4A1}",
-      title: "9. Performans AyarlarÃ„Â±",
+      title: "9. Performans Ayarları",
       description:
-        "CihazÃ„Â±na gÃƒÂ¶re efekt seviyesini ayarlayabilirsin: dÃƒÂ¼Ã…Å¸ÃƒÂ¼k, orta veya yÃƒÂ¼ksek.",
+        "Cihazına göre efekt seviyesini ayarlayabilirsin: düşük, orta veya yüksek.",
       color: "#64748B",
-      tip: "Kasma hissedersen bir seviye dÃƒÂ¼Ã…Å¸ÃƒÂ¼r.",
+      tip: "Kasma hissedersen bir seviye düşür.",
     },
     {
       icon: "\u{1F680}",
-      title: "HazÃ„Â±rsÃ„Â±n!",
+      title: "Hazırsın!",
       description:
-        "Ã…Âimdi Quiz'e gir ve ilk hedefini koy: 3 kartÃ„Â± yeÃ…Å¸ile getirip hasat et.",
+        "Şimdi Quiz'e gir ve ilk hedefini koy: 3 kartı yeşile getirip hasat et.",
       color: "#22C55E",
-      tip: "Her gÃƒÂ¼n kÃ„Â±sa ve dÃƒÂ¼zenli ÃƒÂ§alÃ„Â±Ã…Å¸ma en hÃ„Â±zlÃ„Â± ilerlemeyi verir.",
+      tip: "Her gün kısa ve düzenli çalışma en hızlı ilerlemeyi verir.",
     },
   ];
 
@@ -511,7 +511,7 @@ const TutorialDialog = ({
               style={tutorialStyles.closeButton}
               onPress={onClose}
             >
-              <Text style={tutorialStyles.closeButtonText}>Ã¢Å“â€¢</Text>
+              <Text style={tutorialStyles.closeButtonText}>{'\\u2715'}</Text>
             </TouchableOpacity>
 
             {/* Icon */}
@@ -578,8 +578,8 @@ const TutorialDialog = ({
               >
                 <Text style={tutorialStyles.nextButtonText}>
                   {currentStep === tutorialSteps.length - 1
-                    ? "BaÃ…Å¸la!"
-                    : "Ã„Â°leri"}
+                    ? "Başla!"
+                    : "İleri"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -741,7 +741,7 @@ const tutorialStyles = StyleSheet.create({
   },
 });
 
-// sÃ‚Â¥ PREMIUM MENU CARD - Full Image Coverage + Shine + Glow + Bounce
+// 🎥 PREMIUM MENU CARD - Full Image Coverage + Shine + Glow + Bounce
 const PremiumMenuCard = ({
   onPress,
   imageSource,
@@ -750,6 +750,7 @@ const PremiumMenuCard = ({
   size = "medium",
   textAlign = "left",
   imageFit = "cover",
+  imagePosition,
   hideImage = false,
   accentColor = "#FFFFFF",
   delay = 0,
@@ -757,6 +758,7 @@ const PremiumMenuCard = ({
   helpText,
   onHelpPress,
   disableEffects = false,
+  wrapperStyleOverride,
 }: any) => {
   const config = usePerformanceStore(s => s.config);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -906,10 +908,10 @@ const PremiumMenuCard = ({
     if (size === "wideXXL") {
       const horizontalInset = IS_TABLET_DEVICE ? 44 : 24;
       const availableWidth = SCREEN_WIDTH - horizontalInset;
-      const responsiveHeight = Math.round(availableWidth * (IS_TABLET_DEVICE ? 0.46 : 0.52));
-      if (IS_LARGE_TABLET) return Math.max(252, Math.min(320, responsiveHeight));
-      if (IS_TABLET_DEVICE) return Math.max(220, Math.min(276, responsiveHeight));
-      return IS_SMALL_DEVICE ? Math.max(178, Math.min(214, responsiveHeight)) : Math.max(194, Math.min(234, responsiveHeight));
+      const responsiveHeight = Math.round(availableWidth * (IS_TABLET_DEVICE ? 0.58 : 0.72));
+      if (IS_LARGE_TABLET) return Math.max(300, Math.min(380, responsiveHeight));
+      if (IS_TABLET_DEVICE) return Math.max(258, Math.min(332, responsiveHeight));
+      return IS_SMALL_DEVICE ? Math.max(214, Math.min(272, responsiveHeight)) : Math.max(232, Math.min(292, responsiveHeight));
     }
     if (size === "wideXL") {
       if (IS_LARGE_TABLET) return 264;
@@ -956,11 +958,11 @@ const PremiumMenuCard = ({
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^A-Z0-9 ]/g, "");
   const imageContentPosition =
-    normalizedTitleAscii.includes("CIFTLIK") ||
-    normalizedTitleAscii.includes("SESYAP") ||
-    normalizedTitleAscii.includes("SAVAS")
+    imagePosition ||
+    (normalizedTitleAscii.includes("CIFTLIK") ||
+    normalizedTitleAscii.includes("SESYAP")
       ? "top"
-      : "center";
+      : "center");
   const contentContainerStyle = hideImage
     ? styles.cardTextContainerCenteredFill
     : textAlign === "center"
@@ -978,6 +980,7 @@ const PremiumMenuCard = ({
           transform: [{ scale: scaleAnim }, { scale: bounceAnim }],
           opacity: opacityAnim,
         },
+        wrapperStyleOverride,
       ]}
     >
       <Pressable
@@ -1117,13 +1120,13 @@ const PremiumGridMenu = ({
           hasBounce={true}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Quiz ÃƒÂ§ÃƒÂ¶zdÃƒÂ¼rÃƒÂ¼p tarlana otomatik ekim yaparsÃ„Â±n. Bilmediklerin tohum olur, ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±kÃƒÂ§a bÃƒÂ¼yÃƒÂ¼r. Bildiklerin meyve olur; tekrarlarla bilgini saÃ„Å¸lamlaÃ…Å¸tÃ„Â±rÃ„Â±rsÃ„Â±n."
+          helpText="Quiz çözdürüp tarlana otomatik ekim yaparsın. Bilmediklerin tohum olur, çalıştıkça büyür. Bildiklerin meyve olur; tekrarlarla bilgini sağlamlaştırırsın."
         />
         <PremiumMenuCard
           onPress={onRandomPress}
           imageSource={PRELOADED_IMAGES.soruIsareti}
           title="NASIL?"
-          subtitle="OynanÃ„Â±r"
+          subtitle="Oynanır"
           size="small"
           accentColor="#FBBF24"
           delay={50}
@@ -1137,26 +1140,26 @@ const PremiumGridMenu = ({
           onPress={onInventoryPress}
           imageSource={PRELOADED_IMAGES.envanter}
           title="ENVANTER"
-          subtitle="Hasat HazÃ„Â±r"
+          subtitle="Hasat Hazır"
           size="small"
           accentColor="#60A5FA"
           delay={100}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Hasat ettiÃ„Å¸in kelimeler burada. Tekrar tarlaya gÃƒÂ¶ndererek seviyeyi yÃƒÂ¼kseltirsin. 10 ve 10'un katlarÃ„Â±nda bÃƒÂ¶cek saldÃ„Â±rÃ„Â±sÃ„Â±nÃ„Â± quiz ÃƒÂ§ÃƒÂ¶zerek defedersin."
+          helpText="Hasat ettiğin kelimeler burada. Tekrar tarlaya göndererek seviyeyi yükseltirsin. 10 ve 10'un katlarında böcek saldırısını quiz çözerek defedersin."
         />
         <PremiumMenuCard
           onPress={onFarmPress}
           imageSource={PRELOADED_IMAGES.farm}
-          title="Ãƒâ€¡Ã„Â°FTLÃ„Â°K"
-          subtitle="Kelimelerini bÃƒÂ¼yÃƒÂ¼t, hasat et!"
+          title="ÇİFTLİK"
+          subtitle="Kelimelerini büyüt, hasat et!"
           size="large"
           accentColor="#22C55E"
           delay={150}
           hasBounce={true}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Kelimelerini burada bÃƒÂ¼yÃƒÂ¼tÃƒÂ¼r, hasat eder ve gÃƒÂ¶rsel geri bildirimle kalÃ„Â±cÃ„Â± ÃƒÂ¶Ã„Å¸renme saÃ„Å¸larsÃ„Â±n."
+          helpText="Kelimelerini burada büyütür, hasat eder ve görsel geri bildirimle kalıcı öğrenme sağlarsın."
         />
       </View>
 
@@ -1166,31 +1169,31 @@ const PremiumGridMenu = ({
           onPress={onPuzzlePress}
           imageSource={PRELOADED_IMAGES.puzzle}
           title="PUZZLE"
-          subtitle="CÃƒÂ¼mle pratiÃ„Å¸i"
+          subtitle="Cümle pratiği"
           size="medium"
           accentColor="#F97316"
           delay={200}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="CÃƒÂ¼mledeki kelimeleri doÃ„Å¸ru sÃ„Â±raya diz. 5300+ ÃƒÂ¶rnek cÃƒÂ¼mle ile pratik yap."
+          helpText="Cümledeki kelimeleri doğru sıraya diz. 5300+ örnek cümle ile pratik yap."
         />
         <PremiumMenuCard
           onPress={onPhrasalPress}
           imageSource={PRELOADED_IMAGES.phrasal}
           title="PHRASAL"
-          subtitle="Deyimleri ÃƒÂ¶Ã„Å¸ren"
+          subtitle="Deyimleri öğren"
           size="medium"
           accentColor="#EC4899"
           delay={250}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Give up, look after gibi deyimsel fiilleri ÃƒÂ¶Ã„Å¸ren. AyrÃ„Â±ca tarla ve quiz akÃ„Â±Ã…Å¸Ã„Â± bulunur."
+          helpText="Give up, look after gibi deyimsel fiilleri öğren. Ayrıca tarla ve quiz akışı bulunur."
         />
       </View>
 
-      {/* Row 4: BATTLE - SavaÃ…Å¸ Modu Butonu */}
+      {/* Row 4: BATTLE - Savaş Modu Butonu */}
       <TouchableOpacity
-        style={[styles.marketContainer, { marginBottom: SPACING.md }]}
+        style={[styles.marketContainer, { marginBottom: SPACING.md, height: IS_LARGE_TABLET ? 360 : IS_TABLET_DEVICE ? 300 : IS_SMALL_DEVICE ? 210 : 240 }]}
         onPress={onBattlePress}
         activeOpacity={0.9}
       >
@@ -1204,23 +1207,24 @@ const PremiumGridMenu = ({
           transition={0}
         />
         <LinearGradient
-          colors={["rgba(0,0,0,0.15)", "rgba(0,0,0,0.35)", "rgba(0,0,0,0.65)"]}
+          colors={["rgba(0,0,0,0.0)", "rgba(0,0,0,0.1)", "rgba(0,0,0,0.55)", "rgba(0,0,0,0.80)"]}
+          locations={[0, 0.4, 0.75, 1]}
           style={styles.marketOverlay}
         />
 
         {/* Content */}
-        <View style={styles.marketContent}>
+        <View style={[styles.marketContent, { alignItems: "flex-end", paddingBottom: 18 }]}>
           <View style={styles.marketTextContainer}>
-            <Text style={styles.marketTitle}>SAVAÃ…Â MODU</Text>
+            <Text style={styles.marketTitle}>SAVAŞ MODU</Text>
             <Text style={styles.marketSubtitle}>
-              Rakiplerle yarÃ„Â±Ã…Å¸ Ã¢â‚¬Â¢ Liderlik tablosu Ã¢â‚¬Â¢ Ãƒâ€“dÃƒÂ¼ller
+              Rakiplerle yarış • Liderlik tablosu • Ödüller
             </Text>
           </View>
           <ChevronRight size={24} color="#c4b5fd" />
         </View>
       </TouchableOpacity>
 
-      {/* Row 5: SesYap - KonuÃ…Å¸ma Modu */}
+      {/* Row 5: SesYap - Konuşma Modu */}
       <TouchableOpacity
         style={[styles.marketContainer, { marginBottom: SPACING.md }]}
         onPress={onSesYapPress}
@@ -1245,14 +1249,14 @@ const PremiumGridMenu = ({
           <View style={styles.marketTextContainer}>
             <Text style={styles.marketTitle}>SESYAP</Text>
             <Text style={styles.marketSubtitle}>
-              KonuÃ…Å¸ Ã¢â‚¬Â¢ DoÃ„Å¸ruluk kontrolÃƒÂ¼ Ã¢â‚¬Â¢ Telaffuz pratiÃ„Å¸i
+              Konuş • Doğruluk kontrolü • Telaffuz pratiği
             </Text>
           </View>
           <ChevronRight size={24} color="#5EEAD4" />
         </View>
       </TouchableOpacity>
 
-      {/* Row 5: MARKET - Tam geniÃ…Å¸likte, Premium GÃƒÂ¶rÃƒÂ¼nÃƒÂ¼m */}
+      {/* Row 5: MARKET - Tam genişlikte, Premium Görünüm */}
       <TouchableOpacity
         style={styles.marketContainer}
         onPress={onMarketPress}
@@ -1280,7 +1284,7 @@ const PremiumGridMenu = ({
           <View style={styles.marketTextContainer}>
             <Text style={styles.marketTitle}>MARKET</Text>
             <Text style={styles.marketSubtitle}>
-              GÃƒÂ¼ÃƒÂ§len Ã¢â‚¬Â¢ Tohum PazarÃ„Â± Ã¢â‚¬Â¢ GÃƒÂ¼ÃƒÂ§ MaÃ„Å¸azasÃ„Â±
+              Güçlen • Tohum Pazarı • Güç Mağazası
             </Text>
           </View>
           <ChevronRight size={24} color="#a78bfa" />
@@ -1340,10 +1344,12 @@ export const HomeScreen = ({ navigation }: any) => {
   const guidedModeActive = useFarmStore((state) => state.guidedModeActive);
   const guidedModeStep = useFarmStore((state) => state.guidedModeStep);
   const stopGuidedMode = useFarmStore((state) => state.stopGuidedMode);
+  const setCloudTipDismissed = useFarmStore((state) => state.setCloudTipDismissed);
+  const utilityRailHintDismissed = useFarmStore((state) => !!state.cloudTipsDismissed?.homeUtilityRailHint);
   const showNicknameModal = useFarmStore((state) => !!state.showNicknameModal);
   const nickname = useFarmStore((state) => state.nickname);
   
-  //  GÃƒÂ¼nlÃƒÂ¼k GÃƒÂ¶revler
+  //  Günlük Görevler
   const dailyQuests = useFarmStore((state) =>
     Array.isArray(state.dailyQuests) ? state.dailyQuests : [],
   );
@@ -1353,7 +1359,7 @@ export const HomeScreen = ({ navigation }: any) => {
     [cardCustomization?.headerTheme],
   );
 
-  // sOuÃƒÂ¯ Preload images on mount for performance
+  // 🗂️ Preload images on mount for performance
   useEffect(() => {
     if (homeVisualsPreloaded) return;
     const preloadImages = async () => {
@@ -1396,19 +1402,101 @@ export const HomeScreen = ({ navigation }: any) => {
   const [helpModalTitle, setHelpModalTitle] = useState("Bilgi");
   const [helpModalMessage, setHelpModalMessage] = useState("");
   const [questGuideModalVisible, setQuestGuideModalVisible] = useState(false);
-  const [questGuideTitle, setQuestGuideTitle] = useState("GÃƒÂ¶reve BaÃ…Å¸la");
+  const [questGuideTitle, setQuestGuideTitle] = useState("Göreve Başla");
   const [questGuideMessage, setQuestGuideMessage] = useState("");
-  const [questGuideButtonText, setQuestGuideButtonText] = useState("YÃƒÂ¶nlendir");
+  const [questGuideButtonText, setQuestGuideButtonText] = useState("Yönlendir");
   const [notificationPromptVisible, setNotificationPromptVisible] = useState(false);
   const [notificationPromptArmed, setNotificationPromptArmed] = useState(false);
   const [meaningfulActionCount, setMeaningfulActionCount] = useState(0);
   const [practiceCenterVisible, setPracticeCenterVisible] = useState(false);
+  const showUtilityRailHint = !utilityRailHintDismissed;
   const questGuideTargetRef = useRef<{ route: string; params?: any } | null>(null);
   const questGuideNavigateFrameRef = useRef<number | null>(null);
   const notificationRequestInFlightRef = useRef(false);
   const notificationPromptTimerRef = useRef<NodeJS.Timeout | null>(null);
   const navigationUnlockTimerRef = useRef<NodeJS.Timeout | null>(null);
   const questPanelNavigateTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const utilityRailLastIndexRef = useRef(0);
+  const utilityRailLastTickAtRef = useRef(0);
+  const utilityRailHintAnim = useRef(new Animated.Value(0)).current;
+
+  const utilityRailItemWidth = useMemo(() => {
+    const base = Math.floor((SCREEN_WIDTH - SPACING.lg * 2 - GRID_GAP) / 2);
+    if (IS_LARGE_TABLET) return Math.max(230, Math.min(320, base));
+    if (IS_TABLET_DEVICE) return Math.max(205, Math.min(276, base));
+    return IS_SMALL_DEVICE ? Math.max(156, Math.min(188, base)) : Math.max(170, Math.min(208, base));
+  }, []);
+
+  const utilityRailSnapStep = useMemo(
+    () => utilityRailItemWidth + GRID_GAP,
+    [utilityRailItemWidth],
+  );
+
+  const markUtilityRailHintSeen = useCallback(() => {
+    if (!utilityRailHintDismissed) {
+      setCloudTipDismissed('homeUtilityRailHint', true);
+    }
+  }, [utilityRailHintDismissed, setCloudTipDismissed]);
+
+  useEffect(() => {
+    if (!showUtilityRailHint) {
+      utilityRailHintAnim.stopAnimation();
+      utilityRailHintAnim.setValue(0);
+      return;
+    }
+
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(utilityRailHintAnim, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(utilityRailHintAnim, {
+          toValue: 0,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    loop.start();
+
+    return () => {
+      loop.stop();
+    };
+  }, [showUtilityRailHint, utilityRailHintAnim]);
+
+  const utilityRailHintOpacity = utilityRailHintAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.72, 1],
+  });
+  const utilityRailHintTranslateY = utilityRailHintAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -2],
+  });
+
+  const handleUtilityRailDragStart = useCallback(() => {
+    if (showUtilityRailHint) markUtilityRailHintSeen();
+    haptic.selection();
+    sound.playSwipe();
+  }, [showUtilityRailHint, markUtilityRailHintSeen]);
+
+  const handleUtilityRailScroll = useCallback((event: any) => {
+    const offsetX = Number(event?.nativeEvent?.contentOffset?.x ?? 0);
+    if (!Number.isFinite(offsetX) || utilityRailSnapStep <= 0) return;
+    if (showUtilityRailHint && offsetX > 10) markUtilityRailHintSeen();
+
+    const nextIndex = Math.max(0, Math.round(offsetX / utilityRailSnapStep));
+    if (nextIndex === utilityRailLastIndexRef.current) return;
+
+    const now = Date.now();
+    if (now - utilityRailLastTickAtRef.current < 70) return;
+
+    utilityRailLastIndexRef.current = nextIndex;
+    utilityRailLastTickAtRef.current = now;
+    haptic.selection();
+    sound.playTick();
+  }, [utilityRailSnapStep, showUtilityRailHint, markUtilityRailHintSeen]);
 
   const clearQuestGuideNavigateTask = useCallback(() => {
     if (questGuideNavigateFrameRef.current !== null) {
@@ -1436,9 +1524,9 @@ export const HomeScreen = ({ navigation }: any) => {
       buttonText: string,
       target: { route: string; params?: any },
     ) => {
-      setQuestGuideTitle(title || "GÃƒÂ¶rev YÃƒÂ¶nlendirmesi");
+      setQuestGuideTitle(title || "Görev Yönlendirmesi");
       setQuestGuideMessage(message || "");
-      setQuestGuideButtonText(buttonText || "YÃƒÂ¶nlendir");
+      setQuestGuideButtonText(buttonText || "Yönlendir");
       questGuideTargetRef.current = target;
       setQuestGuideModalVisible(true);
     },
@@ -1548,9 +1636,9 @@ export const HomeScreen = ({ navigation }: any) => {
   const cefrSignalSummary = useMemo(() => {
     const signalRows = [
       { label: "Kelime hakimiyeti", value: cefrEstimate.signals.lexicalMasteryPct },
-      { label: "Quiz doÃ„Å¸ruluÃ„Å¸u", value: cefrEstimate.signals.quizAccuracyPct },
-      { label: "SesYap doÃ„Å¸ruluÃ„Å¸u", value: cefrEstimate.signals.speechAccuracyPct },
-      { label: "Yapboz doÃ„Å¸ruluÃ„Å¸u", value: cefrEstimate.signals.puzzleMasteryPct },
+      { label: "Quiz doğruluğu", value: cefrEstimate.signals.quizAccuracyPct },
+      { label: "SesYap doğruluğu", value: cefrEstimate.signals.speechAccuracyPct },
+      { label: "Yapboz doğruluğu", value: cefrEstimate.signals.puzzleMasteryPct },
       { label: "Kapsam", value: cefrEstimate.signals.coveragePct },
       { label: "XP ilerlemesi", value: cefrEstimate.signals.xpProgressPct },
     ];
@@ -1560,17 +1648,17 @@ export const HomeScreen = ({ navigation }: any) => {
     const weakestTwo = sorted.slice(-2);
 
     const actionMap: Record<string, string> = {
-      "Kelime hakimiyeti": "Ãƒâ€¡iftlikte kÃ„Â±rmÃ„Â±zÃ„Â±/sarÃ„Â± kartlarÃ„Â± kÃ„Â±sa ama dÃƒÂ¼zenli tekrarlarla yeÃ…Å¸ile taÃ…Å¸Ã„Â±.",
-      "Quiz doÃ„Å¸ruluÃ„Å¸u": "Quizde hÃ„Â±z yerine doÃ„Å¸ruluÃ„Å¸u ÃƒÂ¶ne al; yanlÃ„Â±Ã…Å¸lardan sonra aynÃ„Â± tip sorularÃ„Â± tekrar ÃƒÂ§ÃƒÂ¶z.",
-      "SesYap doÃ„Å¸ruluÃ„Å¸u": "SesYapta kÃ„Â±sa cÃƒÂ¼mlelerle baÃ…Å¸la, gÃƒÂ¼nlÃƒÂ¼k 8-10 doÃ„Å¸ru telaffuz hedefi koy.",
-      "Yapboz doÃ„Å¸ruluÃ„Å¸u": "Yapbozda cÃƒÂ¼mleyi ÃƒÂ¶nce anlam bloklarÃ„Â±na ayÃ„Â±r, sonra sÃ„Â±rayÃ„Â± kur.",
-      "Kapsam": "Yeni kelime havuzunu geniÃ…Å¸letmek iÃƒÂ§in quiz ve pratik merkezini dÃƒÂ¶nÃƒÂ¼Ã…Å¸ÃƒÂ¼mlÃƒÂ¼ kullan.",
-      "XP ilerlemesi": "GÃƒÂ¼nlÃƒÂ¼k gÃƒÂ¶rev + hasat + kÃ„Â±sa pratik dÃƒÂ¶ngÃƒÂ¼sÃƒÂ¼yle XP ivmesini artÃ„Â±r.",
+      "Kelime hakimiyeti": "Çiftlikte kırmızı/sarı kartları kısa ama düzenli tekrarlarla yeşile taşı.",
+      "Quiz doğruluğu": "Quizde hız yerine doğruluğu öne al; yanlışlardan sonra aynı tip soruları tekrar çöz.",
+      "SesYap doğruluğu": "SesYapta kısa cümlelerle başla, günlük 8-10 doğru telaffuz hedefi koy.",
+      "Yapboz doğruluğu": "Yapbozda cümleyi önce anlam bloklarına ayır, sonra sırayı kur.",
+      "Kapsam": "Yeni kelime havuzunu genişletmek için quiz ve pratik merkezini dönüşümlü kullan.",
+      "XP ilerlemesi": "Günlük görev + hasat + kısa pratik döngüsüyle XP ivmesini artır.",
     };
 
     return {
       topText: topTwo.map((item) => `${item.label} %${item.value}`).join(" | "),
-      weakText: weakestTwo.map((item) => `${item.label} %${item.value}`).join(" Ã¢â‚¬Â¢ "),
+      weakText: weakestTwo.map((item) => `${item.label} %${item.value}`).join(" • "),
       actionText: weakestTwo.map((item) => actionMap[item.label]).join(" "),
     };
   }, [cefrEstimate]);
@@ -1603,7 +1691,7 @@ export const HomeScreen = ({ navigation }: any) => {
       isNavigating.current = false;
       lastNavigationTime.current = 0;
       
-      //  GÃƒÂ¼nlÃƒÂ¼k gÃƒÂ¶revleri kontrol et ve yenile
+      //  Günlük görevleri kontrol et ve yenile
       try {
         checkAndResetDailyQuests();
       } catch (error) {
@@ -1628,7 +1716,7 @@ export const HomeScreen = ({ navigation }: any) => {
   );
   const isTutorialActive = tutorialStep !== "NOT_STARTED" && tutorialStep !== "COMPLETED";
   const isFullScreenTutorial = tutorialDialog.fullScreen === true;
-  //  Sadece uygulama arka plana gidip dÃƒÂ¶nÃƒÂ¼ldÃƒÂ¼yse kilit overlay'i gÃƒÂ¶ster; devam et tklannca kalksn
+  //  Sadece uygulama arka plana gidip dönüldüyse kilit overlay'i göster; devam et tklannca kalksn
   const showHomeTutorialLock = isTutorialActive && !isFullScreenTutorial && tutorialInterrupted;
   const tutorialLockMessage = useMemo(() => {
     const lineText = (tutorialDialog.lines || []).filter(Boolean).join(" ");
@@ -1654,22 +1742,22 @@ export const HomeScreen = ({ navigation }: any) => {
     switch (guidedModeStep) {
       case "QUIZ_UNTIL_WRONG":
         if (route !== "Quiz") {
-          return "MÃƒÂ¼fredat aktif: ÃƒÂ¶nce yanlÃ„Â±Ã…Å¸ yapana kadar Quiz ÃƒÂ§ÃƒÂ¶zmelisin.";
+          return "Müfredat aktif: önce yanlış yapana kadar Quiz çözmelisin.";
         }
         return null;
       case "FARM_MASTER_TARGET":
         if (route !== "Farm") {
-          return "Ã…Âimdi ÃƒÂ§iftlik adÃ„Â±mÃ„Â±ndasÃ„Â±n. Hedef kelimeyi hasat ederek ilerleyebilirsin.";
+          return "Şimdi çiftlik adımındasın. Hedef kelimeyi hasat ederek ilerleyebilirsin.";
         }
         return null;
       case "PUZZLE_PRACTICE":
         if (route !== "Farm" || params?.tab !== "puzzle") {
-          return "SÃ„Â±radaki adÃ„Â±m Yapboz. Ãƒâ€¡iftlik > Yapboz sekmesine geÃƒÂ§erek devam et.";
+          return "Sıradaki adım Yapboz. Çiftlik > Yapboz sekmesine geçerek devam et.";
         }
         return null;
       case "SESYAP_PRACTICE":
         if (route !== "SesYap") {
-          return "Son adÃ„Â±m SesYap. Bir doÃ„Å¸ru telaffuzla mÃƒÂ¼fredatÃ„Â± tamamlayabilirsin.";
+          return "Son adım SesYap. Bir doğru telaffuzla müfredatı tamamlayabilirsin.";
         }
         return null;
       default:
@@ -1690,15 +1778,15 @@ export const HomeScreen = ({ navigation }: any) => {
       if (!hasInternet) {
         const message =
           route === "SesYap"
-            ? "SesYap moduna girmek iÃƒÂ§in internet baÃ„Å¸lantÃ„Â±sÃ„Â± gerekir. BaÃ„Å¸lantÃ„Â±nÃ„Â± kontrol edip tekrar dene."
-            : "SavaÃ…Å¸ modu ve liderlik tablosuna girmek iÃƒÂ§in internet baÃ„Å¸lantÃ„Â±sÃ„Â± gerekir. BaÃ„Å¸lantÃ„Â±nÃ„Â± kontrol edip tekrar dene.";
-        Alert.alert("Ã„Â°nternet Gerekli", message);
+            ? "SesYap moduna girmek için internet bağlantısı gerekir. Bağlantını kontrol edip tekrar dene."
+            : "Savaş modu ve liderlik tablosuna girmek için internet bağlantısı gerekir. Bağlantını kontrol edip tekrar dene.";
+        Alert.alert("İnternet Gerekli", message);
         haptic.error();
         return false;
       }
       return true;
     } catch {
-      // NetInfo beklenmedik hata verirse kullanÃ„Â±cÃ„Â±yÃ„Â± bloklamayalÃ„Â±m.
+      // NetInfo beklenmedik hata verirse kullanıcıyı bloklamayalım.
       return true;
     }
   }, []);
@@ -1712,7 +1800,7 @@ export const HomeScreen = ({ navigation }: any) => {
     const guidedBlockReason = getGuidedRouteBlockReason(route, params);
     if (guidedBlockReason) {
       traceEvent("guided_nav_blocked", { route, step: guidedModeStep });
-      showHomeHelpModal("MÃƒÂ¼fredat Aktif", guidedBlockReason);
+      showHomeHelpModal("Müfredat Aktif", guidedBlockReason);
       haptic.warning();
       return;
     }
@@ -1839,17 +1927,17 @@ export const HomeScreen = ({ navigation }: any) => {
         normalizedTitle.includes("kelime topla")
       ) {
         return {
-          title: "GÃƒÂ¶reve HazÃ„Â±rlÃ„Â±k",
-          message: `Bu gÃƒÂ¶revde hedefin ${targetCount} kelime toplamak. Quiz ÃƒÂ§ÃƒÂ¶zerek ve Tohum PazarÃ„Â±'ndan tarlana kelime ekip biÃƒÂ§ip ÃƒÂ¶Ã„Å¸renebilirsin. Biz seni Ã…Å¸imdi Quiz'e yÃƒÂ¶nlendiriyoruz.`,
+          title: "Göreve Hazırlık",
+          message: `Bu görevde hedefin ${targetCount} kelime toplamak. Quiz çözerek ve Tohum Pazarı'ndan tarlana kelime ekip biçip öğrenebilirsin. Biz seni şimdi Quiz'e yönlendiriyoruz.`,
           buttonText: "Quiz'e Git",
           target: { route: "Quiz" as string },
         };
       }
 
       return {
-        title: "GÃƒÂ¶reve HazÃ„Â±rlÃ„Â±k",
-        message: "Bu gÃƒÂ¶revi en hÃ„Â±zlÃ„Â± Ã…Å¸ekilde tamamlayabilmen iÃƒÂ§in seni doÃ„Å¸ru ekrana yÃƒÂ¶nlendiriyoruz.",
-        buttonText: "GÃƒÂ¶reve Git",
+        title: "Göreve Hazırlık",
+        message: "Bu görevi en hızlı şekilde tamamlayabilmen için seni doğru ekrana yönlendiriyoruz.",
+        buttonText: "Göreve Git",
         target: fallbackTarget,
       };
     },
@@ -2010,10 +2098,10 @@ export const HomeScreen = ({ navigation }: any) => {
   const handleNotificationPreview = useCallback(async () => {
     const ok = await scheduleNotificationPreview(5);
     showHomeHelpModal(
-      ok ? "Bildirim Testi PlanlandÃ„Â±" : "Bildirim Testi BaÃ…Å¸arÃ„Â±sÃ„Â±z",
+      ok ? "Bildirim Testi Planlandı" : "Bildirim Testi Başarısız",
       ok
-        ? "5 saniye iÃƒÂ§inde test bildirimi gelecek. Gelmezse cihaz ayarlarÃ„Â±nda izin durumunu kontrol et."
-        : "Test bildirimi zamanlanamadÃ„Â±. Ayarlar > Bildirimler iÃƒÂ§inde izin verdiÃ„Å¸inden emin ol."
+        ? "5 saniye içinde test bildirimi gelecek. Gelmezse cihaz ayarlarında izin durumunu kontrol et."
+        : "Test bildirimi zamanlanamadı. Ayarlar > Bildirimler içinde izin verdiğinden emin ol."
     );
   }, [showHomeHelpModal]);
 
@@ -2022,7 +2110,7 @@ export const HomeScreen = ({ navigation }: any) => {
     handleNav(route);
   }, [handleNav]);
 
-  //  PUZZLE -> Farm puzzle sekmesine yÃƒÂ¶nlendir
+  //  PUZZLE -> Farm puzzle sekmesine yönlendir
   const handlePuzzlePress = () => {
     handleNav("Farm", { tab: "puzzle" });
   };
@@ -2089,13 +2177,13 @@ export const HomeScreen = ({ navigation }: any) => {
             ]}
           >
             <View style={styles.dailyQuestTopHeader}>
-              <Text style={[styles.dailyQuestTopTitle, { color: homeHeaderTheme.questTitleColor }]}>SÃ„Â±radaki GÃƒÂ¶rev</Text>
+              <Text style={[styles.dailyQuestTopTitle, { color: homeHeaderTheme.questTitleColor }]}>Sıradaki Görev</Text>
               <TouchableOpacity
                 style={styles.dailyQuestMoreButton}
                 onPress={handleOpenDailyQuests}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.dailyQuestMoreText, { color: homeHeaderTheme.questMoreTextColor }]}>Daha da gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼le</Text>
+                <Text style={[styles.dailyQuestMoreText, { color: homeHeaderTheme.questMoreTextColor }]}>Daha da görüntüle</Text>
                 <ChevronRight size={14} color={homeHeaderTheme.questMoreTextColor} />
               </TouchableOpacity>
             </View>
@@ -2194,7 +2282,7 @@ export const HomeScreen = ({ navigation }: any) => {
                     { color: homeHeaderTheme.questEmptyTextColor },
                   ]}
                 >
-                  BugÃƒÂ¼nÃƒÂ¼n gÃƒÂ¶revleri tamamlandÃ„Â±.
+                  Bugünün görevleri tamamlandı.
                 </Text>
               </View>
             )}
@@ -2206,41 +2294,41 @@ export const HomeScreen = ({ navigation }: any) => {
               imageSource={PRELOADED_IMAGES.quiz}
               title="QUIZ"
               subtitle="Kelime topla, tarlana ek"
-              size="wideXL"
+              size="wideXXL"
               textAlign="center"
               accentColor="#A855F7"
               delay={0}
               hasBounce={true}
               onHelpPress={showHomeHelpModal}
-              helpText="Quiz ÃƒÂ§ÃƒÂ¶zdÃƒÂ¼kÃƒÂ§e tarlana otomatik ekim yapÃ„Â±lÃ„Â±r. Bilmediklerin tohum olur ve ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±kÃƒÂ§a bÃƒÂ¼yÃƒÂ¼r."
+              helpText="Quiz çözdükçe tarlana otomatik ekim yapılır. Bilmediklerin tohum olur ve çalıştıkça büyür."
             />
 
             <View style={styles.gridRow}>
               <PremiumMenuCard
                 onPress={() => handleNav("Farm")}
                 imageSource={PRELOADED_IMAGES.farm}
-                title="Ãƒâ€¡Ã„Â°FTLÃ„Â°K"
-                subtitle="BÃƒÂ¼yÃƒÂ¼t, ÃƒÂ§alÃ„Â±Ã…Å¸, hasat et"
+                title="ÇİFTLİK"
+                subtitle="Büyüt, çalış, hasat et"
                 size="medium"
                 textAlign="center"
                 accentColor="#22C55E"
                 delay={40}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Kelimelerini burada bÃƒÂ¼yÃƒÂ¼tÃƒÂ¼r, hasat eder ve kalÃ„Â±cÃ„Â± ÃƒÂ¶Ã„Å¸renme saÃ„Å¸larsÃ„Â±n."
+                helpText="Kelimelerini burada büyütür, hasat eder ve kalıcı öğrenme sağlarsın."
               />
               <PremiumMenuCard
                 onPress={() => handleNav("Inventory")}
                 imageSource={PRELOADED_IMAGES.envanter}
                 title="ENVANTER"
-                subtitle="HasatlarÃ„Â±n burada"
+                subtitle="Hasatların burada"
                 size="medium"
                 textAlign="center"
                 accentColor="#60A5FA"
                 delay={80}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="HasatlarÃ„Â±nÃ„Â± buradan yÃƒÂ¶netir, kartlarÃ„Â±nÃ„Â± tekrar tarlaya gÃƒÂ¶nderirsin."
+                helpText="Hasatlarını buradan yönetir, kartlarını tekrar tarlaya gönderirsin."
               />
             </View>
 
@@ -2249,131 +2337,170 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handleNav("SesYap")}
                 imageSource={PRELOADED_IMAGES.sesyap}
                 title="SESYAP"
-                subtitle="KonuÃ…Å¸, telaffuzunu geliÃ…Å¸tir"
+                subtitle="Konuş, telaffuzunu geliştir"
                 size="medium"
                 textAlign="center"
                 accentColor="#5EEAD4"
                 delay={120}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="SesYap modunda telaffuz ve doÃ„Å¸ruluk ÃƒÂ§alÃ„Â±Ã…Å¸Ã„Â±rsÃ„Â±n."
+                helpText="SesYap modunda telaffuz ve doğruluk çalışırsın."
               />
               <PremiumMenuCard
                 onPress={handlePuzzlePress}
                 imageSource={PRELOADED_IMAGES.puzzle}
                 title="PUZZLE"
-                subtitle="CÃƒÂ¼mle pratiÃ„Å¸i"
+                subtitle="Cümle pratiği"
                 size="medium"
                 textAlign="center"
                 accentColor="#F97316"
                 delay={160}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="CÃƒÂ¼mle parÃƒÂ§alarÃ„Â±nÃ„Â± doÃ„Å¸ru sÃ„Â±raya dizerek baÃ„Å¸lamlÃ„Â± tekrar yaparsÃ„Â±n."
+                helpText="Cümle parçalarını doğru sıraya dizerek bağlamlı tekrar yaparsın."
               />
             </View>
 
             <PremiumMenuCard
               onPress={() => handleNav("BattleMenu")}
               imageSource={PRELOADED_IMAGES.battle}
-              title="SAVAÃ…Â MODU"
-              subtitle="Rakiplerle yarÃ„Â±Ã…Å¸"
-              size="wide"
+              title={'SAVA\u015E MODU'}
+              subtitle={'Rakiplerle yar\u0131\u015F'}
+              size="wideXXL"
               textAlign="center"
-              imageFit="fill"
-              accentColor="#C4B5FD"
+              imageFit="cover"
+              imagePosition="top"
+              accentColor="#EF4444"
               delay={200}
               hasBounce={true}
+              wrapperStyleOverride={styles.battleHeroCard}
               onHelpPress={showHomeHelpModal}
-              helpText="SavaÃ…Å¸ modunda rakiplerle yarÃ„Â±Ã…Å¸Ã„Â±r, liderlik tablosunda yÃƒÂ¼kselirsin."
+              helpText={'Sava\u015F modunda rakiplerle yar\u0131\u015F\u0131r, liderlik tablosunda y\u00FCkselirsin.'}
             />
 
-            <View style={styles.gridRow}>
-              <PremiumMenuCard
-                onPress={() => handleNav("CustomWordCard")}
-                imageSource={PRELOADED_IMAGES.customWord}
-                title="KENDÃ„Â° KELÃ„Â°ME KARTIN"
-                subtitle="Kendi tohumunu ek"
-                size="medium"
-                textAlign="center"
-                imageFit="cover"
-                accentColor="#22C55E"
-                delay={240}
-                hasBounce={true}
-                onHelpPress={showHomeHelpModal}
-                helpText="Kendi kelimeni, ÃƒÂ¶rnek cÃƒÂ¼mleni ekleyip oyuna dahil edebilirsin."
-              />
-              <PremiumMenuCard
-                onPress={() => handleNav("PhrasalVerbsMenu")}
-                imageSource={PRELOADED_IMAGES.phrasal}
-                title="PHRASAL"
-                subtitle="Deyimleri ÃƒÂ¶Ã„Å¸ren"
-                size="medium"
-                textAlign="center"
-                imageFit="cover"
-                accentColor="#EC4899"
-                delay={280}
-                hasBounce={true}
-                onHelpPress={showHomeHelpModal}
-                helpText="Phrasal verbs bÃƒÂ¶lÃƒÂ¼mÃƒÂ¼nde gÃƒÂ¼ndelik Ã„Â°ngilizcedeki kritik kalÃ„Â±plarÃ„Â± ÃƒÂ§alÃ„Â±Ã…Å¸Ã„Â±rsÃ„Â±n."
-              />
-              <PremiumMenuCard
-                onPress={() => {
-                  registerMeaningfulAction();
-                  haptic.light();
-                  setPracticeCenterVisible(true);
-                }}
-                imageSource={PRELOADED_IMAGES.pratik}
-                title="PRATÃ„Â°K MERKEZÃ„Â°"
-                subtitle="EÃ…Å¸leÃ…Å¸tir, doldur, YDS"
-                size="medium"
-                textAlign="center"
-                imageFit="cover"
-                accentColor="#38BDF8"
-                delay={320}
-                hasBounce={true}
-                onHelpPress={showHomeHelpModal}
-                helpText="Pratik merkezinde hedefe gÃƒÂ¶re modÃƒÂ¼ller seÃƒÂ§ip sistemli ilerlersin."
-              />
-            </View>
-
-            <View style={styles.gridRow}>
-              <PremiumMenuCard
-                onPress={() => {
-                  registerMeaningfulAction();
-                  haptic.medium();
-                  setShowMarket(true);
-                }}
-                imageSource={PRELOADED_IMAGES.market}
-                title="MARKET"
-                subtitle="Tohum ve GÃƒÂ¼ÃƒÂ§"
-                size="halfSquare"
-                textAlign="center"
-                imageFit="cover"
-                accentColor="#A78BFA"
-                delay={360}
-                hasBounce={true}
-                onHelpPress={showHomeHelpModal}
-                helpText="Marketten gÃƒÂ¼ÃƒÂ§lendirme alÃ„Â±r, tohum satÃ„Â±n alÃ„Â±r ve geliÃ…Å¸imini hÃ„Â±zlandÃ„Â±rÃ„Â±rsÃ„Â±n."
-              />
-              <PremiumMenuCard
-                onPress={() => {
-                  registerMeaningfulAction();
-                  haptic.medium();
-                  setCardShopVisible(true);
-                }}
-                imageSource={PRELOADED_IMAGES.cardShop}
-                title="KART PAZARI"
-                subtitle="Tema ve kiÃ…Å¸iselleÃ…Å¸tir"
-                size="halfSquare"
-                textAlign="center"
-                imageFit="cover"
-                accentColor="#C4B5FD"
-                delay={380}
-                hasBounce={true}
-                onHelpPress={showHomeHelpModal}
-                helpText="Kart pazarÃ„Â±nda kart temalarÃ„Â±nÃ„Â± aÃƒÂ§ar ve kartlarÃ„Â±nÃ„Â± kiÃ…Å¸iselleÃ…Å¸tirirsin."
-              />
+            <View style={styles.utilityRailSection}>
+              {showUtilityRailHint && (
+                <Animated.View
+                  style={[
+                    styles.utilityRailHintWrap,
+                    {
+                      opacity: utilityRailHintOpacity,
+                      transform: [{ translateY: utilityRailHintTranslateY }],
+                    },
+                  ]}
+                  pointerEvents="none"
+                >
+                  <LinearGradient
+                    colors={["rgba(56, 189, 248, 0.2)", "rgba(30, 64, 175, 0.22)"]}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                    style={styles.utilityRailHintPill}
+                  >
+                    <Text style={styles.utilityRailHintArrow}>{"\u2190"}</Text>
+                    <Text style={styles.utilityRailHintText}>{'Daha fazla kart i\u00E7in sa\u011Fa kayd\u0131r'}</Text>
+                    <Text style={styles.utilityRailHintArrow}>{"\u2192"}</Text>
+                  </LinearGradient>
+                </Animated.View>
+              )}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                snapToInterval={utilityRailSnapStep}
+                decelerationRate="fast"
+                disableIntervalMomentum
+                contentContainerStyle={styles.utilityRailContent}
+                onScrollBeginDrag={handleUtilityRailDragStart}
+                onScroll={handleUtilityRailScroll}
+                scrollEventThrottle={16}
+              >
+                <PremiumMenuCard
+                  onPress={() => handleNav("CustomWordCard")}
+                  imageSource={PRELOADED_IMAGES.customWord}
+                  title="KENDİ KELİME KARTIN"
+                  subtitle="Kendi tohumunu ek"
+                  size="halfSquare"
+                  textAlign="center"
+                  imageFit="cover"
+                  accentColor="#22C55E"
+                  delay={240}
+                  hasBounce={true}
+                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
+                  onHelpPress={showHomeHelpModal}
+                  helpText="Kendi kelimeni, örnek cümleni ekleyip oyuna dahil edebilirsin."
+                />
+                <PremiumMenuCard
+                  onPress={() => {
+                    registerMeaningfulAction();
+                    haptic.medium();
+                    setCardShopVisible(true);
+                  }}
+                  imageSource={PRELOADED_IMAGES.cardShop}
+                  title="KART PAZARI"
+                  subtitle="Tema ve kisisellestir"
+                  size="halfSquare"
+                  textAlign="center"
+                  imageFit="cover"
+                  accentColor="#C4B5FD"
+                  delay={280}
+                  hasBounce={true}
+                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
+                  onHelpPress={showHomeHelpModal}
+                  helpText="Kart pazarinda kart temalarini acar ve kartlarini kisisellestirirsin."
+                />
+                <PremiumMenuCard
+                  onPress={() => {
+                    registerMeaningfulAction();
+                    haptic.medium();
+                    setShowMarket(true);
+                  }}
+                  imageSource={PRELOADED_IMAGES.market}
+                  title="MARKET"
+                  subtitle="Tohum ve Guc"
+                  size="halfSquare"
+                  textAlign="center"
+                  imageFit="cover"
+                  accentColor="#A78BFA"
+                  delay={320}
+                  hasBounce={true}
+                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
+                  onHelpPress={showHomeHelpModal}
+                  helpText="Marketten guclendirme alir, tohum satin alir ve gelisimini hizlandirirsin."
+                />
+                <PremiumMenuCard
+                  onPress={() => handleNav("PhrasalVerbsMenu")}
+                  imageSource={PRELOADED_IMAGES.phrasal}
+                  title="PHRASAL"
+                  subtitle="Deyimleri ogren"
+                  size="halfSquare"
+                  textAlign="center"
+                  imageFit="cover"
+                  accentColor="#EC4899"
+                  delay={360}
+                  hasBounce={true}
+                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
+                  onHelpPress={showHomeHelpModal}
+                  helpText="Phrasal verbs bolumunde gundelik ingilizcedeki kritik kaliplari calisirsin."
+                />
+                <PremiumMenuCard
+                  onPress={() => {
+                    registerMeaningfulAction();
+                    haptic.light();
+                    setPracticeCenterVisible(true);
+                  }}
+                  imageSource={PRELOADED_IMAGES.pratik}
+                  title="PRATIK MERKEZI"
+                  subtitle="Eslestir, doldur, YDS"
+                  size="halfSquare"
+                  textAlign="center"
+                  imageFit="cover"
+                  accentColor="#38BDF8"
+                  delay={400}
+                  hasBounce={true}
+                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
+                  onHelpPress={showHomeHelpModal}
+                  helpText="Pratik merkezinde hedefe gore moduller secip sistemli ilerlersin."
+                />
+              </ScrollView>
             </View>
           </View>
           <TouchableOpacity
@@ -2388,28 +2515,28 @@ export const HomeScreen = ({ navigation }: any) => {
               style={styles.cefrSummaryGradient}
             >
               <View style={styles.cefrSummaryHeader}>
-                <Text style={styles.cefrSummaryLabel}>TAHMÃ„Â°NÃ„Â° CEFR</Text>
+                <Text style={styles.cefrSummaryLabel}>TAHMİNİ CEFR</Text>
                 <Text style={styles.cefrSummaryLevel}>{cefrEstimate.level}</Text>
               </View>
               <Text style={styles.cefrSummaryMessage}>
-                {`Ã…Âu an tahmini ${cefrEstimate.level} seviyesindesin.`}
+                {`Şu an tahmini ${cefrEstimate.level} seviyesindesin.`}
               </Text>
               <Text style={styles.cefrSummaryHint}>
-                {isCefrDetailsVisible ? "DetaylarÃ„Â± gizle" : "DetaylarÃ„Â± gÃƒÂ¶rmek iÃƒÂ§in dokun"}
+                {isCefrDetailsVisible ? "Detayları gizle" : "Detayları görmek için dokun"}
               </Text>
               {isCefrDetailsVisible && (
                 <>
                   <Text style={styles.cefrSummaryMeta}>
-                    Bu tahmin dinamik. Quiz, SesYap, Puzzle ve Ãƒâ€¡iftlik verilerin gÃƒÂ¼ncellendikÃƒÂ§e anlÃ„Â±k olarak deÃ„Å¸iÃ…Å¸ir.
+                    Bu tahmin dinamik. Quiz, SesYap, Puzzle ve Çiftlik verilerin güncellendikçe anlık olarak değişir.
                   </Text>
                   <Text style={styles.cefrSummarySignals}>
-                    {`Bu seviyedesin ÃƒÂ§ÃƒÂ¼nkÃƒÂ¼ en gÃƒÂ¼ÃƒÂ§lÃƒÂ¼ sinyallerin: ${cefrSignalSummary.topText}.`}
+                    {`Bu seviyedesin çünkü en güçlü sinyallerin: ${cefrSignalSummary.topText}.`}
                   </Text>
                   <Text style={styles.cefrSummaryWeights}>
-                    {`GeliÃ…Å¸im ÃƒÂ¶nceliÃ„Å¸in: ${cefrSignalSummary.weakText}. GÃƒÂ¼ven: %${cefrEstimate.confidence}.`}
+                    {`Gelişim önceliğin: ${cefrSignalSummary.weakText}. Güven: %${cefrEstimate.confidence}.`}
                   </Text>
                   <Text style={styles.cefrSummaryWeights}>
-                    {`Ãƒâ€“neri: ${cefrSignalSummary.actionText}`}
+                    {`Öneri: ${cefrSignalSummary.actionText}`}
                   </Text>
                 </>
               )}
@@ -2432,9 +2559,9 @@ export const HomeScreen = ({ navigation }: any) => {
                   <Award size={21} color="#facc15" strokeWidth={2.4} />
                 </View>
                 <View style={styles.achievementsTextWrap}>
-                  <Text style={styles.achievementsTitle}>BaÃ…Å¸arÃ„Â±mlar</Text>
+                  <Text style={styles.achievementsTitle}>Başarımlar</Text>
                   <Text style={styles.achievementsSubtitle}>
-                    {`${unlockedAchievementCount}/${achievements.length} aÃƒÂ§Ã„Â±ldÃ„Â±`}
+                    {`${unlockedAchievementCount}/${achievements.length} açıldı`}
                   </Text>
                 </View>
               </View>
@@ -2450,11 +2577,11 @@ export const HomeScreen = ({ navigation }: any) => {
         <View style={styles.homeTutorialLock} pointerEvents="auto">
           <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
           <View style={styles.homeTutorialCard}>
-            <Text style={styles.homeTutorialTitle}>EÃ„Å¸itim kilidi aktif</Text>
+            <Text style={styles.homeTutorialTitle}>Eğitim kilidi aktif</Text>
             <Text style={styles.homeTutorialText}>{tutorialLockMessage}</Text>
             {tutorialInterrupted && (
               <Text style={styles.homeTutorialSubtext}>
-                Uygulamadan ÃƒÂ§Ã„Â±kmÃ„Â±Ã…Å¸sÃ„Â±n. Devam etmek veya serbest kalmak iÃƒÂ§in seÃƒÂ§im yap.
+                Uygulamadan çıkmışsın. Devam etmek veya serbest kalmak için seçim yap.
               </Text>
             )}
             <View style={styles.homeTutorialActions}>
@@ -2488,7 +2615,7 @@ export const HomeScreen = ({ navigation }: any) => {
         />
       )}
       
-      {/*  GÃƒÂ¼nlÃƒÂ¼k GÃƒÂ¶revler Modal */}
+      {/*  Günlük Görevler Modal */}
       <Modal
         visible={questsPanelVisible}
         transparent
@@ -2531,7 +2658,7 @@ export const HomeScreen = ({ navigation }: any) => {
         </View>
       </Modal>
 
-      {/* sÃ‚Â¨ Card Shop Modal */}
+      {/* 🛒 Card Shop Modal */}
       <Modal
         visible={cardShopVisible}
         animationType="slide"
@@ -2564,7 +2691,7 @@ export const HomeScreen = ({ navigation }: any) => {
             >
               <View style={styles.practiceModalHeader}>
                 <Text style={styles.practiceModalTitle}>Pratik Merkezi</Text>
-                <Text style={styles.practiceModalSubtitle}>Hedefini seÃƒÂ§, doÃ„Å¸ru modÃƒÂ¼lle net pratik yap.</Text>
+                <Text style={styles.practiceModalSubtitle}>Hedefini seç, doğru modülle net pratik yap.</Text>
               </View>
 
               <TouchableOpacity
@@ -2572,8 +2699,8 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handlePracticeNavigate("WordMatch")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.practiceModalButtonTitle}>Kelime EÃ…Å¸leÃ…Å¸tir</Text>
-                <Text style={styles.practiceModalButtonDesc}>KarÃ„Â±Ã…Å¸Ã„Â±k kartlarda Ã„Â°ngilizce-TÃƒÂ¼rkÃƒÂ§e ÃƒÂ§iftleri bularak hÃ„Â±z ve doÃ„Å¸ruluk reflekkazan.</Text>
+                <Text style={styles.practiceModalButtonTitle}>Kelime Eşleştir</Text>
+                <Text style={styles.practiceModalButtonDesc}>Karışık kartlarda İngilizce-Türkçe çiftleri bularak hız ve doğruluk reflekkazan.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2581,8 +2708,8 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handlePracticeNavigate("FillBlank")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.practiceModalButtonTitle}>BoÃ…Å¸luk Doldur</Text>
-                <Text style={styles.practiceModalButtonDesc}>CÃƒÂ¼mlede baÃ„Å¸lama en uygun kelimeyi seÃƒÂ§erek dilbilgive anlam doÃ„Å¸ruluÃ„Å¸unu geliÃ…Å¸tir.</Text>
+                <Text style={styles.practiceModalButtonTitle}>Boşluk Doldur</Text>
+                <Text style={styles.practiceModalButtonDesc}>Cümlede bağlama en uygun kelimeyi seçerek dilbilgive anlam doğruluğunu geliştir.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2591,7 +2718,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 activeOpacity={0.85}
               >
                 <Text style={styles.practiceModalButtonTitle}>Deyimler</Text>
-                <Text style={styles.practiceModalButtonDesc}>GerÃƒÂ§ek hayatta kullanÃ„Â±lan deyimleri ÃƒÂ¶rneklerle ÃƒÂ¶Ã„Å¸ren, yanlÃ„Â±Ã…Å¸ kullanÃ„Â±mlarÃ„Â± ayÃ„Â±kla.</Text>
+                <Text style={styles.practiceModalButtonDesc}>Gerçek hayatta kullanılan deyimleri örneklerle öğren, yanlış kullanımları ayıkla.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2599,8 +2726,8 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handlePracticeNavigate("YDSQuiz")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.practiceModalButtonTitle}>YDS SorularÃ„Â±</Text>
-                <Text style={styles.practiceModalButtonDesc}>SÃ„Â±nav formatÃ„Â±ndaki sorularla zaman yÃƒÂ¶netimi ÃƒÂ§alÃ„Â±Ã…Å¸; cevaptan sonra ÃƒÂ§ÃƒÂ¶zÃƒÂ¼m mantÃ„Â±Ã„Å¸Ã„Â±nÃ„Â± gÃƒÂ¶r.</Text>
+                <Text style={styles.practiceModalButtonTitle}>YDS Soruları</Text>
+                <Text style={styles.practiceModalButtonDesc}>Sınav formatındaki sorularla zaman yönetimi çalış; cevaptan sonra çözüm mantığını gör.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2608,8 +2735,8 @@ export const HomeScreen = ({ navigation }: any) => {
                 onPress={() => handlePracticeNavigate("YDSWordForms")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.practiceModalButtonTitle}>Kelime FormlarÃ„Â±</Text>
-                <Text style={styles.practiceModalButtonDesc}>Noun-verb-adjective-adverb dÃƒÂ¶nÃƒÂ¼Ã…Å¸ÃƒÂ¼mlerini cÃƒÂ¼mle ipuÃƒÂ§larÃ„Â±na gÃƒÂ¶re doÃ„Å¸ru seÃƒÂ§meyi ÃƒÂ¶Ã„Å¸ren.</Text>
+                <Text style={styles.practiceModalButtonTitle}>Kelime Formları</Text>
+                <Text style={styles.practiceModalButtonDesc}>Noun-verb-adjective-adverb dönüşümlerini cümle ipuçlarına göre doğru seçmeyi öğren.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2618,7 +2745,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 activeOpacity={0.85}
               >
                 <Text style={styles.practiceModalButtonTitle}>Collocations</Text>
-                <Text style={styles.practiceModalButtonDesc}>Birlikte doÃ„Å¸al kullanÃ„Â±lan kelime gruplarÃ„Â±nÃ„Â± ayÃ„Â±rt et; akÃ„Â±cÃ„Â± ve doÃ„Å¸ru ifade kur.</Text>
+                <Text style={styles.practiceModalButtonDesc}>Birlikte doğal kullanılan kelime gruplarını ayırt et; akıcı ve doğru ifade kur.</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -2633,12 +2760,12 @@ export const HomeScreen = ({ navigation }: any) => {
         </View>
       </Modal>
 
-      {/* sÃ‹Å“ Tutorial Final Quiz Dialog */}
+      {/* ℹ️ Tutorial Final Quiz Dialog */}
       <JuicyModal
         visible={helpModalVisible}
         onClose={() => setHelpModalVisible(false)}
         title={helpModalTitle}
-        titleEmoji={"Ã¢Ââ€œ"}
+        titleEmoji={"ℹ️"}
         message={helpModalMessage}
         type="info"
         buttons={[
@@ -2653,7 +2780,7 @@ export const HomeScreen = ({ navigation }: any) => {
         visible={questGuideModalVisible}
         onClose={closeQuestGuideModal}
         title={questGuideTitle}
-        titleEmoji={"ÄŸÅ¸ÂÂ¯"}
+        titleEmoji={"🗺️"}
         message={questGuideMessage}
         type="info"
         buttons={[
@@ -2663,7 +2790,7 @@ export const HomeScreen = ({ navigation }: any) => {
             onPress: handleQuestGuideNavigate,
           },
           {
-            text: "Ã…Âimdilik KalsÃ„Â±n",
+            text: "Şimdilik Kalsın",
             type: "cancel",
             onPress: closeQuestGuideModal,
           },
@@ -2729,19 +2856,19 @@ export const HomeScreen = ({ navigation }: any) => {
               <View style={styles.marketModalHeader}>
                 <View style={styles.marketModalHeaderLeft}>
                   <Text style={styles.marketModalTitle}>Market</Text>
-                  <Text style={styles.marketModalSubtitle}>GÃƒÂ¼ÃƒÂ§len, GeliÃ…Å¸, Kazan!</Text>
+                  <Text style={styles.marketModalSubtitle}>Güçlen, Geliş, Kazan!</Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => setShowMarket(false)}
                   style={styles.marketModalCloseBtn}
                 >
-                  <Text style={styles.marketModalCloseText}>Ã¢Å“â€¢</Text>
+                  <Text style={styles.marketModalCloseText}>{'\\u2715'}</Text>
                 </TouchableOpacity>
               </View>
 
               {/* Premium Market Cards */}
               <View style={styles.marketCardsContainer}>
-                {/* Ã¢Å¡Â¡ GÃƒÂ¼ÃƒÂ§ Maazas */}
+                {/* ⚡ Güç Mağazası */}
                 <TouchableOpacity
                   style={styles.marketPremiumCard}
                   onPress={() => {
@@ -2766,7 +2893,7 @@ export const HomeScreen = ({ navigation }: any) => {
                       style={styles.marketImageOverlay}
                     />
                     <View style={styles.marketCardTextOverlay}>
-                      <Text style={styles.marketPremiumTitle}>GÃƒÂ¼ÃƒÂ§ MaÃ„Å¸azasÃ„Â±</Text>
+                      <Text style={styles.marketPremiumTitle}>Güç Mağazası</Text>
                       <Text style={styles.marketPremiumSubtitle}>
                         Boost'lar, Hint'ler ve Paketler
                       </Text>
@@ -3069,6 +3196,54 @@ const styles = StyleSheet.create({
   gridRow: {
     flexDirection: "row",
     gap: GRID_GAP,
+  },
+  utilityRailSection: {
+    marginTop: GRID_GAP,
+  },
+  utilityRailHintWrap: {
+    alignSelf: "center",
+    marginBottom: 8,
+  },
+  utilityRailHintPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(147, 197, 253, 0.45)",
+  },
+  utilityRailHintArrow: {
+    color: "#BFDBFE",
+    fontSize: 12,
+    fontWeight: "900",
+  },
+  utilityRailHintText: {
+    color: "#E2E8F0",
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.25,
+  },
+  utilityRailContent: {
+    paddingHorizontal: 2,
+    gap: GRID_GAP,
+  },
+  utilityRailCard: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
+  battleHeroCard: {
+    width: "100%",
+    borderRadius: CARD_BORDER_RADIUS,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "rgba(239, 68, 68, 0.65)",
+    shadowColor: "#EF4444",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.52,
+    shadowRadius: 22,
+    elevation: 14,
   },
 
   // Card Wrappers
@@ -3494,8 +3669,6 @@ const styles = StyleSheet.create({
   },
   marketFullImage: {
     ...StyleSheet.absoluteFillObject,
-    width: "100%",
-    height: "100%",
     opacity: 1,
   },
   marketOverlay: {
@@ -3702,7 +3875,7 @@ const styles = StyleSheet.create({
     color: "#3B82F6",
     letterSpacing: 0.5,
   },
-  //  Tutorial gÃƒÂ¼venlik kilidi (Home)
+  //  Tutorial güvenlik kilidi (Home)
   homeTutorialLock: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
@@ -3766,7 +3939,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   
-  //  GÃƒÂ¼nlÃƒÂ¼k GÃƒÂ¶revler Buton
+  //  Günlük Görevler Buton
   cefrSummaryCard: {
     marginBottom: SPACING.lg,
     borderRadius: 16,
@@ -3831,7 +4004,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   
-  //  GÃƒÂ¼nlÃƒÂ¼k GÃƒÂ¶revler Modal
+  //  Günlük Görevler Modal
   questsModalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -3845,7 +4018,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 8,
-    paddingBottom: 34, // Safe area iÃƒÂ§in
+    paddingBottom: 34, // Safe area için
     maxHeight: '90%',
   },
   questsCloseButton: {

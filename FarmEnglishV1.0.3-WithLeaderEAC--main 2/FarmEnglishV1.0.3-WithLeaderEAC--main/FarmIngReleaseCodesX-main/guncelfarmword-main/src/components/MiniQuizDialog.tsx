@@ -1117,6 +1117,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
   const initialWordRef = useRef<WordModel | null>(null);
   const lastWordIdRef = useRef<string | null>(null);
   const quizOpenCountRef = useRef<number>(0); // 🔄 Quiz açılış sayacı - aynı kelimeye tekrar tıklandığında güncelle
+  const optionPoolSnapshotRef = useRef<WordModel[]>([]);
 
   // 🔥 Feed mode - current word state
   const [feedWord, setFeedWord] = useState<WordModel | null>(null);
@@ -1131,6 +1132,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     
     if (shouldUpdate) {
       lastWordIdRef.current = activeWord.id;
+      optionPoolSnapshotRef.current = Array.isArray(allWords) ? allWords : [];
       // ⚡ Store'dan getState() ile tek seferlik okuma — abonelik yok, re-render yok
       const state = useFarmStore.getState();
       const farm = state.farm || [];
@@ -1149,6 +1151,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
   if (!activeWord) {
     initialWordRef.current = null;
     lastWordIdRef.current = null; // 🔄 ID'yi de temizle!
+    optionPoolSnapshotRef.current = [];
   }
 
   const currentWord = initialWordRef.current;
@@ -1193,10 +1196,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     () => BORDER_STYLES[safeCustomization.borderStyle || 'default'] || BORDER_STYLES.default,
     [safeCustomization.borderStyle]
   );
-  const cardScaleMultiplier = useMemo(
-    () => getCardSizeMultiplier(!!safeCustomization.compactMode, !!safeCustomization.largeMode),
-    [safeCustomization.compactMode, safeCustomization.largeMode]
-  );
+  const cardScaleMultiplier = 1;
   const isSoilBackground = safeCustomization.backgroundStyle === 'soil';
   const overlayTheme = useMemo(
     () => (!isSoilBackground && activeCardTheme !== 'default' ? getThemeOverlay(activeCardTheme) : null),
@@ -1228,7 +1228,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     // Hepsi için maksimum alan kullan - scroll engellensin
     const modalMaxHeight = usableHeight;
     const baseModalMaxWidth = isTabletLandscape ? Math.min(screenWidth * 0.85, 650) : Math.min(screenWidth - 12, 480);
-    const modalWidthScale = safeCustomization.largeMode ? 1.08 : safeCustomization.compactMode ? 0.93 : 1;
+    const modalWidthScale = 1;
     const modalMaxWidth = Math.min(screenWidth - 8, baseModalMaxWidth * modalWidthScale);
     
     return {
@@ -1356,7 +1356,9 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     
     // 🚨 PHRASAL VERB İÇİN ÖZEL HAVUZ KULLAN!
     const isPhrasalVerb = currentWord.isPhrasalVerb || (currentWord as any).verb;
-    const optionPool = isPhrasalVerb ? PHRASAL_VERBS_POOL : allWords;
+    const optionPool = isPhrasalVerb
+      ? PHRASAL_VERBS_POOL
+      : (optionPoolSnapshotRef.current.length > 0 ? optionPoolSnapshotRef.current : allWords);
     
     // 🚨 PERFORMANS: Fisher-Yates shuffle yerine random sample (daha hızlı)
     const poolLength = optionPool.length;
@@ -1388,7 +1390,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
       [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
     }
     return allOptions;
-  }, [currentWord, allWords, questionKey]); // questionKey ile yeni şıklar
+  }, [currentWord, questionKey]); // questionKey ile yeni şıklar
 
   // 🎬 EPIC Entry Animation
   useEffect(() => {
@@ -1533,6 +1535,11 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
   const wrongAnswerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const meaningSpokenRef = useRef<string | null>(null);
   const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null); // 🗣️ Açılış speech timeout
+  const runAfterInteractionsSafely = useCallback((callback: () => void) => {
+    // Deterministic state flow: critical quiz result updates must run immediately.
+    // InteractionManager defers could be canceled on unmount and drop session progression.
+    callback();
+  }, []);
   
   // 🧹 Cleanup timeouts + TTS - MEMORY LEAK ÖNLEMİ
   useEffect(() => {
@@ -1825,7 +1832,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
             onClose();
             
             // 🚀 Store güncellemelerini animasyon SONRASI yap (kasma önleme)
-            InteractionManager.runAfterInteractions(() => {
+            runAfterInteractionsSafely(() => {
               onAnswer(true, newLocalStreak, currentWord?.id);
               if (feedbackWordId) {
                 setCardFeedback({ wordId: feedbackWordId, type: feedbackType });
@@ -1840,7 +1847,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
             const nextWord = onNextWord();
             if (nextWord) {
               // 🚀 Store güncellemesini arka planda yap
-              InteractionManager.runAfterInteractions(() => {
+              runAfterInteractionsSafely(() => {
                 onAnswer(true, newLocalStreak, currentWord?.id);
                 if (feedbackWordId) {
                   setCardFeedback({ wordId: feedbackWordId, type: feedbackType });
@@ -1859,7 +1866,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
           onClose();
           
           // 🚀 Store güncellemelerini animasyon bittikten SONRA yap
-          InteractionManager.runAfterInteractions(() => {
+          runAfterInteractionsSafely(() => {
             onAnswer(true, newLocalStreak, currentWord?.id);
             if (feedbackWordId) {
               setCardFeedback({ wordId: feedbackWordId, type: feedbackType });
@@ -1922,7 +1929,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
           const nextWord = onNextWord();
           if (nextWord) {
             // 🚀 Store güncellemesini arka planda yap
-            InteractionManager.runAfterInteractions(() => {
+            runAfterInteractionsSafely(() => {
               onAnswer(false, undefined, currentWord?.id);
               if (feedbackWordId) {
                 setCardFeedback({ wordId: feedbackWordId, type: feedbackType });
@@ -1937,7 +1944,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
           } else {
             // Quiz kapanıyor
             onClose();
-            InteractionManager.runAfterInteractions(() => {
+            runAfterInteractionsSafely(() => {
               onAnswer(false, undefined, currentWord?.id);
               if (feedbackWordId) {
                 setCardFeedback({ wordId: feedbackWordId, type: feedbackType });
@@ -1969,7 +1976,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
             setQuestionKey(k => k + 1);
             
             // 🚀 Store güncellemelerini arka planda yap (kasma önleme)
-            InteractionManager.runAfterInteractions(() => {
+            runAfterInteractionsSafely(() => {
               onAnswer(false, undefined, currentWord?.id);
               if (feedbackWordId) {
                 setCardFeedback({ wordId: feedbackWordId, type: 'protected' });
@@ -1984,7 +1991,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
             isProcessingRef.current = false;
             // TTS parent (FarmScreen/PhrasalVerb) tarafından onClose callback'inde çağrılacak
             onClose();
-            InteractionManager.runAfterInteractions(() => {
+            runAfterInteractionsSafely(() => {
               onAnswer(false, undefined, currentWord?.id);
               if (feedbackWordId) {
                 setCardFeedback({ wordId: feedbackWordId, type: 'levelDown' });
@@ -1994,7 +2001,7 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
         }
       }
     }
-  }, [showResult, localStreak, initialStreak, required, onAnswer, onClose, progressAnim, comboScaleAnim, comboOpacityAnim, feedMode, onNextWord, currentWord]);
+  }, [showResult, localStreak, initialStreak, required, onAnswer, onClose, progressAnim, comboScaleAnim, comboOpacityAnim, feedMode, onNextWord, currentWord, runAfterInteractionsSafely]);
 
   if (!currentWord) return null;
 
@@ -2032,7 +2039,6 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
             transform: [
               { translateY: slideAnim },
               { scale: scaleAnim },
-              { scale: safeCustomization.largeMode ? 1.05 : safeCustomization.compactMode ? 0.94 : 1 },
               { rotate: rotation },
             ]
           }

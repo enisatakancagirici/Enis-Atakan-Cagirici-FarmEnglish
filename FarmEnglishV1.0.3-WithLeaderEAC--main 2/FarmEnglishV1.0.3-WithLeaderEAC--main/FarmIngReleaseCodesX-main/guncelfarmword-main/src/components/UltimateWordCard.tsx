@@ -982,7 +982,7 @@ export const UltimateWordCard: React.FC<UltimateWordCardProps> = React.memo(({ w
     if (cardFeedback?.wordId === word.id && cardFeedback?.id) {
       // SADECE farklı bir feedback ID ise işle
       if (lastProcessedIdRef.current !== cardFeedback.id) {
-        // Ã–nceki timeout'u temizle
+        // Önceki timeout'u temizle
         if (animationTimeoutRef.current) {
           clearTimeout(animationTimeoutRef.current);
         }
