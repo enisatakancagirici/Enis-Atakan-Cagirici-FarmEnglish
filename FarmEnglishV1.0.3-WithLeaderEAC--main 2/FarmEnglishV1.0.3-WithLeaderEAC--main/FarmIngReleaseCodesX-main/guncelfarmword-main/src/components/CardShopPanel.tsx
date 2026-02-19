@@ -590,10 +590,11 @@ const CollectibleCardItem: React.FC<{
   progress: number;
   onCollect?: (cardId: string) => void;
   isThemeOwned?: boolean;
+  isThemeActive?: boolean;
   rewardThemeName?: string;
   onClaimTheme?: () => void;
   onEquipTheme?: () => void;
-}> = React.memo(({ card, isUnlocked, progress, onCollect, isThemeOwned = false, rewardThemeName, onClaimTheme, onEquipTheme }) => {
+}> = React.memo(({ card, isUnlocked, progress, onCollect, isThemeOwned = false, isThemeActive = false, rewardThemeName, onClaimTheme, onEquipTheme }) => {
   const rarity = RARITY_COLORS[card.rarity];
   const progressPct = Math.min(progress / card.unlockTarget, 1);
   const conditionMet = progress >= card.unlockTarget;
@@ -684,14 +685,20 @@ const CollectibleCardItem: React.FC<{
           </Text>
         </View>
       )}
-      {isUnlocked && card.rewardThemeId && isThemeOwned && onEquipTheme && (
-        <TouchableOpacity
-          style={styles.collectibleEquipBtn}
-          onPress={onEquipTheme}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.collectibleEquipText}>{txt('🎨 Tasarımı Kullan')}</Text>
-        </TouchableOpacity>
+      {isUnlocked && card.rewardThemeId && isThemeOwned && (
+        isThemeActive ? (
+          <View style={[styles.collectibleEquipBtn, styles.collectibleEquipBtnActive]}>
+            <Text style={[styles.collectibleEquipText, styles.collectibleEquipTextActive]}>{txt('\u2705 Kullan\u0131mda')}</Text>
+          </View>
+        ) : onEquipTheme ? (
+          <TouchableOpacity
+            style={styles.collectibleEquipBtn}
+            onPress={onEquipTheme}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.collectibleEquipText}>{txt('\uD83C\uDFA8 Tasar\u0131m\u0131 Kullan')}</Text>
+          </TouchableOpacity>
+        ) : null
       )}
       {isUnlocked && card.rewardThemeId && !isThemeOwned && onClaimTheme && (
         <TouchableOpacity
@@ -836,9 +843,14 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
   }, [stats]);
 
   const handleEquipTheme = useCallback((themeId: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const store = useFarmStore.getState();
+    if (store.activeCardTheme === themeId) {
+      Haptics.selectionAsync();
+      return;
+    }
+
     store.setActiveCardTheme(themeId);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     // "Varsayılan"a dönünce tüm kişiselleştirmeyi ilk haline sıfırla
     if (themeId === 'default') {
@@ -1078,6 +1090,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
               {COLLECTIBLE_CARDS.map((card) => {
                 const rewardTheme = card.rewardThemeId ? getThemeOverlay(card.rewardThemeId) : undefined;
                 const isThemeOwned = !!(rewardTheme && ownedThemes.includes(rewardTheme.id));
+                const isThemeActive = !!(rewardTheme && activeTheme === rewardTheme.id);
 
                 return (
                   <CollectibleCardItem
@@ -1087,6 +1100,7 @@ export const CardShopPanel: React.FC<CardShopPanelProps> = ({ onClose }) => {
                     progress={collectibleProgress[card.id] || 0}
                     onCollect={handleCollectCard}
                     isThemeOwned={isThemeOwned}
+                    isThemeActive={isThemeActive}
                     rewardThemeName={rewardTheme?.name}
                     onClaimTheme={() => handleClaimCollectibleTheme(card)}
                     onEquipTheme={rewardTheme ? () => handleEquipTheme(rewardTheme.id) : undefined}
@@ -1656,7 +1670,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 6,
   },
+  collectibleEquipBtnActive: {
+    backgroundColor: 'rgba(34,197,94,0.25)',
+    borderColor: 'rgba(74,222,128,0.72)',
+  },
   collectibleEquipText: { fontSize: 13, fontWeight: '800', color: '#e0e7ff' },
+  collectibleEquipTextActive: { color: '#86efac' },
   collectibleClaimBtn: {
     backgroundColor: 'rgba(85,139,47,0.4)',
     borderWidth: 1.5,
