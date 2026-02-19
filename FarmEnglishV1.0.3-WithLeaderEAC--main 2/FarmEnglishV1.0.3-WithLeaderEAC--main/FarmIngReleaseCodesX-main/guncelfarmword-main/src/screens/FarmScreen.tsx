@@ -1050,6 +1050,8 @@ export function FarmScreen() {
   const guidedModeStep = useFarmStore(state => state.guidedModeStep);
   const guidedModeTargetWordId = useFarmStore(state => state.guidedModeTargetWordId);
   const guidedModeTargetWordText = useFarmStore(state => state.guidedModeTargetWordText);
+  const cloudTipsDismissed = useFarmStore(state => state.cloudTipsDismissed);
+  const setCloudTipDismissed = useFarmStore(state => state.setCloudTipDismissed);
 
   // ?? TAB SYSTEM - Kelimeler | Phrasal | Yapboz
   const [activeTab, setActiveTab] = useState<'words' | 'phrasal' | 'puzzle'>(globalTabState.current);
@@ -1059,6 +1061,11 @@ export function FarmScreen() {
   const [searchVisible, setSearchVisible] = useState(false);
   const [guidedFarmTipVisible, setGuidedFarmTipVisible] = useState(true);
   const isGuidedFarmStep = guidedModeActive && guidedModeStep === 'FARM_MASTER_TARGET';
+  const showWordsFarmCloudTip =
+    activeTab === 'words' &&
+    tutorialStep === 'COMPLETED' &&
+    !isGuidedFarmStep &&
+    !cloudTipsDismissed['wordsFarm'];
   const guidedTargetWordKey = useMemo(
     () => normalizeDisplayText(guidedModeTargetWordText).toLowerCase(),
     [guidedModeTargetWordText]
@@ -1268,18 +1275,18 @@ export function FarmScreen() {
     topTabAnimationRef.current?.stop();
     const visualAnim = Animated.timing(topTabAnim, {
       toValue: visible ? 1 : 0,
-      duration: visible ? 460 : 340,
+      duration: visible ? 320 : 230,
       easing: visible
-        ? Easing.bezier(0.22, 1, 0.36, 1)
+        ? Easing.bezier(0.2, 0.95, 0.25, 1)
         : Easing.bezier(0.4, 0, 0.2, 1),
       useNativeDriver: false,
     });
     const layoutAnim = Animated.timing(topTabLayoutAnim, {
       toValue: visible ? 1 : 0,
-      duration: visible ? 420 : 390,
-      delay: visible ? 0 : 80,
+      duration: visible ? 300 : 240,
+      delay: 0,
       easing: visible
-        ? Easing.bezier(0.22, 1, 0.36, 1)
+        ? Easing.bezier(0.2, 0.95, 0.25, 1)
         : Easing.bezier(0.4, 0, 0.2, 1),
       useNativeDriver: false,
     });
@@ -1296,7 +1303,7 @@ export function FarmScreen() {
   }, [topTabAnim, topTabLayoutAnim]);
 
   const setTopTabVisibility = useCallback((visible: boolean, force = false) => {
-    const TOP_TAB_MIN_TOGGLE_GAP_MS = 280;
+    const TOP_TAB_MIN_TOGGLE_GAP_MS = 360;
     const now = Date.now();
     if (!force && now - lastTopTabToggleAtRef.current < TOP_TAB_MIN_TOGGLE_GAP_MS) return;
     if (!force && topTabVisibleRef.current === visible) return;
@@ -1321,7 +1328,7 @@ export function FarmScreen() {
       if (!topTabVisibleRef.current) {
         runTopTabAnimation(false);
       }
-    }, 90);
+    }, 140);
   }, [clearTopTabHideDelay, runTopTabAnimation]);
 
   const handleSharedContentOffset = useCallback((offsetY: number) => {
@@ -1335,11 +1342,11 @@ export function FarmScreen() {
       return;
     }
 
-    const FORCE_SHOW_OFFSET = 26;
-    const HIDE_OFFSET = 210;
-    const SHOW_OFFSET = 120;
-    const HIDE_TRAVEL_DISTANCE = 68;
-    const SHOW_TRAVEL_DISTANCE = 32;
+    const FORCE_SHOW_OFFSET = 24;
+    const HIDE_OFFSET = 260;
+    const SHOW_OFFSET = 155;
+    const HIDE_TRAVEL_DISTANCE = 92;
+    const SHOW_TRAVEL_DISTANCE = 44;
 
     if (y <= FORCE_SHOW_OFFSET) {
       topTabDownTravelRef.current = 0;
@@ -1359,12 +1366,12 @@ export function FarmScreen() {
 
     const shouldHide =
       y > HIDE_OFFSET &&
-      delta > 1.2 &&
+      delta > 1.6 &&
       topTabDownTravelRef.current >= HIDE_TRAVEL_DISTANCE;
 
     const shouldShow =
       topTabUpTravelRef.current >= SHOW_TRAVEL_DISTANCE ||
-      (y <= SHOW_OFFSET && delta < -1.5);
+      (y <= SHOW_OFFSET && delta < -1.2);
 
     if (shouldHide) {
       setTopTabVisibility(false);
@@ -2214,12 +2221,12 @@ export function FarmScreen() {
   });
   const topTabTranslateY = topTabAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [-11, 0],
+    outputRange: [-8, 0],
     extrapolate: 'clamp',
   });
   const topTabScale = topTabAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.992, 1],
+    outputRange: [0.988, 1],
     extrapolate: 'clamp',
   });
   const topTabMarginBottom = topTabLayoutAnim.interpolate({
@@ -2405,6 +2412,15 @@ export function FarmScreen() {
         </TouchableOpacity>
       </View>
       </Animated.View>
+
+      {showWordsFarmCloudTip && (
+        <CuteCloudTip
+          visible={showWordsFarmCloudTip}
+          message={"Burada \u00E7al\u0131\u015Ft\u0131k\u00E7a meyvelerin b\u00FCy\u00FCr. Olgunla\u015F\u0131nca hasat edersin."}
+          onDismiss={() => setCloudTipDismissed('wordsFarm', true)}
+          accentColor="#22c55e"
+        />
+      )}
 
       {/* ?? TAB CONTENT */}
       {activeTab === 'words' ? (
@@ -2621,7 +2637,6 @@ export function FarmScreen() {
         />
       )}
 
-      {/* s¨ Card Shop Modal */}
       <Modal visible={cardShopVisible} animationType="slide" transparent>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <View style={{ flex: 1, marginTop: 60, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: 'hidden' }}>

@@ -663,7 +663,7 @@ export default function InventoryScreen() {
       {/* ☁️ CloudTip - TABLARIN ALTINDA */}
       {showCloudTip && (
         <CuteCloudTip
-          message="Master kartların burada! ⭐ Tarlana geri gönder veya çalışmaya devam et."
+          message={"Hasatlar\u0131n\u0131 burada y\u00F6netirsin. Buradan tekrar tarlaya dikip \u00E7al\u0131\u015Ft\u0131k\u00E7a meyvelerin b\u00FCy\u00FCr. Olgunla\u015F\u0131nca hasat edersin. Hasat ettik\u00E7e de \u00F6\u011Frenirsin."}
           visible={showCloudTip}
           onDismiss={() => setCloudTipDismissed('inventory', true)}
           accentColor="#22c55e"

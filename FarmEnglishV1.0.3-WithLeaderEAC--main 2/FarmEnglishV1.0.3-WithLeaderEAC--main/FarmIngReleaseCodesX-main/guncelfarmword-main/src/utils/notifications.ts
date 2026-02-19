@@ -39,32 +39,32 @@ const RETENTION_PLAN: Array<{ dayOffset: number; hour: number; minute: number; t
   {
     dayOffset: 0,
     hour: 19,
-    minute: 30,
-    title: 'FarmEnglish | Ciftlik',
+    minute: 19,
+    title: 'FarmEnglish | Çiftlik',
     body: (nickname) =>
       nickname
-        ? `${nickname}, bugunluk mini quiz ve hasat firsati hazir. 8 dakikada serini koru.`
-        : 'Bugunluk mini quiz ve hasat firsati hazir. 8 dakikada serini koru.',
+        ? `${nickname}, bugünlük mini quiz ve hasat fırsatı hazır. 8 dakikada serini koru.`
+        : 'Bugünlük mini quiz ve hasat fırsatı hazır. 8 dakikada serini koru.',
   },
   {
     dayOffset: 1,
     hour: 12,
-    minute: 45,
+    minute: 38,
     title: 'FarmEnglish | Battle',
     body: (nickname) =>
       nickname
-        ? `${nickname}, liderlikte yerini korumak icin 1 savas + 1 mini quiz seni bekliyor.`
-        : 'Liderlikte yerini korumak icin 1 savas + 1 mini quiz seni bekliyor.',
+        ? `${nickname}, liderlikte yerini korumak için 1 savaş + 1 mini quiz seni bekliyor.`
+        : 'Liderlikte yerini korumak için 1 savaş + 1 mini quiz seni bekliyor.',
   },
   {
     dayOffset: 2,
-    hour: 20,
+    hour: 10,
     minute: 15,
     title: 'FarmEnglish | Pratik',
     body: (nickname) =>
       nickname
-        ? `${nickname}, SesYap + Puzzle turu ile kelimeleri kalici hale getirmenin tam zamani.`
-        : 'SesYap + Puzzle turu ile kelimeleri kalici hale getirmenin tam zamani.',
+        ? `${nickname}, SesYap + Puzzle turu ile kelimeleri kalıcı hale getirmenin tam zamanı.`
+        : 'SesYap + Puzzle turu ile kelimeleri kalıcı hale getirmenin tam zamanı.',
   },
 ];
 
@@ -133,7 +133,7 @@ export function configureNotifications(): void {
   try {
     if (Platform.OS === 'android') {
       void Notifications.setNotificationChannelAsync(MAIN_ANDROID_CHANNEL_ID, {
-        name: 'FarmEnglish Hatirlaticilar',
+        name: 'FarmEnglish Hatırlatıcılar',
         importance: Notifications.AndroidImportance.HIGH,
         vibrationPattern: [0, 180, 120, 180],
         lightColor: '#22c55e',
@@ -317,7 +317,7 @@ export async function scheduleNotificationPreview(seconds: number = 5): Promise<
       Notifications.scheduleNotificationAsync({
         content: {
           title: 'FarmEnglish | Test',
-          body: 'Bildirim testi basarili. Hatirlaticilar aktif.',
+          body: 'Bildirim testi başarılı. Hatırlatıcılar aktif.',
           subtitle: 'FarmEnglish',
           sound: 'default',
           priority: Notifications.AndroidNotificationPriority.HIGH,

@@ -1173,6 +1173,14 @@ export default function WordPuzzleScreen({
             accentColor="#f97316"
           />
         )}
+        {showCloudTip && !isGuidedPuzzleStep && (
+          <CuteCloudTip
+            visible={showCloudTip}
+            message={"Tarlana ekmi\u015F oldu\u011Fun kelimeler ayn\u0131 s\u0131rayla buradad\u0131r. Ekti\u011Fin kelimelerin c\u00FCmle prati\u011Fini burada yapars\u0131n."}
+            onDismiss={() => setCloudTipDismissed('puzzle', true)}
+            accentColor="#f97316"
+          />
+        )}
         {puzzleWords_filtered.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Puzzle size={64} color={COLORS.textMuted} />
@@ -1267,6 +1275,14 @@ export default function WordPuzzleScreen({
           visible={guidedPuzzleTipVisible}
           message={`Hedef kelime: "${guidedTargetLabel}".\nSadece bu kart açık.\nDoğru cümle kurunca SesYap adımına geçeceğiz.`}
           onDismiss={() => setGuidedPuzzleTipVisible(false)}
+          accentColor="#f97316"
+        />
+      )}
+      {showCloudTip && !isGuidedPuzzleStep && (
+        <CuteCloudTip
+          visible={showCloudTip}
+          message={"Tarlana ekmi\u015F oldu\u011Fun kelimeler ayn\u0131 s\u0131rayla buradad\u0131r. Ekti\u011Fin kelimelerin c\u00FCmle prati\u011Fini burada yapars\u0131n."}
+          onDismiss={() => setCloudTipDismissed('puzzle', true)}
           accentColor="#f97316"
         />
       )}

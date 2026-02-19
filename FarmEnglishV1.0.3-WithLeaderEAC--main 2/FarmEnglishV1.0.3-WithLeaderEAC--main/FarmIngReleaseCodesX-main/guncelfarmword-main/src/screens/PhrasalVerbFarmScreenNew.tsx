@@ -1269,6 +1269,14 @@ export default function PhrasalVerbFarmScreenNew({
           </View>
         )}
 
+        {showPhrasalFarmCloudTip && tutorialStep === 'COMPLETED' && (
+          <CuteCloudTip
+            message={"Burada \u00E7al\u0131\u015Ft\u0131k\u00E7a meyvelerin b\u00FCy\u00FCr. Olgunla\u015F\u0131nca hasat edersin."}
+            visible={showPhrasalFarmCloudTip}
+            onDismiss={() => setCloudTipDismissed('phrasalFarm', true)}
+            accentColor="#22c55e"
+          />
+        )}
         {/* Content - Filter tabs artık FarmScreen header'da */}
         {phrasalVerbFarm.length === 0 ? (
           <View style={styles.emptyContainer}>
@@ -1407,7 +1415,7 @@ export default function PhrasalVerbFarmScreenNew({
       {/* ☁️ PHRASAL FARM CLOUDTIP */}
       {showPhrasalFarmCloudTip && tutorialStep === 'COMPLETED' && (
         <CuteCloudTip
-          message="Phrasal verb kartlarını çalışarak büyüt! Çalışa bas veya kartı sağa kaydır → Kartın üzerindeki rakamlar seviye atlaması için gereken doğru oturum sayısını ifade eder."
+          message={"Burada \u00E7al\u0131\u015Ft\u0131k\u00E7a meyvelerin b\u00FCy\u00FCr. Olgunla\u015F\u0131nca hasat edersin."}
           visible={showPhrasalFarmCloudTip}
           onDismiss={() => setCloudTipDismissed('phrasalFarm', true)}
           accentColor="#22c55e"

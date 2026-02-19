@@ -1120,7 +1120,7 @@ const PremiumGridMenu = ({
           hasBounce={true}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Quiz çözdürüp tarlana otomatik ekim yaparsın. Bilmediklerin tohum olur, çalıştıkça büyür. Bildiklerin meyve olur; tekrarlarla bilgini sağlamlaştırırsın."
+          helpText="Quiz çözdürüp tarlana otomatik ekim yaparsın. Bilmediklerin tohum olur, çalıştıkça büyür. Bildiklerin ise otomatik meyve olarak ekilir."
         />
         <PremiumMenuCard
           onPress={onRandomPress}
@@ -1146,7 +1146,7 @@ const PremiumGridMenu = ({
           delay={100}
           disableEffects={disableEffects}
           onHelpPress={onHelpPress}
-          helpText="Hasat ettiğin kelimeler burada. Tekrar tarlaya göndererek seviyeyi yükseltirsin. 10 ve 10'un katlarında böcek saldırısını quiz çözerek defedersin."
+          helpText="Hasatlarını buradan yönetirsin. Burası senin koleksiyon ve takip yerindir. Tekrar çalışmak istediğin kelimeyi buradan tekrar tarlana dikip çalışabilir, elde ettiğin hasatları güçlendirebilirsin!"
         />
         <PremiumMenuCard
           onPress={onFarmPress}
@@ -2053,24 +2053,24 @@ export const HomeScreen = ({ navigation }: any) => {
       if (result.granted) {
         const scheduledCount = await scheduleComebackNotifications({ nickname, force: true });
         showHomeHelpModal(
-          "Bildirimler Hazir",
+          "Bildirimler Hazır",
           scheduledCount > 0
-            ? `${notificationDisplayName}, hatirlaticilar aktif. Quiz serisi, hasat zamani ve pratik odaklari icin ${scheduledCount} bildirim planlandi.`
-            : `${notificationDisplayName}, izin acik. Bildirimler zaten planli oldugu icin tekrar spam olusmadi.`
+            ? `${notificationDisplayName}, hatırlatıcılar aktif. Quiz serisi, hasat zamanı ve pratik odakları için ${scheduledCount} bildirim planlandı.`
+            : `${notificationDisplayName}, izin açık. Bildirimler zaten planlı olduğu için tekrar spam oluşmadı.`
         );
         return;
       }
 
       showHomeHelpModal(
-        "Bildirim Izni Kapali",
+        "Bildirim İzni Kapalı",
         result.canAskAgain
-          ? `${notificationDisplayName}, simdilik izin verilmedi. Uygun oldugunda tekrar deneyebilirsin.`
-          : `${notificationDisplayName}, sistem izni kapali. Ayarlar > Bildirimler > FarmEnglish adimindan acabilirsin.`
+          ? `${notificationDisplayName}, şimdilik izin verilmedi. Uygun olduğunda tekrar deneyebilirsin.`
+          : `${notificationDisplayName}, sistem izni kapalı. Ayarlar > Bildirimler > FarmEnglish adımından açabilirsin.`
       );
     } catch {
       showHomeHelpModal(
-        "Bildirim Ayari Basarisiz",
-        "Bildirim izni su an alinamadi. Oyun etkilenmez; daha sonra tekrar deneyebilirsin."
+        "Bildirim Ayarı Başarısız",
+        "Bildirim izni şu an alınamadı. Oyun etkilenmez; daha sonra tekrar deneyebilirsin."
       );
     } finally {
       notificationRequestInFlightRef.current = false;
@@ -2215,7 +2215,7 @@ export const HomeScreen = ({ navigation }: any) => {
                         ]}
                         numberOfLines={1}
                       >
-                        {normalizeDisplayText(String(featuredDailyQuest.title || "Gorev"))}
+                        {normalizeDisplayText(String(featuredDailyQuest.title || "G\u00F6rev"))}
                       </Text>
                       <Text
                         style={[
@@ -2233,7 +2233,7 @@ export const HomeScreen = ({ navigation }: any) => {
                         { color: homeHeaderTheme.questActionTextColor },
                       ]}
                     >
-                      {featuredDailyQuest.completed && !featuredDailyQuest.claimed ? "Odul Al" : "Goreve Git"}
+                      {featuredDailyQuest.completed && !featuredDailyQuest.claimed ? "\u00D6d\u00FCl Al" : "G\u00F6reve Git"}
                     </Text>
                   </View>
 
@@ -2300,7 +2300,7 @@ export const HomeScreen = ({ navigation }: any) => {
               delay={0}
               hasBounce={true}
               onHelpPress={showHomeHelpModal}
-              helpText="Quiz çözdükçe tarlana otomatik ekim yapılır. Bilmediklerin tohum olur ve çalıştıkça büyür."
+              helpText="Quiz çözdükçe tarlana otomatik ekim yapılır. Bilmediklerin tohum olur ve çalıştıkça büyür. Bildiklerin ise otomatik meyve olarak ekilir."
             />
 
             <View style={styles.gridRow}>
@@ -2328,7 +2328,7 @@ export const HomeScreen = ({ navigation }: any) => {
                 delay={80}
                 hasBounce={true}
                 onHelpPress={showHomeHelpModal}
-                helpText="Hasatlarını buradan yönetir, kartlarını tekrar tarlaya gönderirsin."
+                helpText="Hasatlarını buradan yönetirsin. Burası senin koleksiyon ve takip yerindir. Tekrar çalışmak istediğin kelimeyi buradan tekrar tarlana dikip çalışabilir, elde ettiğin hasatları güçlendirebilirsin!"
               />
             </View>
 
@@ -2799,19 +2799,19 @@ export const HomeScreen = ({ navigation }: any) => {
       <JuicyModal
         visible={notificationPromptVisible}
         onClose={handleSkipNotifications}
-        title="Bildirim Izni"
+        title="Bildirim İzni"
         titleEmoji={'\u{1F514}'}
-        message={`${notificationDisplayName}, yeni guncellemedeki akilli hatirlaticilari acmak ister misin?`}
-        secondaryMessage="Izin verirsen quiz serisi, hasat zamani ve pratik odaklari icin nokta atisi bildirimler gelir."
+        message={`${notificationDisplayName}, yeni güncellemedeki akıllı hatırlatıcıları açmak ister misin?`}
+        secondaryMessage="İzin verirsen quiz serisi, hasat zamanı ve pratik odakları için nokta atışı bildirimler gelir."
         type="warning"
         buttons={[
           {
-            text: "Izni Ac",
+            text: "İzni Aç",
             type: "primary",
             onPress: handleRequestNotifications,
           },
           {
-            text: "Simdilik Gec",
+            text: "Şimdilik Geç",
             type: "cancel",
             onPress: handleSkipNotifications,
           },
