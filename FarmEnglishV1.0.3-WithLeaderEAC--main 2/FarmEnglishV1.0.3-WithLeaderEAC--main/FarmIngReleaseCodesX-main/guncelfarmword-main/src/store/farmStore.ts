@@ -493,6 +493,8 @@ interface FarmStore {
   tutorialEnvShown?: boolean; // Envanter tutorial gösterildi mi
   phrasalHintShown?: boolean; // Phrasal verbs hint gösterildi mi
   cloudTipsDismissed: Record<string, boolean>; // ☁️ Hangi cloudtip'ler kapatıldı
+  sectionVisibility: { farmHeader: boolean; farmTabs: boolean; invHeader: boolean; invTabs: boolean; navbar: boolean }; // 🎛️ Aç/kapa durumları
+  setSectionVisibility: (key: keyof { farmHeader: boolean; farmTabs: boolean; invHeader: boolean; invTabs: boolean; navbar: boolean }, value: boolean) => void;
   tutorialInterrupted: boolean; // Uygulama arka plana giderse devam iste
   isTutorialOverlayActive: boolean; // 🔒 Overlay açılırken tüm interactions lock'la
   tutorialGreenCardSession?: { wordId: string; originalSessions: number }; // Tutorial'da yanlış yapılan yeşil kartın orijinal session'ı
@@ -1123,6 +1125,10 @@ export const useFarmStore = create<FarmStore>()(
       tutorialEnvShown: false,
       phrasalHintShown: false,
       cloudTipsDismissed: {},
+      sectionVisibility: { farmHeader: true, farmTabs: true, invHeader: true, invTabs: true, navbar: true },
+      setSectionVisibility: (key, value) => set((state) => ({
+        sectionVisibility: { ...state.sectionVisibility, [key]: value }
+      })),
       tutorialInterrupted: false,
       isTutorialOverlayActive: false,
       tutorialGreenCardSession: undefined,
@@ -5512,6 +5518,7 @@ export const useFarmStore = create<FarmStore>()(
         nickname: state.nickname,
         phrasalHintShown: state.phrasalHintShown,
         cloudTipsDismissed: state.cloudTipsDismissed,
+        sectionVisibility: state.sectionVisibility,
         //  Günlük görevler
         dailyQuests: state.dailyQuests,
         trophies: state.trophies,

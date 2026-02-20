@@ -1,4 +1,4 @@
-/**
+﻿/**
  * LeaderboardScreen - Liderlik Tablosu
  * FarmEnglish Battle Mode
  *
@@ -39,7 +39,7 @@ import {
     computeGeneralScore,
 } from '../utils/firebaseBattle';
 
-// ─── Responsive ───────────────────────────────────────
+// â”€â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const getRS = (w: number, h: number) => {
     const small = h < 700;
     const tablet = Math.min(w, h) >= 600;
@@ -60,7 +60,20 @@ const getRS = (w: number, h: number) => {
     };
 };
 
-// ─── Askeri Rütbe Sistemi ─────────────────────────────
+const LEADER_THEME = {
+    screenGradient: ['#04070d', '#111827', '#1f2937'] as const,
+    panel: 'rgba(8, 12, 22, 0.86)',
+    panelBorder: 'rgba(248, 113, 113, 0.24)',
+    panelSoft: 'rgba(15, 23, 42, 0.75)',
+    tabIdle: 'rgba(15, 23, 42, 0.82)',
+    tabActive: '#9f1239',
+    textMain: '#f8fafc',
+    textMuted: 'rgba(203, 213, 225, 0.72)',
+    accent: '#fb7185',
+    cta: '#fdba74',
+};
+
+// â”€â”€â”€ Askeri Rütbe Sistemi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface MilitaryRank {
     title: string;
     badge: string;
@@ -70,33 +83,33 @@ interface MilitaryRank {
 
 function getMilitaryRank(position: number): MilitaryRank {
     if (position === 1)
-        return { title: 'Mareşal', badge: '🎖️', color: '#ffd700', glow: 'rgba(255,215,0,0.3)' };
+        return { title: 'Mareşal', badge: '🏅', color: '#ffd700', glow: 'rgba(255,215,0,0.3)' };
     if (position === 2)
-        return { title: 'Orgeneral', badge: '⭐⭐⭐⭐', color: '#e5e7eb', glow: 'rgba(229,231,235,0.2)' };
+        return { title: 'Orgeneral', badge: '⭐⭐⭐⭐', color: '#e5e7eb', glow: 'rgba(229,231,235,0.2)' };
     if (position === 3)
-        return { title: 'Korgeneral', badge: '⭐⭐⭐', color: '#cd7f32', glow: 'rgba(205,127,50,0.2)' };
+        return { title: 'Korgeneral', badge: '⭐⭐⭐', color: '#cd7f32', glow: 'rgba(205,127,50,0.2)' };
     if (position <= 5)
-        return { title: 'Tümgeneral', badge: '⭐⭐', color: '#a78bfa', glow: 'rgba(167,139,250,0.15)' };
+        return { title: 'Tümgeneral', badge: '⭐⭐', color: '#a78bfa', glow: 'rgba(167,139,250,0.15)' };
     if (position <= 10)
-        return { title: 'Tuğgeneral', badge: '⭐', color: '#818cf8', glow: 'rgba(129,140,248,0.12)' };
+        return { title: 'Tuğgeneral', badge: '⭐', color: '#818cf8', glow: 'rgba(129,140,248,0.12)' };
     if (position <= 15)
         return { title: 'Albay', badge: '🎯', color: '#60a5fa', glow: 'rgba(96,165,250,0.1)' };
     if (position <= 25)
         return { title: 'Yarbay', badge: '🛡️', color: '#34d399', glow: 'rgba(52,211,153,0.1)' };
     if (position <= 35)
-        return { title: 'Binbaşı', badge: '⚔️', color: '#fbbf24', glow: 'rgba(251,191,36,0.08)' };
+        return { title: 'Binbaşı', badge: 'âš”️', color: '#fbbf24', glow: 'rgba(251,191,36,0.08)' };
     if (position <= 50)
         return { title: 'Yüzbaşı', badge: '🗡️', color: '#f97316', glow: 'rgba(249,115,22,0.08)' };
     if (position <= 75)
-        return { title: 'Üsteğmen', badge: '🔰', color: '#94a3b8', glow: 'rgba(148,163,184,0.06)' };
+        return { title: 'Üsteğmen', badge: '📰', color: '#94a3b8', glow: 'rgba(148,163,184,0.06)' };
     if (position <= 100)
         return { title: 'Teğmen', badge: '📌', color: '#94a3b8', glow: 'rgba(148,163,184,0.05)' };
     if (position <= 200)
-        return { title: 'Asteğmen', badge: '🔹', color: '#64748b', glow: 'rgba(100,116,139,0.04)' };
-    return { title: 'Er', badge: '🔸', color: '#475569', glow: 'rgba(71,85,105,0.03)' };
+        return { title: 'Asteğmen', badge: '📹', color: '#64748b', glow: 'rgba(100,116,139,0.04)' };
+    return { title: 'Er', badge: '📸', color: '#475569', glow: 'rgba(71,85,105,0.03)' };
 }
 
-// ─── Tab Types ────────────────────────────────────────
+// â”€â”€â”€ Tab Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type TabType = 'general' | 'battle' | 'harvest';
 
 function getSpecialTitle(tabType: TabType, position: number): string | null {
@@ -147,7 +160,7 @@ const TABS: { key: TabType; label: string; icon: (active: boolean, size: number)
     },
 ];
 
-// ─── Tab Button ───────────────────────────────────────
+// â”€â”€â”€ Tab Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TabButton = memo(
     ({
         label,
@@ -169,7 +182,7 @@ const TabButton = memo(
     ),
 );
 
-// ─── Top-3 Podium Card ───────────────────────────────
+// â”€â”€â”€ Top-3 Podium Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PodiumCard = memo(
     ({
         entry,
@@ -215,7 +228,7 @@ const PodiumCard = memo(
                         borderWidth: is1st ? 2.5 : 1.5,
                         flex: is1st ? 1.5 : 1,
                         paddingVertical: is1st ? 24 : 14,
-                        // 2. ve 3. daha aşağıda — marginTop ile
+                        // 2. ve 3. daha aşağıda â€” marginTop ile
                         marginTop: is1st ? 0 : 40,
                         // 🏆 Görkemli glow efektleri
                         ...(is1st ? {
@@ -238,7 +251,7 @@ const PodiumCard = memo(
                             elevation: 4,
                         }),
                     },
-                    isCurrentUser && { borderColor: '#8b5cf6', borderWidth: 2.5 },
+                    isCurrentUser && { borderColor: LEADER_THEME.accent, borderWidth: 2.5 },
                 ]}
             >
                 {/* 🏆 Mareşal için altın çerçeve glow overlay */}
@@ -263,7 +276,7 @@ const PodiumCard = memo(
                     </Text>
                 </View>
 
-                {/* Crown / Medal — Mareşal için çift taç */}
+                {/* Crown / Medal â€” Mareşal için çift taç */}
                 <View style={[styles.podiumIconWrap, is1st && { marginBottom: 8 }]}>
                     {is1st ? (
                         <View style={{ alignItems: 'center' }}>
@@ -277,7 +290,7 @@ const PodiumCard = memo(
                     )}
                 </View>
 
-                {/* Badge + rank title — Mareşal için büyük badge */}
+                {/* Badge + rank title â€” Mareşal için büyük badge */}
                 <Text style={[styles.podiumBadge, { fontSize: is1st ? 28 : 16 }]}>{rank.badge}</Text>
 
                 {/* Nickname */}
@@ -295,7 +308,7 @@ const PodiumCard = memo(
                     {entry.nickname}
                 </Text>
 
-                {/* Military rank — Mareşal daha büyük */}
+                {/* Military rank â€” Mareşal daha büyük */}
                 <Text style={[
                     styles.podiumRankTitle,
                     {
@@ -311,7 +324,7 @@ const PodiumCard = memo(
                     <Text style={styles.podiumSpecialTitle}>{specialTitle}</Text>
                 )}
 
-                {/* Score — Mareşal daha görkemli */}
+                {/* Score â€” Mareşal daha görkemli */}
                 <Text style={[
                     styles.podiumScore,
                     {
@@ -330,7 +343,7 @@ const PodiumCard = memo(
     },
 );
 
-// ─── Regular List Item ────────────────────────────────
+// â”€â”€â”€ Regular List Item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const LeaderboardItem = memo(
     ({
         entry,
@@ -370,7 +383,7 @@ const LeaderboardItem = memo(
                             style={[
                                 styles.nameText,
                                 { fontSize: RS.name },
-                                isCurrentUser && { color: '#a78bfa' },
+                                isCurrentUser && { color: LEADER_THEME.accent },
                             ]}
                             numberOfLines={1}
                         >
@@ -393,20 +406,21 @@ const LeaderboardItem = memo(
     },
 );
 
-// ─── Score Display Helper ─────────────────────────────
-function getDisplayScore(entry: LeaderboardEntry, tabType: TabType): string {
-    if (tabType === 'general') {
-        const gs = entry.generalScore ?? computeGeneralScore(entry);
-        return gs.toLocaleString('tr-TR');
-    }
-    if (tabType === 'battle') return (entry.wins || 0).toLocaleString('tr-TR');
-    if (tabType === 'harvest') return (entry.harvestCount || 0).toLocaleString('tr-TR');
-    return '0';
+// â”€â”€â”€ Score Display Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function getNumericScore(entry: LeaderboardEntry, tabType: TabType): number {
+    if (tabType === 'general') return entry.generalScore ?? computeGeneralScore(entry);
+    if (tabType === 'battle') return entry.wins || 0;
+    if (tabType === 'harvest') return entry.harvestCount || 0;
+    return 0;
 }
 
-// ─── Score Formula Explanation ────────────────────────
+function getDisplayScore(entry: LeaderboardEntry, tabType: TabType): string {
+    return getNumericScore(entry, tabType).toLocaleString('tr-TR');
+}
+
+// â”€â”€â”€ Score Formula Explanation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SCORE_FORMULA_ITEMS = [
-    { emoji: '⚔️', label: 'Savaş Galibiyeti', multiplier: '×50', color: '#ef4444' },
+    { emoji: 'âš”️', label: 'Savaş Galibiyeti', multiplier: '×50', color: '#ef4444' },
     { emoji: '🌾', label: 'Hasat', multiplier: '×100', color: '#22c55e' },
     { emoji: '🧩', label: 'Yapboz Puanı', multiplier: '×3', color: '#f97316' },
     { emoji: '🗣️', label: 'Sesyap Puanı', multiplier: '×0.5', color: '#3b82f6' },
@@ -420,7 +434,7 @@ const ScoreFormulaPanel = memo(({ visible, RS }: { visible: boolean; RS: ReturnT
     return (
         <View style={leaderStyles.formulaPanel}>
             <LinearGradient
-                colors={['rgba(139,92,246,0.15)', 'rgba(59,130,246,0.10)']}
+                colors={['rgba(127,29,29,0.26)', 'rgba(124,45,18,0.2)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={[StyleSheet.absoluteFill, { borderRadius: 14 }]}
@@ -444,9 +458,9 @@ const ScoreFormulaPanel = memo(({ visible, RS }: { visible: boolean; RS: ReturnT
     );
 });
 
-// ═══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //                   MAIN COMPONENT
-// ═══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 interface Props {
     navigation: any;
 }
@@ -464,7 +478,7 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
     const user = useFarmStore((s) => s.user);
     const currentOdId = user?.odId;
 
-    // ── Load ──────────────────────────────────────────
+    // â”€â”€ Load â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const load = useCallback(async () => {
         setLoading(true);
         try {
@@ -481,7 +495,7 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
         load();
     }, [load]);
 
-    // ── Real-time listener ────────────────────────────
+    // â”€â”€ Real-time listener â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     useEffect(() => {
         const unsub = listenToLeaderboard(
             (entries) => {
@@ -495,7 +509,7 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
         return () => unsub();
     }, [activeTab]);
 
-    // ── Refresh ───────────────────────────────────────
+    // â”€â”€ Refresh â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const handleRefresh = useCallback(async () => {
         setRefreshing(true);
         haptic.light();
@@ -503,17 +517,22 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
         setRefreshing(false);
     }, [load]);
 
-    // ── Current user rank ─────────────────────────────
+    // â”€â”€ Current user rank â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const currentUserIdx = leaderboard.findIndex((e) => e.odId === currentOdId);
     const currentUserRank = currentUserIdx >= 0 ? currentUserIdx + 1 : -1;
     const currentMilRank = currentUserRank > 0 ? getMilitaryRank(currentUserRank) : null;
     const currentSpecialTitle = currentUserRank > 0 ? getSpecialTitle(activeTab, currentUserRank) : null;
 
-    // ── Top 3 & rest ──────────────────────────────────
+    // â”€â”€ Top 3 & rest â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const top3 = leaderboard.slice(0, 3);
     const rest = leaderboard.slice(3);
+    const topEntry = leaderboard[0];
+    const currentEntry = currentUserIdx >= 0 ? leaderboard[currentUserIdx] : null;
+    const topMetric = topEntry ? getNumericScore(topEntry, activeTab) : 0;
+    const currentMetric = currentEntry ? getNumericScore(currentEntry, activeTab) : 0;
+    const chaseGap = Math.max(0, topMetric - currentMetric);
 
-    // ── Renderers ─────────────────────────────────────
+    // â”€â”€ Renderers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const renderItem = useCallback(
         ({ item, index }: { item: LeaderboardEntry; index: number }) => (
             <LeaderboardItem
@@ -534,7 +553,7 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
         alignSelf: 'center' as const,
     };
 
-    // ── Tab title helper ──────────────────────────────
+    // â”€â”€ Tab title helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const headerLabel =
         activeTab === 'general'
             ? 'Genel Sıralama'
@@ -543,9 +562,9 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
               : 'Çiftçiler';
 
     return (
-        <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.flex}>
+        <LinearGradient colors={LEADER_THEME.screenGradient} style={styles.flex}>
             <SafeAreaView style={styles.flex}>
-                {/* ── Header ── */}
+                {/* â”€â”€ Header â”€â”€ */}
                 <View style={[styles.header, { paddingHorizontal: RS.pad }]}>
                     <Pressable
                         style={styles.circleBtn}
@@ -558,13 +577,13 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
                     </Pressable>
 
                     <View style={styles.headerCenter}>
-                        <Shield color="#a78bfa" size={RS.icon} />
+                        <Shield color={LEADER_THEME.accent} size={RS.icon} />
                         <Text style={[styles.headerTitle, { fontSize: RS.title }]}>{headerLabel}</Text>
                     </View>
 
                     <View style={{ flexDirection: 'row', gap: 8 }}>
                         <Pressable style={styles.circleBtn} onPress={() => { haptic.light(); setShowFormula(!showFormula); }}>
-                            <Info color={showFormula ? '#a78bfa' : '#fff'} size={18} />
+                            <Info color={showFormula ? LEADER_THEME.accent : '#fff'} size={18} />
                         </Pressable>
                         <Pressable style={styles.circleBtn} onPress={handleRefresh}>
                             <RefreshCw color="#fff" size={18} />
@@ -572,10 +591,10 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
                     </View>
                 </View>
 
-                {/* ── Content ── */}
+                {/* â”€â”€ Content â”€â”€ */}
                 <View style={[styles.flex, { paddingHorizontal: RS.pad }]}>
                     <View style={contentStyle}>
-                        {/* ── Tabs ── */}
+                        {/* â”€â”€ Tabs â”€â”€ */}
                         <View style={styles.tabRow}>
                             {TABS.map((t) => (
                                 <TabButton
@@ -592,10 +611,32 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
                             ))}
                         </View>
 
-                        {/* ── Score Formula Panel ── */}
+                        {/* â”€â”€ Score Formula Panel â”€â”€ */}
+                        <View style={styles.seasonPulse}>
+                            <Text style={styles.seasonPulseTitle}>Sezon Nabzı</Text>
+                            <View style={styles.seasonPulseRow}>
+                                <View style={styles.seasonStat}>
+                                    <Text style={styles.seasonStatLabel}>Lider</Text>
+                                    <Text style={styles.seasonStatValue} numberOfLines={1}>
+                                        {topEntry?.nickname || '-'}
+                                    </Text>
+                                </View>
+                                <View style={styles.seasonStat}>
+                                    <Text style={styles.seasonStatLabel}>Skor</Text>
+                                    <Text style={styles.seasonStatValue}>{topMetric.toLocaleString('tr-TR')}</Text>
+                                </View>
+                                <View style={styles.seasonStat}>
+                                    <Text style={styles.seasonStatLabel}>Fark</Text>
+                                    <Text style={[styles.seasonStatValue, chaseGap > 0 && styles.seasonGapWarn]}>
+                                        {currentUserRank > 0 ? chaseGap.toLocaleString('tr-TR') : '--'}
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
+
                         {activeTab === 'general' && <ScoreFormulaPanel visible={showFormula} RS={RS} />}
 
-                        {/* ── Current User Rank Banner ── */}
+                        {/* â”€â”€ Current User Rank Banner â”€â”€ */}
                         {currentUserRank > 3 && currentMilRank && (
                             <View style={styles.rankBanner}>
                                 <Text style={styles.rankBannerText}>
@@ -611,10 +652,10 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
                             </View>
                         )}
 
-                        {/* ── Loading / Empty / List ── */}
+                        {/* â”€â”€ Loading / Empty / List â”€â”€ */}
                         {loading ? (
                             <View style={styles.center}>
-                                <ActivityIndicator size="large" color="#8b5cf6" />
+                                <ActivityIndicator size="large" color={LEADER_THEME.accent} />
                                 <Text style={styles.loadingLabel}>Yükleniyor...</Text>
                             </View>
                         ) : leaderboard.length === 0 ? (
@@ -640,12 +681,12 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
                                     <RefreshControl
                                         refreshing={refreshing}
                                         onRefresh={handleRefresh}
-                                        tintColor="#8b5cf6"
+                                        tintColor={LEADER_THEME.accent}
                                     />
                                 }
                                 ListHeaderComponent={
                                     <>
-                                        {/* ── Top 3 Podium ── */}
+                                        {/* â”€â”€ Top 3 Podium â”€â”€ */}
                                         {top3.length > 0 && (
                                             <View style={styles.podiumRow}>
                                                 {/* 2nd place */}
@@ -694,13 +735,12 @@ export const LeaderboardScreen: React.FC<Props> = ({ navigation }) => {
     );
 };
 
-// ═══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //                      STYLES
-// ═══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const styles = StyleSheet.create({
     flex: { flex: 1 },
-
-    // ── Header ──
+    // â”€â”€ Header â”€â”€
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -711,7 +751,9 @@ const styles = StyleSheet.create({
         width: 38,
         height: 38,
         borderRadius: 19,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: LEADER_THEME.panelSoft,
+        borderWidth: 1,
+        borderColor: LEADER_THEME.panelBorder,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -722,10 +764,13 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontWeight: '900',
-        color: '#fff',
+        color: LEADER_THEME.textMain,
+        textShadowColor: 'rgba(251, 113, 133, 0.35)',
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 8,
     },
 
-    // ── Tabs ──
+    // â”€â”€ Tabs â”€â”€
     tabRow: {
         flexDirection: 'row',
         gap: 10,
@@ -739,32 +784,35 @@ const styles = StyleSheet.create({
         gap: 6,
         paddingVertical: 10,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.07)',
+        backgroundColor: LEADER_THEME.tabIdle,
+        borderWidth: 1,
+        borderColor: 'rgba(148, 163, 184, 0.22)',
     },
     tabActive: {
-        backgroundColor: '#7c3aed',
+        backgroundColor: LEADER_THEME.tabActive,
+        borderColor: 'rgba(251, 113, 133, 0.44)',
     },
     tabLabel: {
         fontWeight: '700',
-        color: 'rgba(255,255,255,0.55)',
+        color: LEADER_THEME.textMuted,
     },
     tabLabelActive: {
-        color: '#fff',
+        color: LEADER_THEME.textMain,
     },
 
-    // ── Rank Banner ──
+    // â”€â”€ Rank Banner â”€â”€
     rankBanner: {
         marginBottom: 12,
         paddingVertical: 10,
         paddingHorizontal: 14,
-        backgroundColor: 'rgba(139,92,246,0.15)',
+        backgroundColor: LEADER_THEME.panel,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'rgba(139,92,246,0.25)',
+        borderColor: LEADER_THEME.panelBorder,
     },
     rankBannerText: {
         textAlign: 'center',
-        color: 'rgba(255,255,255,0.8)',
+        color: LEADER_THEME.textMuted,
         fontSize: 14,
     },
     rankBannerNum: {
@@ -776,7 +824,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
 
-    // ── Podium ──
+    // â”€â”€ Podium â”€â”€
     podiumRow: {
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -817,24 +865,31 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
 
-    // ── Divider ──
+    // â”€â”€ Divider â”€â”€
     divider: {
         height: 1,
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        backgroundColor: 'rgba(248, 113, 113, 0.22)',
         marginVertical: 10,
         marginHorizontal: 4,
     },
 
-    // ── List Item ──
+    // â”€â”€ List Item â”€â”€
     listItem: {
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 12,
         marginBottom: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(148, 163, 184, 0.16)',
+        backgroundColor: LEADER_THEME.panelSoft,
     },
     listItemCurrent: {
         borderWidth: 1.5,
-        borderColor: '#8b5cf6',
+        borderColor: LEADER_THEME.accent,
+        shadowColor: LEADER_THEME.accent,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.24,
+        shadowRadius: 10,
     },
     posCol: {
         width: 32,
@@ -842,7 +897,7 @@ const styles = StyleSheet.create({
     },
     posText: {
         fontWeight: '800',
-        color: 'rgba(255,255,255,0.45)',
+        color: 'rgba(203, 213, 225, 0.56)',
     },
     userCol: {
         flex: 1,
@@ -858,7 +913,7 @@ const styles = StyleSheet.create({
     },
     nameText: {
         fontWeight: '700',
-        color: '#fff',
+        color: LEADER_THEME.textMain,
         flexShrink: 1,
     },
     rankLabel: {
@@ -872,15 +927,57 @@ const styles = StyleSheet.create({
     },
     scoreText: {
         fontWeight: '800',
-        color: '#fff',
+        color: LEADER_THEME.textMain,
     },
     scoreUnit: {
         fontSize: 10,
-        color: 'rgba(255,255,255,0.4)',
+        color: 'rgba(203, 213, 225, 0.5)',
         fontWeight: '600',
     },
+    seasonPulse: {
+        marginBottom: 12,
+        borderRadius: 14,
+        padding: 12,
+        backgroundColor: LEADER_THEME.panel,
+        borderWidth: 1,
+        borderColor: LEADER_THEME.panelBorder,
+    },
+    seasonPulseTitle: {
+        color: LEADER_THEME.textMain,
+        fontSize: 12,
+        fontWeight: '800',
+        letterSpacing: 0.4,
+        marginBottom: 8,
+    },
+    seasonPulseRow: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    seasonStat: {
+        flex: 1,
+        backgroundColor: 'rgba(15, 23, 42, 0.62)',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(148, 163, 184, 0.22)',
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+    },
+    seasonStatLabel: {
+        color: 'rgba(203, 213, 225, 0.68)',
+        fontSize: 10,
+        fontWeight: '700',
+    },
+    seasonStatValue: {
+        marginTop: 2,
+        color: LEADER_THEME.textMain,
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    seasonGapWarn: {
+        color: LEADER_THEME.cta,
+    },
 
-    // ── Center States ──
+    // â”€â”€ Center States â”€â”€
     center: {
         flex: 1,
         justifyContent: 'center',
@@ -888,38 +985,38 @@ const styles = StyleSheet.create({
     },
     loadingLabel: {
         marginTop: 12,
-        color: 'rgba(255,255,255,0.55)',
+        color: LEADER_THEME.textMuted,
         fontSize: 15,
     },
     emptyTitle: {
         fontSize: 20,
         fontWeight: '800',
-        color: '#fff',
+        color: LEADER_THEME.textMain,
         marginTop: 16,
     },
     emptySub: {
         fontSize: 14,
-        color: 'rgba(255,255,255,0.45)',
+        color: LEADER_THEME.textMuted,
         textAlign: 'center',
         marginTop: 8,
         paddingHorizontal: 32,
     },
 });
 
-// ─── Score Formula Panel Styles ───────────────────────
+// â”€â”€â”€ Score Formula Panel Styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const leaderStyles = StyleSheet.create({
     formulaPanel: {
         marginBottom: 12,
         padding: 14,
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: 'rgba(139,92,246,0.2)',
+        borderColor: 'rgba(248, 113, 113, 0.28)',
         overflow: 'hidden',
     },
     formulaTitle: {
         fontSize: 15,
         fontWeight: '800',
-        color: '#fff',
+        color: LEADER_THEME.textMain,
         textAlign: 'center',
         marginBottom: 10,
     },
@@ -941,7 +1038,7 @@ const leaderStyles = StyleSheet.create({
         flex: 1,
         fontSize: 13,
         fontWeight: '600',
-        color: 'rgba(255,255,255,0.75)',
+        color: LEADER_THEME.textMuted,
     },
     formulaMultiplierBadge: {
         paddingHorizontal: 10,
@@ -956,7 +1053,7 @@ const leaderStyles = StyleSheet.create({
     },
     formulaNote: {
         fontSize: 11,
-        color: 'rgba(255,255,255,0.35)',
+        color: 'rgba(203, 213, 225, 0.52)',
         textAlign: 'center',
         marginTop: 10,
         fontStyle: 'italic',

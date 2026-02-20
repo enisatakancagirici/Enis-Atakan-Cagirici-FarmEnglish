@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BattleMenuScreen - Battle Mode Entry Point
  * FarmEnglish Battle Mode
  * 
@@ -8,7 +8,7 @@
  * - Liderlik Tablosu
  */
 
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useMemo } from 'react';
 import {
     View,
     Text,
@@ -25,7 +25,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Swords, Trophy, Users, Flame, ChevronRight, Lock, Star, Crown, Copy, X } from 'lucide-react-native';
+import { Swords, Trophy, Users, ChevronRight, Lock, Crown, Copy, X } from 'lucide-react-native';
 import { useFarmStore } from '../store/farmStore';
 import { haptic } from '../utils/sound';
 import { createBattleRoom, joinBattleRoom, generateBattleQuestions, listenToBattle, startBattle } from '../utils/firebaseBattle';
@@ -55,18 +55,24 @@ const getResponsiveSizes = (width: number, height: number) => {
     };
 };
 
+const WAR_THEME = {
+    screenGradient: ['#05080f', '#0f172a', '#1e293b'] as const,
+    cardBase: '#0b1220',
+    cardBorder: 'rgba(248, 113, 113, 0.25)',
+    textPrimary: '#f8fafc',
+    textMuted: 'rgba(226, 232, 240, 0.74)',
+    ctaBorder: 'rgba(251, 146, 60, 0.5)',
+    ctaText: '#fdba74',
+    lockedGradient: ['#0b1220', '#111827'] as const,
+    quickMatchGradient: ['#7f1d1d', '#b91c1c'] as const,
+    createRoomGradient: ['#7c2d12', '#ea580c'] as const,
+    joinRoomGradient: ['#1f2937', '#0f766e'] as const,
+    modalBackground: '#0a1120',
+};
+
 interface BattleMenuScreenProps {
     navigation: any;
 }
-
-// Stats Card Component
-const StatsCard = memo(({ icon, label, value, color, RS }: { icon: React.ReactNode; label: string; value: string | number; color: string; RS: any }) => (
-    <View style={[styles.statsCard, { padding: RS.cardPadding }]}>
-        {icon}
-        <Text style={[styles.statsValue, { fontSize: RS.statValueSize }]}>{value}</Text>
-        <Text style={[styles.statsLabel, { fontSize: RS.statLabelSize }]}>{label}</Text>
-    </View>
-));
 
 // Mode Card Component
 const ModeCard = memo(({
@@ -77,6 +83,7 @@ const ModeCard = memo(({
     onPress,
     locked,
     lockReason,
+    tag,
     RS,
 }: {
     title: string;
@@ -86,10 +93,15 @@ const ModeCard = memo(({
     onPress: () => void;
     locked?: boolean;
     lockReason?: string;
+    tag?: string;
     RS: any;
 }) => (
     <Pressable
-        style={[styles.modeCard, locked && styles.modeCardLocked]}
+        style={[
+            styles.modeCard,
+            !locked && { borderColor: `${gradient[0]}7a`, shadowColor: gradient[0] },
+            locked && styles.modeCardLocked,
+        ]}
         onPress={() => {
             if (!locked) {
                 haptic.medium();
@@ -100,11 +112,16 @@ const ModeCard = memo(({
         }}
     >
         <LinearGradient
-            colors={locked ? ['#1a1a2e', '#16213e'] : gradient}
+            colors={locked ? WAR_THEME.lockedGradient : gradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.modeCardGradient, { padding: RS.cardPadding }]}
         >
+            {!!tag && !locked && (
+                <View style={styles.modeTag}>
+                    <Text style={styles.modeTagText}>{tag}</Text>
+                </View>
+            )}
             <View style={styles.modeCardContent}>
                 <View style={styles.modeIconContainer}>
                     {icon}
@@ -154,7 +171,7 @@ const RoomCodeModal = memo(({
                         <X color="#fff" size={24} />
                     </Pressable>
 
-                    <Swords color="#8b5cf6" size={48} />
+                    <Swords color="#fb7185" size={48} />
                     <Text style={styles.modalTitle}>Oda Oluşturuldu!</Text>
                     <Text style={styles.modalSubtitle}>
                         Bu kodu arkadaşınla paylaş
@@ -163,7 +180,7 @@ const RoomCodeModal = memo(({
                     <View style={styles.codeContainer}>
                         <Text style={styles.codeText}>{roomCode}</Text>
                         <Pressable style={styles.copyBtn} onPress={copyCode}>
-                            <Copy color="#8b5cf6" size={20} />
+                            <Copy color="#fb7185" size={20} />
                         </Pressable>
                     </View>
 
@@ -213,7 +230,7 @@ const JoinRoomModal = memo(({
                             <X color="#fff" size={24} />
                         </Pressable>
 
-                        <Users color="#22c55e" size={48} />
+                        <Users color="#fb923c" size={48} />
                         <Text style={styles.modalTitle}>Odaya Katıl</Text>
                         <Text style={styles.modalSubtitle}>
                             Arkadaşının paylaştığı kodu gir
@@ -259,7 +276,6 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
     const battleLosses = useFarmStore((s) => s.battleLosses);
     const bestBattleStreak = useFarmStore((s) => s.bestBattleStreak);
     const currentBattleStreak = useFarmStore((s) => s.currentBattleStreak);
-    const dailyStreak = useFarmStore((s) => s.dailyStreak);
     const level = useFarmStore((s) => s.level);
     const user = useFarmStore((s) => s.user);
     const nickname = useFarmStore((s) => s.nickname);
@@ -277,6 +293,26 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
     // Calculate win rate
     const totalBattles = battleWins + battleLosses;
     const winRate = totalBattles > 0 ? Math.round((battleWins / totalBattles) * 100) : 0;
+    const battlePower = useMemo(
+        () => Math.max(1, Math.round((battleWins * 4) + (bestBattleStreak * 8) + (currentBattleStreak * 6) + (winRate * 3))),
+        [battleWins, bestBattleStreak, currentBattleStreak, winRate],
+    );
+    const arenaTier = useMemo(() => {
+        if (battleWins >= 180 && winRate >= 72) {
+            return { title: 'WARLORD', subtitle: 'Zirve seviyesi - baskın üstünlük', color: '#fda4af' };
+        }
+        if (battleWins >= 90 && winRate >= 60) {
+            return { title: 'COMMANDER', subtitle: 'Kontrollü oyun - istikrarlı seri', color: '#fdba74' };
+        }
+        if (battleWins >= 30 || winRate >= 50) {
+            return { title: 'CONTENDER', subtitle: 'Yükseliş başladı - ritmi koru', color: '#facc15' };
+        }
+        return { title: 'ROOKIE', subtitle: 'İlk savaşlar - ivme topla', color: '#93c5fd' };
+    }, [battleWins, winRate]);
+    const readinessPct = useMemo(
+        () => Math.max(5, Math.min(100, Math.round((winRate * 0.6) + (Math.min(35, bestBattleStreak) * 1.2) + (Math.min(20, currentBattleStreak) * 1.8)))),
+        [winRate, bestBattleStreak, currentBattleStreak],
+    );
 
     // Generate battle nickname - use profile nickname, or generate unique if default
     const getBattleNickname = useCallback(() => {
@@ -474,7 +510,7 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
     };
 
     return (
-        <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.container}>
+        <LinearGradient colors={WAR_THEME.screenGradient} style={styles.container}>
             <SafeAreaView style={styles.container}>
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     {/* Header */}
@@ -483,7 +519,7 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
                             <ChevronRight color="#fff" size={24} style={{ transform: [{ rotate: '180deg' }] }} />
                         </Pressable>
                         <View style={styles.headerTitleContainer}>
-                            <Swords color="#8b5cf6" size={RS.iconSize} />
+                            <Swords color="#fb7185" size={RS.iconSize} />
                             <Text style={[styles.headerTitle, { fontSize: RS.titleSize }]}>Savaş Modu</Text>
                         </View>
                         <View style={styles.headerSpacer} />
@@ -492,6 +528,45 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
                     {/* Content Wrapper for Tablet Centering */}
                     <View style={[styles.contentWrapper, { paddingHorizontal: RS.containerPadding }]}>
                         <View style={contentStyle}>
+                            <View style={styles.arenaHero}>
+                                <LinearGradient
+                                    colors={['rgba(127, 29, 29, 0.62)', 'rgba(124, 45, 18, 0.48)', 'rgba(15, 23, 42, 0.82)']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={styles.arenaHeroGradient}
+                                >
+                                    <View style={styles.arenaHeroTop}>
+                                        <View style={styles.arenaHeroTextWrap}>
+                                            <Text style={styles.arenaHeroKicker}>ARENA ÖZETİ</Text>
+                                            <Text style={[styles.arenaHeroTier, { color: arenaTier.color }]}>{arenaTier.title}</Text>
+                                            <Text style={styles.arenaHeroSubtitle}>{arenaTier.subtitle}</Text>
+                                        </View>
+                                        <View style={styles.powerBadge}>
+                                            <Text style={styles.powerLabel}>POWER</Text>
+                                            <Text style={styles.powerValue}>{battlePower}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.heroStatsRow}>
+                                        <View style={styles.heroStatChip}>
+                                            <Text style={styles.heroStatLabel}>Wins</Text>
+                                            <Text style={styles.heroStatValue}>{battleWins}</Text>
+                                        </View>
+                                        <View style={styles.heroStatChip}>
+                                            <Text style={styles.heroStatLabel}>Win Rate</Text>
+                                            <Text style={styles.heroStatValue}>%{winRate}</Text>
+                                        </View>
+                                        <View style={styles.heroStatChip}>
+                                            <Text style={styles.heroStatLabel}>Best</Text>
+                                            <Text style={styles.heroStatValue}>{bestBattleStreak}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.readinessTrack}>
+                                        <View style={[styles.readinessFill, { width: `${readinessPct}%` }]} />
+                                        <Text style={styles.readinessText}>Hazırlık %{readinessPct}</Text>
+                                    </View>
+                                </LinearGradient>
+                            </View>
+
                             {/* Auth Warning */}
                             {!isAuthenticated && (
                                 <Pressable
@@ -506,70 +581,23 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
                                 </Pressable>
                             )}
 
-                            {/* 🏆 Leaderboard Link - Prominent Position */}
+                            {/* ğŸ† Leaderboard Link - Prominent Position */}
                             <Pressable style={styles.leaderboardLinkTop} onPress={handleLeaderboard}>
-                                <Trophy color="#f59e0b" size={22} />
+                                <Trophy color={WAR_THEME.ctaText} size={22} />
                                 <Text style={styles.leaderboardTextTop}>Liderlik Tablosunu Gör</Text>
-                                <ChevronRight color="#f59e0b" size={20} />
+                                <ChevronRight color={WAR_THEME.ctaText} size={20} />
                             </Pressable>
-
-                            {/* 🔥 Daily Streak Banner */}
-                            {dailyStreak > 0 && (
-                                <View style={styles.dailyStreakBanner}>
-                                    <Flame color="#ff6b35" size={22} fill="#ff6b35" />
-                                    <Text style={styles.dailyStreakText}>
-                                        {dailyStreak} Günlük Seri!
-                                    </Text>
-                                    <Text style={styles.dailyStreakSubtext}>
-                                        🔥 Yarın da gel!
-                                    </Text>
-                                </View>
-                            )}
-
-                            {/* Stats Row */}
-                            <View style={[styles.statsRow, { gap: RS.containerPadding }]}>
-                                <StatsCard
-                                    icon={<Trophy color="#22c55e" size={RS.iconSize} />}
-                                    label="Galibiyet"
-                                    value={battleWins}
-                                    color="#22c55e"
-                                    RS={RS}
-                                />
-                                <StatsCard
-                                    icon={<Flame color="#f59e0b" size={RS.iconSize} />}
-                                    label="En İyi Seri"
-                                    value={bestBattleStreak}
-                                    color="#f59e0b"
-                                    RS={RS}
-                                />
-                                <StatsCard
-                                    icon={<Star color="#8b5cf6" size={RS.iconSize} />}
-                                    label="Kazanma %"
-                                    value={`${winRate}%`}
-                                    color="#8b5cf6"
-                                    RS={RS}
-                                />
-                            </View>
-
-                            {/* Current Streak Banner */}
-                            {currentBattleStreak > 0 && (
-                                <View style={styles.streakBanner}>
-                                    <Flame color="#f59e0b" size={24} fill="#f59e0b" />
-                                    <Text style={styles.streakText}>
-                                        {currentBattleStreak} Maç Kazanma Serisi!
-                                    </Text>
-                                </View>
-                            )}
 
                             {/* Mode Cards */}
                             <View style={[styles.modesContainer, { gap: RS.containerPadding }]}>
-                                <Text style={[styles.sectionTitle, { fontSize: RS.cardTitleSize }]}>Oyun Modları</Text>
+                                <Text style={[styles.sectionTitle, { fontSize: RS.cardTitleSize }]}>Savaş Modları</Text>
 
                                 <ModeCard
                                     title="Hızlı Eşleşme"
-                                    description="Rastgele bir rakiple anında savaş"
+                                    description="Anında rakip bul ve maça gir"
                                     icon={<Swords color="#fff" size={RS.iconSize * 1.5} />}
-                                    gradient={['#8b5cf6', '#6d28d9']}
+                                    tag="CANLI"
+                                    gradient={WAR_THEME.quickMatchGradient}
                                     onPress={handleQuickMatch}
                                     locked={!isAuthenticated}
                                     lockReason="Kayıt olarak erişin"
@@ -578,9 +606,10 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
 
                                 <ModeCard
                                     title="Oda Oluştur"
-                                    description="Arkadaşını davet etmek için oda oluştur"
+                                    description="Oda kur ve arkadaşını davet et"
                                     icon={<Crown color="#fff" size={RS.iconSize * 1.5} />}
-                                    gradient={['#f59e0b', '#d97706']}
+                                    tag="TAKTIK"
+                                    gradient={WAR_THEME.createRoomGradient}
                                     onPress={handleCreateRoom}
                                     locked={!isAuthenticated}
                                     lockReason="Kayıt olarak erişin"
@@ -589,9 +618,10 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
 
                                 <ModeCard
                                     title="Odaya Katıl"
-                                    description="Arkadaşının odasına katıl"
+                                    description="Kodla odaya hızlı şekilde katıl"
                                     icon={<Users color="#fff" size={RS.iconSize * 1.5} />}
-                                    gradient={['#22c55e', '#16a34a']}
+                                    tag="DUO"
+                                    gradient={WAR_THEME.joinRoomGradient}
                                     onPress={() => {
                                         if (!isAuthenticated) {
                                             navigation.navigate('Auth');
@@ -648,7 +678,9 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+        borderWidth: 1,
+        borderColor: 'rgba(148, 163, 184, 0.34)',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -660,7 +692,10 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 24,
         fontWeight: '900',
-        color: '#ffffff',
+        color: WAR_THEME.textPrimary,
+        textShadowColor: 'rgba(251, 113, 133, 0.35)',
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 8,
     },
     headerSpacer: {
         width: 40,
@@ -670,69 +705,136 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
     },
+    arenaHero: {
+        borderRadius: 22,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(251, 113, 133, 0.42)',
+        marginBottom: 18,
+        shadowColor: '#7f1d1d',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.26,
+        shadowRadius: 18,
+        elevation: 10,
+    },
+    arenaHeroGradient: {
+        padding: 16,
+        gap: 12,
+    },
+    arenaHeroTop: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 12,
+    },
+    arenaHeroTextWrap: {
+        flex: 1,
+        gap: 3,
+    },
+    arenaHeroKicker: {
+        color: 'rgba(251, 113, 133, 0.9)',
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 1.2,
+    },
+    arenaHeroTier: {
+        fontSize: 26,
+        fontWeight: '900',
+        lineHeight: 30,
+    },
+    arenaHeroSubtitle: {
+        color: 'rgba(226, 232, 240, 0.84)',
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    powerBadge: {
+        minWidth: 94,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(2, 6, 23, 0.56)',
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(251, 191, 36, 0.44)',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+    },
+    powerLabel: {
+        color: 'rgba(251, 191, 36, 0.9)',
+        fontSize: 10,
+        fontWeight: '700',
+        letterSpacing: 1,
+    },
+    powerValue: {
+        marginTop: 2,
+        color: '#fde68a',
+        fontSize: 24,
+        fontWeight: '900',
+        lineHeight: 26,
+    },
+    heroStatsRow: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    heroStatChip: {
+        flex: 1,
+        backgroundColor: 'rgba(2, 6, 23, 0.54)',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(148, 163, 184, 0.24)',
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+    },
+    heroStatLabel: {
+        color: 'rgba(203, 213, 225, 0.72)',
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    heroStatValue: {
+        marginTop: 2,
+        color: '#f8fafc',
+        fontSize: 16,
+        fontWeight: '900',
+    },
+    readinessTrack: {
+        height: 34,
+        borderRadius: 12,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(15, 23, 42, 0.74)',
+        borderWidth: 1,
+        borderColor: 'rgba(148, 163, 184, 0.24)',
+    },
+    readinessFill: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(251, 146, 60, 0.42)',
+    },
+    readinessText: {
+        textAlign: 'center',
+        color: '#fed7aa',
+        fontSize: 12,
+        fontWeight: '800',
+        letterSpacing: 0.2,
+    },
     // Auth Warning
     authWarning: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+        backgroundColor: 'rgba(127, 29, 29, 0.35)',
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderRadius: 12,
         marginBottom: 24,
         borderWidth: 1,
-        borderColor: 'rgba(245, 158, 11, 0.3)',
+        borderColor: 'rgba(248, 113, 113, 0.45)',
     },
     authWarningText: {
         flex: 1,
-        color: '#f59e0b',
+        color: '#fecaca',
         fontSize: 14,
         fontWeight: '600',
-    },
-    // Stats
-    statsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 32,
-        gap: 12,
-    },
-    statsCard: {
-        flex: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: 16,
-        padding: 16,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-    },
-    statsValue: {
-        fontSize: 20,
-        fontWeight: '900',
-        color: '#ffffff',
-        marginVertical: 4,
-    },
-    statsLabel: {
-        fontSize: 12,
-        color: 'rgba(255, 255, 255, 0.6)',
-        fontWeight: '500',
-    },
-    // Streak Banner
-    streakBanner: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-        paddingVertical: 12,
-        borderRadius: 12,
-        marginBottom: 32,
-        gap: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(245, 158, 11, 0.2)',
-    },
-    streakText: {
-        color: '#f59e0b',
-        fontSize: 16,
-        fontWeight: '800',
     },
     // Modes
     modesContainer: {
@@ -749,15 +851,35 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        backgroundColor: '#1a1a2e',
+        borderColor: WAR_THEME.cardBorder,
+        backgroundColor: WAR_THEME.cardBase,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.25,
+        shadowRadius: 18,
+        elevation: 10,
     },
     modeCardLocked: {
         opacity: 0.7,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
+        borderColor: 'rgba(148, 163, 184, 0.2)',
     },
     modeCardGradient: {
         padding: 24,
+    },
+    modeTag: {
+        alignSelf: 'flex-start',
+        backgroundColor: 'rgba(2, 6, 23, 0.55)',
+        borderRadius: 999,
+        borderWidth: 1,
+        borderColor: 'rgba(251, 191, 36, 0.55)',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        marginBottom: 10,
+    },
+    modeTagText: {
+        color: '#fcd34d',
+        fontSize: 10,
+        fontWeight: '800',
+        letterSpacing: 0.6,
     },
     modeCardContent: {
         flexDirection: 'row',
@@ -768,7 +890,9 @@ const styles = StyleSheet.create({
         width: 56,
         height: 56,
         borderRadius: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(15, 23, 42, 0.42)',
+        borderWidth: 1,
+        borderColor: 'rgba(226, 232, 240, 0.25)',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -783,7 +907,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 2,
-        borderColor: '#1a1a2e',
+        borderColor: WAR_THEME.cardBase,
     },
     modeTextContainer: {
         flex: 1,
@@ -799,7 +923,7 @@ const styles = StyleSheet.create({
     },
     modeDescription: {
         fontSize: 14,
-        color: 'rgba(255, 255, 255, 0.6)',
+        color: WAR_THEME.textMuted,
     },
     modeDescLocked: {
         color: 'rgba(255, 255, 255, 0.4)',
@@ -826,49 +950,25 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+        backgroundColor: 'rgba(124, 45, 18, 0.34)',
         paddingVertical: 14,
         paddingHorizontal: 20,
         borderRadius: 16,
         gap: 10,
         borderWidth: 1.5,
-        borderColor: 'rgba(245, 158, 11, 0.4)',
+        borderColor: WAR_THEME.ctaBorder,
         marginBottom: 20,
     },
     leaderboardTextTop: {
-        color: '#f59e0b',
+        color: WAR_THEME.ctaText,
         fontSize: 16,
         fontWeight: '800',
         flex: 1,
     },
-    // 🔥 Daily Streak Banner
-    dailyStreakBanner: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(255, 107, 53, 0.15)',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 14,
-        gap: 8,
-        borderWidth: 1.5,
-        borderColor: 'rgba(255, 107, 53, 0.4)',
-        marginBottom: 16,
-    },
-    dailyStreakText: {
-        color: '#ff6b35',
-        fontSize: 18,
-        fontWeight: '900',
-    },
-    dailyStreakSubtext: {
-        color: 'rgba(255, 107, 53, 0.8)',
-        fontSize: 12,
-        fontWeight: '600',
-    },
     // Modal
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'rgba(2, 6, 23, 0.9)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 24,
@@ -880,14 +980,14 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     modalContent: {
-        backgroundColor: '#1a1a2e',
+        backgroundColor: WAR_THEME.modalBackground,
         borderRadius: 24,
         padding: 24,
         alignItems: 'center',
         width: '100%',
         maxWidth: 360,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'rgba(248, 113, 113, 0.32)',
     },
     modalCloseBtn: {
         position: 'absolute',
@@ -896,7 +996,9 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        borderWidth: 1,
+        borderColor: 'rgba(148, 163, 184, 0.35)',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 10,
@@ -910,21 +1012,21 @@ const styles = StyleSheet.create({
     },
     modalSubtitle: {
         fontSize: 16,
-        color: 'rgba(255, 255, 255, 0.6)',
+        color: WAR_THEME.textMuted,
         marginTop: 8,
         textAlign: 'center',
     },
     codeContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+        backgroundColor: 'rgba(127, 29, 29, 0.35)',
         borderRadius: 16,
         paddingHorizontal: 24,
         paddingVertical: 16,
         marginTop: 24,
         gap: 16,
         borderWidth: 1,
-        borderColor: 'rgba(139, 92, 246, 0.3)',
+        borderColor: 'rgba(248, 113, 113, 0.38)',
     },
     codeText: {
         fontSize: 32,
@@ -933,19 +1035,23 @@ const styles = StyleSheet.create({
         letterSpacing: 4,
     },
     copyBtn: {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.82)',
         padding: 8,
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(251, 113, 133, 0.35)',
     },
     waitingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
         marginTop: 24,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'rgba(15, 23, 42, 0.75)',
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(148, 163, 184, 0.28)',
     },
     waitingText: {
         fontSize: 14,
@@ -953,13 +1059,15 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     startButton: {
-        backgroundColor: '#8b5cf6',
+        backgroundColor: '#b91c1c',
         paddingHorizontal: 32,
         paddingVertical: 16,
         borderRadius: 16,
         marginTop: 24,
         width: '100%',
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(251, 113, 133, 0.52)',
     },
     startButtonText: {
         fontSize: 16,
@@ -968,7 +1076,7 @@ const styles = StyleSheet.create({
     },
     codeInput: {
         width: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.85)',
         borderRadius: 16,
         padding: 20,
         fontSize: 24,
@@ -978,16 +1086,18 @@ const styles = StyleSheet.create({
         letterSpacing: 4,
         marginTop: 24,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'rgba(148, 163, 184, 0.34)',
     },
     joinButton: {
-        backgroundColor: '#22c55e',
+        backgroundColor: '#ea580c',
         paddingHorizontal: 32,
         paddingVertical: 16,
         borderRadius: 16,
         marginTop: 24,
         width: '100%',
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(251, 146, 60, 0.5)',
     },
     joinButtonDisabled: {
         opacity: 0.5,

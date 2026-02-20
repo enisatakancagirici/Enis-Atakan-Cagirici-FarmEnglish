@@ -191,13 +191,13 @@ export async function registerUser(
         // Önce nickname kontrolü
         const trimmedNickname = nickname?.trim() || '';
         if (trimmedNickname.length < 2) {
-            return { success: false, error: 'Takma ad en az 2 karakter olmali' };
+            return { success: false, error: 'Takma ad en az 2 karakter olmalı' };
         }
         if (trimmedNickname.length > 15) {
             return { success: false, error: 'Takma ad en fazla 15 karakter olabilir' };
         }
         if (!isNicknameCleanSafe(trimmedNickname)) {
-            return { success: false, error: 'Bu kullanici adi uygunsuz ifade iceriyor' };
+            return { success: false, error: 'Bu kullanıcı adı uygunsuz ifade içeriyor' };
         }
         const isAvailable = await checkNicknameAvailable(trimmedNickname);
         if (!isAvailable) {
@@ -1550,12 +1550,12 @@ export async function updatePracticeScore(
     try {
         const safeOdId = typeof odId === 'string' ? odId.trim() : '';
         if (!safeOdId) {
-            return { success: false, error: 'Gecersiz kullanici' };
+            return { success: false, error: 'Geçersiz kullanıcı' };
         }
 
         const field = PRACTICE_SCORE_FIELDS[practiceType];
         if (!field) {
-            return { success: false, error: 'Gecersiz pratik turu' };
+            return { success: false, error: 'Geçersiz pratik türü' };
         }
 
         const numericScore = Number.isFinite(scoreToAdd) ? Math.floor(scoreToAdd) : 0;
@@ -1572,7 +1572,7 @@ export async function updatePracticeScore(
         const userDoc = await getDoc(userRef);
 
         if (!userDoc.exists()) {
-            return { success: false, error: 'Kullanici bulunamadi' };
+            return { success: false, error: 'Kullanıcı bulunamadı' };
         }
 
         // Hem ilgili pratik skorunu hem de toplam pratik skorunu guncelle
@@ -1585,7 +1585,7 @@ export async function updatePracticeScore(
         return { success: true };
     } catch (error) {
         console.error('Pratik skor guncelleme hatasi:', error);
-        return { success: false, error: 'Skor guncellenemedi' };
+        return { success: false, error: 'Skor güncellenemedi' };
     }
 }
 
@@ -1601,7 +1601,7 @@ export async function updateQuizComboScore(
     try {
         const safeOdId = typeof odId === 'string' ? odId.trim() : '';
         if (!safeOdId) {
-            return { success: false, error: 'Gecersiz kullanici' };
+            return { success: false, error: 'Geçersiz kullanıcı' };
         }
 
         const numericCombo = Number.isFinite(comboValue) ? Math.floor(comboValue) : 0;
@@ -1618,7 +1618,7 @@ export async function updateQuizComboScore(
         const userRef = doc(db, 'users', safeOdId);
         const userDoc = await getDoc(userRef);
         if (!userDoc.exists()) {
-            return { success: false, error: 'Kullanici bulunamadi' };
+            return { success: false, error: 'Kullanıcı bulunamadı' };
         }
 
         await updateDoc(userRef, {
@@ -1631,7 +1631,7 @@ export async function updateQuizComboScore(
         return { success: true, applied: leaderboardScoreDelta };
     } catch (error) {
         console.error('Quiz combo skor guncelleme hatasi:', error);
-        return { success: false, error: 'Quiz combo skoru guncellenemedi' };
+        return { success: false, error: 'Quiz combo skoru güncellenemedi' };
     }
 }
 

@@ -20,8 +20,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import { Asset } from 'expo-asset';
-import { Package, Star, Crown, Search, X, Gem, Trophy, Heart, Filter, Sparkles, Puzzle, Lock, BookOpen, Link2 } from 'lucide-react-native';
+import { Package, Star, Crown, Search, X, Gem, Trophy, Heart, Filter, Sparkles, Puzzle, Lock, BookOpen, Link2, ChevronUp, ChevronDown } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFarmStore } from '../store/farmStore';
 import { CuteCloudTip } from '../components/CuteCloudTip';
 import { WordModel } from '../models/types';
@@ -741,7 +742,10 @@ const FilterTab: React.FC<{
 export default function InventoryScreenNew() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const insets = useSafeAreaInsets();
   const { inventory, phrasalVerbInventory, plantFromInventory, streak, toggleFavorite, pool, demoteWordLevel, lastInventoryQuizTime, setLastInventoryQuizTime, insecticideActive } = useFarmStore();
+  const sectionVisibility = useFarmStore(s => s.sectionVisibility);
+  const setSectionVisibility = useFarmStore(s => s.setSectionVisibility);
   const cardCustomization = useFarmStore(s => s.cardCustomization);
   const headerTheme = useMemo(
     () => getCardHeaderThemePreset(cardCustomization?.headerTheme),
@@ -791,6 +795,11 @@ export default function InventoryScreenNew() {
   const [filter, setFilter] = useState<'all' | 'master' | 'ultra' | 'perfect' | 'favorites' | 'custom'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isHeaderVisible = sectionVisibility?.invHeader ?? true;
+  const isTabsVisible = sectionVisibility?.invTabs ?? true;
+  const isNavbarVisible = sectionVisibility?.navbar ?? true;
+  const headerAnim = useRef(new Animated.Value(isHeaderVisible ? 1 : 0)).current;
+  const tabsAnim = useRef(new Animated.Value(isTabsVisible ? 1 : 0)).current;
   
   // 🎓 Tutorial kartı vurgulama - STEP_13'te göster (ilk kart veya tutorialFirstWrongWord)
   const isTutorialCardSelectStep = tutorialStep === 'STEP_13_SELECT_CARD';
@@ -851,6 +860,40 @@ export default function InventoryScreenNew() {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  useEffect(() => {
+    Animated.timing(headerAnim, {
+      toValue: isHeaderVisible ? 1 : 0,
+      duration: isHeaderVisible ? 260 : 210,
+      easing: isHeaderVisible
+        ? Easing.out(Easing.cubic)
+        : Easing.in(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [isHeaderVisible, headerAnim]);
+
+  useEffect(() => {
+    Animated.timing(tabsAnim, {
+      toValue: isTabsVisible ? 1 : 0,
+      duration: isTabsVisible ? 250 : 210,
+      easing: isTabsVisible
+        ? Easing.out(Easing.cubic)
+        : Easing.in(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [isTabsVisible, tabsAnim]);
+
+  const toggleNavbarVisibility = useCallback(() => {
+    setSectionVisibility('navbar', !isNavbarVisible);
+    haptic.selection();
+  }, [isNavbarVisible, setSectionVisibility]);
+
+  const toggleInventoryFiltersVisibility = useCallback(() => {
+    const nextVisible = !(isHeaderVisible && isTabsVisible);
+    setSectionVisibility('invHeader', nextVisible);
+    setSectionVisibility('invTabs', nextVisible);
+    haptic.selection();
+  }, [isHeaderVisible, isTabsVisible, setSectionVisibility]);
 
   // 🎯 Route params ile gelen tab'ı işle - SADECE params değiştiğinde
   useEffect(() => {
@@ -1296,6 +1339,39 @@ export default function InventoryScreenNew() {
 
   const keyExtractor = useCallback((item: WordModel) => item.id, []);
 
+  const isFilterPanelVisible = isHeaderVisible && isTabsVisible;
+  const headerOpacity = headerAnim.interpolate({
+    inputRange: [0, 0.3, 1],
+    outputRange: [0, 0.2, 1],
+    extrapolate: 'clamp',
+  });
+  const headerMaxHeight = headerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 172],
+    extrapolate: 'clamp',
+  });
+  const headerTranslateY = headerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-12, 0],
+    extrapolate: 'clamp',
+  });
+  const tabsOpacity = tabsAnim.interpolate({
+    inputRange: [0, 0.3, 1],
+    outputRange: [0, 0.2, 1],
+    extrapolate: 'clamp',
+  });
+  const tabsMaxHeight = tabsAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, IS_TABLET ? 72 : IS_SMALL_SCREEN ? 56 : 60],
+    extrapolate: 'clamp',
+  });
+  const tabsTranslateY = tabsAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-8, 0],
+    extrapolate: 'clamp',
+  });
+  const controlRowTopSpacing = Math.max(insets.top + 6, 10);
+
 
   return (
     <View style={styles.container}>
@@ -1317,6 +1393,17 @@ export default function InventoryScreenNew() {
       />
 
       {/* 📊 STATS HEADER - Premium Filter Bar */}
+      <Animated.View
+        style={[
+          styles.headerAnimatedContainer,
+          {
+            opacity: headerOpacity,
+            maxHeight: headerMaxHeight,
+            transform: [{ translateY: headerTranslateY }],
+          },
+        ]}
+        pointerEvents={isHeaderVisible ? 'auto' : 'none'}
+      >
       <View style={styles.statsHeader}>
         <LinearGradient
           colors={headerTheme.farmInventoryHeaderGradient}
@@ -1478,8 +1565,46 @@ export default function InventoryScreenNew() {
           </TouchableOpacity>
         </ScrollView>
       </View>
+      </Animated.View>
+
+      <View style={[styles.sectionToggleRow, { top: controlRowTopSpacing }]} pointerEvents="box-none">
+        <TouchableOpacity
+          style={[styles.sectionToggleChip, isNavbarVisible && styles.sectionToggleChipActive]}
+          onPress={toggleNavbarVisibility}
+          activeOpacity={0.85}
+        >
+          {isNavbarVisible ? (
+            <ChevronDown size={18} color="#ffffff" />
+          ) : (
+            <ChevronUp size={18} color="rgba(255,255,255,0.88)" />
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.sectionToggleChip, isFilterPanelVisible && styles.sectionToggleChipActive]}
+          onPress={toggleInventoryFiltersVisibility}
+          activeOpacity={0.85}
+        >
+          {isFilterPanelVisible ? (
+            <ChevronDown size={18} color="#ffffff" />
+          ) : (
+            <ChevronUp size={18} color="rgba(255,255,255,0.88)" />
+          )}
+        </TouchableOpacity>
+      </View>
 
       {/* 🎯 TAB SWITCHER - Apple Segment Control */}
+      <Animated.View
+        style={[
+          styles.tabsAnimatedContainer,
+          {
+            opacity: tabsOpacity,
+            maxHeight: tabsMaxHeight,
+            transform: [{ translateY: tabsTranslateY }],
+            marginBottom: isTabsVisible ? 8 : 0,
+          },
+        ]}
+        pointerEvents={isTabsVisible ? 'auto' : 'none'}
+      >
       <View style={styles.tabContainer}>
         {/* WORDS TAB */}
         <TouchableOpacity
@@ -1597,6 +1722,7 @@ export default function InventoryScreenNew() {
           </Text>
         </TouchableOpacity>
       </View>
+      </Animated.View>
 
       {/* ☁️ CloudTip - TABLARIN ALTINDA */}
       {showInventoryCloudTip && (
@@ -1774,6 +1900,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerAnimatedContainer: {
+    overflow: 'hidden',
+  },
+  sectionToggleRow: {
+    position: 'absolute',
+    left: 8,
+    right: 8,
+    zIndex: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 2,
+  },
+  sectionToggleChip: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.16)',
+    backgroundColor: 'rgba(7, 12, 22, 0.5)',
+  },
+  sectionToggleChipActive: {
+    borderColor: 'rgba(255,255,255,0.28)',
+    backgroundColor: 'rgba(12, 20, 34, 0.66)',
+  },
 
   // 📊 STATS HEADER - Premium Filter Bar (FarmScreen ile aynı)
   statsHeader: {
@@ -1845,6 +1998,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'rgba(255, 255, 255, 0.4)',
     marginRight: 4,
+  },
+  tabsAnimatedContainer: {
+    overflow: 'hidden',
   },
 
   // 🎯 TAB SWITCHER - Apple Segment Control

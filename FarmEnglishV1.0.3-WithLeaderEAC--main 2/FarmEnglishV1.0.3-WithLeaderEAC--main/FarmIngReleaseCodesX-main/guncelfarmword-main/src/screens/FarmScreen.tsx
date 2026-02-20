@@ -21,8 +21,9 @@ import {
 } from 'react-native';
 import { Asset } from 'expo-asset';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Sprout, Wheat, Star, Zap, TrendingUp, ShoppingCart, Search, Sparkles, X, Heart, AlertCircle, Crown, BookOpen, Leaf, Lock, Link2, Puzzle, Settings, RotateCcw } from 'lucide-react-native';
+import { Sprout, Wheat, Star, Zap, TrendingUp, ShoppingCart, Search, Sparkles, X, Heart, AlertCircle, Crown, BookOpen, Leaf, Lock, Link2, Puzzle, Settings, RotateCcw, ChevronUp, ChevronDown } from 'lucide-react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TransferToast } from '../components/TransferToast';
 import { showRewardToast, RewardToastContainer } from '../components/RewardToast';
 import { useFarmStore, type TransferEvent } from '../store/farmStore';
@@ -1016,6 +1017,7 @@ const FilterTab: React.FC<{
 export function FarmScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const insets = useSafeAreaInsets();
   // ⚡ Selector bazlı abonelik: coin/xp gibi alakasız store güncellemelerinde
   // tüm FarmScreen'in yeniden render olmasını önler (MiniQuiz kasması için kritik).
   const farm = useFarmStore(state => state.farm);
@@ -1052,6 +1054,8 @@ export function FarmScreen() {
   const guidedModeTargetWordText = useFarmStore(state => state.guidedModeTargetWordText);
   const cloudTipsDismissed = useFarmStore(state => state.cloudTipsDismissed);
   const setCloudTipDismissed = useFarmStore(state => state.setCloudTipDismissed);
+  const sectionVisibility = useFarmStore(state => state.sectionVisibility);
+  const setSectionVisibility = useFarmStore(state => state.setSectionVisibility);
 
   // ?? TAB SYSTEM - Kelimeler | Phrasal | Yapboz
   const [activeTab, setActiveTab] = useState<'words' | 'phrasal' | 'puzzle'>(globalTabState.current);
@@ -1212,16 +1216,12 @@ export function FarmScreen() {
   const [isSeedMarketDisabled, setIsSeedMarketDisabled] = useState(false);
   const seedMarketScale = useRef(new Animated.Value(1)).current;
   const seedMarketShimmer = useRef(new Animated.Value(0)).current; // Shimmer for seed market
-  const [isTopTabVisible, setIsTopTabVisible] = useState(true);
-  const topTabVisibleRef = useRef(true);
-  const lastScrollOffsetRef = useRef(0);
-  const lastTopTabToggleAtRef = useRef(0);
-  const topTabDownTravelRef = useRef(0);
-  const topTabUpTravelRef = useRef(0);
-  const topTabAnim = useRef(new Animated.Value(1)).current;
-  const topTabLayoutAnim = useRef(new Animated.Value(1)).current;
-  const topTabAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
-  const topTabHideDelayRef = useRef<NodeJS.Timeout | null>(null);
+  const isHeaderVisible = sectionVisibility?.farmHeader ?? true;
+  const isTopTabVisible = sectionVisibility?.farmTabs ?? true;
+  const isNavbarVisible = sectionVisibility?.navbar ?? true;
+  const headerAnim = useRef(new Animated.Value(isHeaderVisible ? 1 : 0)).current;
+  const topTabAnim = useRef(new Animated.Value(isTopTabVisible ? 1 : 0)).current;
+  const topTabLayoutAnim = useRef(new Animated.Value(isTopTabVisible ? 1 : 0)).current;
 
   // ?? FOCUS EFFECT - Reset seed market guard
   useFocusEffect(
@@ -1262,144 +1262,52 @@ export function FarmScreen() {
     outputRange: [-100, 100],
   });
 
-  const clearTopTabHideDelay = useCallback(() => {
-    if (topTabHideDelayRef.current) {
-      clearTimeout(topTabHideDelayRef.current);
-      topTabHideDelayRef.current = null;
-    }
-  }, []);
-
-  const runTopTabAnimation = useCallback((visible: boolean) => {
-    if (visible) setIsTopTabVisible(true);
-
-    topTabAnimationRef.current?.stop();
-    const visualAnim = Animated.timing(topTabAnim, {
-      toValue: visible ? 1 : 0,
-      duration: visible ? 320 : 230,
-      easing: visible
-        ? Easing.bezier(0.2, 0.95, 0.25, 1)
-        : Easing.bezier(0.4, 0, 0.2, 1),
+  useEffect(() => {
+    Animated.timing(headerAnim, {
+      toValue: isHeaderVisible ? 1 : 0,
+      duration: isHeaderVisible ? 260 : 210,
+      easing: isHeaderVisible
+        ? Easing.out(Easing.cubic)
+        : Easing.in(Easing.cubic),
       useNativeDriver: false,
-    });
-    const layoutAnim = Animated.timing(topTabLayoutAnim, {
-      toValue: visible ? 1 : 0,
-      duration: visible ? 300 : 240,
-      delay: 0,
-      easing: visible
-        ? Easing.bezier(0.2, 0.95, 0.25, 1)
-        : Easing.bezier(0.4, 0, 0.2, 1),
-      useNativeDriver: false,
-    });
-    const animation = Animated.parallel([visualAnim, layoutAnim], { stopTogether: true });
-    topTabAnimationRef.current = animation;
-    animation.start(({ finished }) => {
-      if (topTabAnimationRef.current === animation) {
-        topTabAnimationRef.current = null;
-      }
-      if (finished && !visible) {
-        setIsTopTabVisible(false);
-      }
-    });
-  }, [topTabAnim, topTabLayoutAnim]);
-
-  const setTopTabVisibility = useCallback((visible: boolean, force = false) => {
-    const TOP_TAB_MIN_TOGGLE_GAP_MS = 360;
-    const now = Date.now();
-    if (!force && now - lastTopTabToggleAtRef.current < TOP_TAB_MIN_TOGGLE_GAP_MS) return;
-    if (!force && topTabVisibleRef.current === visible) return;
-
-    lastTopTabToggleAtRef.current = now;
-    topTabVisibleRef.current = visible;
-
-    if (visible) {
-      clearTopTabHideDelay();
-      runTopTabAnimation(true);
-      return;
-    }
-
-    clearTopTabHideDelay();
-    if (force) {
-      runTopTabAnimation(false);
-      return;
-    }
-
-    topTabHideDelayRef.current = setTimeout(() => {
-      topTabHideDelayRef.current = null;
-      if (!topTabVisibleRef.current) {
-        runTopTabAnimation(false);
-      }
-    }, 140);
-  }, [clearTopTabHideDelay, runTopTabAnimation]);
-
-  const handleSharedContentOffset = useCallback((offsetY: number) => {
-    const y = Number.isFinite(offsetY) ? Math.max(0, offsetY) : 0;
-    const prevY = lastScrollOffsetRef.current;
-    const delta = y - prevY;
-    const absDelta = Math.abs(delta);
-
-    if (absDelta < 1.1) {
-      lastScrollOffsetRef.current = y;
-      return;
-    }
-
-    const FORCE_SHOW_OFFSET = 24;
-    const HIDE_OFFSET = 260;
-    const SHOW_OFFSET = 155;
-    const HIDE_TRAVEL_DISTANCE = 92;
-    const SHOW_TRAVEL_DISTANCE = 44;
-
-    if (y <= FORCE_SHOW_OFFSET) {
-      topTabDownTravelRef.current = 0;
-      topTabUpTravelRef.current = 0;
-      setTopTabVisibility(true);
-      lastScrollOffsetRef.current = y;
-      return;
-    }
-
-    if (delta > 0) {
-      topTabDownTravelRef.current += delta;
-      topTabUpTravelRef.current = 0;
-    } else {
-      topTabUpTravelRef.current += -delta;
-      topTabDownTravelRef.current = 0;
-    }
-
-    const shouldShow =
-      topTabUpTravelRef.current >= SHOW_TRAVEL_DISTANCE ||
-      (y <= SHOW_OFFSET && delta < -1.2);
-
-    if (shouldShow) {
-      setTopTabVisibility(true);
-      topTabUpTravelRef.current = 0;
-    }
-
-    lastScrollOffsetRef.current = y;
-  }, [setTopTabVisibility]);
-
-  const handleFarmContentScroll = useCallback((event: any) => {
-    const rawY = Number(event?.nativeEvent?.contentOffset?.y ?? 0);
-    const y = Number.isFinite(rawY) ? Math.max(0, rawY) : 0;
-    handleSharedContentOffset(y);
-  }, [handleSharedContentOffset]);
-
-  const handleEmbeddedTabScroll = useCallback((offsetY: number) => {
-    handleSharedContentOffset(offsetY);
-  }, [handleSharedContentOffset]);
+    }).start();
+  }, [isHeaderVisible, headerAnim]);
 
   useEffect(() => {
-    setTopTabVisibility(true, true);
-    lastScrollOffsetRef.current = 0;
-    topTabDownTravelRef.current = 0;
-    topTabUpTravelRef.current = 0;
-    clearTopTabHideDelay();
-  }, [activeTab, setTopTabVisibility, clearTopTabHideDelay]);
+    Animated.parallel([
+      Animated.timing(topTabAnim, {
+        toValue: isTopTabVisible ? 1 : 0,
+        duration: isTopTabVisible ? 260 : 220,
+        easing: isTopTabVisible
+          ? Easing.out(Easing.cubic)
+          : Easing.in(Easing.cubic),
+        useNativeDriver: false,
+      }),
+      Animated.timing(topTabLayoutAnim, {
+        toValue: isTopTabVisible ? 1 : 0,
+        duration: isTopTabVisible ? 250 : 210,
+        easing: isTopTabVisible
+          ? Easing.out(Easing.cubic)
+          : Easing.in(Easing.cubic),
+        useNativeDriver: false,
+      }),
+    ]).start();
+  }, [isTopTabVisible, topTabAnim, topTabLayoutAnim]);
 
-  useEffect(() => {
-    return () => {
-      clearTopTabHideDelay();
-      topTabAnimationRef.current?.stop();
-    };
-  }, [clearTopTabHideDelay]);
+  const toggleNavbarVisibility = useCallback(() => {
+    setSectionVisibility('navbar', !isNavbarVisible);
+    haptic.selection();
+  }, [isNavbarVisible, setSectionVisibility]);
+
+  const toggleFarmFiltersVisibility = useCallback(() => {
+    const nextVisible = !(isHeaderVisible && isTopTabVisible);
+    setSectionVisibility('farmHeader', nextVisible);
+    setSectionVisibility('farmTabs', nextVisible);
+    haptic.selection();
+  }, [isHeaderVisible, isTopTabVisible, setSectionVisibility]);
+
+  const handleFarmContentScroll = useCallback(() => {}, []);
+  const handleEmbeddedTabScroll = useCallback((_offsetY: number) => {}, []);
 
   useEffect(() => {
     let loadingTimeout: NodeJS.Timeout | null = null;
@@ -2201,6 +2109,22 @@ export function FarmScreen() {
   const embeddedFilter = filter === 'custom' ? 'all' : filter;
 
   const isSegmentLocked = tutorialStep !== 'COMPLETED' || isGuidedFarmStep;
+  const isFilterPanelVisible = isHeaderVisible && isTopTabVisible;
+  const headerOpacity = headerAnim.interpolate({
+    inputRange: [0, 0.3, 1],
+    outputRange: [0, 0.2, 1],
+    extrapolate: 'clamp',
+  });
+  const headerMaxHeight = headerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 188],
+    extrapolate: 'clamp',
+  });
+  const headerTranslateY = headerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-12, 0],
+    extrapolate: 'clamp',
+  });
   const topTabOpacity = topTabAnim.interpolate({
     inputRange: [0, 0.25, 1],
     outputRange: [0, 0.2, 1],
@@ -2226,6 +2150,7 @@ export function FarmScreen() {
     outputRange: [0, 12],
     extrapolate: 'clamp',
   });
+  const controlRowTopSpacing = Math.max(insets.top + 6, 10);
 
   return (
     <View style={styles.container}>
@@ -2237,23 +2162,60 @@ export function FarmScreen() {
         end={{ x: 1, y: 1 }}
       />
 
-      {/* Stats Header - Premium Filter Bar - TM TABLAR N */}
-      <StatsHeader
-        totalWords={getCurrentStats().total}
-        harvestReady={getCurrentStats().ready}
-        studyCount={getCurrentStats().study}
-        masterCount={getCurrentStats().master}
-        onPressSearch={getCurrentSearchHandler()}
-        onPressSeedMarket={() => (navigation as any).navigate('SeedMarket')}
-        onPressPhrasalMenu={() => (navigation as any).navigate('PhrasalVerbsMenu')}
-        onPressCardShop={() => setCardShopVisible(true)}
-        activeTab={activeTab}
-        filter={filter}
-        onFilterChange={setFilter}
-        tutorialStep={tutorialStep}
-        guidedLocked={isGuidedFarmStep}
-        headerThemeId={cardCustomization?.headerTheme}
-      />
+      {/* Stats Header - Premium Filter Bar - TUM TABLAR */}
+      <Animated.View
+        style={[
+          styles.headerAnimatedContainer,
+          {
+            opacity: headerOpacity,
+            maxHeight: headerMaxHeight,
+            transform: [{ translateY: headerTranslateY }],
+          },
+        ]}
+        pointerEvents={isHeaderVisible ? 'auto' : 'none'}
+      >
+        <StatsHeader
+          totalWords={getCurrentStats().total}
+          harvestReady={getCurrentStats().ready}
+          studyCount={getCurrentStats().study}
+          masterCount={getCurrentStats().master}
+          onPressSearch={getCurrentSearchHandler()}
+          onPressSeedMarket={() => (navigation as any).navigate('SeedMarket')}
+          onPressPhrasalMenu={() => (navigation as any).navigate('PhrasalVerbsMenu')}
+          onPressCardShop={() => setCardShopVisible(true)}
+          activeTab={activeTab}
+          filter={filter}
+          onFilterChange={setFilter}
+          tutorialStep={tutorialStep}
+          guidedLocked={isGuidedFarmStep}
+          headerThemeId={cardCustomization?.headerTheme}
+        />
+      </Animated.View>
+
+      <View style={[styles.sectionToggleRow, { top: controlRowTopSpacing }]} pointerEvents="box-none">
+        <TouchableOpacity
+          style={[styles.sectionToggleChip, isNavbarVisible && styles.sectionToggleChipActive]}
+          onPress={toggleNavbarVisibility}
+          activeOpacity={0.85}
+        >
+          {isNavbarVisible ? (
+            <ChevronDown size={18} color="#ffffff" />
+          ) : (
+            <ChevronUp size={18} color="rgba(255,255,255,0.88)" />
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.sectionToggleChip, isFilterPanelVisible && styles.sectionToggleChipActive]}
+          onPress={toggleFarmFiltersVisibility}
+          activeOpacity={0.85}
+        >
+          {isFilterPanelVisible ? (
+            <ChevronDown size={18} color="#ffffff" />
+          ) : (
+            <ChevronUp size={18} color="rgba(255,255,255,0.88)" />
+          )}
+        </TouchableOpacity>
+      </View>
 
       {/*  APPLE SEGMENT CONTROL - Premium Tab Bar */}
       <Animated.View
@@ -2650,6 +2612,33 @@ const styles = StyleSheet.create({
 
   topTabsAnimatedContainer: {
     overflow: 'hidden',
+  },
+  headerAnimatedContainer: {
+    overflow: 'hidden',
+  },
+  sectionToggleRow: {
+    position: 'absolute',
+    left: 8,
+    right: 8,
+    zIndex: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 2,
+  },
+  sectionToggleChip: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.16)',
+    backgroundColor: 'rgba(7, 12, 22, 0.5)',
+  },
+  sectionToggleChipActive: {
+    borderColor: 'rgba(255,255,255,0.28)',
+    backgroundColor: 'rgba(12, 20, 34, 0.66)',
   },
 
   //  APPLE SEGMENT CONTROL STYLES - iOS Native Feel

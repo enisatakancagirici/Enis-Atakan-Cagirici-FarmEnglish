@@ -162,7 +162,7 @@ const WarningScreen: React.FC<{
           >
             <Text style={{fontSize: 20}}>🧴</Text>
             <Text style={[styles.cancelButtonText, { color: '#22d3ee', fontWeight: '800', fontSize: 12 }]}>BÖCEK İLACI</Text>
-            <Text style={{ color: '#fbbf24', fontSize: 11, fontWeight: '700' }}>1500 🪙</Text>
+            <Text style={{ color: '#fbbf24', fontSize: 11, fontWeight: '700' }}>4500 🪙</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.startButton, { flex: 1.5 }]} onPress={onStart} activeOpacity={0.8}>
@@ -636,17 +636,17 @@ export const InventoryQuizDialog: React.FC<InventoryQuizDialogProps> = ({
 
   const handleInsecticide = useCallback(() => {
     const state = useFarmStore.getState();
-    const price = 1500;
+    const price = 4500;
     
     if (state.coins < price) {
       haptic.error();
-      Alert.alert('Yetersiz Bakiye', 'Böcek ilacı almak için 1500 altına ihtiyacın var!');
+      Alert.alert('Yetersiz Bakiye', 'Böcek ilacı almak için 4500 altına ihtiyacın var!');
       return;
     }
     
     Alert.alert(
       'Böcek İlacı',
-      '1500 altın karşılığında böcekleri kovmak istiyor musun?',
+      '4500 altın karşılığında böcekleri kovmak istiyor musun?',
       [
         { text: 'Vazgeç', style: 'cancel' },
         {

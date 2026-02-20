@@ -5,7 +5,7 @@ import { NavigationContainer, CommonActions, useNavigation } from '@react-naviga
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import { View, Text, StyleSheet, ActivityIndicator, Pressable, Platform, Animated, PanResponder, Dimensions, AppState, AppStateStatus, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Pressable, Platform, Animated, PanResponder, Dimensions, AppState, AppStateStatus, Modal, Alert, Easing } from 'react-native';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -946,6 +946,9 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
   const tutorialNavLocks = TUTORIAL_NAV_LOCKS[tutorialStep] || TUTORIAL_NAV_LOCKS.COMPLETED;
   const guidedModeActive = useFarmStore(s => s.guidedModeActive);
   const guidedModeStep = useFarmStore(s => s.guidedModeStep) as GuidedModeStep;
+  const sectionVisibility = useFarmStore(s => s.sectionVisibility);
+  const isNavbarVisible = sectionVisibility?.navbar ?? true;
+  const navbarAnim = useRef(new Animated.Value(isNavbarVisible ? 1 : 0)).current;
 
   const guidedNavLocks = useMemo(() => {
     if (!guidedModeActive) return null;
@@ -975,6 +978,17 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
       phrasal: tutorialNavLocks.phrasal && guidedNavLocks.phrasal,
     };
   }, [tutorialNavLocks, guidedNavLocks]);
+
+  useEffect(() => {
+    Animated.timing(navbarAnim, {
+      toValue: isNavbarVisible ? 1 : 0,
+      duration: isNavbarVisible ? 250 : 210,
+      easing: isNavbarVisible
+        ? Easing.out(Easing.cubic)
+        : Easing.in(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [isNavbarVisible, navbarAnim]);
 
   const getGuidedBlockMessage = useCallback((route: string, params?: any): string | null => {
     if (!guidedModeActive) return null;
@@ -1095,11 +1109,28 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
   const handleNavSesYap = useCallback(() => guardedNavigate('SesYap', 'home'), [guardedNavigate]);
   const handleNavBattle = useCallback(() => guardedNavigate('BattleMenu', 'home'), [guardedNavigate]);
   const handleNavMarketTab = useCallback(() => guardedNavigate('Market', 'home'), [guardedNavigate]);
+  const navbarTranslateY = navbarAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [TAB_BAR_HEIGHT + insets.bottom + 18, 0],
+    extrapolate: 'clamp',
+  });
+  const navbarOpacity = navbarAnim.interpolate({
+    inputRange: [0, 0.3, 1],
+    outputRange: [0, 0.15, 1],
+    extrapolate: 'clamp',
+  });
 
   return (
     <>
+      <Animated.View
+        style={{
+          transform: [{ translateY: navbarTranslateY }],
+          opacity: navbarOpacity,
+        }}
+        pointerEvents={isNavbarVisible ? 'auto' : 'none'}
+      >
       <BlurView intensity={95} tint="dark" style={[styles.bottomTabBar, { paddingBottom: insets.bottom }]}>
-        {/* Ã‡iftlik (Sol) */}
+        {/* Ciftlik (Sol) */}
         <View style={styles.tabItemContainer}>
           <NavButton
             onPress={handleNavFarm}
@@ -1163,6 +1194,7 @@ const FixedBottomTabBar = memo(({ currentRoute }: { currentRoute: string }) => {
           />
         </View>
       </BlurView>
+      </Animated.View>
 
       {/*  More / Markets Popover Menu */}
       <MarketsPopover

@@ -869,11 +869,6 @@ const PremiumMenuCard = ({
     bounceAnim,
   ]);
 
-  const shineTranslate = shineAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-200, 300],
-  });
-
   const handlePressIn = () => {
     haptic.medium();
     if (config.enableButtonScale) {
@@ -933,6 +928,26 @@ const PremiumMenuCard = ({
     }
     return IS_SMALL_DEVICE ? 198 : 222;
   })();
+
+  const cardWidth = (() => {
+    if (size === "halfSquare") {
+      return Math.floor((SCREEN_WIDTH - SPACING.lg * 2 - GRID_GAP) / 2);
+    }
+    if (size === "wideXXL" || size === "wideXL" || size === "wide") {
+      const horizontalInset = IS_TABLET_DEVICE ? 44 : 24;
+      return Math.max(280, SCREEN_WIDTH - horizontalInset);
+    }
+    return Math.floor((SCREEN_WIDTH - SPACING.lg * 2 - GRID_GAP) / 2);
+  })();
+  const isHeroShineCard = size === "wideXXL";
+  const shineBandWidth = isHeroShineCard ? 42 : 80;
+  const shineBandHeight = isHeroShineCard ? cardHeight + 88 : 300;
+  const shineTranslate = shineAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: isHeroShineCard
+      ? [-(cardWidth + shineBandWidth), cardWidth + shineBandWidth]
+      : [-200, 300],
+  });
 
   const wrapperStyle =
     size === "large"
@@ -1041,9 +1056,15 @@ const PremiumMenuCard = ({
                 style={[
                   styles.shineEffect,
                   {
+                    top: isHeroShineCard ? -Math.round(shineBandHeight * 0.28) : -50,
+                    width: shineBandWidth,
+                    height: shineBandHeight,
+                    backgroundColor: isHeroShineCard
+                      ? "rgba(255, 255, 255, 0.10)"
+                      : "rgba(255, 255, 255, 0.15)",
                     transform: [
                       { translateX: shineTranslate },
-                      { rotate: "25deg" },
+                      { rotate: isHeroShineCard ? "18deg" : "25deg" },
                     ],
                   },
                 ]}
@@ -2445,36 +2466,6 @@ export const HomeScreen = ({ navigation }: any) => {
                   helpText="Kart pazarında kart temalarını açar ve kartlarını kişiselleştirirsin."
                 />
                 <PremiumMenuCard
-                  onPress={() => handleNav("Store")}
-                  imageSource={PRELOADED_IMAGES.marketGuc}
-                  title="GÜÇ MAĞAZASI"
-                  subtitle="Boost, hint, paket"
-                  size="halfSquare"
-                  textAlign="center"
-                  imageFit="cover"
-                  accentColor="#A78BFA"
-                  delay={320}
-                  hasBounce={true}
-                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
-                  onHelpPress={showHomeHelpModal}
-                  helpText="Güç mağazasından boost, hint ve paket alarak ilerleme durumunu hızlandırırsın."
-                />
-                <PremiumMenuCard
-                  onPress={() => handleNav("SeedMarket")}
-                  imageSource={PRELOADED_IMAGES.marketTohum}
-                  title="TOHUM PAZARI"
-                  subtitle="4000+ premium tohum"
-                  size="halfSquare"
-                  textAlign="center"
-                  imageFit="cover"
-                  accentColor="#22C55E"
-                  delay={340}
-                  hasBounce={true}
-                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
-                  onHelpPress={showHomeHelpModal}
-                  helpText="Tohum pazarından yeni kelime tohumları alıp çiftliğine ekip hasat edersin."
-                />
-                <PremiumMenuCard
                   onPress={() => handleNav("PhrasalVerbsMenu")}
                   imageSource={PRELOADED_IMAGES.phrasal}
                   title="PHRASAL"
@@ -2483,11 +2474,11 @@ export const HomeScreen = ({ navigation }: any) => {
                   textAlign="center"
                   imageFit="cover"
                   accentColor="#EC4899"
-                  delay={360}
+                  delay={320}
                   hasBounce={true}
                   wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
                   onHelpPress={showHomeHelpModal}
-                  helpText="Phrasal verbs bölümünde gündelik İngilizcedeki kritik kalıpları çalışırsın."
+                  helpText="Phrasal verbs bölümünde gündelik kalıpları çalışırsın."
                 />
                 <PremiumMenuCard
                   onPress={() => {
@@ -2502,11 +2493,41 @@ export const HomeScreen = ({ navigation }: any) => {
                   textAlign="center"
                   imageFit="cover"
                   accentColor="#38BDF8"
-                  delay={400}
+                  delay={340}
                   hasBounce={true}
                   wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
                   onHelpPress={showHomeHelpModal}
-                  helpText="Pratik merkezinde hedefe göre modüller seçip sistemli ilerlersin."
+                  helpText="Pratik merkezinde modüllerle sistemli ilerlersin."
+                />
+                <PremiumMenuCard
+                  onPress={() => handleNav("Store")}
+                  imageSource={PRELOADED_IMAGES.marketGuc}
+                  title="GÜÇ MAĞAZASI"
+                  subtitle="Boost, hint, paket"
+                  size="halfSquare"
+                  textAlign="center"
+                  imageFit="cover"
+                  accentColor="#A78BFA"
+                  delay={360}
+                  hasBounce={true}
+                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
+                  onHelpPress={showHomeHelpModal}
+                  helpText="Güç mağazasından boost, hint ve paket alırsın."
+                />
+                <PremiumMenuCard
+                  onPress={() => handleNav("SeedMarket")}
+                  imageSource={PRELOADED_IMAGES.marketTohum}
+                  title="TOHUM PAZARI"
+                  subtitle="4000+ premium tohum"
+                  size="halfSquare"
+                  textAlign="center"
+                  imageFit="cover"
+                  accentColor="#22C55E"
+                  delay={380}
+                  hasBounce={true}
+                  wrapperStyleOverride={[styles.utilityRailCard, { width: utilityRailItemWidth }]}
+                  onHelpPress={showHomeHelpModal}
+                  helpText="Tohum pazarından yeni tohumlar alıp çiftliğine ekersin."
                 />
               </ScrollView>
             </View>
