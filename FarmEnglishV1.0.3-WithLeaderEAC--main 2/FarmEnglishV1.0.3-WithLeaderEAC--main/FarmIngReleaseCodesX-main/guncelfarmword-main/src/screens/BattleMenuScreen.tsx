@@ -1,4 +1,4 @@
-﻿/**
+/**
  * BattleMenuScreen - Battle Mode Entry Point
  * FarmEnglish Battle Mode
  * 
@@ -422,7 +422,6 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
                     }
                 },
                 (error) => {
-                    console.error('Room listen error:', error);
                 }
             );
         } catch (error) {
@@ -581,7 +580,7 @@ export const BattleMenuScreen: React.FC<BattleMenuScreenProps> = ({ navigation }
                                 </Pressable>
                             )}
 
-                            {/* ğŸ† Leaderboard Link - Prominent Position */}
+                            {/* 🏆 Leaderboard Link - Prominent Position */}
                             <Pressable style={styles.leaderboardLinkTop} onPress={handleLeaderboard}>
                                 <Trophy color={WAR_THEME.ctaText} size={22} />
                                 <Text style={styles.leaderboardTextTop}>Liderlik Tablosunu Gör</Text>

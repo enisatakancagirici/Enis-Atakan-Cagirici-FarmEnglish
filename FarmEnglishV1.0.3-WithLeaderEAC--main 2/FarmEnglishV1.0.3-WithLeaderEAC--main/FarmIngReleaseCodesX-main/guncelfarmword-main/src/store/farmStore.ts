@@ -15,6 +15,7 @@ import { traceEvent } from '../utils/debugTrace';
 import { normalizeDisplayText } from '../utils/textNormalization';
 import { updateUserStats as firebaseUpdateUserStats, db as firebaseDb } from '../utils/firebaseBattle';
 import { doc as firestoreDoc, updateDoc as firestoreUpdateDoc } from 'firebase/firestore';
+import { showRewardToast } from '../components/RewardToast';
 
 // Re-entry guard for harvestWord double-swipe protection
 const _harvestInFlight = new Set<string>();
@@ -29,10 +30,24 @@ let lastQuestCheckTime = 0; // Debounce: at most every 30s
 let questInitInFlight = false; // Guard for initializeAllQuests re-entry
 let dailyQuestGenerationInFlight = false;
 let lastDailyQuestGenerationAt = 0;
+let storeHydrationComplete = false;
 type QuestProgressMode = 'add' | 'max';
 const QUEST_PROGRESS_FLUSH_MS = 180;
 const _questProgressQueue = new Map<QuestType, { amount: number; mode: QuestProgressMode }>();
 let _questProgressFlushTimer: ReturnType<typeof setTimeout> | null = null;
+
+function isStoreHydratedForQuestOps(): boolean {
+  if (storeHydrationComplete) return true;
+  try {
+    const persistApi = (useFarmStore as any)?.persist;
+    if (persistApi && typeof persistApi.hasHydrated === 'function') {
+      const hydrated = persistApi.hasHydrated() === true;
+      if (hydrated) storeHydrationComplete = true;
+      return hydrated;
+    }
+  } catch {}
+  return storeHydrationComplete;
+}
 
 // 🔄 Cached Firebase updateUserStats — dynamic import her hasat'ta yapılmasın
 let _cachedUpdateUserStats: ((odId: string, updates: any) => Promise<void>) | null = firebaseUpdateUserStats;
@@ -102,55 +117,13 @@ function safeSyncFirebase(odId: string, updates: any) {
   } catch (e) {}
 }
 
-// 🛡️ Cached RewardToast reference + queue to avoid lost toasts under heavy burst
-let _cachedShowRewardToast: ((type: string, value: number, message?: string) => void) | null = null;
-let _toastImportPromise: Promise<void> | null = null;
-const _pendingRewardToasts: Array<{ type: string; value: number; message?: string }> = [];
-let _lastToastImportAttemptAt = 0;
-const MAX_PENDING_REWARD_TOASTS = 18;
-
-function flushPendingRewardToasts() {
-  if (!_cachedShowRewardToast || _pendingRewardToasts.length === 0) return;
-  const queue = _pendingRewardToasts.splice(0, _pendingRewardToasts.length);
-  for (const pending of queue) {
-    try {
-      _cachedShowRewardToast(pending.type, pending.value, pending.message);
-    } catch (e) {}
-  }
-}
-
-function ensureRewardToastLoaded() {
-  if (_cachedShowRewardToast || _toastImportPromise) return;
-  const now = Date.now();
-  if (now - _lastToastImportAttemptAt < 1500) return;
-  _lastToastImportAttemptAt = now;
-  _toastImportPromise = import('../components/RewardToast')
-    .then(({ showRewardToast }) => {
-      _cachedShowRewardToast = showRewardToast as any;
-      flushPendingRewardToasts();
-    })
-    .catch(() => {})
-    .finally(() => {
-      _toastImportPromise = null;
-    });
-}
-
 function safeShowRewardToast(type: any, value: number, message?: string) {
   try {
     const safeType = typeof type === 'string' && type.trim().length > 0 ? type : 'quest';
     const safeValue = toSafePositiveInt(value);
-    const safeMessage = typeof message === 'string' && message.trim().length > 0 ? message.trim() : undefined;
-
-    if (_cachedShowRewardToast) {
-      _cachedShowRewardToast(safeType, safeValue, safeMessage);
-      return;
-    }
-
-    if (_pendingRewardToasts.length >= MAX_PENDING_REWARD_TOASTS) {
-      _pendingRewardToasts.shift();
-    }
-    _pendingRewardToasts.push({ type: safeType, value: safeValue, message: safeMessage });
-    ensureRewardToastLoaded();
+    const normalizedMessage = sanitizeToastMessage(message);
+    const safeMessage = normalizedMessage.length > 0 ? normalizedMessage : undefined;
+    showRewardToast(safeType as any, safeValue, safeMessage);
   } catch (e) {
     // Complete silent fail
   }
@@ -181,6 +154,33 @@ function toSafeObjectArray<T = any>(value: unknown): T[] {
 function normalizeUiText(value: unknown, fallback = ''): string {
   const normalized = normalizeDisplayText(value);
   return normalized || fallback;
+}
+
+function sanitizeToastMessage(value: unknown): string {
+  const raw = normalizeUiText(value, '');
+  if (!raw) return '';
+  let out = '';
+  for (let i = 0; i < raw.length; i += 1) {
+    const code = raw.charCodeAt(i);
+    // Strip lone surrogate halves that can break native text rendering.
+    if (code >= 0xD800 && code <= 0xDBFF) {
+      const nextCode = raw.charCodeAt(i + 1);
+      if (nextCode >= 0xDC00 && nextCode <= 0xDFFF) {
+        out += raw[i] + raw[i + 1];
+        i += 1;
+      }
+      continue;
+    }
+    if (code >= 0xDC00 && code <= 0xDFFF) {
+      continue;
+    }
+    if ((code >= 0x0000 && code <= 0x001F) || (code >= 0x007F && code <= 0x009F)) {
+      out += ' ';
+      continue;
+    }
+    out += raw[i];
+  }
+  return out.replace(/\s{2,}/g, ' ').trim().slice(0, 140);
 }
 const BROKEN_ICON_PATTERN = /[A-Za-z-]/;
 const QUEST_TYPE_ICON_MAP: Partial<Record<QuestType, string>> = {
@@ -573,7 +573,7 @@ interface FarmStore {
   // 🎯 KAPSAMLI GÖREV SİSTEMİ Actions
   // Günlük Görevler
   generateDailyQuests: () => void;
-  checkAndResetDailyQuests: () => void;
+  checkAndResetDailyQuests: (options?: { force?: boolean; reason?: string }) => void;
 
   // Haftalık Görevler
   generateWeeklyQuests: () => void;
@@ -958,7 +958,6 @@ export const useFarmStore = create<FarmStore>()(
             } catch (e) {}
           }
         } catch (e) {
-          console.error('[setNickname] Error:', e);
         }
       },
       setShowNicknameModal: (show) => set({ showNicknameModal: show }),
@@ -1019,7 +1018,6 @@ export const useFarmStore = create<FarmStore>()(
       startMatchmaking: () => {
         const state = get();
         if (!state.isAuthenticated || !state.user) {
-          console.warn('⚔️ Cannot start matchmaking: not authenticated');
           return;
         }
         set({
@@ -1327,7 +1325,6 @@ export const useFarmStore = create<FarmStore>()(
         let earnedXP = baseXP + streakBonus;
         let earnedCoins = correct ? 2 + Math.floor(currentStreak / 3) : 0;
 
-        // console.log('📦 Store answerQuiz - correct:', correct, 'old streak:', state.streak, '→ new streak:', currentStreak);
 
         // Check if word is already in farm
         const already = safeFarm.some(f => f.id === wordId);
@@ -1388,7 +1385,6 @@ export const useFarmStore = create<FarmStore>()(
 
         debouncedCheckAchievements(get);
         } catch (error) {
-          console.error('[answerQuiz] Error:', error);
         }
       },
 
@@ -1451,7 +1447,6 @@ export const useFarmStore = create<FarmStore>()(
 
         const farmWord = phrasalWord || normalWord || foundInPhrasalInventory || foundInInventory;
         if (!farmWord) {
-          // console.log(' answerMiniQuiz: word not found!', wordId);
           return set({ miniQuizFor: undefined });
         }
         const targetWordId = typeof farmWord.id === 'string' ? farmWord.id : wordId;
@@ -1551,7 +1546,6 @@ export const useFarmStore = create<FarmStore>()(
         if (!correct) {
           //  MASTER KARTLAR SEVİYE DÜMEMELİ!
           if (masterLevel > 0) {
-            // console.log(' Master kart yanlış cevap - seviye korunuyor, sessions reset!');
             updateWord(f => ({
               ...f,
               consecutiveCorrect: 0,
@@ -1608,7 +1602,6 @@ export const useFarmStore = create<FarmStore>()(
         };
 
         const currentColor = getCurrentColor(wrongCount);
-        // console.log('✅ Doğru cevap! Streak:', newStreak, 'Renk:', currentColor, 'WrongCount:', wrongCount);
 
         // Yeşil kart (colorLevel>=2) veya master kartlar - 3 streak ile başarılı session
         if (currentColor === 'green' || masterLevel > 0) {
@@ -1758,7 +1751,6 @@ export const useFarmStore = create<FarmStore>()(
 
         debouncedCheckAchievements(get);
         } catch (error) {
-          console.error('[answerMiniQuiz] Error:', error);
           set({ miniQuizFor: undefined });
         }
       },
@@ -2032,7 +2024,6 @@ export const useFarmStore = create<FarmStore>()(
             }));
           }
         } catch (error) {
-          console.error('[plantFromInventory] Error:', error);
         } finally {
           _plantInFlight.delete(safeWordId);
         }
@@ -2863,7 +2854,6 @@ export const useFarmStore = create<FarmStore>()(
           }, 3000);
         }
         } catch (e) {
-          console.error('[updateQuestProgress] Error:', e);
         }
       },
 
@@ -2872,6 +2862,26 @@ export const useFarmStore = create<FarmStore>()(
         try {
         const safeQuestId = typeof questId === 'string' ? questId.trim() : '';
         if (!safeQuestId) return false;
+        if (!isStoreHydratedForQuestOps()) {
+          traceEvent('quest_claim_blocked', { questId: safeQuestId, reason: 'store_not_hydrated' }, 'warn');
+          safeShowRewardToast('quest', 1, 'Veriler yükleniyor, 1 saniye sonra tekrar dene');
+          return false;
+        }
+        if (dailyQuestGenerationInFlight || dailyQuestResetInFlight || questInitInFlight) {
+          traceEvent(
+            'quest_claim_blocked',
+            {
+              questId: safeQuestId,
+              reason: 'quest_system_busy',
+              dailyQuestGenerationInFlight,
+              dailyQuestResetInFlight,
+              questInitInFlight,
+            },
+            'warn'
+          );
+          safeShowRewardToast('quest', 1, 'Görevler hazırlanıyor, tekrar dene');
+          return false;
+        }
         const now = Date.now();
         if (now - _lastQuestClaimAt < 120) {
           traceEvent('quest_claim_throttled', { questId: safeQuestId, questType: questType || 'daily' }, 'warn');
@@ -2919,6 +2929,15 @@ export const useFarmStore = create<FarmStore>()(
             break;
           default:
             quest = safeDailyQuests.find(q => q.id === safeQuestId);
+        }
+
+        if (type === 'daily') {
+          const today = new Date().toISOString().split('T')[0];
+          if (!quest || quest.date !== today) {
+            traceEvent('quest_claim_blocked', { questId: safeQuestId, reason: 'daily_not_today' }, 'warn');
+            safeShowRewardToast('quest', 1, 'Günlük görev yenileniyor, tekrar dene');
+            return false;
+          }
         }
 
         if (!quest || quest.completed !== true || quest.claimed === true) {
@@ -2990,7 +3009,10 @@ export const useFarmStore = create<FarmStore>()(
           rewardCoins > 0 ? `+${rewardCoins} coin` : '',
           rewardXp > 0 ? `+${rewardXp} XP` : '',
         ].filter(Boolean).join(' • ');
-        safeShowRewardToast('quest', 1, rewardSummary ? `${safeQuestTitle} • ${rewardSummary}` : safeQuestTitle);
+        const claimToastMessage = type === 'daily'
+          ? (rewardSummary ? `Ödül alındı • ${rewardSummary}` : 'Ödül alındı')
+          : (rewardSummary ? `Ödül alındı • ${safeQuestTitle} • ${rewardSummary}` : `Ödül alındı • ${safeQuestTitle}`);
+        safeShowRewardToast('quest', 1, claimToastMessage);
 
         if (type === 'daily') {
           const refreshedDailyQuests = toSafeObjectArray<any>(get().dailyQuests);
@@ -3000,7 +3022,7 @@ export const useFarmStore = create<FarmStore>()(
           if (allClaimedToday) {
             setTimeout(() => {
               try {
-                get().checkAndResetDailyQuests();
+                get().checkAndResetDailyQuests({ force: true, reason: 'claim_post_reward' });
               } catch (error) {
                 traceEvent('quest_claim_postcheck_error', { error: String(error) }, 'error');
               }
@@ -3033,7 +3055,6 @@ export const useFarmStore = create<FarmStore>()(
         return true;
         } catch (e) {
           traceEvent('quest_claim_error', { questId: questId, questType, error: String(e) }, 'error');
-          console.error('[claimQuestReward] Error:', e);
           return false;
         } finally {
           if (inFlightKey) {
@@ -3042,15 +3063,23 @@ export const useFarmStore = create<FarmStore>()(
         }
       },
 
-      checkAndResetDailyQuests: () => {
+      checkAndResetDailyQuests: (options?: { force?: boolean; reason?: string }) => {
+        const force = options?.force === true;
+        const source = typeof options?.reason === 'string' && options.reason.trim().length > 0
+          ? options.reason.trim()
+          : 'unknown';
+        if (!force && !isStoreHydratedForQuestOps()) {
+          traceEvent('daily_quest_check_skipped', { reason: 'store_not_hydrated', source }, 'warn');
+          return;
+        }
         if (dailyQuestResetInFlight) {
-          traceEvent('daily_quest_check_skipped', { reason: 'in_flight' }, 'warn');
+          traceEvent('daily_quest_check_skipped', { reason: 'in_flight', source }, 'warn');
           return;
         }
         // Debounce: en fazla 30 saniyede bir kontrol et
         const now = Date.now();
-        if (now - lastQuestCheckTime < 30000) {
-          traceEvent('daily_quest_check_skipped', { reason: 'debounce' }, 'warn');
+        if (!force && now - lastQuestCheckTime < 30000) {
+          traceEvent('daily_quest_check_skipped', { reason: 'debounce', source }, 'warn');
           return;
         }
         lastQuestCheckTime = now;
@@ -3062,7 +3091,7 @@ export const useFarmStore = create<FarmStore>()(
 
           // Gün değişti mi ya da quest listesi boş mu?
           if (state.lastQuestResetDate !== today || safeDailyQuests.length === 0) {
-            traceEvent('daily_quest_check_regenerate', { reason: 'date_or_empty' });
+            traceEvent('daily_quest_check_regenerate', { reason: 'date_or_empty', source });
             get().generateDailyQuests();
             return;
           }
@@ -3071,12 +3100,11 @@ export const useFarmStore = create<FarmStore>()(
           const allClaimedToday = safeDailyQuests.length > 0 &&
             safeDailyQuests.every(q => q.date === today && q.claimed);
           if (allClaimedToday) {
-            traceEvent('daily_quest_check_regenerate', { reason: 'all_claimed' });
+            traceEvent('daily_quest_check_regenerate', { reason: 'all_claimed', source });
             get().generateDailyQuests();
           }
         } catch (e) {
-          traceEvent('daily_quest_check_error', { error: String(e) }, 'error');
-          console.error('[checkAndResetDailyQuests] Error:', e);
+          traceEvent('daily_quest_check_error', { error: String(e), source }, 'error');
         } finally {
           dailyQuestResetInFlight = false;
         }
@@ -3537,7 +3565,6 @@ export const useFarmStore = create<FarmStore>()(
           set({ achievementQuests: updatedAchievements });
         }
         } catch (e) {
-          console.error('[checkAchievementProgress] Error:', e);
         }
       },
 
@@ -3549,7 +3576,7 @@ export const useFarmStore = create<FarmStore>()(
         questInitInFlight = true;
         try {
           // 1. Daily quests
-          get().checkAndResetDailyQuests();
+          get().checkAndResetDailyQuests({ reason: 'initialize_all' });
 
           // 2. Weekly quests
           get().checkAndResetWeeklyQuests();
@@ -3582,7 +3609,6 @@ export const useFarmStore = create<FarmStore>()(
             get().checkAchievementProgress();
           }
         } catch (e) {
-          console.error('[initializeAllQuests] Error:', e);
         } finally {
           questInitInFlight = false;
         }
@@ -3709,7 +3735,6 @@ export const useFarmStore = create<FarmStore>()(
           set({ masteryPaths: updatedPaths });
         }
         } catch (e) {
-          console.error('[checkMasteryProgress] Error:', e);
         }
       },
 
@@ -3774,7 +3799,6 @@ export const useFarmStore = create<FarmStore>()(
 
         //  Hasat bekleyen karta tekrar cevap verilmemeli!
         if ((word as any).readyForPuzzleHarvest) {
-          console.log('⚠️ Puzzle: Kart hasat bekliyor, session artırılmadı');
           return;
         }
 
@@ -4154,7 +4178,6 @@ export const useFarmStore = create<FarmStore>()(
         try {
           state.queueQuestProgress(isPhrasal ? 'HARVEST_PHRASAL' : 'HARVEST_WORDS', 1, 'add');
         } catch (e) {
-          console.log('Quest progress update error:', e);
         }
 
         //  Firebase'e lifetimeHarvests sync - dynamic import yok
@@ -4219,7 +4242,6 @@ export const useFarmStore = create<FarmStore>()(
         };
         } catch (error) {
           traceEvent('harvest_word_error', { wordId: safeWordId, error: String(error) }, 'error');
-          console.error('[harvestWord] Error:', error);
           return null;
         } finally {
           _harvestInFlight.delete(safeWordId);
@@ -4389,7 +4411,6 @@ export const useFarmStore = create<FarmStore>()(
           newTier: pendingPuzzleMasterLevel,
         };
         } catch (error) {
-          console.error('[harvestPuzzleWord] Error:', error);
           return null;
         } finally {
           _puzzleHarvestInFlight.delete(safeWordId);
@@ -5577,6 +5598,7 @@ export const useFarmStore = create<FarmStore>()(
 
       }),
       onRehydrateStorage: () => (state) => {
+        storeHydrationComplete = true;
         //  QUEST ARRAY VALIDATION: Corrupted AsyncStorage protection
         if (state) {
           state.farm = toSafeWordArray(state.farm);

@@ -1827,7 +1827,6 @@ export function FarmScreen() {
       traceEvent('farm_feed_harvest_success', { wordId, coins: safeCoins, xp: safeXp });
     } catch (error) {
       traceEvent('farm_feed_harvest_error', { wordId, error: String(error) }, 'error');
-      console.error('[FarmScreen] handleFeedHarvest failed:', error);
     }
   }, [harvestWord, speakFirstMeaning, tutorialStep, setTutorialStep]);
 
@@ -2110,6 +2109,15 @@ export function FarmScreen() {
 
   const isSegmentLocked = tutorialStep !== 'COMPLETED' || isGuidedFarmStep;
   const isFilterPanelVisible = isHeaderVisible && isTopTabVisible;
+  const baseFarmListTopPadding = SCREEN_WIDTH < 375 ? 12 : 16;
+  const farmSafeTopPadding = Math.max(baseFarmListTopPadding, insets.top + 8);
+  const farmListContentStyle = useMemo(
+    () => [
+      styles.flashListContent,
+      { paddingTop: isFilterPanelVisible ? baseFarmListTopPadding : farmSafeTopPadding },
+    ],
+    [isFilterPanelVisible, baseFarmListTopPadding, farmSafeTopPadding]
+  );
   const headerOpacity = headerAnim.interpolate({
     inputRange: [0, 0.3, 1],
     outputRange: [0, 0.2, 1],
@@ -2150,8 +2158,6 @@ export function FarmScreen() {
     outputRange: [0, 12],
     extrapolate: 'clamp',
   });
-  const controlRowTopSpacing = Math.max(insets.top + 6, 10);
-
   return (
     <View style={styles.container}>
       {/* Animated background gradient */}
@@ -2192,7 +2198,10 @@ export function FarmScreen() {
         />
       </Animated.View>
 
-      <View style={[styles.sectionToggleRow, { top: controlRowTopSpacing }]} pointerEvents="box-none">
+      <View
+        style={[styles.sectionToggleRow, { right: Math.max(insets.right + 4, 6) }]}
+        pointerEvents="box-none"
+      >
         <TouchableOpacity
           style={[styles.sectionToggleChip, isNavbarVisible && styles.sectionToggleChipActive]}
           onPress={toggleNavbarVisibility}
@@ -2475,7 +2484,7 @@ export function FarmScreen() {
                 numColumns={gridColumns}
                 key={`farm-grid-${gridColumns}`}
                 renderItem={renderWordCard}
-                contentContainerStyle={styles.flashListContent}
+                contentContainerStyle={farmListContentStyle}
                 showsVerticalScrollIndicator={false}
                 scrollEventThrottle={16}
                 onScroll={handleFarmContentScroll}
@@ -2618,27 +2627,25 @@ const styles = StyleSheet.create({
   },
   sectionToggleRow: {
     position: 'absolute',
-    left: 8,
-    right: 8,
+    top: '50%',
+    transform: [{ translateY: -34 }],
     zIndex: 40,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 2,
+    alignItems: 'flex-end',
+    gap: 8,
   },
   sectionToggleChip: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.16)',
-    backgroundColor: 'rgba(7, 12, 22, 0.5)',
+    borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(7, 12, 22, 0.42)',
   },
   sectionToggleChipActive: {
-    borderColor: 'rgba(255,255,255,0.28)',
-    backgroundColor: 'rgba(12, 20, 34, 0.66)',
+    borderColor: 'rgba(255,255,255,0.32)',
+    backgroundColor: 'rgba(12, 20, 34, 0.56)',
   },
 
   //  APPLE SEGMENT CONTROL STYLES - iOS Native Feel

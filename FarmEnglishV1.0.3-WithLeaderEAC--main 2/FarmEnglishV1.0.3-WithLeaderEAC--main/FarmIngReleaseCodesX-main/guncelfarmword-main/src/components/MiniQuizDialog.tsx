@@ -1533,6 +1533,8 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
   const colorMsgTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const feedbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wrongAnswerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const closeBuildUpTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const yanindinPulseTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const meaningSpokenRef = useRef<string | null>(null);
   const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null); // 🗣️ Açılış speech timeout
   const runAfterInteractionsSafely = useCallback((callback: () => void) => {
@@ -1540,6 +1542,40 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     // InteractionManager defers could be canceled on unmount and drop session progression.
     callback();
   }, []);
+
+  const clearCloseBuildUpHaptics = useCallback(() => {
+    if (closeBuildUpTimeoutsRef.current.length === 0) return;
+    closeBuildUpTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+    closeBuildUpTimeoutsRef.current = [];
+  }, []);
+
+  const runCloseBuildUpHaptics = useCallback(() => {
+    // "Yanindin" -> kapanis arasina tatmin edici bir buildup.
+    clearCloseBuildUpHaptics();
+    closeBuildUpTimeoutsRef.current.push(
+      setTimeout(() => haptic.rigid(), 120),
+      setTimeout(() => haptic.heavy(), 220),
+      setTimeout(() => { haptic.success(); haptic.rigid(); }, 315),
+    );
+  }, [clearCloseBuildUpHaptics]);
+
+  const clearYanindinPulseHaptics = useCallback(() => {
+    if (yanindinPulseTimeoutsRef.current.length === 0) return;
+    yanindinPulseTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+    yanindinPulseTimeoutsRef.current = [];
+  }, []);
+
+  const triggerYanindinPulseHaptic = useCallback(() => {
+    clearYanindinPulseHaptics();
+    // Fire exactly when "YANINDIN!" appears, then a short heavy rumble.
+    haptic.heavy();
+    haptic.rigid();
+    yanindinPulseTimeoutsRef.current.push(
+      setTimeout(() => haptic.success(), 48),
+      setTimeout(() => { haptic.heavy(); haptic.rigid(); }, 96),
+      setTimeout(() => haptic.comboMega(0.18), 152),
+    );
+  }, [clearYanindinPulseHaptics]);
   
   // 🧹 Cleanup timeouts + TTS - MEMORY LEAK ÖNLEMİ
   useEffect(() => {
@@ -1552,11 +1588,19 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
       if (colorMsgTimeoutRef.current) clearTimeout(colorMsgTimeoutRef.current);
       if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
       if (wrongAnswerTimeoutRef.current) clearTimeout(wrongAnswerTimeoutRef.current);
+      clearCloseBuildUpHaptics();
+      clearYanindinPulseHaptics();
       if (speechTimeoutRef.current) clearTimeout(speechTimeoutRef.current);
       // 🗣️ Unmount'ta SADECE açılış speech'i durdur — kapanış TTS'i (Türkçe anlam) devam etsin
       // sound.stopSpeaking() KALDIRILDI — kapanışta başlayan Türkçe TTS'i öldürüyordu
     };
-  }, []);
+  }, [clearCloseBuildUpHaptics, clearYanindinPulseHaptics]);
+
+  useEffect(() => {
+    if (!showCombo || comboMessage.text !== 'YANINDIN!') return;
+    triggerYanindinPulseHaptic();
+    return clearYanindinPulseHaptics;
+  }, [showCombo, comboMessage.text, triggerYanindinPulseHaptic, clearYanindinPulseHaptics]);
 
   const speakFirstMeaningOnce = useCallback((wordToSpeak?: { id?: string; meaning?: string } | null) => {
     if (!wordToSpeak?.meaning) return;
@@ -1566,6 +1610,14 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
     if (meaningSpokenRef.current === speakKey) return;
     meaningSpokenRef.current = speakKey;
     sound.speakWord(firstMeaning, 'tr-TR');
+  }, []);
+
+  const triggerMiniQuizCloseHaptic = useCallback(() => {
+    // Strong close pulse + old satisfying drrrr pattern.
+    haptic.rigid();
+    haptic.heavy();
+    haptic.success();
+    haptic.comboMega(1.15);
   }, []);
 
   const handleOptionPress = useCallback((index: number, isCorrect: boolean) => {
@@ -1707,9 +1759,11 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
           setLevelFeedback({ type: 'levelUp', visible: true });
         }
         
-        // MEGA haptic celebration!
-        haptic.celebration();
+        // Bitiş haptic'i ekran kapanışıyla senkron tetiklenecek (onClose anında).
         sound.playHarvest(); // 🎉 Başarı sesi - harvest!
+        if (!feedMode) {
+          runCloseBuildUpHaptics();
+        }
 
         // 🎓 TUTORIAL: Renk değişikliği kontrolleri
         // colorLevel = başlangıç değeri + quiz içinde yapılan RENK değişimleri
@@ -1829,6 +1883,8 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
           // Bu sıralama kritik - Modal çakışmasını önler
           
           if (nextTutorialStep) {
+            // MiniQuiz final "drrrr" hissi - kapanışla senkron.
+            triggerMiniQuizCloseHaptic();
             onClose();
             
             // 🚀 Store güncellemelerini animasyon SONRASI yap (kasma önleme)
@@ -1862,7 +1918,8 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
             }
           }
           
-          // Normal kapanış
+          // Normal kapanış - final haptic kapanışla senkron.
+          triggerMiniQuizCloseHaptic();
           onClose();
           
           // 🚀 Store güncellemelerini animasyon bittikten SONRA yap
@@ -2001,12 +2058,11 @@ export const MiniQuizDialog: React.FC<MiniQuizDialogProps> = memo(({ word, allWo
         }
       }
     }
-  }, [showResult, localStreak, initialStreak, required, onAnswer, onClose, progressAnim, comboScaleAnim, comboOpacityAnim, feedMode, onNextWord, currentWord, runAfterInteractionsSafely]);
+  }, [showResult, localStreak, initialStreak, required, onAnswer, onClose, progressAnim, comboScaleAnim, comboOpacityAnim, feedMode, onNextWord, currentWord, runAfterInteractionsSafely, triggerMiniQuizCloseHaptic, runCloseBuildUpHaptics]);
 
   if (!currentWord) return null;
 
   // Debug log
-  // console.log('📖 MiniQuiz word:', currentWord.text, 'Example:', currentWord.example || 'NO EXAMPLE');
 
   const progressWidth = progressAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
   const rotation = rotateAnim.interpolate({ inputRange: [0, 0.1], outputRange: ['0deg', '6deg'] });

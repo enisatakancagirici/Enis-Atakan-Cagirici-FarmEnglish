@@ -894,7 +894,6 @@ export default function SesYapScreen() {
             setPendingMicStart(false);
             setMicModalState('startFailed');
         } catch (error) {
-            console.error('[SesYap] handleMicPress error:', error);
             clearRecordingTimers();
             isRecordingRef.current = false;
             setIsRecording(false);
@@ -1038,7 +1037,6 @@ export default function SesYapScreen() {
                 }
             }
         } catch (error) {
-            console.error('[SesYap] processRecording error:', error);
         } finally {
             if (isMountedRef.current) {
                 setIsProcessing(false);

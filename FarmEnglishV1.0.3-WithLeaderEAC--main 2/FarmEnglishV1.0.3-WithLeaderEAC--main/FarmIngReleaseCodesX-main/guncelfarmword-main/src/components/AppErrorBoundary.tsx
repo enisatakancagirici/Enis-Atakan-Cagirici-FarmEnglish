@@ -21,7 +21,6 @@ export class AppErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     try {
-      console.error('[AppErrorBoundary]', error, errorInfo);
       traceEvent(
         'react_error_boundary',
         {

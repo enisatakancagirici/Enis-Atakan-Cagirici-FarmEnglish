@@ -183,6 +183,20 @@ const QUESTION_COUNT = 10;
 
 const isSmallScreen = SCREEN_TYPE === 'small';
 
+const BATTLE_THEME = {
+    background: ['#05070f', '#0f172a', '#1a1024'] as const,
+    textMain: '#f8fafc',
+    textMuted: 'rgba(203, 213, 225, 0.78)',
+    panel: 'rgba(15, 23, 42, 0.72)',
+    panelStrong: 'rgba(10, 14, 28, 0.92)',
+    panelBorder: 'rgba(148, 163, 184, 0.26)',
+    accent: '#fb7185',
+    ally: '#22c55e',
+    enemy: '#f43f5e',
+    warning: '#f59e0b',
+    timer: ['#ef4444', '#f97316', '#f59e0b', '#22c55e'] as const,
+};
+
 // Timer Bar Component (QuizScreen stili)
 
 const TimerBar = memo(({ duration, onTimeUp, isPaused }: { duration: number; onTimeUp: () => void; isPaused: boolean }) => {
@@ -231,7 +245,7 @@ const TimerBar = memo(({ duration, onTimeUp, isPaused }: { duration: number; onT
 
         inputRange: [0, 0.3, 0.6, 1],
 
-        outputRange: ['#ff4444', '#ff8800', '#f59e0b', '#22c55e'],
+        outputRange: [...BATTLE_THEME.timer],
 
     });
 
@@ -343,25 +357,25 @@ const OptionButton = memo(({
 
     const backgroundColor = useMemo(() => {
 
-        if (!showResult) return 'rgba(255, 255, 255, 0.08)';
+        if (!showResult) return 'rgba(15, 23, 42, 0.84)';
 
-        if (isCorrect) return 'rgba(52, 199, 89, 0.8)'; // Green
+        if (isCorrect) return 'rgba(34, 197, 94, 0.3)';
 
-        if (isSelected) return 'rgba(255, 69, 58, 0.8)'; // Red
+        if (isSelected) return 'rgba(244, 63, 94, 0.32)';
 
-        return 'rgba(255, 255, 255, 0.08)';
+        return 'rgba(15, 23, 42, 0.84)';
 
     }, [showResult, isCorrect, isSelected]);
 
     const borderColor = useMemo(() => {
 
-        if (!showResult) return 'rgba(255, 255, 255, 0.12)';
+        if (!showResult) return 'rgba(148, 163, 184, 0.34)';
 
-        if (isCorrect) return '#34c759';
+        if (isCorrect) return BATTLE_THEME.ally;
 
-        if (isSelected) return '#ff453a';
+        if (isSelected) return BATTLE_THEME.enemy;
 
-        return 'rgba(255, 255, 255, 0.12)';
+        return 'rgba(148, 163, 184, 0.34)';
 
     }, [showResult, isCorrect, isSelected]);
 
@@ -415,9 +429,9 @@ const OptionButton = memo(({
 
                 {showResult && isCorrect && (
 
-                    <View style={[styles.resultIcon, { backgroundColor: 'rgba(52, 199, 89, 0.2)', width: RS.resultIconSize, height: RS.resultIconSize }]}>
+                    <View style={[styles.resultIcon, { backgroundColor: 'rgba(34, 197, 94, 0.2)', width: RS.resultIconSize, height: RS.resultIconSize }]}>
 
-                        <Check color="#34c759" size={RS.resultIconSize * 0.7} strokeWidth={3} />
+                        <Check color={BATTLE_THEME.ally} size={RS.resultIconSize * 0.7} strokeWidth={3} />
 
                     </View>
 
@@ -425,9 +439,9 @@ const OptionButton = memo(({
 
                 {showResult && isSelected && !isCorrect && (
 
-                    <View style={[styles.resultIcon, { backgroundColor: 'rgba(255, 69, 58, 0.2)', width: RS.resultIconSize, height: RS.resultIconSize }]}>
+                    <View style={[styles.resultIcon, { backgroundColor: 'rgba(244, 63, 94, 0.2)', width: RS.resultIconSize, height: RS.resultIconSize }]}>
 
-                        <X color="#ff453a" size={RS.resultIconSize * 0.7} strokeWidth={3} />
+                        <X color={BATTLE_THEME.enemy} size={RS.resultIconSize * 0.7} strokeWidth={3} />
 
                     </View>
 
@@ -483,15 +497,15 @@ const BattleHeader = memo(({
 
     let message = 'VS';
 
-    let messageColor = '#8b5cf6';
+    let messageColor = BATTLE_THEME.warning;
 
-    if (scoreDiff >= 200) { message = t('🔥 Harika!', '🔥 Harika!'); messageColor = '#22c55e'; }
+    if (scoreDiff >= 200) { message = t('🔥 Harika!', '🔥 Harika!'); messageColor = BATTLE_THEME.ally; }
 
-    else if (scoreDiff > 0) { message = t('👍 Öndesin', '👍 Öndesin'); messageColor = '#22c55e'; }
+    else if (scoreDiff > 0) { message = t('👍 Öndesin', '👍 Öndesin'); messageColor = BATTLE_THEME.ally; }
 
-    else if (scoreDiff <= -200) { message = t('😰 Hızlan!', '😰 Hızlan!'); messageColor = '#ef4444'; }
+    else if (scoreDiff <= -200) { message = t('😰 Hızlan!', '😰 Hızlan!'); messageColor = BATTLE_THEME.enemy; }
 
-    else if (scoreDiff < 0) { message = t('⚡ Yakala!', '⚡ Yakala!'); messageColor = '#f59e0b'; }
+    else if (scoreDiff < 0) { message = t('⚡ Yakala!', '⚡ Yakala!'); messageColor = BATTLE_THEME.warning; }
 
     return (
 
@@ -505,7 +519,7 @@ const BattleHeader = memo(({
 
                     <TouchableOpacity onPress={onExit} style={styles.exitButtonHeader}>
 
-                        <X color="#ef4444" size={24} />
+                        <X color={BATTLE_THEME.enemy} size={24} />
 
                     </TouchableOpacity>
 
@@ -533,7 +547,7 @@ const BattleHeader = memo(({
 
             <View style={styles.vsContainer}>
 
-                <Swords color="#8b5cf6" size={RS.exitButtonSize * 0.8} />
+                <Swords color={BATTLE_THEME.accent} size={RS.exitButtonSize * 0.8} />
 
                 <Text style={[styles.vsText, { color: messageColor, fontSize: RS.labelFont }]}>{message}</Text>
 
@@ -667,7 +681,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
     // 🛡️ Safe endBattle wrapper - prevents multiple calls
     const safeEndBattle = useCallback((result: 'win' | 'loss' | 'draw', oppScore: number, isDisconnect: boolean = false) => {
         if (endBattleCalledRef.current) {
-            console.log('[Battle] 🛡️ endBattle already called, ignoring duplicate');
             return;
         }
         endBattleCalledRef.current = true;
@@ -742,7 +755,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                 setOpponentBattleTitle(opponentRank ? getPlayerTitle(opponentRank, 'battle') : null);
             } catch (error) {
                 if (isCancelled) return;
-                console.warn('[Battle] Loading rank fetch failed:', error);
                 setMyBattleRank(undefined);
                 setOpponentBattleRank(undefined);
                 setMyBattleTitle(null);
@@ -798,7 +810,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
         try {
             await sendBattleEmoji(battleId, safeUserId, emoji);
         } catch (error) {
-            console.error('[Battle] send emoji failed:', error);
         }
 
         // 3 saniye cooldown
@@ -885,7 +896,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                 // Fire-and-forget: Do not await, exit immediately
 
-                                abandonBattle(currentBattleId, currentUser.odId, isHost).catch(e => console.error('Abandon error:', e));
+                                abandonBattle(currentBattleId, currentUser.odId, isHost).catch(() => {});
 
                             }
 
@@ -918,13 +929,12 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                 if (currentBattleId && currentUser?.odId) {
 
-                    console.log('[Battle] Matched state exit -> Abandoning');
 
                     // Logic: If I am the host (my ID is first after 'battle_'), I must abandon.
 
                     const isHost = currentBattleId.startsWith(`battle_${currentUser.odId}`);
 
-                    abandonBattle(currentBattleId, currentUser.odId, isHost).catch(e => console.error('Abandon error:', e));
+                    abandonBattle(currentBattleId, currentUser.odId, isHost).catch(() => {});
 
                 }
 
@@ -990,7 +1000,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                         if (currentBattleState === 'finished') return; // Don't show abandoned alert on result screen
                         isExiting.current = true;
 
-                        console.log('[FriendBattle] Oda kapandı/terk edildi.');
 
                         Alert.alert(
 
@@ -1030,19 +1039,15 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                         if (isFinishedProcessing.current) return;
                         isFinishedProcessing.current = true;
 
-                        console.log('[FriendBattle] Battle finished, showing result screen...');
 
                         // 🛡️ IMMEDIATELY set state to finished to prevent UI flash
                         setBattleState('finished');
 
                         // Settle delay + fresh data fetch (same logic as quick match)
-                        console.log('[FriendBattle] ⏳ Starting 2.5s settle delay...');
                         setTimeout(async () => {
                             try {
-                                console.log('[FriendBattle] ⏳ Settle delay complete, fetching fresh data...');
 
                                 const freshBattle = await getBattleFresh(battle.id);
-                                console.log('[FriendBattle] 📥 Fresh battle fetched:', freshBattle ? 'success' : 'null (using listener data)');
 
                                 const finalData = freshBattle || battle;
 
@@ -1054,7 +1059,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                                 const isUserHost = user?.odId === finalData.hostId;
                                 const finalWinnerId: string | null = finalData.winnerId ?? null;
 
-                                console.log(`[FriendBattle] 📊 FINAL RESULT - Host: ${finalHostScore}, Guest: ${finalGuestScore}, Winner: ${finalWinnerId || 'DRAW'}`);
 
                                 const authoritativeFinalData = {
                                     ...finalData,
@@ -1073,10 +1077,8 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                                     else result = 'loss';
                                 }
 
-                                console.log('[FriendBattle] 🏁 Calling endBattle with result:', result);
                                 safeEndBattle(result, freshOppScore || 0, false);
                             } catch (err) {
-                                console.error('[FriendBattle] ❌ Error in settle delay:', err);
                                 // Fallback: use listener data directly
                                 setFinalBattleData(battle);
                                 safeEndBattle('draw', 0, false);
@@ -1086,7 +1088,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                 }, (error) => {
                     // 🛡️ Safe error handler - don't crash the app
-                    console.error('[FriendBattle] Listener error:', error?.message || error);
                     if (!isExiting.current) {
                         Alert.alert('Bağlantı Hatası', 'Savaş verisi alınamadı. Lütfen tekrar deneyin.', [{ text: 'Tamam', onPress: () => { resetBattle(); navigation.goBack(); } }], { cancelable: false });
                     }
@@ -1184,23 +1185,19 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                             const myId = safeUserId;
 
                             if (incomingHostId > myId) {
-                                console.log(`[Matchmaking] Race condition: Yielding to larger ID (${incomingHostId} > ${myId}). Abandoning local host.`);
                                 // Stop our hosting logic
                                 if (searchInterval) clearInterval(searchInterval);
                                 // We need to cancel our created battle? 
                                 // Ideally yes, but we might just overwrite state. 
                                 // Proceed to join the incoming battle.
                             } else {
-                                console.log(`[Matchmaking] Race condition: Ignoring invite from smaller ID (${incomingHostId} < ${myId}). Keeping local host.`);
                                 return;
                             }
                         } catch (e) {
-                            console.error('Error parsing battleId for tie-breaker:', e);
                             return; // Fallback to sticking with our choice
                         }
                     }
 
-                    console.log('[Matchmaking] Davet alındı (Joining):', battleId);
 
                     isMatchFound = true; // Diğer aramayı durdur, başarı
 
@@ -1218,7 +1215,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                         const battleSnap = await getDoc(battleRef);
 
                         if (!battleSnap.exists()) {
-                            console.warn('[Matchmaking] Battle doc does not exist, ignoring invite');
                             isMatchFound = false;
                             return;
                         }
@@ -1228,7 +1224,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                             // 🛡️ Guard: questions must exist
                             if (!battleData?.questions || !Array.isArray(battleData.questions) || battleData.questions.length === 0) {
-                                console.error('[Matchmaking] Battle has no questions, ignoring');
                                 isMatchFound = false;
                                 return;
                             }
@@ -1282,7 +1277,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                 if (!snap.exists() || data?.status === 'abandoned') {
 
-                                    console.log('[Matchmaking] Oda countdown sırasında kapandı (Guest detected via Listener).');
 
                                     if (safetyUnsubscribe) safetyUnsubscribe();
 
@@ -1338,10 +1332,9 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                         checkBattleStatus();
 
-                    } catch (e) { console.error('Davet katılma hatası:', e); }
+                    } catch (e) { }
 
                 }, (error: any) => {
-                    console.error('[Matchmaking] Listener error:', error);
                     if (!isCancelled && !isExiting.current) {
                         cancelMatchmaking();
                         Alert.alert('Bağlantı Hatası', 'Eşleşme dinlenirken hata oluştu. Tekrar deneyin.', [
@@ -1367,7 +1360,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                     if (opponent && !isCancelled && !isMatchFound) {
 
-                        console.log('[Matchmaking] Rakip bulundu (Aktif):', opponent.nickname);
 
                         // Odayı Kur (HOST benim)
 
@@ -1379,7 +1371,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                         // 🛡️ Guard: questions must be valid
                         if (!questions || questions.length === 0) {
-                            console.error('[Matchmaking] No questions generated, cannot create battle');
                             isFinding = false;
                             return;
                         }
@@ -1426,7 +1417,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                             if (!notifySuccess) {
 
-                                console.log('[Matchmaking] Rakip düşmüş, oda siliniyor ve aramaya devam ediliyor...');
 
                                 await deleteDoc(battleRef);
 
@@ -1470,7 +1460,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                 if (data?.status === 'abandoned' && !isCancelled && !isExiting.current) {
 
-                                    console.log('[Matchmaking] Host detected abandonment by Guest during countdown.');
 
                                     if (safetyUnsubscribe) safetyUnsubscribe();
 
@@ -1512,9 +1501,8 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                 if (isCancelled || isExiting.current) {
 
-                                    console.log('[Matchmaking] Countdown sırasında iptal edildi. Oda status=abandoned yapılıyor.');
 
-                                    abandonBattle(battleId, safeUserId, true).catch(console.error);
+                                    abandonBattle(battleId, safeUserId, true).catch(() => {});
 
                                     return;
 
@@ -1530,7 +1518,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                     if (finalData?.status === 'abandoned') {
 
-                                        console.log('[Matchmaking] Host detected abandonment at FINAL CHECK.');
 
                                         Alert.alert(
 
@@ -1560,7 +1547,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                                     }
 
-                                } catch (e) { console.error('Final check failed', e); }
+                                } catch (e) { }
 
                                 setBattleState('inProgress');
 
@@ -1568,7 +1555,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                         } catch (e) {
 
-                            console.error(e);
 
                             isFinding = false;
 
@@ -1580,7 +1566,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                     }
                     } catch (searchError) {
-                        console.error('[Matchmaking] findOpponent loop error:', searchError);
                     } finally {
                         if (!isMatchFound) {
                             isFinding = false;
@@ -1590,7 +1575,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                 }, 2000);
 
             } catch (e) {
-                console.error('[Matchmaking] startRealMatchmaking error:', e);
                 if (!isCancelled && !isExiting.current) {
                     cancelMatchmaking();
                     Alert.alert('Bağlantı Hatası', 'Eşleşme başlatılırken hata oluştu. Tekrar deneyin.', [
@@ -1640,7 +1624,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
         const isUserHost = currentUser.odId === hostId;
 
-        console.log('[Battle] Sync started. I am host:', isUserHost, 'HostID:', hostId, 'MyID:', currentUser.odId);
 
         // 🛡 LOCAL CONNECTION MONITORING
 
@@ -1650,7 +1633,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
             if (state.isConnected === false && battleState === 'inProgress') {
 
-                console.warn('[Battle] ⚠ Local connection lost!');
 
                 Alert.alert(
 
@@ -1682,14 +1664,12 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
             if (battleState === 'inProgress' && nextAppState === "background") {
 
-                console.log("[Battle] ⚠ App going background/inactive - Signaling abandon!");
 
                 try {
                     if (currentUser?.odId) {
                         await abandonBattle(battleId, currentUser.odId, isUserHost);
                     }
                 } catch (err) {
-                    console.error('[Battle] AppState abandonBattle error:', err);
                 }
 
             }
@@ -1727,7 +1707,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                 if (timeDiff > 25000) { // 25 seconds timeout (increased from 15s)
 
-                    console.warn(`[Battle] 💀 Opponent dead man switch triggered! Silent for ${Math.round(timeDiff / 1000)}s`);
 
                     // Trigger disconnect handling locally
 
@@ -1766,14 +1745,12 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
             const myProg = isUserHost ? (battle.hostProgress || 0) : (battle.guestProgress || 0);
 
             if (myProg >= totalQ && oppProgress >= totalQ && battle.status === 'inProgress') {
-                console.warn('[Battle] 🛡️ Client detected deadlock (Both 10/10) - Triggering Transactional Finish...');
                 // Calling this is safe now because it is Idempotent & Transactional
                 finishBattleWithRewards(battle.id)
-                    .then(res => console.log('[Battle] Deadlock resolved via Client Trigger:', res))
-                    .catch(err => console.error('[Battle] Deadlock resolution failed:', err));
+                    .then(() => {})
+                    .catch(() => {});
             }
 
-            // console.log('[Battle] Rakip verisi alındı:', { oppScore, oppProgress });
 
             if (updateRemoteOpponentProgress) {
 
@@ -1787,11 +1764,9 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                 });
 
-                // console.log('[Battle] updateRemoteOpponentProgress çağrıldı');
 
             } else {
 
-                console.warn('[Battle] updateRemoteOpponentProgress tanımsız!');
 
             }
 
@@ -1918,7 +1893,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                 setTimeout(async () => {
                     if (isExiting.current) return;
 
-                    console.log('[Battle] 🔄 Fetching fresh battle data after settle delay...');
 
                     // Fetch absolutely latest data from Firebase
                     const freshBattle = await getBattleFresh(battle.id);
@@ -1936,13 +1910,11 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                     // If winnerId is explicitly set (even null for draw), use it
                     // only calculate locally if winnerId was never set at all
                     if (finalData.winnerId === undefined) {
-                        console.log('[Battle] ⚠️ Server winnerId undefined, using local calculation');
                         if (finalHostScore > finalGuestScore) finalWinnerId = finalData.hostId;
                         else if (finalGuestScore > finalHostScore) finalWinnerId = finalData.guestId;
                         else finalWinnerId = null; // draw
                     }
 
-                    console.log(`[Battle] 📊 FINAL RESULT (Server Priority) - Host: ${finalHostScore}, Guest: ${finalGuestScore}, ServerWinner: ${finalData.winnerId || 'DRAW'}, UsedWinner: ${finalWinnerId || 'DRAW'}`);
 
                     // Update finalData with calculated scores (for display) but keep server winnerId
                     const authoritativeFinalData = {
@@ -1972,7 +1944,6 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
         }, (error) => {
             // 🛡️ Safe error handler - don't crash the app
-            console.error('[Battle] Sync listener error:', error?.message || error);
         });
 
         return () => {
@@ -2085,23 +2056,19 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                         // Benign race condition - battle ended while answering
 
-                        console.log('[Battle] ℹ️ Cevap gönderilemedi: Savaş zaten bitti.');
 
                     } else {
 
-                        console.error('[Battle] ❌ Cevap sunucuda reddedildi:', result.error);
 
                     }
 
                 } else {
 
-                    console.log(`[Battle] ✅ Cevap onaylandı, Yeni Skor: ${result.newScore}`);
 
                 }
 
             }).catch(error => {
 
-                console.error('[Battle] 💥 Kritik hata:', error);
 
             });
 
@@ -2140,11 +2107,9 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
         let timeout2: NodeJS.Timeout;
 
         if (battleState === 'inProgress' && currentQuestionIndex >= QUESTION_COUNT) {
-            console.log('[Battle] Watchdog activated: Waiting for server completion...');
 
             // 🔄 STAGE 1: Try resubmitting last answer after 2s
             timeout1 = setTimeout(() => {
-                console.warn('[Battle] 🚨 Watchdog Stage 1: Force resubmitting last answer...');
 
                 const battleId = useFarmStore.getState().battleId;
                 const user = useFarmStore.getState().user;
@@ -2169,9 +2134,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                         timeToResubmit
                     ).then(res => {
                         if (!res.success && res.error === 'BATTLE_NOT_ACTIVE') return;
-                        console.log('[Battle] Watchdog Stage 1 result:', res);
                     }).catch(err => {
-                        console.error('[Battle] Watchdog Stage 1 failed:', err);
                     });
                 }
             }, 2000);
@@ -2180,13 +2143,12 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
             timeout2 = setTimeout(() => {
                 const currentState = useFarmStore.getState().battleState;
                 if (currentState !== 'finished') {
-                    console.warn('[Battle] 🚨 Watchdog Stage 2: Force calling finishBattleWithRewards...');
 
                     const battleId = useFarmStore.getState().battleId;
                     if (battleId && !battleId.startsWith('local-')) {
                         finishBattleWithRewards(battleId)
-                            .then(res => console.log('[Battle] Watchdog Stage 2 result:', res))
-                            .catch(err => console.error('[Battle] Watchdog Stage 2 failed:', err));
+                            .then(() => {})
+                            .catch(() => {});
                     }
                 }
             }, 4000);
@@ -2246,13 +2208,13 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
             <SafeAreaView style={styles.container}>
 
-                <LinearGradient colors={['#1a1b2e', '#16213e']} style={styles.gradient} />
+                <LinearGradient colors={BATTLE_THEME.background} style={styles.gradient} />
 
                 <View style={styles.waitingOverlay}>
 
                     <View style={styles.waitingContainer}>
 
-                        <ActivityIndicator size="large" color="#ffffff" style={{ marginBottom: 20 }} />
+                        <ActivityIndicator size="large" color={BATTLE_THEME.accent} style={{ marginBottom: 20 }} />
 
                         <Text style={styles.waitingTitle}>Müthiş Hız! 🚀</Text>
 
@@ -2284,9 +2246,9 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
                         </View>
 
-                        <Pressable style={[styles.cancelButton, { marginTop: 40, backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.5)' }]} onPress={handleExit}>
+                        <Pressable style={[styles.cancelButton, { marginTop: 40 }]} onPress={handleExit}>
 
-                            <Text style={[styles.cancelButtonText, { color: '#ef4444' }]}>Çıkış Yap</Text>
+                            <Text style={styles.cancelButtonText}>Çıkış Yap</Text>
 
                         </Pressable>
 
@@ -2303,10 +2265,10 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
     if (battleState === 'inProgress' && !currentQuestion) {
         return (
             <SafeAreaView style={styles.container}>
-                <LinearGradient colors={['#1a1b2e', '#16213e']} style={styles.gradient} />
+                <LinearGradient colors={BATTLE_THEME.background} style={styles.gradient} />
                 <View style={styles.waitingOverlay}>
                     <View style={styles.waitingContainer}>
-                        <ActivityIndicator size="large" color="#ffffff" style={{ marginBottom: 20 }} />
+                        <ActivityIndicator size="large" color={BATTLE_THEME.accent} style={{ marginBottom: 20 }} />
                         <Text style={styles.waitingTitle}>Savaş Hazırlanıyor...</Text>
                         <Text style={styles.waitingSubtitle}>Rakip bulundu, sorular yükleniyor.</Text>
                     </View>
@@ -2323,7 +2285,7 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
 
             <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
 
-                <LinearGradient colors={['#1a1b2e', '#16213e']} style={styles.gradient} />
+                <LinearGradient colors={BATTLE_THEME.background} style={styles.gradient} />
 
                 {/* Header */}
 
@@ -2426,10 +2388,8 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
                     style={[
                         styles.emojiButton,
                         emojiCooldown && styles.emojiButtonDisabled,
-                        { backgroundColor: '#8b5cf6' } // More visible purple
                     ]}
                     onPress={() => {
-                        console.log('🎭 Emoji button pressed!');
                         if (!emojiCooldown) {
                             haptic.light();
                             setShowEmojiPicker(!showEmojiPicker);
@@ -2488,10 +2448,10 @@ export const BattleScreen: React.FC<any> = ({ navigation, route }) => {
         if (!finalBattleData) {
             return (
                 <SafeAreaView style={styles.container}>
-                    <LinearGradient colors={['#1a1b2e', '#16213e']} style={styles.gradient} />
+                    <LinearGradient colors={BATTLE_THEME.background} style={styles.gradient} />
                     <View style={styles.waitingOverlay}>
                         <View style={styles.waitingContainer}>
-                            <ActivityIndicator size="large" color="#ffffff" style={{ marginBottom: 20 }} />
+                            <ActivityIndicator size="large" color={BATTLE_THEME.accent} style={{ marginBottom: 20 }} />
                             <Text style={styles.waitingTitle}>Sonuç Hesaplanıyor... ⏳</Text>
                             <Text style={styles.waitingSubtitle}>Lütfen bekleyin</Text>
                         </View>
@@ -2624,7 +2584,7 @@ const styles = StyleSheet.create({
 
         flex: 1,
 
-        backgroundColor: '#1a1b2e',
+        backgroundColor: BATTLE_THEME.background[0],
 
     },
 
@@ -2646,11 +2606,21 @@ const styles = StyleSheet.create({
 
         paddingVertical: 12,
 
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: BATTLE_THEME.panel,
 
         borderBottomWidth: 1,
 
-        borderBottomColor: 'rgba(255,255,255,0.05)',
+        borderBottomColor: BATTLE_THEME.panelBorder,
+
+        shadowColor: '#000',
+
+        shadowOffset: { width: 0, height: 8 },
+
+        shadowOpacity: 0.28,
+
+        shadowRadius: 16,
+
+        elevation: 8,
 
     },
 
@@ -2676,9 +2646,9 @@ const styles = StyleSheet.create({
 
     playerName: {
 
-        color: '#94a3b8',
+        color: BATTLE_THEME.textMuted,
 
-        fontWeight: '600',
+        fontWeight: '700',
 
     },
 
@@ -2686,15 +2656,15 @@ const styles = StyleSheet.create({
 
         textAlign: 'right',
 
-        color: '#94a3b8',
+        color: BATTLE_THEME.textMuted,
 
     },
 
     playerScore: {
 
-        color: '#fff',
+        color: BATTLE_THEME.textMain,
 
-        fontWeight: 'bold',
+        fontWeight: '900',
 
     },
 
@@ -2702,7 +2672,7 @@ const styles = StyleSheet.create({
 
         textAlign: 'right',
 
-        color: '#fff',
+        color: BATTLE_THEME.textMain,
 
     },
 
@@ -2712,7 +2682,7 @@ const styles = StyleSheet.create({
 
         height: 6,
 
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
 
         borderRadius: 3,
 
@@ -2732,19 +2702,19 @@ const styles = StyleSheet.create({
 
     myProgressBar: {
 
-        backgroundColor: '#22c55e',
+        backgroundColor: BATTLE_THEME.ally,
 
     },
 
     opponentProgressBar: {
 
-        backgroundColor: '#ef4444',
+        backgroundColor: BATTLE_THEME.enemy,
 
     },
 
     progressText: {
 
-        color: 'rgba(255,255,255,0.5)',
+        color: 'rgba(203, 213, 225, 0.62)',
 
         fontSize: 10,
 
@@ -2762,9 +2732,13 @@ const styles = StyleSheet.create({
 
     vsText: {
 
-        fontWeight: 'bold',
+        fontWeight: '900',
 
         marginTop: 4,
+
+        textTransform: 'uppercase',
+
+        letterSpacing: 0.3,
 
     },
 
@@ -2788,7 +2762,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: '#fff',
+        color: BATTLE_THEME.textMain,
 
         marginTop: 30,
 
@@ -2800,7 +2774,7 @@ const styles = StyleSheet.create({
 
         fontSize: 16,
 
-        color: '#94a3b8',
+        color: BATTLE_THEME.textMuted,
 
         marginBottom: 30,
 
@@ -2812,21 +2786,21 @@ const styles = StyleSheet.create({
 
         paddingHorizontal: 30,
 
-        backgroundColor: 'rgba(255, 69, 58, 0.2)',
+        backgroundColor: 'rgba(127, 29, 29, 0.35)',
 
-        borderRadius: 20,
+        borderRadius: 14,
 
         borderWidth: 1,
 
-        borderColor: 'rgba(255, 69, 58, 0.5)',
+        borderColor: 'rgba(251, 113, 133, 0.65)',
 
     },
 
     cancelButtonText: {
 
-        color: '#ff453a',
+        color: '#fecaca',
 
-        fontWeight: '600',
+        fontWeight: '700',
 
     },
 
@@ -2848,13 +2822,17 @@ const styles = StyleSheet.create({
 
         width: '100%',
 
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
 
-        borderRadius: 4,
+        borderRadius: 8,
 
         marginBottom: 10,
 
         overflow: 'hidden',
+
+        borderWidth: 1,
+
+        borderColor: 'rgba(148, 163, 184, 0.26)',
 
     },
 
@@ -2862,25 +2840,33 @@ const styles = StyleSheet.create({
 
         height: '100%',
 
-        borderRadius: 4,
+        borderRadius: 8,
 
     },
 
     questionText: {
 
-        color: '#fff',
+        color: BATTLE_THEME.textMain,
 
-        fontWeight: 'bold',
+        fontWeight: '900',
 
         textAlign: 'center',
 
         marginBottom: 8,
 
+        letterSpacing: 0.4,
+
+        textShadowColor: 'rgba(251, 113, 133, 0.22)',
+
+        textShadowOffset: { width: 0, height: 0 },
+
+        textShadowRadius: 8,
+
     },
 
     questionHint: {
 
-        color: '#94a3b8',
+        color: BATTLE_THEME.textMuted,
 
         fontSize: 14,
 
@@ -2904,21 +2890,31 @@ const styles = StyleSheet.create({
 
         justifyContent: 'center',
 
-        borderRadius: 16,
+        borderRadius: 18,
 
-        borderWidth: 1.5,
+        borderWidth: 1.8,
 
         width: '100%',
 
         position: 'relative',
 
+        shadowColor: '#000',
+
+        shadowOffset: { width: 0, height: 8 },
+
+        shadowOpacity: 0.22,
+
+        shadowRadius: 12,
+
+        elevation: 6,
+
     },
 
     optionText: {
 
-        color: '#fff',
+        color: BATTLE_THEME.textMain,
 
-        fontWeight: '600',
+        fontWeight: '700',
 
         textAlign: 'center',
 
@@ -2954,29 +2950,33 @@ const styles = StyleSheet.create({
 
         padding: 16,
 
-        backgroundColor: '#ef4444',
+        backgroundColor: BATTLE_THEME.enemy,
 
-        borderRadius: 12,
+        borderRadius: 14,
 
     },
 
     exitButtonHeader: {
 
-        padding: 4,
+        padding: 6,
 
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        backgroundColor: 'rgba(244, 63, 94, 0.22)',
 
-        borderRadius: 8,
+        borderRadius: 12,
 
         marginRight: 4,
+
+        borderWidth: 1,
+
+        borderColor: 'rgba(251, 113, 133, 0.4)',
 
     },
 
     exitButtonText: {
 
-        color: '#fff',
+        color: BATTLE_THEME.textMain,
 
-        fontWeight: 'bold',
+        fontWeight: '900',
 
     },
 
@@ -2994,7 +2994,7 @@ const styles = StyleSheet.create({
 
         bottom: 0,
 
-        backgroundColor: 'rgba(0,0,0,0.85)',
+        backgroundColor: 'rgba(3, 7, 18, 0.9)',
 
         zIndex: 50,
 
@@ -3014,6 +3014,24 @@ const styles = StyleSheet.create({
 
         maxWidth: 400,
 
+        backgroundColor: BATTLE_THEME.panelStrong,
+
+        borderWidth: 1,
+
+        borderColor: 'rgba(251, 113, 133, 0.24)',
+
+        borderRadius: 20,
+
+        shadowColor: '#000',
+
+        shadowOffset: { width: 0, height: 14 },
+
+        shadowOpacity: 0.36,
+
+        shadowRadius: 22,
+
+        elevation: 12,
+
     },
 
     waitingTitle: {
@@ -3022,7 +3040,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: '#fff',
+        color: BATTLE_THEME.textMain,
 
         marginBottom: 10,
 
@@ -3034,7 +3052,7 @@ const styles = StyleSheet.create({
 
         fontSize: 16,
 
-        color: 'rgba(255,255,255,0.7)',
+        color: BATTLE_THEME.textMuted,
 
         textAlign: 'center',
 
@@ -3046,7 +3064,7 @@ const styles = StyleSheet.create({
 
         width: '100%',
 
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.85)',
 
         padding: 20,
 
@@ -3054,7 +3072,7 @@ const styles = StyleSheet.create({
 
         borderWidth: 1,
 
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: BATTLE_THEME.panelBorder,
 
     },
 
@@ -3062,7 +3080,7 @@ const styles = StyleSheet.create({
 
         fontSize: 14,
 
-        color: 'rgba(255,255,255,0.9)',
+        color: BATTLE_THEME.textMain,
 
         marginBottom: 10,
 
@@ -3072,9 +3090,9 @@ const styles = StyleSheet.create({
 
         height: 8,
 
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.95)',
 
-        borderRadius: 4,
+        borderRadius: 6,
 
         width: '100%',
 
@@ -3088,9 +3106,9 @@ const styles = StyleSheet.create({
 
         height: '100%',
 
-        backgroundColor: '#ef4444',
+        backgroundColor: BATTLE_THEME.enemy,
 
-        borderRadius: 4,
+        borderRadius: 6,
 
     },
 
@@ -3098,7 +3116,7 @@ const styles = StyleSheet.create({
 
         fontSize: 12,
 
-        color: 'rgba(255,255,255,0.5)',
+        color: BATTLE_THEME.textMuted,
 
         textAlign: 'right',
 
@@ -3132,7 +3150,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: 'white',
+        color: BATTLE_THEME.textMain,
 
         marginBottom: 10,
 
@@ -3144,7 +3162,7 @@ const styles = StyleSheet.create({
 
         fontSize: RS.optionFont,
 
-        color: 'rgba(255, 255, 255, 0.9)',
+        color: BATTLE_THEME.textMuted,
 
         textAlign: 'center',
 
@@ -3170,7 +3188,7 @@ const styles = StyleSheet.create({
 
     scoreCard: {
 
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        backgroundColor: 'rgba(15, 23, 42, 0.88)',
 
         borderRadius: 16,
 
@@ -3180,11 +3198,15 @@ const styles = StyleSheet.create({
 
         minWidth: 120,
 
+        borderWidth: 1,
+
+        borderColor: BATTLE_THEME.panelBorder,
+
     },
 
     opponentScoreCard: {
 
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(30, 41, 59, 0.82)',
 
     },
 
@@ -3192,7 +3214,7 @@ const styles = StyleSheet.create({
 
         fontSize: RS.labelFont,
 
-        color: 'rgba(255, 255, 255, 0.8)',
+        color: BATTLE_THEME.textMuted,
 
         marginBottom: 8,
 
@@ -3204,7 +3226,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: 'white',
+        color: BATTLE_THEME.textMain,
 
     },
 
@@ -3214,7 +3236,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: 'white',
+        color: BATTLE_THEME.accent,
 
         marginHorizontal: 20,
 
@@ -3222,7 +3244,7 @@ const styles = StyleSheet.create({
 
     statsBox: {
 
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
 
         borderRadius: 16,
 
@@ -3232,6 +3254,10 @@ const styles = StyleSheet.create({
 
         marginBottom: 40,
 
+        borderWidth: 1,
+
+        borderColor: BATTLE_THEME.panelBorder,
+
     },
 
     statsTitle: {
@@ -3240,7 +3266,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: 'white',
+        color: BATTLE_THEME.textMain,
 
         marginBottom: 16,
 
@@ -3268,7 +3294,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: 'white',
+        color: BATTLE_THEME.textMain,
 
         marginBottom: 4,
 
@@ -3278,7 +3304,7 @@ const styles = StyleSheet.create({
 
         fontSize: RS.statLabel,
 
-        color: 'rgba(255, 255, 255, 0.8)',
+        color: BATTLE_THEME.textMuted,
 
     },
 
@@ -3296,9 +3322,9 @@ const styles = StyleSheet.create({
 
         padding: 16,
 
-        borderRadius: 12,
+        borderRadius: 14,
 
-        backgroundColor: 'white',
+        backgroundColor: BATTLE_THEME.accent,
 
         alignItems: 'center',
 
@@ -3310,7 +3336,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: '#1a1b2e',
+        color: '#ffffff',
 
     },
 
@@ -3320,13 +3346,13 @@ const styles = StyleSheet.create({
 
         padding: 16,
 
-        borderRadius: 12,
+        borderRadius: 14,
 
         backgroundColor: 'transparent',
 
         borderWidth: 2,
 
-        borderColor: 'white',
+        borderColor: BATTLE_THEME.panelBorder,
 
         alignItems: 'center',
 
@@ -3338,7 +3364,7 @@ const styles = StyleSheet.create({
 
         fontWeight: 'bold',
 
-        color: 'white',
+        color: BATTLE_THEME.textMain,
 
     },
 
@@ -3346,7 +3372,7 @@ const styles = StyleSheet.create({
 
     detailsBox: {
 
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
 
         borderRadius: 16,
 
@@ -3355,6 +3381,10 @@ const styles = StyleSheet.create({
         width: '100%',
 
         marginBottom: 20,
+
+        borderWidth: 1,
+
+        borderColor: BATTLE_THEME.panelBorder,
 
     },
 
@@ -3366,7 +3396,7 @@ const styles = StyleSheet.create({
 
         borderBottomWidth: 1,
 
-        borderBottomColor: 'rgba(255,255,255,0.1)',
+        borderBottomColor: BATTLE_THEME.panelBorder,
 
         marginBottom: 10,
 
@@ -3376,7 +3406,7 @@ const styles = StyleSheet.create({
 
         flex: 1,
 
-        color: 'rgba(255,255,255,0.6)',
+        color: BATTLE_THEME.textMuted,
 
         fontSize: RS.labelFont,
 
@@ -3394,7 +3424,7 @@ const styles = StyleSheet.create({
 
         borderBottomWidth: 1,
 
-        borderBottomColor: 'rgba(255,255,255,0.05)',
+        borderBottomColor: 'rgba(148, 163, 184, 0.18)',
 
         alignItems: 'center',
 
@@ -3402,7 +3432,7 @@ const styles = StyleSheet.create({
 
     tableCellText: {
 
-        color: 'white',
+        color: BATTLE_THEME.textMain,
 
         fontSize: RS.optionFont,
 
@@ -3422,7 +3452,7 @@ const styles = StyleSheet.create({
 
     dashText: {
 
-        color: 'rgba(255,255,255,0.3)',
+        color: 'rgba(203, 213, 225, 0.46)',
 
     },
 
@@ -3430,36 +3460,41 @@ const styles = StyleSheet.create({
     emojiButton: {
         position: 'absolute',
         top: 140,
-        left: 16,
+        right: 16,
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: 'rgba(139, 92, 246, 0.3)',
+        backgroundColor: 'rgba(251, 113, 133, 0.9)',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: 'rgba(139, 92, 246, 0.5)',
+        borderColor: 'rgba(251, 113, 133, 0.5)',
         zIndex: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+        elevation: 7,
     },
     emojiButtonDisabled: {
         opacity: 0.4,
     },
     emojiButtonText: {
-        fontSize: 28,
+        fontSize: 24,
     },
     emojiPickerContainer: {
         position: 'absolute',
         top: 190,
-        left: 16,
+        right: 16,
         zIndex: 10,
     },
     emojiPickerContent: {
         flexDirection: 'row',
-        backgroundColor: 'rgba(30, 30, 50, 0.95)',
+        backgroundColor: BATTLE_THEME.panelStrong,
         borderRadius: 16,
         padding: 8,
         borderWidth: 1,
-        borderColor: 'rgba(139, 92, 246, 0.4)',
+        borderColor: 'rgba(251, 113, 133, 0.35)',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
@@ -3487,7 +3522,7 @@ const styles = StyleSheet.create({
     },
     receivedEmojiText: {
         fontSize: 56,
-        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowColor: 'rgba(0, 0, 0, 0.65)',
         textShadowOffset: { width: 0, height: 4 },
         textShadowRadius: 10,
     },
@@ -3495,4 +3530,5 @@ const styles = StyleSheet.create({
 });
 
 export default BattleScreen;
+
 

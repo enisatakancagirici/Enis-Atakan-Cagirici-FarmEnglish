@@ -1714,7 +1714,6 @@ export const HomeScreen = ({ navigation }: any) => {
       try {
         checkAndResetDailyQuests();
       } catch (error) {
-        console.error("[HomeScreen] checkAndResetDailyQuests failed:", error);
       }
       
       return () => {

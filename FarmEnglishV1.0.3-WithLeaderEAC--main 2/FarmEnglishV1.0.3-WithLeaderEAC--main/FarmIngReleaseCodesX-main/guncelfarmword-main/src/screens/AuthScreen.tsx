@@ -62,7 +62,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
             if (typeof isNicknameClean !== 'function') return false;
             return isNicknameClean(value);
         } catch (error) {
-            console.warn('[AuthScreen] nickname validator failed:', error);
             return false;
         }
     }, []);

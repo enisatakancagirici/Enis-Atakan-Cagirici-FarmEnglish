@@ -11,6 +11,12 @@
 
 import { initializeApp, getApps } from 'firebase/app';
 import {
+    getAuth,
+    signInAnonymously,
+    onAuthStateChanged,
+    Auth,
+} from 'firebase/auth';
+import {
     getFirestore,
     doc,
     setDoc,
@@ -38,7 +44,6 @@ function isNicknameCleanSafe(nickname: string): boolean {
         if (typeof isNicknameClean !== 'function') return false;
         return isNicknameClean(nickname);
     } catch (error) {
-        console.warn('[nicknameModeration] validator failed:', error);
         return false;
     }
 }
@@ -55,6 +60,38 @@ const firebaseConfig = {
 // Firebase'i sadece bir kez initialize et
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getFirestore(app);
+const auth: Auth = getAuth(app);
+
+// ─── Anonim Auth (Production güvenliği) ───────────────
+// Firestore security rules request.auth != null gerektirir.
+// Anonim auth ile her cihaz otomatik authenticate olur.
+let _authReady = false;
+let _authPromise: Promise<void> | null = null;
+
+function ensureAuth(): Promise<void> {
+    if (_authReady) return Promise.resolve();
+    if (_authPromise) return _authPromise;
+    _authPromise = new Promise<void>((resolve) => {
+        const unsub = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                _authReady = true;
+                unsub();
+                resolve();
+            } else {
+                signInAnonymously(auth).catch(() => {
+                    // Auth başarısız olsa bile uygulamayı bloklamıyoruz
+                    _authReady = true;
+                    unsub();
+                    resolve();
+                });
+            }
+        });
+    });
+    return _authPromise;
+}
+
+// Uygulama başlar başlamaz anonim auth'u tetikle
+ensureAuth();
 
 // ===============================
 // 📦 TİPLER
@@ -164,6 +201,7 @@ export interface LeaderboardEntry {
  */
 export async function checkNicknameAvailable(nickname: string): Promise<boolean> {
     try {
+        await ensureAuth();
         const trimmedNickname = nickname?.trim() || '';
         if (trimmedNickname.length < 2 || trimmedNickname.length > 15) return false;
         if (!isNicknameCleanSafe(trimmedNickname)) return false;
@@ -174,7 +212,6 @@ export async function checkNicknameAvailable(nickname: string): Promise<boolean>
         const snapshot = await getDocs(q);
         return snapshot.empty;
     } catch (error) {
-        console.error('Nickname kontrolü hatası:', error);
         return false;
     }
 }
@@ -188,6 +225,7 @@ export async function registerUser(
     level: number = 1
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        await ensureAuth();
         // Önce nickname kontrolü
         const trimmedNickname = nickname?.trim() || '';
         if (trimmedNickname.length < 2) {
@@ -225,7 +263,6 @@ export async function registerUser(
 
         return { success: true };
     } catch (error: any) {
-        console.error('Kullanıcı kayıt hatası:', error);
         return { success: false, error: error.message || 'Kayıt başarısız' };
     }
 }
@@ -235,6 +272,7 @@ export async function registerUser(
  */
 export async function getUser(odId: string): Promise<BattleUser | null> {
     try {
+        await ensureAuth();
         const userRef = doc(db, 'users', odId);
         const snapshot = await getDoc(userRef);
         if (snapshot.exists()) {
@@ -242,7 +280,6 @@ export async function getUser(odId: string): Promise<BattleUser | null> {
         }
         return null;
     } catch (error) {
-        console.error('Kullanıcı getirme hatası:', error);
         return null;
     }
 }
@@ -263,6 +300,7 @@ function isSafeFirestoreValue(value: any): boolean {
 async function _flushStats(odId: string): Promise<void> {
     const safeOdId = typeof odId === 'string' ? odId.trim() : '';
     if (!safeOdId) return;
+    await ensureAuth();
 
     const updates = _pendingStats[safeOdId];
     delete _pendingStats[safeOdId];
@@ -285,7 +323,6 @@ async function _flushStats(odId: string): Promise<void> {
         if (Object.keys(firestoreUpdates).length <= 1) return;
         await updateDoc(userRef, firestoreUpdates);
     } catch (error) {
-        console.error('Istatistik guncelleme hatasi:', error);
     }
 }
 
@@ -325,6 +362,7 @@ export async function joinMatchmaking(
     level: number
 ): Promise<string> {
     try {
+        await ensureAuth();
         const matchmakingRef = doc(db, 'matchmaking', odId);
         await setDoc(matchmakingRef, {
             odId,
@@ -332,10 +370,8 @@ export async function joinMatchmaking(
             level,
             createdAt: serverTimestamp(),
         });
-        console.log(`[Matchmaking] Kuyruğa katıldı: ${nickname} (${odId}), seviye: ${level}`);
         return odId;
     } catch (error) {
-        console.error('Matchmaking katılım hatası:', error);
         throw error;
     }
 }
@@ -345,10 +381,10 @@ export async function joinMatchmaking(
  */
 export async function leaveMatchmaking(odId: string): Promise<void> {
     try {
+        await ensureAuth();
         const matchmakingRef = doc(db, 'matchmaking', odId);
         await deleteDoc(matchmakingRef);
     } catch (error) {
-        console.error('Matchmaking çıkış hatası:', error);
     }
 }
 
@@ -371,7 +407,6 @@ export async function findOpponent(
         );
 
         const snapshot = await getDocs(q);
-        console.log(`[Matchmaking] Kuyrukta ${snapshot.docs.length} oyuncu bulundu, arayan: ${odId}`);
 
         // Client-side filtrele: Kendini hariç tut ve ZOMBI KONTROLÜ (60 sn)
         const now = Date.now();
@@ -383,17 +418,13 @@ export async function findOpponent(
 
             //  ZOMBI KONTROLÜ: 60 saniyeden eski kayıtları yoksay!
             if (now - entryTime > 60000) {
-                console.log(`[Matchmaking] Zombi kayıt atlandı: ${entry.nickname} (${Math.round((now - entryTime) / 1000)}sn önce)`);
                 // İstersen burada deleteDoc ile temizleyebilirsin ama async gerek
-                // deleteDoc(doc.ref).catch(console.error);
                 continue;
             }
 
-            console.log(`[Matchmaking] Kontrol edilen oyuncu: ${entry.odId}, seviye: ${entry.level}`);
             if (entry.odId !== odId) {
                 // Tüm oyuncuları kabul et (seviye fark etmez)
                 candidates.push(entry);
-                console.log(`[Matchmaking] Uygun rakip bulundu: ${entry.nickname}`);
             }
         }
 
@@ -401,14 +432,11 @@ export async function findOpponent(
         if (candidates.length > 0) {
             // En yakın seviyeyi bul
             candidates.sort((a, b) => Math.abs(a.level - level) - Math.abs(b.level - level));
-            console.log(`[Matchmaking] Eşleşme seçildi: ${candidates[0].nickname}`);
             return candidates[0];
         }
 
-        console.log(`[Matchmaking] Uygun rakip bulunamadı`);
         return null;
     } catch (error) {
-        console.error('Rakip bulma hatası:', error);
         return null;
     }
 }
@@ -425,13 +453,10 @@ export async function notifyMatch(
         await updateDoc(matchmakingRef, {
             matchedBattleId: battleId
         });
-        console.log(`[Matchmaking] Rakip bilgilendirildi: ${opponentOdId} -> ${battleId}`);
         return true;
     } catch (error: any) {
         if (error.code === 'not-found' || error.message.includes('No document to update')) {
-            console.log(`[Matchmaking] Rakip bulunamadı (Başka bir maçta veya kuyruktan çıkmış): ${opponentOdId}`);
         } else {
-            console.error('Rakip bilgilendirme hatası:', error);
         }
         return false;
     }
@@ -445,14 +470,24 @@ export function listenToMatchmaking(
     onMatch: (battleId: string) => void,
     onError: (error: any) => void
 ): () => void {
-    const matchmakingRef = doc(db, 'matchmaking', odId);
+    let innerUnsub: (() => void) | null = null;
+    let cancelled = false;
 
-    return onSnapshot(matchmakingRef, (snapshot) => {
-        const data = snapshot.data();
-        if (data?.matchedBattleId) {
-            onMatch(data.matchedBattleId);
-        }
-    }, onError);
+    ensureAuth().then(() => {
+        if (cancelled) return;
+        const matchmakingRef = doc(db, 'matchmaking', odId);
+        innerUnsub = onSnapshot(matchmakingRef, (snapshot) => {
+            const data = snapshot.data();
+            if (data?.matchedBattleId) {
+                onMatch(data.matchedBattleId);
+            }
+        }, onError);
+    }).catch(onError);
+
+    return () => {
+        cancelled = true;
+        innerUnsub?.();
+    };
 }
 
 // ===============================
@@ -480,6 +515,7 @@ export async function createBattleRoom(
     questions: BattleQuestion[]
 ): Promise<{ roomCode: string; battleId: string }> {
     try {
+        await ensureAuth();
         const roomCode = generateRoomCode();
         const battleId = `battle_${hostId}_${Date.now()}`;
 
@@ -515,7 +551,6 @@ export async function createBattleRoom(
 
         return { roomCode, battleId };
     } catch (error) {
-        console.error('Oda oluşturma hatası:', error);
         throw error;
     }
 }
@@ -546,7 +581,6 @@ export async function updateBattleHeartbeat(
         if (error.code === 'failed-precondition' || error.message?.includes('failed-precondition')) {
             return;
         }
-        console.error('Heartbeat güncelleme hatası:', error);
     }
 }
 
@@ -571,7 +605,6 @@ export async function markPlayerDisconnected(
             });
         }
     } catch (error) {
-        console.error('Disconnect bildirim hatası:', error);
     }
 }
 
@@ -597,7 +630,6 @@ export async function abandonBattle(
             finishedAt: serverTimestamp()
         });
     } catch (error) {
-        console.error('Savaş terk etme hatası:', error);
     }
 }
 
@@ -610,6 +642,7 @@ export async function joinBattleRoom(
     guestNickname: string
 ): Promise<{ success: boolean; battleId?: string; battleData?: any; error?: string }> {
     try {
+        await ensureAuth();
         // Oda kodunu bul
         const roomCodeRef = doc(db, 'roomCodes', roomCode.toUpperCase());
         const roomCodeSnap = await getDoc(roomCodeRef);
@@ -656,7 +689,6 @@ export async function joinBattleRoom(
             }
         };
     } catch (error: any) {
-        console.error('Odaya katılma hatası:', error);
         return { success: false, error: error.message || 'Katılım başarısız' };
     }
 }
@@ -673,13 +705,23 @@ export function listenToBattle(
     onUpdate: (battle: BattleRoom) => void,
     onError: (error: any) => void
 ): () => void {
-    const battleRef = doc(db, 'battles', battleId);
+    let innerUnsub: (() => void) | null = null;
+    let cancelled = false;
 
-    return onSnapshot(battleRef, (snapshot) => {
-        if (snapshot.exists()) {
-            onUpdate({ id: snapshot.id, ...snapshot.data() } as BattleRoom);
-        }
-    }, onError);
+    ensureAuth().then(() => {
+        if (cancelled) return;
+        const battleRef = doc(db, 'battles', battleId);
+        innerUnsub = onSnapshot(battleRef, (snapshot) => {
+            if (snapshot.exists()) {
+                onUpdate({ id: snapshot.id, ...snapshot.data() } as BattleRoom);
+            }
+        }, onError);
+    }).catch(onError);
+
+    return () => {
+        cancelled = true;
+        innerUnsub?.();
+    };
 }
 
 /**
@@ -688,6 +730,7 @@ export function listenToBattle(
  */
 export async function getBattleFresh(battleId: string): Promise<BattleRoom | null> {
     try {
+        await ensureAuth();
         const battleRef = doc(db, 'battles', battleId);
         const snapshot = await getDoc(battleRef);
         if (snapshot.exists()) {
@@ -695,7 +738,6 @@ export async function getBattleFresh(battleId: string): Promise<BattleRoom | nul
         }
         return null;
     } catch (error) {
-        console.error('[Battle] getBattleFresh error:', error);
         return null;
     }
 }
@@ -718,7 +760,6 @@ export async function sendBattleEmoji(
             },
         });
     } catch (error) {
-        console.error('[Battle] sendBattleEmoji error:', error);
     }
 }
 
@@ -736,7 +777,6 @@ export async function startBattle(battleId: string): Promise<void> {
             guestLastActiveAt: serverTimestamp()
         });
     } catch (error) {
-        console.error('Savaş başlatma hatası:', error);
     }
 }
 
@@ -767,7 +807,6 @@ export async function updateBattleProgress(
             });
         }
     } catch (error) {
-        console.error('İlerleme güncelleme hatası:', error);
     }
 }
 
@@ -793,6 +832,7 @@ export async function submitAnswer(
     timeMs: number
 ): Promise<SubmitAnswerResult> {
 
+    await ensureAuth();
     const battleRef = doc(db, 'battles', battleId);
 
     let attempt = 0;
@@ -852,12 +892,9 @@ export async function submitAnswer(
                     // FALLBACK: Trust answers array length if progress count lags
                     const effectiveOppProg = Math.max(oppProg, oppAnsLen);
 
-                    console.log(`[Battle] 🛡 Duplicate Check Debug - MyProg: ${myProg}, OppProg: ${oppProg}, OppAnsLen: ${oppAnsLen}, Total: ${totalQ}, Status: ${battle.status}`);
 
                     if (myProg >= totalQ && effectiveOppProg >= totalQ) {
-                        console.log('[Battle] 🛡️ Deadlock detected (Both finished), forcing FINISH...');
 
-                        console.log('[Battle] 🛡️ Deadlock detected (Both finished), forcing FINISH...');
 
                         // RECAlCULATE SCORES FROM ANSWERS (Source of Truth)
                         const calculateScore = (answers: AnswerRecord[]) => (answers || []).filter(a => a.isCorrect).length * 100;
@@ -880,7 +917,6 @@ export async function submitAnswer(
                         const hostNick = hostDoc.exists() ? (hostDoc.data() as BattleUser).nickname : 'Host';
                         const guestNick = (guestDoc && guestDoc.exists()) ? (guestDoc.data() as BattleUser).nickname : 'Guest';
 
-                        console.log(`[Battle] 🧮 Recalculated Scores - ${hostNick} (Host): ${hScore}, ${guestNick} (Guest): ${gScore}`);
 
                         let wId = null;
                         if (hScore > gScore) wId = battle.hostId;
@@ -903,13 +939,11 @@ export async function submitAnswer(
                         // 🛡 SIMPLIFICATION: Do NOT update stats in deadlock resolution
                         // Stats will be handled by finishBattleWithRewards after settle delay
                         if (isLateUpdate && winnerChanged) {
-                            console.log(`[Battle] ⚖ DEADLOCK RE-EVAL (OldWinner: ${oldWinnerId} -> NewWinner: ${wId}). Skipping stat updates.`);
                         }
 
                         return { success: true, isCorrect: false, newScore: battle[scoreKey] || 0, message: 'DEADLOCK_RESOLVED' };
                     }
 
-                    console.log(`[Battle]  Duplicate answer ignored (Idempotent): Q${questionIndex}`);
                     return {
                         success: true,
                         isCorrect: false, // Doesn't matter, ignored
@@ -975,13 +1009,11 @@ export async function submitAnswer(
                     const hostNick = hostDoc.exists() ? (hostDoc.data() as BattleUser).nickname : 'Host';
                     const guestNick = (guestDoc && guestDoc.exists()) ? (guestDoc.data() as BattleUser).nickname : 'Guest';
 
-                    console.log(`[Battle]  FINISH CHECK: ${hostNick} (${finalHostScore}) vs ${guestNick} (${finalGuestScore}) -> Winner: ${newWinnerId === battle.hostId ? hostNick : (newWinnerId ? guestNick : 'DRAW')}`);
 
                     if (isLateUpdate && winnerChanged) {
                         // 🛡 SIMPLIFICATION: Do NOT update stats in late answer transactions
                         // This was causing transaction contention due to winner flip-flopping
                         // Stats will be handled by finishBattleWithRewards after settle delay
-                        console.log(`[Battle] ⚖ LATE ANSWER detected (OldWinner: ${oldWinnerId} -> NewWinner: ${newWinnerId}). Skipping stat updates to avoid contention.`);
                     }
 
                     // Always update current status if not late, or update winnerId if changed
@@ -1033,7 +1065,6 @@ export async function submitAnswer(
                 }
 
                 transaction.update(battleRef, updates);
-                console.log(`[Battle] ✅ Answer submitted: Q${questionIndex}, Correct: ${isCorrect}, Score: ${newScore}`);
                 return { isCorrect, newScore };
             });
 
@@ -1050,15 +1081,12 @@ export async function submitAnswer(
             if (isContention && attempt < 4) {
                 attempt++;
                 const delay = Math.random() * 500 * attempt;
-                console.warn(`[Battle] ⚠ Contention detected, retrying (${attempt}/5)...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
                 continue;
             }
 
             if (error.message === 'BATTLE_NOT_ACTIVE') {
-                console.log('[Battle]  Submit skipped: Battle not active');
             } else {
-                console.error('[Battle]  Submit answer error:', error.message);
             }
             return {
                 success: false,
@@ -1102,11 +1130,9 @@ export async function handleDisconnect(
             [disconnectedIsHost ? 'hostDisconnected' : 'guestDisconnected']: true
         });
 
-        console.log(`[Battle] 🚪 Disconnect handled: ${disconnectedOdId} left, winner: ${winnerId}`);
 
         return { winnerId };
     } catch (error) {
-        console.error('[Battle] Disconnect handling error:', error);
         return { winnerId: null };
     }
 }
@@ -1121,6 +1147,7 @@ export async function finishBattleWithRewards(
     const battleRef = doc(db, 'battles', battleId);
 
     try {
+        await ensureAuth();
         const result = await runTransaction(db, async (transaction) => {
             // 1. 📖 READ ALL DATA FIRST (Strict Order: Reads before Writes)
             const battleDoc = await transaction.get(battleRef);
@@ -1164,7 +1191,6 @@ export async function finishBattleWithRewards(
             const finalHostScore = hostScoreFromAnswers > 0 ? hostScoreFromAnswers : (battle.hostScore || 0);
             const finalGuestScore = guestScoreFromAnswers > 0 ? guestScoreFromAnswers : (battle.guestScore || 0);
 
-            console.log(`[Battle] 🧮 Score Calculation: Host=${finalHostScore} (raw=${battle.hostScore}), Guest=${finalGuestScore} (raw=${battle.guestScore})`);
 
             // Determine winner using calculated scores
             let winnerId: string | null = null;
@@ -1220,19 +1246,16 @@ export async function finishBattleWithRewards(
         });
 
         if (result.alreadyFinished) {
-            console.log('[Battle]  Battle was already finished.');
         } else {
             // Cleanup room code (Non-transactional cleanup is fine)
             if ((result as any).roomCode) {
                 // ...
             }
-            console.log(`[Battle]  Battle finished Transactionally: Winner=${result.winnerId}`);
         }
 
         return result;
 
     } catch (error) {
-        console.error('[Battle] Finish battle transaction error:', error);
         return { winnerId: null, hostScore: 0, guestScore: 0 };
     }
 }
@@ -1262,7 +1285,6 @@ export async function finishBattle(
             }
         }
     } catch (error) {
-        console.error('Savaş bitirme hatası:', error);
     }
 }
 
@@ -1348,6 +1370,7 @@ export async function getLeaderboard(
     limitCount: number = 50
 ): Promise<LeaderboardEntry[]> {
     try {
+        await ensureAuth();
         const usersRef = collection(db, 'users');
 
         if (type === 'general') {
@@ -1383,7 +1406,6 @@ export async function getLeaderboard(
         const snapshot = await getDocs(q);
         return snapshot.docs.map((doc) => mapDocToEntry(doc.data() as any));
     } catch (error) {
-        console.error('Liderlik tablosu hatası:', error);
         return [];
     }
 }
@@ -1398,42 +1420,48 @@ export function listenToLeaderboard(
     limitCount: number = 50,
     type: LeaderboardType = 'general'
 ): () => void {
-    const usersRef = collection(db, 'users');
+    // Auth bekle, sonra dinlemeyi başlat
+    let innerUnsub: (() => void) | null = null;
+    let cancelled = false;
 
-    if (type === 'general') {
-        // Genel sıralama: daha fazla kullanıcı çek, client-side composite skor hesapla
-        const q = query(usersRef, orderBy('totalScore', 'desc'), limit(200));
-        return onSnapshot(q, (snapshot) => {
+    ensureAuth().then(() => {
+        if (cancelled) return;
+        const usersRef = collection(db, 'users');
+
+        if (type === 'general') {
+            const q = query(usersRef, orderBy('totalScore', 'desc'), limit(200));
+            innerUnsub = onSnapshot(q, (snapshot) => {
+                const entries = snapshot.docs.map((doc) => mapDocToEntry(doc.data() as any));
+                entries.sort((a, b) => (b.generalScore || 0) - (a.generalScore || 0));
+                onUpdate(entries.slice(0, limitCount));
+            }, onError);
+            return;
+        }
+
+        let sortField = 'battleWins';
+        if (type === 'harvest') sortField = 'lifetimeHarvests';
+        else if (type === 'streak') sortField = 'streak';
+        else if (type === 'puzzle') sortField = 'puzzleScore';
+        else if (type === 'sesyap') sortField = 'sesyapScore';
+        else if (type === 'trophy') sortField = 'trophies';
+        else if (type === 'wordmatch') sortField = 'wordMatchScore';
+        else if (type === 'fillblank') sortField = 'fillBlankScore';
+        else if (type === 'idioms') sortField = 'idiomsScore';
+        else if (type === 'yds') sortField = 'ydsScore';
+        else if (type === 'wordforms') sortField = 'wordFormsScore';
+        else if (type === 'allpractices') sortField = 'totalPracticeScore';
+
+        const q = query(usersRef, orderBy(sortField, 'desc'), limit(limitCount));
+        innerUnsub = onSnapshot(q, (snapshot) => {
             const entries = snapshot.docs.map((doc) => mapDocToEntry(doc.data() as any));
-            entries.sort((a, b) => (b.generalScore || 0) - (a.generalScore || 0));
-            onUpdate(entries.slice(0, limitCount));
+            onUpdate(entries);
         }, onError);
-    }
+    }).catch(onError);
 
-    // Sıralama alanını tipe göre belirle
-    let sortField = 'battleWins';
-    if (type === 'harvest') sortField = 'lifetimeHarvests';
-    else if (type === 'streak') sortField = 'streak';
-    else if (type === 'puzzle') sortField = 'puzzleScore';
-    else if (type === 'sesyap') sortField = 'sesyapScore';
-    else if (type === 'trophy') sortField = 'trophies';
-    else if (type === 'wordmatch') sortField = 'wordMatchScore';
-    else if (type === 'fillblank') sortField = 'fillBlankScore';
-    else if (type === 'idioms') sortField = 'idiomsScore';
-    else if (type === 'yds') sortField = 'ydsScore';
-    else if (type === 'wordforms') sortField = 'wordFormsScore';
-    else if (type === 'allpractices') sortField = 'totalPracticeScore';
-
-    const q = query(
-        usersRef,
-        orderBy(sortField, 'desc'),
-        limit(limitCount)
-    );
-
-    return onSnapshot(q, (snapshot) => {
-        const entries = snapshot.docs.map((doc) => mapDocToEntry(doc.data() as any));
-        onUpdate(entries);
-    }, onError);
+    return () => {
+        cancelled = true;
+        innerUnsub?.();
+    };
 }
 
 // ===============================
@@ -1584,7 +1612,6 @@ export async function updatePracticeScore(
 
         return { success: true };
     } catch (error) {
-        console.error('Pratik skor guncelleme hatasi:', error);
         return { success: false, error: 'Skor güncellenemedi' };
     }
 }
@@ -1630,7 +1657,6 @@ export async function updateQuizComboScore(
 
         return { success: true, applied: leaderboardScoreDelta };
     } catch (error) {
-        console.error('Quiz combo skor guncelleme hatasi:', error);
         return { success: false, error: 'Quiz combo skoru güncellenemedi' };
     }
 }
@@ -1664,7 +1690,6 @@ export async function getPracticeScore(
 
         return data[fieldMap[practiceType]] || 0;
     } catch (error) {
-        console.error('Pratik skor getirme hatası:', error);
         return 0;
     }
 }

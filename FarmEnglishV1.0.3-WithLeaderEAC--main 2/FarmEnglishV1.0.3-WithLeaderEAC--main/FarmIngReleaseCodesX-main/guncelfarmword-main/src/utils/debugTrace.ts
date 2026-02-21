@@ -116,11 +116,8 @@ export function traceEvent(event: string, meta?: Record<string, unknown>, level:
       }
 
       if (level === 'error') {
-        console.error('[trace]', safeEvent, entry.meta || {});
       } else if (level === 'warn') {
-        console.warn('[trace]', safeEvent, entry.meta || {});
       } else {
-        console.log('[trace]', safeEvent, entry.meta || {});
       }
 
       scheduleFlush();

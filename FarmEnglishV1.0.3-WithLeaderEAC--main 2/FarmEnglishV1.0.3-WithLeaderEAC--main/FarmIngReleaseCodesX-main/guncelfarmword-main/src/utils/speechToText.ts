@@ -102,7 +102,6 @@ export async function startRecording(): Promise<boolean> {
         // İzin kontrolü (prompt göstermeden)
         const permission = await Audio.getPermissionsAsync();
         if (permission.status !== 'granted') {
-            console.log('Mikrofon izni reddedildi');
             return false;
         }
 
@@ -144,10 +143,8 @@ export async function startRecording(): Promise<boolean> {
         );
 
         recordingState.recording = recording;
-        console.log('🎙️ Kayıt başladı (metering aktif)');
         return true;
     } catch (error) {
-        console.error('Kayıt başlatma hatası:', error);
         // Hata durumunda state'i temizle
         recordingState.recording = null;
         return false;
@@ -187,10 +184,8 @@ export async function stopRecording(): Promise<string | null> {
         recordingState.uri = uri;
         recordingState.recording = null;
 
-        console.log('🛑 Kayıt durduruldu:', uri);
         return uri;
     } catch (error) {
-        console.error('Kayıt durdurma hatası:', error);
         return null;
     }
 }
@@ -202,11 +197,9 @@ export async function deleteRecording(): Promise<void> {
     try {
         if (recordingState.uri) {
             await FileSystem.deleteAsync(recordingState.uri, { idempotent: true });
-            console.log('🧹 Kayıt silindi');
             recordingState.uri = null;
         }
     } catch (error) {
-        console.error('Kayıt silme hatası:', error);
     }
 }
 
@@ -243,10 +236,8 @@ export async function transcribeAudio(audioUri: string): Promise<SpeechRecogniti
         const data = await response.json();
 
         // 🔍 DEBUG: API yanıtını logla
-        console.log('🔍 Google API Response:', JSON.stringify(data, null, 2));
 
         if (data.error) {
-            console.log('❌ API Error:', data.error);
             return {
                 transcript: '',
                 confidence: 0,
@@ -259,7 +250,6 @@ export async function transcribeAudio(audioUri: string): Promise<SpeechRecogniti
             const firstResult = data.results[0];
             if (firstResult.alternatives && firstResult.alternatives.length > 0) {
                 const bestAlternative = firstResult.alternatives[0];
-                console.log('✅ Transcript:', bestAlternative.transcript);
                 return {
                     transcript: bestAlternative.transcript || '',
                     confidence: bestAlternative.confidence || 0.9,
@@ -267,14 +257,12 @@ export async function transcribeAudio(audioUri: string): Promise<SpeechRecogniti
             }
         }
 
-        console.log('⚠️ Boş sonuç - ses algılanamadı veya çok kısa');
         return {
             transcript: '',
             confidence: 0,
             error: 'Ses tanınamadı - daha uzun konuşun',
         };
     } catch (error) {
-        console.error('Transcription hatası:', error);
         return {
             transcript: '',
             confidence: 0,

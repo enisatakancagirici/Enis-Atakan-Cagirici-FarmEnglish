@@ -2242,7 +2242,6 @@ export const NicknameModal = memo(() => {
       if (typeof isNicknameClean !== 'function') return false;
       return isNicknameClean(value);
     } catch (error) {
-      console.warn('[NicknameModal] nickname validator failed:', error);
       return false;
     }
   }, []);
@@ -2279,7 +2278,6 @@ export const NicknameModal = memo(() => {
       setNickname(trimmedName);
       setShowNicknameModal(false);
     } catch (error) {
-      console.error('[NicknameModal] Save error:', error);
       Alert.alert('Hata', 'Takma ad kaydedilirken bir sorun oldu.');
     } finally {
       setTimeout(() => {

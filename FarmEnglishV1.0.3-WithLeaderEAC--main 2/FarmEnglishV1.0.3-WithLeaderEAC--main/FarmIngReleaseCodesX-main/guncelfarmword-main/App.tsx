@@ -235,7 +235,6 @@ export default function App() {
     const defaultHandler = errorUtils.getGlobalHandler();
     const handler = (error: any, isFatal?: boolean) => {
       try {
-        console.error('[GlobalJS]', error);
         traceEvent(
           'global_js_error',
           {
@@ -300,7 +299,6 @@ export default function App() {
 
         setIsReady(true);
       } catch (error) {
-        console.error('Initialization error:', error);
         setIsReady(true);
       } finally {
         // Hide the splash screen

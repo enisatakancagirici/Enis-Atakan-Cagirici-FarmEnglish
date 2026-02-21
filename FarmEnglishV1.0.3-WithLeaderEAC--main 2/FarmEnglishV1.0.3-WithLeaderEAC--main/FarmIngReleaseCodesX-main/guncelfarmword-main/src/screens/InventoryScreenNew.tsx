@@ -1340,6 +1340,15 @@ export default function InventoryScreenNew() {
   const keyExtractor = useCallback((item: WordModel) => item.id, []);
 
   const isFilterPanelVisible = isHeaderVisible && isTabsVisible;
+  const baseInventoryListTopPadding = SCREEN_WIDTH < 375 ? 12 : 16;
+  const inventorySafeTopPadding = Math.max(baseInventoryListTopPadding, insets.top + 8);
+  const inventoryListContentStyle = useMemo(
+    () => [
+      styles.listContent,
+      { paddingTop: isFilterPanelVisible ? baseInventoryListTopPadding : inventorySafeTopPadding },
+    ],
+    [isFilterPanelVisible, baseInventoryListTopPadding, inventorySafeTopPadding]
+  );
   const headerOpacity = headerAnim.interpolate({
     inputRange: [0, 0.3, 1],
     outputRange: [0, 0.2, 1],
@@ -1370,7 +1379,7 @@ export default function InventoryScreenNew() {
     outputRange: [-8, 0],
     extrapolate: 'clamp',
   });
-  const controlRowTopSpacing = Math.max(insets.top + 6, 10);
+  const controlRowRightSpacing = Math.max(insets.right + 4, 6);
 
 
   return (
@@ -1567,7 +1576,10 @@ export default function InventoryScreenNew() {
       </View>
       </Animated.View>
 
-      <View style={[styles.sectionToggleRow, { top: controlRowTopSpacing }]} pointerEvents="box-none">
+      <View
+        style={[styles.sectionToggleRow, { right: controlRowRightSpacing }]}
+        pointerEvents="box-none"
+      >
         <TouchableOpacity
           style={[styles.sectionToggleChip, isNavbarVisible && styles.sectionToggleChipActive]}
           onPress={toggleNavbarVisibility}
@@ -1779,7 +1791,7 @@ export default function InventoryScreenNew() {
               keyExtractor={keyExtractor}
               numColumns={numColumns}
               key={`inventory-${numColumns}`}
-              contentContainerStyle={styles.listContent}
+              contentContainerStyle={inventoryListContentStyle}
               showsVerticalScrollIndicator={false}
               extraData={`${activeTab}-${numColumns}`}
             />
@@ -1905,27 +1917,25 @@ const styles = StyleSheet.create({
   },
   sectionToggleRow: {
     position: 'absolute',
-    left: 8,
-    right: 8,
+    top: '50%',
+    transform: [{ translateY: -34 }],
     zIndex: 40,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 2,
+    alignItems: 'flex-end',
+    gap: 8,
   },
   sectionToggleChip: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.16)',
-    backgroundColor: 'rgba(7, 12, 22, 0.5)',
+    borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(7, 12, 22, 0.42)',
   },
   sectionToggleChipActive: {
-    borderColor: 'rgba(255,255,255,0.28)',
-    backgroundColor: 'rgba(12, 20, 34, 0.66)',
+    borderColor: 'rgba(255,255,255,0.32)',
+    backgroundColor: 'rgba(12, 20, 34, 0.56)',
   },
 
   // 📊 STATS HEADER - Premium Filter Bar (FarmScreen ile aynı)

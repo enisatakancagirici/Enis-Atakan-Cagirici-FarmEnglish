@@ -5,7 +5,6 @@ import { useFarmStore } from '../store/farmStore';
 import * as Haptics from 'expo-haptics';
 import { useNavigation } from '@react-navigation/native';
 import { Play } from 'lucide-react-native';
-import { RewardToastContainer } from './RewardToast';
 import { normalizeDisplayText } from '../utils/textNormalization';
 
 // Tab tipleri
@@ -39,6 +38,7 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
   const [activeTab, setActiveTab] = useState<TabType>('daily');
   const claimingRef = useRef(new Set<string>());
   const lastClaimAtRef = useRef(0);
+  const questBootstrapAttemptedRef = useRef(false);
   const t = (value: unknown, fallback = '') => normalizeDisplayText(value) || fallback;
   
   // Store hooks - sadece data selectors
@@ -49,15 +49,36 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
   const achievementQuests = useFarmStore(state => state.achievementQuests);
   const trophies = useFarmStore(state => state.trophies);
 
-  // Performans: Tek action ile tum gorevleri baslat
+  // Performans: panel her acildiginda agir init calistirma.
+  // Ancak quest kategorilerinden biri eksikse tek seferlik bootstrap yap.
   useEffect(() => {
-    // Hizli kontrol - hemen yap
-    useFarmStore.getState().checkAndResetDailyQuests();
+    if (questBootstrapAttemptedRef.current) return;
+    questBootstrapAttemptedRef.current = true;
 
-    // Agir islemleri UI render'dan sonra yap
+    const state = useFarmStore.getState();
+    state.checkAndResetDailyQuests({ reason: 'daily_panel_mount' });
+
+    const isDailyMissing = !Array.isArray(state.dailyQuests) || state.dailyQuests.length === 0;
+    const isWeeklyMissing = !Array.isArray(state.weeklyQuests) || state.weeklyQuests.length === 0;
+    const isRepeatableMissing = !Array.isArray(state.repeatableQuests) || state.repeatableQuests.length === 0;
+    const isStoryMissing = !Array.isArray(state.storyQuests) || state.storyQuests.length === 0;
+    const isAchievementMissing = !Array.isArray(state.achievementQuests) || state.achievementQuests.length === 0;
+
+    const needsQuestBootstrap =
+      isDailyMissing ||
+      isWeeklyMissing ||
+      isRepeatableMissing ||
+      isStoryMissing ||
+      isAchievementMissing;
+
+    if (!needsQuestBootstrap) return;
+
     const handle = setTimeout(() => {
-      useFarmStore.getState().initializeAllQuests();
-    }, 100);
+      try {
+        useFarmStore.getState().initializeAllQuests();
+      } catch (e) {
+      }
+    }, 160);
 
     return () => clearTimeout(handle);
   }, []);
@@ -84,7 +105,6 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
             try {
               useFarmStore.getState().generateRepeatableQuest(quest.category);
             } catch (e) {
-              console.log('[DailyQuestsPanel] generateRepeatableQuest error:', e);
             }
           }, 500);
         }
@@ -95,7 +115,6 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
           try {
             useFarmStore.getState().checkStoryQuestUnlocks();
           } catch (e) {
-            console.log('[DailyQuestsPanel] checkStoryQuestUnlocks error:', e);
           }
         }, 500);
       }
@@ -112,7 +131,6 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
     
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     
-    console.log('[DailyQuestsPanel] handleStartQuest:', quest.screen, quest.title);
     
     // Modali kapat
     onClose?.();
@@ -158,7 +176,6 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
       quest?.type === 'YDS_QUIZ';
     const target = (preferTypeRoute ? (byType || byScreen) : (byScreen || byType)) || { screen: 'Home' };
     
-    console.log('[DailyQuestsPanel] Navigating to:', target.screen, 'Params:', target.params, 'Has onNavigate:', !!onNavigate);
     
     // Parent callback varsa kullan, yoksa direct navigate
     if (typeof onNavigate === 'function') {
@@ -168,7 +185,6 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
         try {
           navigation.navigate(target.screen as any, target.params);
         } catch (e) {
-          console.log('[DailyQuestsPanel] navigation error:', e);
         }
       }, 300);
     }
@@ -219,7 +235,6 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
         try {
           useFarmStore.getState().checkAndResetDailyQuests();
         } catch (e) {
-          console.log('[DailyQuestsPanel] checkAndResetDailyQuests error:', e);
         }
       }, 600);
       return () => clearTimeout(handle);
@@ -237,7 +252,6 @@ export const DailyQuestsPanel: React.FC<DailyQuestsPanelProps> = ({ onClose, onN
 
   return (
     <View style={styles.container}>
-      <RewardToastContainer />
       {/* Header */}
       <LinearGradient
         colors={['#FFD700', '#FFA500']}

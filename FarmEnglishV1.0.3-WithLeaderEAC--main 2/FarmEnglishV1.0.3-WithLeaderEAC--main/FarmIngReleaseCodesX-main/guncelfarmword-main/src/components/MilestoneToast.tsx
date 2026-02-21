@@ -34,7 +34,6 @@ export const useMilestoneToastStore = create<MilestoneToastStore>((set) => ({
   addToast: (toast) => {
     // 🔒 Validation - skip invalid toasts
     if (!toast.combo || !toast.text || !toast.duration) {
-      console.log('⚠️ MilestoneToast: Invalid toast skipped:', toast);
       return;
     }
 

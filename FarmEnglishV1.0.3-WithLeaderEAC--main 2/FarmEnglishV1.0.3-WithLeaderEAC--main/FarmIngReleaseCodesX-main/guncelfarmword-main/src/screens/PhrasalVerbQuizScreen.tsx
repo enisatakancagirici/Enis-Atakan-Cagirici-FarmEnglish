@@ -522,7 +522,6 @@ export default function PhrasalVerbQuizScreen() {
 
     // Eğer kalan soru sayısı 3 veya daha az ise yeni sorular ekle
     if (questions.length - currentQuestionIndex <= 3) {
-      // console.log('🔄 Generating more questions for endless mode...');
       const moreQuestions = generateMoreQuestions();
       if (moreQuestions.length > 0) {
         setQuestions(prev => [...prev, ...moreQuestions]);

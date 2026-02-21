@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ══════════════════════════════════════
+    //  YARDIMCI FONKSİYONLAR
+    // ══════════════════════════════════════
+
+    // Giriş yapmış kullanıcı mı? (Anonim auth dahil)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // ══════════════════════════════════════
+    //  USERS KOLEKSİYONU
+    // ══════════════════════════════════════
+    match /users/{userId} {
+      // Auth olan herkes okuyabilir (liderlik tablosu)
+      allow read: if isAuthenticated();
+
+      // Kayıt: auth gerekli, temel validasyonlar
+      allow create: if isAuthenticated()
+        && request.resource.data.odId is string
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() >= 2
+        && request.resource.data.nickname.size() <= 15;
+
+      // Güncelleme: auth gerekli, odId değiştirilemez
+      allow update: if isAuthenticated()
+        && request.resource.data.odId == resource.data.odId;
+
+      // Silme yasak
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════
+    //  BATTLES KOLEKSİYONU
+    // ══════════════════════════════════════
+    match /battles/{battleId} {
+      // Auth olan herkes okuyabilir (savaş durumu takibi)
+      allow read: if isAuthenticated();
+
+      // Savaş oluşturma: auth gerekli
+      allow create: if isAuthenticated()
+        && request.resource.data.hostId is string
+        && request.resource.data.status == 'waiting';
+
+      // Güncelleme: auth gerekli (skor, durum vs.)
+      allow update: if isAuthenticated();
+
+      // Silme yasak
+      allow delete: if false;
+
+      // Rounds alt koleksiyonu
+      match /rounds/{roundId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if false;
+      }
+    }
+
+    // ══════════════════════════════════════
+    //  MATCHMAKING KOLEKSİYONU
+    // ══════════════════════════════════════
+    match /matchmaking/{odId} {
+      // Eşleşme kuyruğunu auth olan herkes görebilir
+      allow read: if isAuthenticated();
+
+      // Oluşturma, güncelleme, silme: auth gerekli
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+
+    // ══════════════════════════════════════
+    //  ROOM CODES KOLEKSİYONU
+    // ══════════════════════════════════════
+    match /roomCodes/{roomCode} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow delete: if isAuthenticated();
+      allow update: if false;
+    }
+
+    // ══════════════════════════════════════
+    //  LEADERBOARD KOLEKSİYONU (Haftalık)
+    // ══════════════════════════════════════
+    match /leaderboard/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Sadece Cloud Functions güncelleyebilir
+    }
+
+    // ══════════════════════════════════════
+    //  DİĞER — Varsayılan olarak erişim yok
+    // ══════════════════════════════════════
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

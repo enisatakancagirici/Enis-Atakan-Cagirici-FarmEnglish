@@ -621,7 +621,6 @@ export default function WordMatchScreen() {
         try {
             updateQuestProgress('MATCH_WORDS', 1);
         } catch (error) {
-            console.error('[WordMatch] quest progress update failed:', error);
         }
         
         // 🎉💥 MEGA KUTLAMA - TELEFONU KUDURT!
@@ -630,7 +629,6 @@ export default function WordMatchScreen() {
             try {
                 updatePracticeScore(user.odId, 'wordmatch', scoreToAdd);
             } catch (error) {
-                console.error('[WordMatch] practice score sync failed:', error);
             }
         }
         

@@ -74,7 +74,6 @@ export const pronounceWord = async (config: PronunciationConfig): Promise<void> 
     });
 
   } catch (error) {
-    console.warn('🎙️ Telaffuz hatası:', error);
     // Sessiz başarısızlık - kullanıcıya hata göstermeyiz
   }
 };
@@ -86,7 +85,6 @@ export const stopPronunciation = async (): Promise<void> => {
   try {
     await safeCleanupSound();
   } catch (error) {
-    console.warn('🎙️ Telaffuz durdurma hatası:', error);
   }
 };
 
@@ -102,7 +100,6 @@ export const initializePronunciation = async (): Promise<void> => {
       shouldDuckAndroid: true,
     });
   } catch (error) {
-    console.warn('🎙️ Telaffuz başlatma hatası:', error);
   }
 };
 

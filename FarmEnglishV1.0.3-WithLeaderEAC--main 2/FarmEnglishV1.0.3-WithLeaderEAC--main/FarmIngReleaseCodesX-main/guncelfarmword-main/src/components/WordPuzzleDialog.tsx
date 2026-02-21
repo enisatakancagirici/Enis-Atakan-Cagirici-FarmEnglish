@@ -1285,7 +1285,6 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
         try {
           queueQuestProgress('COMPLETE_PUZZLE', 1, 'add');
         } catch (error) {
-          console.error('[WordPuzzleDialog] updateQuestProgress failed:', error);
         }
       }, 0);
 
@@ -1294,7 +1293,6 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
         try {
           updateWordPuzzleStat(currentWord.id, true);
         } catch (error) {
-          console.error('[WordPuzzleDialog] updateWordPuzzleStat(correct) failed:', error);
         }
 
         // 💧 SULAMA ANİMASYONU - Yapboz içi lokal animasyon
@@ -1452,7 +1450,6 @@ export const WordPuzzleDialog: React.FC<WordPuzzleDialogProps> = memo(({ visible
         try {
           updateWordPuzzleStat(currentWord.id, false);
         } catch (error) {
-          console.error('[WordPuzzleDialog] updateWordPuzzleStat(wrong) failed:', error);
         }
       }
 

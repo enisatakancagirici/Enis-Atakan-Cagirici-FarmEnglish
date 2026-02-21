@@ -570,7 +570,6 @@ export const QuizScreen = () => {
 
     // Eğer kalan soru sayısı 3 veya daha az ise yeni sorular ekle
     if (questions.length - currentQuestionIndex <= 3) {
-      // console.log('🔄 Generating more questions for endless mode...');
       const moreQuestions = generateMoreQuestions();
       if (moreQuestions.length > 0) {
         setQuestions(prev => [...prev, ...moreQuestions]);
@@ -1310,7 +1309,6 @@ export const QuizScreen = () => {
           traceEvent('quiz_combo_sync_success', { combo: comboForLeaderboard, applied: res?.applied ?? 0 });
         })
         .catch((error) => {
-          console.warn('[QuizScreen] combo leaderboard sync failed:', error);
           traceEvent('quiz_combo_sync_error', { error: String(error), combo: comboForLeaderboard }, 'error');
         });
     }, 0);
