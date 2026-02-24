@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmEnglish - Yasal Bilgiler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #30D158, #0A84FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1em;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        
+        .nav-links a {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #30D158, #22c55e);
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(48, 209, 136, 0.3);
+        }
+        
+        .nav-links a.secondary {
+            background: linear-gradient(135deg, #0A84FF, #0563DB);
+            color: #fff;
+        }
+        
+        .nav-links a.secondary:hover {
+            box-shadow: 0 8px 16px rgba(10, 132, 255, 0.3);
+        }
+        
+        .content-section {
+            background: rgba(28, 28, 30, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .content-section h2 {
+            color: #30D158;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .content-section h3 {
+            color: #0A84FF;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .content-section ul, .content-section ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .content-section li {
+            margin-bottom: 10px;
+        }
+        
+        .content-section p {
+            margin-bottom: 15px;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .info-box {
+            background: rgba(48, 209, 136, 0.1);
+            border-left: 4px solid #30D158;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box.warning {
+            background: rgba(255, 159, 10, 0.1);
+            border-left-color: #FF9F0A;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: rgba(255,255,255,0.5);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+            }
+            
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .content-section {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌱 FarmEnglish</h1>
+            <p>İngilizce Kelime Öğrenme Oyunu</p>
+        </header>
+        
+        <div class="nav-links">
+            <a href="kvkk.html">📜 KVKK Aydınlatma Metni</a>
+            <a href="privacy.html" class="secondary">🔒 Privacy Policy</a>
+            <a href="terms.html" style="background: linear-gradient(135deg, #FF9F0A, #FF6B00);">📋 Kullanım Koşulları</a>
+        </div>
+        
+        <div class="content-section">
+            <h2>✨ Hoş Geldiniz</h2>
+            <p>FarmEnglish, eğlenceli bir tarım teması ile İngilizce kelime öğrenmenizi sağlayan mobil bir uygulamadır. Bu sayfada yasal bilgilendirme metinlerine ulaşabilirsiniz.</p>
+            
+            <h3>🎮 Uygulama Hakkında</h3>
+            <p>FarmEnglish'de:</p>
+            <ul>
+                <li>Binlerce İngilizce kelime öğrenin</li>
+                <li>Eğlenceli quiz'ler çözün</li>
+                <li>Sanal çiftliğinizi yönetin</li>
+                <li>Başarılar kazanın ve seviye atlayın</li>
+            </ul>
+            
+            <div class="info-box">
+                <strong>💚 Gizlilik:</strong> FarmEnglish, hiçbir kişisel verinizi sunucuya göndermez. Tüm veriler yalnızca cihazınızda saklanır.
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>📋 Yasal Belgeler</h2>
+            <p>FarmEnglish uygulamasının gizlilik ve veri koruma politikaları için aşağıdaki bağlantıları kullanabilirsiniz:</p>
+            
+            <ul>
+                <li><a href="kvkk.html" style="color: #30D158;">KVKK Aydınlatma Metni</a> - Türkiye Kişisel Veri Koruma Kanunu uyarınca hazırlanmış aydınlatma metni</li>
+                <li><a href="privacy.html" style="color: #0A84FF;">Privacy Policy</a> - İngilizce Gizlilik Politikası</li>
+                <li><a href="terms.html" style="color: #FF9F0A;">Kullanım Koşulları</a> - Uygulama kullanım şartları ve koşulları</li>
+            </ul>
+            
+            <div class="info-box warning">
+                <strong>⚠️ Önemli:</strong> Bu sayfalar düzenli olarak güncellenebilir. En güncel bilgiler için lütfen uygulamadan erişim sağlayınız.
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2026 FarmEnglish – Enis Atakan Çağırıcı. Tüm hakları saklıdır.</p>
+            <p>Geliştirici: Enis Atakan Çağırıcı</p>
+            <p>📧 iletişim: enisatakann@gmail.com</p>
+        </footer>
+    </div>
+</body>
+</html>
