@@ -10,68 +10,110 @@ FarmEnglish Uygulaması Geliştiricisi
 E-posta: enisatakann@gmail.com
 
 
-## 2. İşlenen Kişisel Veriler
+## 2. Uygulama Modları ve Veri İşleme
+
+FarmEnglish uygulaması üç farklı modda çalışmaktadır:
+
+### 2.1 Çevrimdışı Mod
+
+Bu modda hiçbir kişisel veri toplanmaz. Tüm ilerleme bilgileri yalnızca cihazınızda (AsyncStorage) saklanır, sunucuya hiçbir veri gönderilmez.
+
+### 2.2 Online Mod (Çevrimiçi)
+
+Online modda kullanıcılar bir **kullanıcı adı** ile giriş yapabilmektedir. Bu modda aşağıdaki veriler işlenmektedir:
+
+- **Kullanıcı adı** (kullanıcı tarafından belirlenir)
+- **Puan ve sıralama bilgileri** (liderboard)
+- **Oyun istatistikleri** (maç sonuçları, kazanma/kaybetme)
+
+Bu veriler **Google Firebase** altyapısı (Firestore / Realtime Database) üzerinde saklanmaktadır. Veri sorumlusu kendi sunucusunda herhangi bir veri tutmamaktadır. Firebase'in gizlilik politikası için bkz.: https://firebase.google.com/support/privacy
+
+### 2.3 Sesyap Modu (Konuşma Tanıma)
+
+Sesyap modunda kullanıcı sesli olarak İngilizce kelimeler söylemekte, bu ses kaydı tanınmak üzere işlenmektedir. Bu modda:
+
+- Ses verisi **Google Speech Recognition API** aracılığıyla işlenmekte ve ilgili kelimeyle eşleştirilmektedir.
+- Ses kaydı **yalnızca anlık tanıma amacıyla** Google'ın sunucularına iletilir; kalıcı olarak saklanmaz.
+- Kelime eşleşme sonuçları ile ilerleme verileri **Google Firebase** veritabanında tutulmaktadır.
+- Veri sorumlusu (geliştirici) **kendi sunucusunda ses kaydı veya kişisel veri toplamamaktadır.**
+
+Google'ın ses verileri işleme politikası için bkz.: https://policies.google.com/privacy
+
+## 3. İşlenen Kişisel Veriler
 
 FarmEnglish uygulaması kapsamında aşağıdaki kişisel veriler işlenmektedir:
 
-### 2.1 Kullanıcı Tarafından Sağlanan Veriler
+### 3.1 Kullanıcı Tarafından Sağlanan Veriler
 
-- Takma ad (isteğe bağlı)
+- Kullanıcı adı (Online mod için zorunlu)
+- Takma ad (isteğe bağlı, çevrimdışı mod)
 - Quiz cevapları ve öğrenme etkileşimleri
 - İlerleme bilgileri (puan, seviye, başarılar)
 - Kullanıcı tercihleri (ses, titreşim ayarları)
 
-Tüm bu veriler **yalnızca cihazınızda** (AsyncStorage) saklanır ve hiçbir sunucuya gönderilmez.
+### 3.2 Uygulama Moduna Göre Veri Akışı
 
-### 2.2 Otomatik Olarak Toplanan Veriler
+| Veri Türü | Çevrimdışı | Online | Sesyap |
+|---|---|---|---|
+| Kullanıcı adı | Cihazda | Firebase | Firebase |
+| Puan/İstatistik | Cihazda | Firebase | Firebase |
+| Ses kaydı | Yok | Yok | Google API (anlık) |
+| Konum/IP/Cihaz | Toplanmaz | Toplanmaz | Toplanmaz |
 
-**FarmEnglish hiçbir otomatik veri toplamaz.** Cihaz bilgileri, konum, IP adresi veya kullanım istatistikleri toplanmamaktadır.
+### 3.3 Otomatik Olarak Toplanan Veriler
 
-## 3. Kişisel Verilerin İşlenme Amaçları
+FarmEnglish **analitik, reklam veya izleme aracı kullanmaz.** Cihaz bilgileri, konum veya IP adresi toplanmamaktadır.
 
-Kişisel verileriniz aşağıdaki amaçlarla **yalnızca cihazınızda** işlenmektedir:
+## 4. Kişisel Verilerin İşlenme Amaçları
 
 - Uygulama hizmetlerinin sunulması
-- Kullanıcı profilinin oluşturulması (isteğe bağlı takma ad)
+- Kullanıcı profilinin oluşturulması ve yönetilmesi (Online mod)
 - Öğrenme sürecinin takip edilmesi (quiz sonuçları, puan)
+- Liderboard ve rekabetçi sıralama hizmetinin sağlanması (Online mod)
+- Sesli kelime tanıma özelliğinin sunulması (Sesyap modu)
 - Kullanıcı deneyiminin kişiselleştirilmesi
 
-**Not:** Hiçbir veri sunucuya gönderilmez veya üçüncü taraflarla paylaşılmaz.
+## 5. Üçüncü Taraf Hizmetler
 
-## 4. Kişisel Verilerin Saklanması ve Güvenliği
+Aşağıdaki üçüncü taraf hizmetler kullanılmaktadır:
 
-- Kişisel veriler yalnızca kullanıcının cihazında saklanmaktadır
-- Veriler, cihazın işletim sistemi tarafından sağlanan güvenli alanlarda tutulur
-- Şu an için kişisel veriler herhangi bir sunucuya aktarılmamaktadır
-- Veri sorumlusu tarafından merkezi bir veri tabanı tutulmamaktadır
+### Google Firebase (Online Mod & Sesyap Modu)
+- **Kullanılan servisler:** Firestore / Realtime Database
+- **Amaç:** Kullanıcı adı, puan ve oyun istatistiklerinin saklanması
+- **Veri konumu:** Google'ın sunucuları (Avrupa veya ABD bölgesi)
+- **Politika:** https://firebase.google.com/support/privacy
 
-## 5. Gelecekte Sunulabilecek Hizmetler
+### Google Speech Recognition API (Sesyap Modu)
+- **Kullanılan servis:** Google Cloud Speech-to-Text
+- **Amaç:** Kullanıcının sesini metne dönüştürerek kelime eşleştirme
+- **Saklama:** Ses kaydı kalıcı olarak saklanmaz; yalnızca anlık işleme için iletilir
+- **Politika:** https://policies.google.com/privacy
 
-İlerleyen dönemlerde hesap senkronizasyonu veya veri yedekleme gibi özelliklerin sunulabilmesi amacıyla bulut tabanlı hizmetler kullanılabilir.
+## 6. Kişisel Verilerin Saklanması ve Güvenliği
 
-Bu durumda:
+- Çevrimdışı mod verileri yalnızca kullanıcının cihazında saklanır
+- Online mod ve Sesyap modu verileri Google Firebase'in güvenli altyapısında saklanır
+- Veri sorumlusu kendi merkezi sunucusunu işletmemektedir
+- Firebase verileri şifreleme ve erişim kontrolü ile korunmaktadır
 
-- Kullanıcılar bilgilendirilecektir
-- Bu aydınlatma metni güncellenecektir
-- Kişisel veriler mevzuata uygun şekilde işlenecektir
-
-## 6. Kişisel Verilerin Aktarılması
+## 7. Kişisel Verilerin Aktarılması
 
 Kişisel verileriniz:
 
-- ❌ Üçüncü kişilerle paylaşılmaz
-- ❌ Satılmaz veya ticari amaçla kullanılmaz
-- ❌ Reklam faaliyetlerinde kullanılmaz
+- ❌ Üçüncü kişilerle ticari amaçla paylaşılmaz
+- ❌ Satılmaz veya reklam faaliyetlerinde kullanılmaz
+- ✅ Google Firebase altyapısına (Online ve Sesyap modlarında) aktarılır
+- ✅ Google Speech API'ye (Sesyap modunda, yalnızca anlık işleme)
 
 Yalnızca kanuni yükümlülükler kapsamında yetkili kurumlara aktarılabilir.
 
-## 7. Saklama Süresi
+## 8. Saklama Süresi
 
-- Veriler uygulama yüklü olduğu sürece cihazda saklanır
-- Uygulama silindiğinde tüm veriler kalıcı olarak silinir
-- Kullanıcı, uygulama içinden verilerini sıfırlayabilir
+- Cihaz verileri: Uygulama yüklü olduğu sürece saklanır; uygulama silindiğinde kalıcı olarak silinir
+- Firebase verileri: Hesap silme talebi üzerine silinir; hesap aktif olduğu sürece saklanır
+- Ses verileri: Google Speech API tarafından anlık olarak işlenir, kalıcı saklanmaz
 
-## 8. KVKK Kapsamındaki Haklarınız
+## 9. KVKK Kapsamındaki Haklarınız
 
 6698 sayılı Kanun'un 11. maddesi uyarınca kullanıcılar:
 
@@ -83,16 +125,16 @@ Yalnızca kanuni yükümlülükler kapsamında yetkili kurumlara aktarılabilir.
 
 haklarına sahiptir.
 
-## 9. İletişim
+## 10. İletişim
 
 KVKK kapsamındaki talepleriniz için:
 
 📧 E-posta: enisatakann@gmail.com
 
-## 10. Güncellemeler
+## 11. Güncellemeler
 
 Bu aydınlatma metni gerekli görüldüğü takdirde güncellenebilir.
 Güncellemeler uygulama güncellemeleri ile duyurulur.
 
-Son Güncelleme: 14 Ocak 2026
-FarmEnglish Uygulaması – Sürüm 1.0.1
+Son Güncelleme: 25 Şubat 2026
+FarmEnglish Uygulaması – Sürüm 1.0.3

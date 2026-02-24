@@ -9,95 +9,137 @@ Enis Atakan Çağırıcı
 Developer of the FarmEnglish Application
 Contact Email: enisatakann@gmail.com
 
-## 2. Information We Collect
+## 2. Application Modes and Data Processing
 
-FarmEnglish collects minimal data that is strictly necessary to provide its core functionality. **All data is stored locally on your device only.**
+FarmEnglish operates in three modes, each with different data handling:
 
-### 2.1 Information Provided by Users
+### 2.1 Offline Mode
 
-- Username / Nickname (optional)
+No personal data is collected or transmitted. All progress is stored **only on your device** (AsyncStorage).
+
+### 2.2 Online Mode
+
+In Online Mode, users sign in with a **username** to access competitive features. The following data is processed:
+
+- **Username** (chosen by the user)
+- **Scores and ranking** (leaderboard)
+- **Game statistics** (match results, wins/losses)
+
+This data is stored on **Google Firebase** (Firestore / Realtime Database). The developer does **not** operate or own any custom backend server. Firebase's privacy policy: https://firebase.google.com/support/privacy
+
+### 2.3 Sesyap Mode (Voice Recognition)
+
+In Sesyap Mode, users speak English words aloud, which are recognized via speech technology. In this mode:
+
+- Voice audio is sent to **Google Speech Recognition API** for real-time word matching.
+- Audio is processed **instantly** and is **not permanently stored** by the API.
+- Word match results and progress data are stored on **Google Firebase**.
+- The developer does **not** collect or store voice recordings on any personal server.
+
+Google's privacy policy: https://policies.google.com/privacy
+
+## 3. Information We Collect
+
+### 3.1 Information Provided by Users
+
+- Username (required for Online Mode)
+- Optional nickname (Offline Mode)
 - Quiz answers and learning interactions
 - Learning progress (levels, scores, achievements)
 - User preferences (sound, vibration settings)
 
-All this data is stored **only on your device** (AsyncStorage) and is never transmitted to any server.
+### 3.2 Data Flow by Mode
 
-### 2.2 Information Collected Automatically
+| Data Type | Offline | Online | Sesyap |
+|---|---|---|---|
+| Username | Device only | Firebase | Firebase |
+| Scores / Stats | Device only | Firebase | Firebase |
+| Voice audio | None | None | Google API (transient) |
+| Location / IP / Device ID | Not collected | Not collected | Not collected |
 
-**FarmEnglish does NOT collect any automatic data.** We do not collect device information, location, IP addresses, or usage statistics.
+### 3.3 Automatically Collected Information
 
-## 3. Purpose of Data Processing
+FarmEnglish does **not** use analytics, advertising SDKs, or tracking tools. No device identifiers, location data, or IP addresses are collected.
 
-Personal data is processed **only on your device** for the following purposes:
+## 4. Purpose of Data Processing
 
-- Providing and maintaining application functionality
-- Creating and managing user profiles (optional nickname)
+- Providing core application functionality
+- Managing user profiles and authentication (Online Mode)
 - Tracking learning progress (quiz scores, levels)
+- Enabling leaderboards and competitive features (Online Mode)
+- Delivering voice-based word recognition (Sesyap Mode)
 - Personalizing user experience
 
-**Note:** No data is transmitted to any server or shared with third parties.
+## 5. Third-Party Services
 
-## 4. Data Storage and Security
+### Google Firebase (Online Mode & Sesyap Mode)
+- **Services used:** Firestore / Realtime Database
+- **Purpose:** Storing usernames, scores, and game statistics
+- **Data location:** Google's servers (EU or US region)
+- **Privacy policy:** https://firebase.google.com/support/privacy
 
-- All personal data is currently stored locally on the user's device
-- Data is stored within the operating system's secure application environment
-- No personal data is transmitted to external servers at this time
-- FarmEnglish does not maintain a centralized backend database
+### Google Speech Recognition API (Sesyap Mode)
+- **Service:** Google Cloud Speech-to-Text
+- **Purpose:** Converting user speech to text for word matching
+- **Storage:** Audio is not permanently stored; sent only for real-time processing
+- **Privacy policy:** https://policies.google.com/privacy
 
-## 5. Future Services
+## 6. Data Storage and Security
 
-In the future, cloud-based services may be used to support features such as account synchronization or data backup.
+- Offline mode data is stored securely on-device only
+- Online and Sesyap mode data is stored on Google Firebase's secure infrastructure
+- The developer does not operate a personal/custom backend server
+- Firebase data is protected by encryption and access controls
 
-If such services are introduced:
-
-- Users will be informed in advance
-- This Privacy Policy will be updated
-- Data processing will comply with applicable data protection laws
-
-## 6. Data Sharing
+## 7. Data Sharing
 
 FarmEnglish:
 
 - ❌ Does not sell personal data
-- ❌ Does not share personal data with third parties
-- ❌ Does not use personal data for advertising
+- ❌ Does not share personal data for advertising or marketing
+- ✅ Transmits data to Google Firebase (Online & Sesyap modes)
+- ✅ Sends voice audio to Google Speech API (Sesyap mode, transient only)
 
 Personal data may only be disclosed if required by law.
 
-## 7. Data Retention
+## 8. Data Retention
 
-- Data remains on the device while the application is installed
-- All locally stored data is deleted when the application is uninstalled
-- Users may reset or delete their data through app settings
+- **Device data:** Retained while the app is installed; deleted when the app is uninstalled
+- **Firebase data:** Retained while account is active; deleted upon account deletion request
+- **Voice audio:** Processed in real-time by Google Speech API; not permanently stored
 
-## 8. User Rights
+## 9. User Rights
 
 Users have the right to:
 
 - Access their personal data
 - Request correction of inaccurate data
-- Request deletion of personal data
+- Request deletion of personal data (including Firebase records)
 - Object to data processing
 - Request data portability where technically feasible
 
-Requests can be submitted via email.
+Requests can be submitted via the contact email below.
 
-## 9. Children's Privacy
+## 10. Children's Privacy
 
 - FarmEnglish is not specifically targeted at children.
-- If users under the age of 18 use the application, data processing occurs only on the device.
+- Users under 18 should use the application with parental supervision, particularly Online and Sesyap modes.
 
-## 10. Policy Updates
+## 11. Policy Updates
 
 - This Privacy Policy may be updated when necessary.
 - Any changes will be communicated through application updates.
 
-## 11. Compliance
+## 12. Compliance
 
 This Privacy Policy is designed to comply with:
 
 - Turkish Personal Data Protection Law (KVKK)
 - General Data Protection Regulation (GDPR), where applicable
 
-Last Updated: January 14, 2026
-FarmEnglish Application – Version 1.0.1
+## 13. Contact
+
+Email: enisatakann@gmail.com
+
+Last Updated: February 25, 2026
+FarmEnglish Application – Version 1.0.3
