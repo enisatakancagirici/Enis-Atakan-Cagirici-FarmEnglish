@@ -46,46 +46,58 @@ Contact Email: enisatakann@gmail.com
 </p>
 
 <h2>2. Information We Collect</h2>
+
+<h3>Classic Mode</h3>
 <p>
-FarmEnglish collects only the minimum data required for the application to function.
-All data is stored <strong>locally on the user's device</strong>.
+In Classic Mode, no personal data is collected. All progress data is stored <strong>locally on the user's device</strong> and is never transmitted to any server.
 </p>
 
-<h3>User-Provided Information</h3>
+<h3>Voice Mode (SesYap)</h3>
+<p>
+In Voice Mode, audio captured from the microphone is sent to the <strong>Google Speech-to-Text API</strong> for pronunciation evaluation. This audio:
+</p>
 <ul>
-    <li>Optional nickname</li>
-    <li>Application progress data</li>
-    <li>User preferences (sound and vibration settings)</li>
+    <li>Is not sent to or stored on the developer's server</li>
+    <li>Is processed solely through Google's API infrastructure</li>
+    <li>Is subject to Google's Privacy Policy: <a href="https://policies.google.com/privacy" style="color:#0ea5e9">policies.google.com/privacy</a></li>
 </ul>
 
+<h3>Battle Mode (Online Mode)</h3>
 <p>
-This information is never transmitted to any external server.
+Battle Mode uses Firebase infrastructure for real-time online gameplay. Only the following data is processed:
 </p>
-
-<h3>Automatically Collected Information</h3>
+<ul>
+    <li><strong>Username:</strong> The nickname chosen by the user at registration</li>
+</ul>
 <p>
-FarmEnglish does not collect any data automatically.
-No device identifiers, IP addresses, location data, analytics, or tracking technologies are used.
+This is used solely for displaying scores on the leaderboard to other players. No real name, email, location, or other personal information is collected.
 </p>
 
 <h2>3. Purpose of Data Processing</h2>
 <ul>
     <li>Providing core application functionality</li>
     <li>Saving user progress locally</li>
-    <li>Enhancing the user experience</li>
+    <li>Pronunciation evaluation (Voice Mode only)</li>
+    <li>Online leaderboard and matchmaking (Battle Mode only)</li>
 </ul>
 
 <h2>4. Data Storage and Security</h2>
 <ul>
-    <li>All data remains on the user's device</li>
-    <li>No backend, cloud service, or external database is used</li>
-    <li>Deleting the application permanently removes all stored data</li>
+    <li>Classic Mode data remains solely on the user's device</li>
+    <li>Voice Mode audio is not stored on the developer's server</li>
+    <li>Battle Mode stores only the username on Firebase</li>
+    <li>Deleting the application permanently removes all locally stored data</li>
 </ul>
 
-<h2>5. Data Sharing</h2>
+<h2>5. Third-Party Services</h2>
+<ul>
+    <li><strong>Google Speech-to-Text API</strong> – Pronunciation recognition (Voice Mode)</li>
+    <li><strong>Firebase (Google LLC)</strong> – Online matchmaking and username storage (Battle Mode)</li>
+</ul>
+
+<h2>6. Data Sharing</h2>
 <p>
-FarmEnglish does not sell, share, or use personal data for advertising or marketing purposes.
-Personal data is not disclosed to third parties, except where required by law.
+FarmEnglish does not sell or share personal data for advertising or marketing purposes. Audio is processed technically only through Google's API; usernames are held on Firebase solely for gameplay functionality.
 </p>
 
 <h2>6. User Rights</h2>
@@ -112,8 +124,8 @@ Email: <strong>enisatakann@gmail.com</strong>
 </p>
 
 <footer>
-Last Updated: January 15, 2026<br>
-FarmEnglish – Version 1.0.1
+Last Updated: February 26, 2026<br>
+FarmEnglish – Version 1.0.3
 </footer>
 
 </div>
