@@ -5,129 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FarmEnglish - Privacy Policy</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #020617;
-            color: #e5e7eb;
-            line-height: 1.8;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: #020617;
-            padding: 40px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        h1, h2 {
-            color: #0ea5e9;
-        }
-        ul {
-            margin-left: 20px;
-        }
-        footer {
-            margin-top: 40px;
-            text-align: right;
-            opacity: 0.7;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #020617; color: #e5e7eb; line-height: 1.72; padding: 20px; }
+        .container { max-width: 900px; margin: auto; padding: 40px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; }
+        h1, h2 { color: #38bdf8; }
+        h3 { color: #bae6fd; }
+        a { color: #38bdf8; }
+        ul { padding-left: 24px; }
+        footer { margin-top: 40px; opacity: .78; }
     </style>
 </head>
 <body>
-<div class="container">
+<main class="container">
+    <h1>FarmEnglish Privacy Policy</h1>
+    <p><strong>Last updated:</strong> May 24, 2026</p>
 
-<h1>Privacy Policy</h1>
+    <h2>1. Data Controller</h2>
+    <p><strong>Enis Atakan Cagirici</strong><br>Developer of FarmEnglish<br>Contact: <a href="mailto:enisatakann@gmail.com">enisatakann@gmail.com</a></p>
 
-<h2>1. Data Controller</h2>
-<p>
-<strong>Enis Atakan Çağırıcı</strong><br>
-Owner and Developer of the FarmEnglish Mobile Application<br>
-Contact Email: enisatakann@gmail.com
-</p>
+    <h2>2. Summary</h2>
+    <p>FarmEnglish does not sell personal data and does not use data for third-party advertising or tracking. Most learning progress and settings remain on the device. Optional online features transmit the information described below to provide their functionality.</p>
 
-<h2>2. Information We Collect</h2>
+    <h2>3. Information Processed</h2>
+    <h3>Data kept on the device</h3>
+    <p>The app stores learning progress, saved vocabulary, game settings, local achievements, reminder preferences, and other gameplay state on the device.</p>
 
-<h3>Classic Mode</h3>
-<p>
-In Classic Mode, no personal data is collected. All progress data is stored <strong>locally on the user's device</strong> and is never transmitted to any server.
-</p>
+    <h3>Online profiles, leaderboards, and Battle Mode</h3>
+    <p>FarmEnglish uses Google Firebase Authentication and Cloud Firestore for online features. The app may create an anonymous authentication session and process:</p>
+    <ul>
+        <li>An anonymous account/player identifier and an optional nickname</li>
+        <li>Progress and leaderboard values such as XP, level, coins, score, wins, losses, streaks, harvest, puzzle, SesYap, quiz, and practice scores</li>
+        <li>Online gameplay and matchmaking information such as participant nicknames/identifiers, room or queue records, match status, scores, questions and answer options, selected answers, correctness/timing records, and in-game reactions</li>
+    </ul>
+    <p>Nickname and ranking information may be visible to other users through leaderboards or multiplayer screens. These records are used for app functionality, rankings, matchmaking, and online gameplay.</p>
 
-<h3>Voice Mode (SesYap)</h3>
-<p>
-In Voice Mode, audio captured from the microphone is sent to the <strong>Google Speech-to-Text API</strong> for pronunciation evaluation. This audio:
-</p>
-<ul>
-    <li>Is not sent to or stored on the developer's server</li>
-    <li>Is processed solely through Google's API infrastructure</li>
-    <li>Is subject to Google's Privacy Policy: <a href="https://policies.google.com/privacy" style="color:#0ea5e9">policies.google.com/privacy</a></li>
-</ul>
+    <h3>SesYap voice practice</h3>
+    <p>If a user chooses voice practice and grants microphone permission, the voice sample is sent through a server-side speech endpoint to <strong>Google Cloud Speech-to-Text</strong> for transcription and pronunciation evaluation. The app deletes its temporary local recording after processing or when the voice flow is exited. Results and related scores may remain locally and, when an online profile exists, score values may be synchronized to Firebase.</p>
+    <p>Google's handling of requests is governed by its applicable service and privacy documentation. Cloud Speech-to-Text data logging should remain disabled unless this policy and App Store privacy disclosures are updated accordingly.</p>
 
-<h3>Battle Mode (Online Mode)</h3>
-<p>
-Battle Mode uses Firebase infrastructure for real-time online gameplay. Only the following data is processed:
-</p>
-<ul>
-    <li><strong>Username:</strong> The nickname chosen by the user at registration</li>
-</ul>
-<p>
-This is used solely for displaying scores on the leaderboard to other players. No real name, email, location, or other personal information is collected.
-</p>
+    <h3>AI-assisted word features</h3>
+    <p>If an AI-assisted word suggestion or study recommendation feature is enabled and used, the submitted word or text and relevant study context, which may include an optional nickname and weak-word information, are sent to a server-side endpoint to generate the requested result. Provider API credentials are not intended to be embedded in the mobile app.</p>
 
-<h2>3. Purpose of Data Processing</h2>
-<ul>
-    <li>Providing core application functionality</li>
-    <li>Saving user progress locally</li>
-    <li>Pronunciation evaluation (Voice Mode only)</li>
-    <li>Online leaderboard and matchmaking (Battle Mode only)</li>
-</ul>
+    <h3>Notifications</h3>
+    <p>Daily reminders are scheduled as local notifications on the device after permission is granted. The app stores reminder scheduling and language preferences locally for this purpose. The current reminder implementation does not require a remote push-notification token.</p>
 
-<h2>4. Data Storage and Security</h2>
-<ul>
-    <li>Classic Mode data remains solely on the user's device</li>
-    <li>Voice Mode audio is not stored on the developer's server</li>
-    <li>Battle Mode stores only the username on Firebase</li>
-    <li>Deleting the application permanently removes all locally stored data</li>
-</ul>
+    <h2>4. Service Providers</h2>
+    <ul>
+        <li><strong>Google Firebase Authentication and Cloud Firestore:</strong> anonymous authentication, online profiles, leaderboards, matchmaking, and battle gameplay data</li>
+        <li><strong>Google Cloud Speech-to-Text:</strong> transcription of audio submitted through SesYap</li>
+        <li><strong>An AI processing provider behind the FarmEnglish server endpoint:</strong> only when AI-assisted features are enabled and used</li>
+    </ul>
+    <p>Google privacy information is available at <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>.</p>
 
-<h2>5. Third-Party Services</h2>
-<ul>
-    <li><strong>Google Speech-to-Text API</strong> – Pronunciation recognition (Voice Mode)</li>
-    <li><strong>Firebase (Google LLC)</strong> – Online matchmaking and username storage (Battle Mode)</li>
-</ul>
+    <h2>5. Retention and Deletion</h2>
+    <p>Local data can be removed by resetting app data or uninstalling the app, subject to operating-system backup behavior. Server-side online profile, leaderboard, or gameplay data is not removed merely by uninstalling the app and may be retained while necessary to operate the features, prevent abuse, preserve rankings, or meet legal obligations. Requests to access, correct, or delete server-side data may be sent to the contact email above, including the nickname or player identifier where available.</p>
 
-<h2>6. Data Sharing</h2>
-<p>
-FarmEnglish does not sell or share personal data for advertising or marketing purposes. Audio is processed technically only through Google's API; usernames are held on Firebase solely for gameplay functionality.
-</p>
+    <h2>6. User Choices</h2>
+    <p>Microphone access and notifications are optional and can be changed through device settings. Users can avoid voice-audio transfer by not using SesYap and avoid multiplayer processing by not using online features.</p>
 
-<h2>6. User Rights</h2>
-<p>
-Users have the right to access, delete, and control their personal data in accordance with applicable laws.
-Requests can be submitted via the contact email below.
-</p>
+    <h2>7. International Processing and Updates</h2>
+    <p>Online service providers may process information outside the user's country under their applicable safeguards. This policy may be updated as functionality or processing practices change.</p>
 
-<h2>7. Policy Updates</h2>
-<p>
-This Privacy Policy may be updated from time to time.
-Any changes will become effective upon publication within the application.
-</p>
-
-<h2>8. Legal Compliance</h2>
-<ul>
-    <li>Turkish Personal Data Protection Law (KVKK)</li>
-    <li>General Data Protection Regulation (GDPR), where applicable</li>
-</ul>
-
-<h2>9. Contact</h2>
-<p>
-Email: <strong>enisatakann@gmail.com</strong>
-</p>
-
-<footer>
-Last Updated: February 26, 2026<br>
-FarmEnglish – Version 1.0.3
-</footer>
-
-</div>
+    <footer>FarmEnglish Privacy Policy | Contact: enisatakann@gmail.com</footer>
+</main>
 </body>
 </html>

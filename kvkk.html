@@ -5,117 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FarmEnglish - KVKK Aydınlatma Metni</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f172a;
-            color: #e5e7eb;
-            line-height: 1.8;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: #020617;
-            padding: 40px;
-            border-radius: 12px;
-        }
-        h1, h2 {
-            color: #22c55e;
-        }
-        ul {
-            margin-left: 20px;
-        }
-        footer {
-            margin-top: 40px;
-            text-align: right;
-            opacity: 0.7;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #020617; color: #e5e7eb; line-height: 1.72; padding: 20px; }
+        .container { max-width: 900px; margin: auto; padding: 40px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; }
+        h1, h2 { color: #4ade80; }
+        h3 { color: #bbf7d0; }
+        a { color: #4ade80; }
+        ul { padding-left: 24px; }
+        footer { margin-top: 40px; opacity: .78; }
     </style>
 </head>
 <body>
-<div class="container">
+<main class="container">
+    <h1>FarmEnglish KVKK Aydınlatma Metni</h1>
+    <p><strong>Son güncelleme:</strong> 24 Mayıs 2026</p>
 
-<h1>KVKK Aydınlatma Metni</h1>
+    <h2>1. Veri Sorumlusu</h2>
+    <p><strong>Enis Atakan Çağırıcı</strong><br>FarmEnglish geliştiricisi<br>İletişim: <a href="mailto:enisatakann@gmail.com">enisatakann@gmail.com</a></p>
 
-<h2>1. Veri Sorumlusu</h2>
-<p>
-<strong>Enis Atakan Çağırıcı</strong><br>
-FarmEnglish Mobil Uygulaması Geliştiricisi ve Sahibi<br>
-E-posta: enisatakann@gmail.com
-</p>
+    <h2>2. Genel Bilgilendirme</h2>
+    <p>FarmEnglish kişisel verileri satmaz ve üçüncü taraf reklam veya takip amacıyla kullanmaz. Öğrenme verilerinin ve ayarların önemli bölümü cihazda tutulur. İsteğe bağlı çevrimiçi özellikler kullanıldığında aşağıdaki bilgiler işlevlerin sunulabilmesi için aktarılır.</p>
 
-<h2>2. İşlenen Kişisel Veriler</h2>
+    <h2>3. İşlenen Veriler ve Amaçları</h2>
+    <h3>Cihazda tutulan veriler</h3>
+    <p>Uygulama; öğrenme ilerlemesi, kaydedilen kelimeler, oyun ayarları, cihaz içi başarımlar, hatırlatıcı tercihleri ve diğer oyun durumlarını cihazda saklar.</p>
 
-<h3>2.1 Klasik Mod</h3>
-<p>
-Klasik modda herhangi bir kişisel veri toplanmaz. Tüm ilerleme bilgileri <strong>yalnızca kullanıcının cihazında</strong> saklanır, herhangi bir sunucuya aktarılmaz.
-</p>
+    <h3>Çevrimiçi profil, liderlik tablosu ve Savaş Modu</h3>
+    <p>FarmEnglish çevrimiçi özellikler için Google Firebase Authentication ve Cloud Firestore kullanır. Uygulama anonim bir kimlik doğrulama oturumu oluşturabilir ve şu verileri işleyebilir:</p>
+    <ul>
+        <li>Anonim hesap/oyuncu kimliği ve isteğe bağlı takma ad</li>
+        <li>XP, seviye, coin, puan, galibiyet, mağlubiyet, seri, hasat, yapboz, SesYap, quiz ve pratik skorları gibi ilerleme ve sıralama değerleri</li>
+        <li>Katılımcı takma adları/kimlikleri, oda veya eşleşme kuyruğu kayıtları, maç durumu, skorlar, sorular ve cevap seçenekleri, seçilen cevaplar, doğruluk/süre kayıtları ve oyun içi tepkiler gibi çevrimiçi oyun verileri</li>
+    </ul>
+    <p>Takma ad ve sıralama bilgileri liderlik tablosu veya çok oyunculu ekranlarda diğer kullanıcılara görünebilir. Bu kayıtlar çevrimiçi oyun, eşleşme, sıralama ve uygulama işlevlerinin sağlanması amaçlarıyla işlenir.</p>
 
-<h3>2.2 Seslendirme Modu</h3>
-<p>
-Seslendirme modunda telaffuz değerlendirmesi yapılabilmesi için mikrofondan alınan ses verisi <strong>Google Speech-to-Text API</strong>'ye iletilmektedir. Bu ses verisi:
-</p>
-<ul>
-    <li>Geliştirici sunucusuna gönderilmez ve kaydedilmez</li>
-    <li>Yalnızca Google'ın API altyapısı üzerinden işlenir</li>
-    <li>Google'ın gizlilik politikasına tabidir: <a href="https://policies.google.com/privacy" style="color:#22c55e">policies.google.com/privacy</a></li>
-</ul>
+    <h3>SesYap sesli pratik</h3>
+    <p>Kullanıcı SesYap özelliğini seçip mikrofon izni verdiğinde ses kaydı, telaffuz denemesinin yazıya dönüştürülmesi ve değerlendirilmesi için sunucu taraflı bir konuşma endpoint'i üzerinden <strong>Google Cloud Speech-to-Text</strong> hizmetine iletilir. Uygulama kendi geçici yerel ses kaydını işlem tamamlandıktan veya sesli pratikten çıkıldıktan sonra siler. Sonuç ve ilgili skorlar cihazda tutulabilir; çevrimiçi profil varsa skor değerleri Firebase ile eşitlenebilir.</p>
+    <p>Google tarafından yapılan işlemeler ilgili hizmet koşulları ve gizlilik belgelerine tabidir. Cloud Speech-to-Text veri günlüğü etkinleştirilecekse bu metin ve App Store gizlilik beyanları buna göre güncellenmelidir.</p>
 
-<h3>2.3 Savaş Modu (Online Mod)</h3>
-<p>
-Savaş modunda gerçek zamanlı çevrimiçi oyun işlevleri için Firebase altyapısı kullanılmaktadır. Bu modda yalnızca şu veri işlenir:
-</p>
-<ul>
-    <li><strong>Kullanıcı adı:</strong> Kayıt sırasında kullanıcının belirlediği takma ad</li>
-</ul>
-<p>
-Bu veri diğer oyuncuların görebileceği skor tablosunda görüntülenmek amacıyla kullanılır. Gerçek ad, e-posta, konum veya başka kişisel bilgi toplanmaz.
-</p>
+    <h3>Yapay zeka destekli kelime özellikleri</h3>
+    <p>Yapay zeka destekli kelime önerisi veya çalışma tavsiyesi özelliği etkinleştirilir ve kullanılırsa gönderilen kelime/metin ile ilgili çalışma bağlamı, isteğe bağlı takma ad ve zorlanılan kelime bilgileri dahil olmak üzere, istenen sonucu üretmek amacıyla sunucu taraflı bir endpoint'e aktarılır. Hizmet sağlayıcı API anahtarlarının mobil uygulamaya gömülmesi amaçlanmamaktadır.</p>
 
-<h2>3. Kişisel Verilerin İşlenme Amaçları</h2>
-<ul>
-    <li>Uygulamanın temel işlevlerinin sağlanması</li>
-    <li>Kullanıcı ilerlemesinin korunması</li>
-    <li>Telaffuz değerlendirmesi (yalnızca Seslendirme Modu)</li>
-    <li>Çevrimiçi skor tablosu ve eşleşme (yalnızca Savaş Modu)</li>
-</ul>
+    <h3>Bildirimler</h3>
+    <p>Günlük hatırlatıcılar, kullanıcı izin verdikten sonra cihazda yerel bildirim olarak planlanır. Hatırlatma programı ve dil tercihi bu amaçla yerel olarak saklanır. Mevcut hatırlatma işleyişi uzak bildirim token'ı gerektirmez.</p>
 
-<h2>4. Veri Saklama ve Güvenlik</h2>
-<ul>
-    <li>Klasik mod verileri yalnızca kullanıcının cihazında saklanır</li>
-    <li>Seslendirme modunda ses verisi geliştirici sunucusunda saklanmaz</li>
-    <li>Savaş modunda yalnızca kullanıcı adı Firebase'de saklanır</li>
-    <li>Uygulama silindiğinde cihaz üzerindeki veriler kalıcı olarak silinir</li>
-</ul>
+    <h2>4. Aktarım Yapılabilecek Hizmet Sağlayıcılar</h2>
+    <ul>
+        <li><strong>Google Firebase Authentication ve Cloud Firestore:</strong> anonim kimlik doğrulama, çevrimiçi profil, liderlik tablosu, eşleşme ve savaş verileri</li>
+        <li><strong>Google Cloud Speech-to-Text:</strong> SesYap kapsamında iletilen sesin yazıya dönüştürülmesi</li>
+        <li><strong>FarmEnglish sunucu endpoint'inin arkasındaki yapay zeka hizmet sağlayıcısı:</strong> yalnızca yapay zeka özellikleri etkinleştirilip kullanıldığında</li>
+    </ul>
+    <p>Google gizlilik bilgileri için: <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>.</p>
 
-<h2>5. Kullanılan Üçüncü Taraf Hizmetler</h2>
-<ul>
-    <li><strong>Google Speech-to-Text API</strong> – Telaffuz tanıma (Seslendirme Modu)</li>
-    <li><strong>Firebase (Google LLC)</strong> – Çevrimiçi eşleşme ve kullanıcı adı saklama (Savaş Modu)</li>
-</ul>
+    <h2>5. Saklama, Silme ve Haklar</h2>
+    <p>Cihazda saklanan veriler, uygulama içi sıfırlama veya uygulamanın kaldırılmasıyla silinebilir; işletim sistemi yedekleme davranışları saklıdır. Çevrimiçi profil, liderlik tablosu veya oyun amacıyla sunucuda saklanan veriler yalnızca uygulamanın kaldırılmasıyla silinmez ve özelliğin işletilmesi, kötüye kullanımın önlenmesi, sıralamaların korunması veya hukuki yükümlülükler için gerekli olduğu sürece saklanabilir.</p>
+    <p>6698 sayılı Kanun'un 11. maddesi kapsamındaki bilgi alma, erişim, düzeltme, silme ve ilgili diğer talepler, varsa takma ad ya da oyuncu kimliği belirtilerek yukarıdaki e-posta adresine iletilebilir.</p>
 
-<h2>6. Kişisel Verilerin Aktarımı</h2>
-<p>
-Kişisel veriler pazarlama veya reklam amacıyla üçüncü kişilerle paylaşılmaz. Ses verisi yalnızca Google API altyapısı üzerinden teknik olarak işlenir; kullanıcı adı ise yalnızca oyun işlevi için Firebase üzerinde tutulur.
-</p>
+    <h2>6. Kullanıcı Tercihleri ve Yurt Dışında İşleme</h2>
+    <p>Mikrofon ve bildirim izinleri isteğe bağlıdır ve cihaz ayarlarından değiştirilebilir. Kullanıcı SesYap'ı kullanmayarak ses aktarımından, çevrimiçi özellikleri kullanmayarak çok oyunculu veri işlenmesinden kaçınabilir. Çevrimiçi hizmet sağlayıcılar verileri kendi sözleşmesel ve hukuki güvenceleri kapsamında yurt dışında işleyebilir.</p>
 
-<h2>7. KVKK Kapsamındaki Haklar</h2>
-<p>
-6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında kullanıcılar;
-kişisel verileriyle ilgili bilgi alma, silme ve diğer yasal haklarını
-aşağıda belirtilen iletişim adresi üzerinden kullanabilirler.
-</p>
+    <h2>7. Güncellemeler</h2>
+    <p>Özellikler veya veri işleme uygulamaları değiştikçe bu metin güncellenebilir.</p>
 
-<h2>8. İletişim</h2>
-<p>
-E-posta: <strong>enisatakann@gmail.com</strong>
-</p>
-
-<footer>
-Son Güncelleme: 26 Şubat 2026<br>
-FarmEnglish – Sürüm 1.0.3
-</footer>
-
-</div>
+    <footer>FarmEnglish KVKK Aydınlatma Metni | İletişim: enisatakann@gmail.com</footer>
+</main>
 </body>
-</ht
+</html>
