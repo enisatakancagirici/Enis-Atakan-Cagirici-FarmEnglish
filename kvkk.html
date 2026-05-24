@@ -27,7 +27,7 @@
 
     <h2>3. İşlenen Veriler ve Amaçları</h2>
     <h3>Cihazda tutulan veriler</h3>
-    <p>Uygulama; öğrenme ilerlemesi, kaydedilen kelimeler, oyun ayarları, cihaz içi başarımlar, hatırlatıcı tercihleri ve diğer oyun durumlarını cihazda saklar.</p>
+    <p>Uygulama; öğrenme ilerlemesi, kaydedilen kelimeler, kullanıcının oluşturduğu kelime ve örnek cümleler, oyun ayarları, cihaz içi başarımlar, hatırlatıcı tercihleri ve diğer oyun durumlarını cihazda saklar. Kullanıcı kelime oluştururken veya çalışırken yapay zeka destekli bir öneriyi kullanırsa bu istekte kullanılan metin aşağıda açıklandığı şekilde gönderilebilir. Kullanıcıların özel metin alanlarına kendileri veya başkaları hakkında kişisel ya da hassas bilgiler girmemesi önerilir.</p>
 
     <h3>Çevrimiçi profil, liderlik tablosu ve Savaş Modu</h3>
     <p>FarmEnglish çevrimiçi özellikler için Google Firebase Authentication ve Cloud Firestore kullanır. Uygulama anonim bir kimlik doğrulama oturumu oluşturabilir ve şu verileri işleyebilir:</p>
@@ -39,11 +39,10 @@
     <p>Takma ad ve sıralama bilgileri liderlik tablosu veya çok oyunculu ekranlarda diğer kullanıcılara görünebilir. Bu kayıtlar çevrimiçi oyun, eşleşme, sıralama ve uygulama işlevlerinin sağlanması amaçlarıyla işlenir.</p>
 
     <h3>SesYap sesli pratik</h3>
-    <p>Kullanıcı SesYap özelliğini seçip mikrofon izni verdiğinde ses kaydı, telaffuz denemesinin yazıya dönüştürülmesi ve değerlendirilmesi için sunucu taraflı bir konuşma endpoint'i üzerinden <strong>Google Cloud Speech-to-Text</strong> hizmetine iletilir. Uygulama kendi geçici yerel ses kaydını işlem tamamlandıktan veya sesli pratikten çıkıldıktan sonra siler. Sonuç ve ilgili skorlar cihazda tutulabilir; çevrimiçi profil varsa skor değerleri Firebase ile eşitlenebilir.</p>
-    <p>Google tarafından yapılan işlemeler ilgili hizmet koşulları ve gizlilik belgelerine tabidir. Cloud Speech-to-Text veri günlüğü etkinleştirilecekse bu metin ve App Store gizlilik beyanları buna göre güncellenmelidir.</p>
+    <p>Kullanıcı SesYap özelliğini seçip mikrofon izni verdiğinde ses kaydı, telaffuz denemesinin yazıya dönüştürülmesi ve değerlendirilmesi için <strong>Google Cloud Speech-to-Text</strong> hizmetine iletilir. Uygulama kendi geçici yerel ses kaydını işlem tamamlandıktan veya sesli pratikten çıkıldıktan sonra siler. Sonuç ve ilgili skorlar cihazda tutulabilir; çevrimiçi profil varsa skor değerleri Firebase ile eşitlenebilir.</p>
 
     <h3>Yapay zeka destekli kelime özellikleri</h3>
-    <p>Yapay zeka destekli kelime önerisi veya çalışma tavsiyesi özelliği etkinleştirilir ve kullanılırsa gönderilen kelime/metin ile ilgili çalışma bağlamı, isteğe bağlı takma ad ve zorlanılan kelime bilgileri dahil olmak üzere, istenen sonucu üretmek amacıyla sunucu taraflı bir endpoint'e aktarılır. Hizmet sağlayıcı API anahtarlarının mobil uygulamaya gömülmesi amaçlanmamaktadır.</p>
+    <p>Kullanıcı yapay zeka destekli kelime önerisi veya çalışma tavsiyesi istediğinde, yazdığı kelime veya metin ve ilgili çalışma bilgileri öneriyi oluşturmak için bir yapay zeka hizmetine gönderilebilir. Bu bilgiler, isteğe bağlı takma adı ve çalışılan kelimelere ilişkin bilgileri içerebilir.</p>
 
     <h3>Bildirimler</h3>
     <p>Günlük hatırlatıcılar, kullanıcı izin verdikten sonra cihazda yerel bildirim olarak planlanır. Hatırlatma programı ve dil tercihi bu amaçla yerel olarak saklanır. Mevcut hatırlatma işleyişi uzak bildirim token'ı gerektirmez.</p>
@@ -52,7 +51,7 @@
     <ul>
         <li><strong>Google Firebase Authentication ve Cloud Firestore:</strong> anonim kimlik doğrulama, çevrimiçi profil, liderlik tablosu, eşleşme ve savaş verileri</li>
         <li><strong>Google Cloud Speech-to-Text:</strong> SesYap kapsamında iletilen sesin yazıya dönüştürülmesi</li>
-        <li><strong>FarmEnglish sunucu endpoint'inin arkasındaki yapay zeka hizmet sağlayıcısı:</strong> yalnızca yapay zeka özellikleri etkinleştirilip kullanıldığında</li>
+        <li><strong>Yapay zeka işleme hizmeti:</strong> yalnızca kullanıcı yapay zeka destekli öneri veya tavsiye istediğinde</li>
     </ul>
     <p>Google gizlilik bilgileri için: <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>.</p>
 

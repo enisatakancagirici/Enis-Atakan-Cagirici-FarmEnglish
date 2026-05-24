@@ -27,7 +27,7 @@
 
     <h2>3. Information Processed</h2>
     <h3>Data kept on the device</h3>
-    <p>The app stores learning progress, saved vocabulary, game settings, local achievements, reminder preferences, and other gameplay state on the device.</p>
+    <p>The app stores learning progress, saved vocabulary, words and example sentences the user creates, game settings, local achievements, reminder preferences, and other gameplay state on the device. If the user uses an AI-assisted suggestion while creating or studying a word, text used for that request may be sent as described below. Users should not enter personal or sensitive information about themselves or others in custom text fields.</p>
 
     <h3>Online profiles, leaderboards, and Battle Mode</h3>
     <p>FarmEnglish uses Google Firebase Authentication and Cloud Firestore for online features. The app may create an anonymous authentication session and process:</p>
@@ -39,11 +39,10 @@
     <p>Nickname and ranking information may be visible to other users through leaderboards or multiplayer screens. These records are used for app functionality, rankings, matchmaking, and online gameplay.</p>
 
     <h3>SesYap voice practice</h3>
-    <p>If a user chooses voice practice and grants microphone permission, the voice sample is sent through a server-side speech endpoint to <strong>Google Cloud Speech-to-Text</strong> for transcription and pronunciation evaluation. The app deletes its temporary local recording after processing or when the voice flow is exited. Results and related scores may remain locally and, when an online profile exists, score values may be synchronized to Firebase.</p>
-    <p>Google's handling of requests is governed by its applicable service and privacy documentation. Cloud Speech-to-Text data logging should remain disabled unless this policy and App Store privacy disclosures are updated accordingly.</p>
+    <p>If a user chooses voice practice and grants microphone permission, the voice sample is sent to <strong>Google Cloud Speech-to-Text</strong> for transcription and pronunciation evaluation. The app deletes its temporary local recording after processing or when the voice flow is exited. Results and related scores may remain locally and, when an online profile exists, score values may be synchronized to Firebase.</p>
 
     <h3>AI-assisted word features</h3>
-    <p>If an AI-assisted word suggestion or study recommendation feature is enabled and used, the submitted word or text and relevant study context, which may include an optional nickname and weak-word information, are sent to a server-side endpoint to generate the requested result. Provider API credentials are not intended to be embedded in the mobile app.</p>
+    <p>If the user chooses an AI-assisted word suggestion or study recommendation, the entered word or text and relevant study context may be sent to an AI service to generate the requested suggestion. This may include an optional nickname and information about words the user is practicing.</p>
 
     <h3>Notifications</h3>
     <p>Daily reminders are scheduled as local notifications on the device after permission is granted. The app stores reminder scheduling and language preferences locally for this purpose. The current reminder implementation does not require a remote push-notification token.</p>
@@ -52,12 +51,12 @@
     <ul>
         <li><strong>Google Firebase Authentication and Cloud Firestore:</strong> anonymous authentication, online profiles, leaderboards, matchmaking, and battle gameplay data</li>
         <li><strong>Google Cloud Speech-to-Text:</strong> transcription of audio submitted through SesYap</li>
-        <li><strong>An AI processing provider behind the FarmEnglish server endpoint:</strong> only when AI-assisted features are enabled and used</li>
+        <li><strong>An AI processing service:</strong> only when the user chooses AI-assisted suggestions or recommendations</li>
     </ul>
     <p>Google privacy information is available at <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>.</p>
 
     <h2>5. Retention and Deletion</h2>
-    <p>Local data can be removed by resetting app data or uninstalling the app, subject to operating-system backup behavior. Server-side online profile, leaderboard, or gameplay data is not removed merely by uninstalling the app and may be retained while necessary to operate the features, prevent abuse, preserve rankings, or meet legal obligations. Requests to access, correct, or delete server-side data may be sent to the contact email above, including the nickname or player identifier where available.</p>
+    <p>Local data can be removed by resetting app data or uninstalling the app, subject to operating-system backup behavior. Online profile, leaderboard, or gameplay data is not removed merely by uninstalling the app and may be retained while necessary to operate the features, prevent abuse, preserve rankings, or meet legal obligations. Requests to access, correct, or delete online data may be sent to the contact email above, including the nickname or player identifier where available.</p>
 
     <h2>6. User Choices</h2>
     <p>Microphone access and notifications are optional and can be changed through device settings. Users can avoid voice-audio transfer by not using SesYap and avoid multiplayer processing by not using online features.</p>
