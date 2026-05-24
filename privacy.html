@@ -42,16 +42,16 @@
     <p>If a user chooses voice practice and grants microphone permission, the voice sample is sent to <strong>Google Cloud Speech-to-Text</strong> for transcription and pronunciation evaluation. The app deletes its temporary local recording after processing or when the voice flow is exited. Results and related scores may remain locally and, when an online profile exists, score values may be synchronized to Firebase.</p>
 
     <h3>AI-assisted word features</h3>
-    <p>If the user chooses an AI-assisted word suggestion or study recommendation, the entered word or text and relevant study context may be sent to an AI service to generate the requested suggestion. This may include an optional nickname and information about words the user is practicing.</p>
+    <p>If the user chooses an AI-assisted word suggestion or study recommendation, the entered word or text and relevant study context may be sent to OpenAI, or another AI service used to provide that feature, to generate the requested suggestion. This may include an optional nickname and information about words the user is practicing.</p>
 
     <h3>Notifications</h3>
-    <p>Daily reminders are scheduled as local notifications on the device after permission is granted. The app stores reminder scheduling and language preferences locally for this purpose. The current reminder implementation does not require a remote push-notification token.</p>
+    <p>Daily reminders are scheduled on the device after permission is granted. The app stores reminder scheduling and language preferences locally for this purpose.</p>
 
     <h2>4. Service Providers</h2>
     <ul>
         <li><strong>Google Firebase Authentication and Cloud Firestore:</strong> anonymous authentication, online profiles, leaderboards, matchmaking, and battle gameplay data</li>
         <li><strong>Google Cloud Speech-to-Text:</strong> transcription of audio submitted through SesYap</li>
-        <li><strong>An AI processing service:</strong> only when the user chooses AI-assisted suggestions or recommendations</li>
+        <li><strong>OpenAI or another AI processing service used for the feature:</strong> only when the user chooses AI-assisted suggestions or recommendations</li>
     </ul>
     <p>Google privacy information is available at <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>.</p>
 
